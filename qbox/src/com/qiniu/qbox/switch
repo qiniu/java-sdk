@@ -1,0 +1,2 @@
+ln -s -f Config.$1.java Config.java
+
