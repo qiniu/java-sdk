@@ -1,9 +1,9 @@
 package com.qiniu.qbox;
 
 public class Config {
-	public static final String CLIENT_ID     = "<ClientId>";
-	public static final String CLIENT_SECRET = "<ClientSecret>";
-	public static final String REDIRECT_URI = "<RedirectURL>";
+	public static final String CLIENT_ID     = "abcd0c7edcdf914228ed8aa7c6cee2f2bc6155e2";
+	public static final String CLIENT_SECRET = "fc9ef8b171a74e197b17f85ba23799860ddf3b9c";
+	public static final String REDIRECT_URI  = "<RedirectURL>";
 	public static final String AUTHORIZATION_ENDPOINT = "<AuthURL>";
 	public static final String TOKEN_ENDPOINT = "http://dev.qbox.us:9100/oauth2/token";
 	// QBox
