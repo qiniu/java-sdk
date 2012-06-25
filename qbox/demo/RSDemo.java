@@ -20,7 +20,7 @@ import com.qiniu.qbox.rs.StatRet;
 import com.qiniu.qbox.up.BlockProgress;
 import com.qiniu.qbox.up.BlockProgressNotifier;
 import com.qiniu.qbox.up.ProgressNotifier;
-import com.qiniu.qbox.up.UpClient;
+import com.qiniu.qbox.up.UpService;
 
 
 public class RSDemo {
@@ -31,7 +31,7 @@ public class RSDemo {
 		conn.exchangeByPassword("test@qbox.net", "test");
 		
 		String tblName = "tblName";
-		String key = "CPP_SDK.rar"; // "RSDemo.class";
+		String key = "RSDemo.class";
 		
 		String path = RSDemo.class.getClassLoader().getResource("").getPath();
         System.out.println("Test to put local file: " + path + key);   
@@ -47,57 +47,14 @@ public class RSDemo {
 		DeleteRet deleteRet = rs.delete(key);
 		System.out.println("Result of delete: " + (deleteRet.ok() ? "Succeeded." : "Failed."));
 		
-//		System.out.println("Putting file: " + path + key);
-//		PutFileRet putFileRet = RSClient.putFile(
-//				putAuthRet.getUrl(), tblName, key, "", path + key, "CustomData", callbackParams);
-//		if (!putFileRet.ok()) {
-//			System.out.println("Failed to put file " + path + key + ": " + putFileRet);
-//			return;
-//		}
-		
-		// Resumable Put
-		
-		System.out.println("Resumably putting file: " + path + key);
-		// test@qbox.net
-		// AccessKey: RLT1NBD08g3kih5-0v8Yi6nX6cBhesa2Dju4P7mT 
-		// SecretKey: k6uZoSDAdKBXQcNYG3UOm4bP3spDVkTg-9hWHIKm 
-		byte[] accessKey = "RLT1NBD08g3kih5-0v8Yi6nX6cBhesa2Dju4P7mT".getBytes();
-		byte[] secretKey = "k6uZoSDAdKBXQcNYG3UOm4bP3spDVkTg-9hWHIKm".getBytes();
-		
-		AuthPolicy policy = new AuthPolicy("tblName", "", "", System.currentTimeMillis() / 1000 + 3600);
-		
-		UpTokenClient upTokenClient = new UpTokenClient(accessKey, secretKey, policy);
-		
-		UpClient upClient = new UpClient(upTokenClient);
-		
-		try {
-			
-			RandomAccessFile f = new RandomAccessFile(path + key, "r");
-
-			long fsize = f.length();
-			int blockCount = (int)(fsize + UpClient.BLOCK_SIZE - 1) / UpClient.BLOCK_SIZE;
-			
-			String[] checksums = new String[blockCount];
-			BlockProgress[] progresses = new BlockProgress[blockCount];
-			
-			Notifier notif = new Notifier();
-			
-			PutFileRet putFileRet = RSClient.resumablePutFile(upClient, 
-					checksums, progresses, 
-					(ProgressNotifier)notif, (BlockProgressNotifier)notif, 
-					tblName + ":" + key, "", f, fsize, "CustomMeta", "");
-			
-			if (putFileRet.ok()) {
-				System.out.println("Successfully put file resumably: " + putFileRet.getHash());
-			} else {
-				System.out.println("Failed to put file resumably: " + putFileRet.getException());
-			}
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		System.out.println("Putting file: " + path + key);
+		PutFileRet putFileRet = RSClient.putFile(
+				putAuthRet.getUrl(), tblName, key, "", path + key, "CustomData", callbackParams);
+		if (!putFileRet.ok()) {
+			System.out.println("Failed to put file " + path + key + ": " + putFileRet);
+			return;
 		}
-
+		
 		try {
 			StatRet statRet = rs.stat(key);
 			if (!statRet.ok()) {

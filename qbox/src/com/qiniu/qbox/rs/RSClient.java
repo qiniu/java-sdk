@@ -31,7 +31,7 @@ import com.qiniu.qbox.up.BlockProgress;
 import com.qiniu.qbox.up.BlockProgressNotifier;
 import com.qiniu.qbox.up.ProgressNotifier;
 import com.qiniu.qbox.up.ResumablePutRet;
-import com.qiniu.qbox.up.UpClient;
+import com.qiniu.qbox.up.UpService;
 
 public class RSClient {
 	
@@ -56,10 +56,10 @@ public class RSClient {
 		}
 
 		String entryURI = tblName + ":" + key;
-		String action = "/rs-put/" + encoder.encodeBase64(entryURI.getBytes()) + 
-				"/mimeType/" + encoder.encodeBase64(mimeType.getBytes());
+		String action = "/rs-put/" + encoder.encodeBase64String(entryURI.getBytes()) + 
+				"/mimeType/" + encoder.encodeBase64String(mimeType.getBytes());
 		if (customMeta != null && !customMeta.isEmpty()) {
-			action += "/meta/" + encoder.encodeBase64(customMeta.getBytes());
+			action += "/meta/" + encoder.encodeBase64String(customMeta.getBytes());
 		}
 		
 		MultipartEntity requestEntity = new MultipartEntity();
@@ -99,29 +99,6 @@ public class RSClient {
 		}
 	}
 	
-	public static PutFileRet resumablePutFile(UpClient c, String[] checksums, BlockProgress[] progresses, 
-			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier,
-			String entryUri, String mimeType, RandomAccessFile f, long fsize, String customMeta, String callbackParams) {
-		
-		ResumablePutRet ret = c.resumablePut(f, fsize, checksums, progresses, progressNotifier, blockProgressNotifier);
-		if (!ret.ok()) {
-			return new PutFileRet(ret);
-		}
-		
-		if (mimeType == null || mimeType.isEmpty()) {
-			mimeType = "application/octet-stream";
-		}
-		
-		String params = "/mimeType/" + encoder.encodeBase64String(mimeType.getBytes());
-		if (customMeta != null && !customMeta.isEmpty()) {
-			params += "/meta/" + encoder.encodeBase64String(customMeta.getBytes());
-		}
-		
-		PutFileRet putFileRet = c.makeFile("/rs-mkfile/", entryUri, fsize, params, callbackParams, checksums);
-		
-		return putFileRet;
-	}
-
 	private static PutFileRet handleResult(HttpResponse response) {
 		
 		if (response == null || response.getStatusLine() == null) {
