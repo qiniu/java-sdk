@@ -14,4 +14,9 @@ public class Config {
     public static String UP_HOST = "http://up.qbox.me";
 	// Demo
 	public static final String DEMO_DOMAIN = "iovip.qbox.me";
+
+	public static int BLOCK_SIZE = 1024 * 1024 * 4;
+	public static int CHUNK_SIZE = 1024 * 256;
+	public static int RETRY_TIMES = 3;
+	
 }

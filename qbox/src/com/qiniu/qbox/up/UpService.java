@@ -56,7 +56,7 @@ public class UpService {
 	}
 	
 	public static int blockCount(long fsize) {
-		return (int)((fsize + UpService.BLOCK_SIZE - 1) / UpService.BLOCK_SIZE);
+		return (int)((fsize + Config.BLOCK_SIZE - 1) / Config.BLOCK_SIZE);
 	}
 
 	/**
@@ -159,10 +159,6 @@ public class UpService {
 		return ret;
 	}
 	
-	public static final int BLOCK_SIZE = 1024 * 1024 * 4;
-	public static final int CHUNK_SIZE = 1024 * 256;
-	public static final int RETRY_TIMES = 3;
-	
 	public ResumablePutRet resumablePut(RandomAccessFile file, long fsize,
 			String[] checksums, BlockProgress[] progresses, 
 			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier) {
@@ -176,9 +172,9 @@ public class UpService {
 		for (int i = 0; i < blockCount; i++) {
 			if (checksums[i] == null || checksums[i].isEmpty()) {
 				int blockIndex = i;
-				long blockSize = BLOCK_SIZE;
+				long blockSize = Config.BLOCK_SIZE;
 				if (blockIndex == blockCount - 1) {
-					blockSize = fsize - BLOCK_SIZE * blockIndex;
+					blockSize = fsize - Config.BLOCK_SIZE * blockIndex;
 				}
 				
 				if (progresses[i] == null) {
@@ -186,8 +182,8 @@ public class UpService {
 				}
 				
 				ResumablePutRet ret = resumablePutBlock(file, 
-						blockIndex, blockSize, CHUNK_SIZE, 
-						RETRY_TIMES, 
+						blockIndex, blockSize, Config.CHUNK_SIZE, 
+						Config.RETRY_TIMES, 
 						progresses[i], 
 						blockProgressNotifier);
 				
