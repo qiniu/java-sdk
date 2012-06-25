@@ -1,20 +1,15 @@
 package com.qiniu.qbox.rs;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 import com.qiniu.qbox.Config;
-import com.qiniu.qbox.oauth2.AuthException;
-import com.qiniu.qbox.oauth2.CallRet;
-import com.qiniu.qbox.oauth2.Client;
+import com.qiniu.qbox.auth.CallRet;
+import com.qiniu.qbox.auth.Client;
 
 public class RSService {
 
 	private Client conn;
 	private String tableName;
-	private BASE64Encoder encoder = new BASE64Encoder();
 
 	public RSService(Client conn, String tblName) {
 		this.conn = conn;
@@ -24,21 +19,8 @@ public class RSService {
 	// func PutAuth() => PutAuthRet
 	// 上传授权（生成一个短期有效的可匿名上传URL）
 	public PutAuthRet putAuth() throws RSException {
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(Config.IO_HOST + "/put-auth/", 1, 3);
-			if (callRet.ok()) {
-				return new PutAuthRet(new JSONObject(callRet.getResult()));
-			} else {
-				return new PutAuthRet(callRet);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-			throw new RSException("Response is not in valid JSON format.", e);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		CallRet callRet = conn.call(Config.IO_HOST + "/put-auth/", 1, 3);
+		return new PutAuthRet(callRet);
 	}
 
 	/**
@@ -49,21 +31,8 @@ public class RSService {
 		String entryURI = this.tableName + ":" + key;
 		String url = Config.RS_HOST + "/get/" + encode(entryURI) + "/attName/"
 				+ encode(attName);
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			if (callRet.ok()) {
-				return new GetRet(new JSONObject(callRet.getResult()));
-			} else {
-				return new GetRet(callRet);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-			throw new RSException("Response is not in valid JSON format.", e);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		CallRet callRet = conn.call(url, 1, 3);
+		return new GetRet(callRet);
 	}
 
 	/**
@@ -76,21 +45,8 @@ public class RSService {
 		String entryURI = this.tableName + ":" + key;
 		String url = Config.RS_HOST + "/get/" + encode(entryURI) + "/attName/"
 				+ encode(attName) + "/base/" + base;
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			if (callRet.ok()) {
-				return new GetRet(new JSONObject(callRet.getResult()));
-			} else {
-				return new GetRet(callRet);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-			throw new RSException("Response is not in valid JSON format. ", e);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		CallRet callRet = conn.call(url, 1, 3);
+		return new GetRet(callRet);
 	}
 
 	/**
@@ -99,21 +55,8 @@ public class RSService {
 	public StatRet stat(String key) throws RSException {
 		String entryURI = this.tableName + ":" + key;
 		String url = Config.RS_HOST + "/stat/" + encode(entryURI);
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			if (callRet.ok()) {
-				return new StatRet(new JSONObject(callRet.getResult()));
-			} else {
-				return new StatRet(callRet);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-			throw new RSException("Response is not in valid JSON format.", e);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		CallRet callRet = conn.call(url, 1, 3);
+		return new StatRet(callRet);
 	}
 
 	/**
@@ -123,14 +66,8 @@ public class RSService {
 	public PublishRet publish(String domain) throws RSException {
 		String url = Config.RS_HOST + "/publish/" + encode(domain) + "/from/"
 				+ this.tableName;
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			return new PublishRet(callRet);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		CallRet callRet = conn.call(url, 1, 3);
+		return new PublishRet(callRet);
 	}
 
 	/**
@@ -138,14 +75,8 @@ public class RSService {
 	 */
 	public PublishRet unpublish(String domain) throws RSException {
 		String url = Config.RS_HOST + "/unpublish/" + encode(domain);
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			return new PublishRet(callRet);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		CallRet callRet = conn.call(url, 1, 3);
+		return new PublishRet(callRet);
 	}
 
 	/**
@@ -154,14 +85,8 @@ public class RSService {
 	public DeleteRet delete(String key) throws RSException {
 		String entryURI = this.tableName + ":" + key;
 		String url = Config.RS_HOST + "/delete/" + encode(entryURI);
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			return new DeleteRet(callRet);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		CallRet callRet = conn.call(url, 1, 3);
+		return new DeleteRet(callRet);
 	}
 
 	/**
@@ -169,17 +94,13 @@ public class RSService {
 	 */
 	public DropRet drop() throws RSException {
 		String url = Config.RS_HOST + "/drop/" + this.tableName;
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			return new DropRet(callRet);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		CallRet callRet = conn.call(url, 1, 3);
+		return new DropRet(callRet);
 	}
+	
+	private Base64 encoder = new Base64(true);
 
 	protected String encode(String text) {
-		return this.encoder.encode(text.getBytes());
+		return encoder.encodeBase64String(text.getBytes());
 	}
 }

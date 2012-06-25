@@ -1,13 +1,28 @@
-package com.qiniu.qbox.oauth2;
+package com.qiniu.qbox.auth;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class AuthRet {
+public class AuthRet extends CallRet {
 	private String accessToken;
 	private String refreshToken;
 	
-	public AuthRet(JSONObject jsonObject) throws JSONException {
+	public AuthRet(CallRet ret) {
+		super(ret);
+		
+		if (ret.ok() && ret.getResponse() != null) {
+			try {
+				unmarshal(ret.getResponse());
+			} catch (Exception e) {
+				this.exception = e;
+			}
+		}
+	}
+	
+	public void unmarshal(String json) throws JSONException {
+	
+		JSONObject jsonObject = new JSONObject(json);
+		
 		if (jsonObject.has("access_token")) {
 			this.accessToken = (String) jsonObject.get("access_token");
 		}
