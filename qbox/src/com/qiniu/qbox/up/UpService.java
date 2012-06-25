@@ -38,7 +38,7 @@ public class UpService {
 		BASE64Decoder decoder = new BASE64Decoder();
 		
 		if (callbackParams != null && !callbackParams.isEmpty()) {
-			params += "/params/" + encoder.encodeBase64String(callbackParams.getBytes());
+			params += "/params/" + new String(Base64.encodeBase64(callbackParams.getBytes(), false, false));
 		}
 		
 		String url = Config.UP_HOST + cmd + encoder.encodeBase64String(entry.getBytes()) + "/fsize/" + String.valueOf(fsize) + params;
@@ -53,6 +53,10 @@ public class UpService {
 		CallRet ret = this.conn.callWithBinary(url, null, body, body.length);
 		
 		return new PutFileRet(ret);
+	}
+	
+	public static int blockCount(long fsize) {
+		return (int)((fsize + UpService.BLOCK_SIZE - 1) / UpService.BLOCK_SIZE);
 	}
 
 	/**
@@ -163,7 +167,7 @@ public class UpService {
 			String[] checksums, BlockProgress[] progresses, 
 			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier) {
 		
-		long blockCount = (fsize + BLOCK_SIZE - 1) / BLOCK_SIZE;
+		int blockCount = blockCount(fsize);
 		
 		if (checksums.length != blockCount || progresses.length != blockCount) {
 			return new ResumablePutRet(new CallRet(400, "Invalid arg. Unexpected block count."));

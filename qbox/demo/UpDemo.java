@@ -42,10 +42,10 @@ public class UpDemo {
 			RandomAccessFile f = new RandomAccessFile(path + key, "r");
 
 			long fsize = f.length();
-			int blockCount = (int)(fsize + UpService.BLOCK_SIZE - 1) / UpService.BLOCK_SIZE;
+			long blockCount = UpService.blockCount(fsize);
 			
-			String[] checksums = new String[blockCount];
-			BlockProgress[] progresses = new BlockProgress[blockCount];
+			String[] checksums = new String[(int)blockCount];
+			BlockProgress[] progresses = new BlockProgress[(int)blockCount];
 			
 			Notifier notif = new Notifier();
 			
