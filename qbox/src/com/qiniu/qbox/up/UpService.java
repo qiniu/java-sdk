@@ -6,11 +6,10 @@ import java.util.zip.CRC32;
 
 import org.apache.commons.codec.binary.Base64;
 
-import sun.misc.BASE64Decoder;
-
 import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
+import com.qiniu.qbox.auth.UpTokenClient;
 import com.qiniu.qbox.rs.PutFileRet;
 
 public class UpService {
@@ -34,19 +33,17 @@ public class UpService {
 	}
 	
 	public PutFileRet makeFile(String cmd, String entry, long fsize, String params, String callbackParams, String[] checksums) {
-		Base64 encoder = new Base64(true);
-		BASE64Decoder decoder = new BASE64Decoder();
 		
 		if (callbackParams != null && !callbackParams.isEmpty()) {
 			params += "/params/" + new String(Base64.encodeBase64(callbackParams.getBytes(), false, false));
 		}
 		
-		String url = Config.UP_HOST + cmd + encoder.encodeBase64String(entry.getBytes()) + "/fsize/" + String.valueOf(fsize) + params;
+		String url = Config.UP_HOST + cmd + UpTokenClient.urlsafeEncodeString(entry.getBytes()) + "/fsize/" + String.valueOf(fsize) + params;
 		
 		byte[] body = new byte[20 * checksums.length];
 		
 		for (int i = 0; i < checksums.length; i++) {
-			byte[] buf = encoder.decodeBase64(checksums[i]);
+			byte[] buf = Base64.decodeBase64(checksums[i]);
 			System.arraycopy(buf,  0, body, i * 20, buf.length);
 		}
 		
@@ -121,7 +118,7 @@ public class UpService {
 			int bodyLength = (int)((chunkSize < progress.restSize) ? chunkSize : progress.restSize);
 			
 			byte[] body = new byte[bodyLength];
-			int retries = retryTimes;
+			//int retries = retryTimes;
 			
 			try {
 				int readBytes = file.read(body, 0, bodyLength);

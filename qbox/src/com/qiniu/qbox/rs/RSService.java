@@ -29,8 +29,8 @@ public class RSService {
 	 */
 	public GetRet get(String key, String attName) throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/get/" + encode(entryURI) + "/attName/"
-				+ encode(attName);
+		String url = Config.RS_HOST + "/get/" + urlsafeEncode(entryURI) + "/attName/"
+				+ urlsafeEncode(attName);
 		CallRet callRet = conn.call(url, 1, 3);
 		return new GetRet(callRet);
 	}
@@ -43,8 +43,8 @@ public class RSService {
 	public GetRet getIfNotModified(String key, String attName, String base)
 			throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/get/" + encode(entryURI) + "/attName/"
-				+ encode(attName) + "/base/" + base;
+		String url = Config.RS_HOST + "/get/" + urlsafeEncode(entryURI) + "/attName/"
+				+ urlsafeEncode(attName) + "/base/" + base;
 		CallRet callRet = conn.call(url, 1, 3);
 		return new GetRet(callRet);
 	}
@@ -54,7 +54,7 @@ public class RSService {
 	 */
 	public StatRet stat(String key) throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/stat/" + encode(entryURI);
+		String url = Config.RS_HOST + "/stat/" + urlsafeEncode(entryURI);
 		CallRet callRet = conn.call(url, 1, 3);
 		return new StatRet(callRet);
 	}
@@ -64,7 +64,7 @@ public class RSService {
 	 * 的内容作为静态资源发布。静态资源的url为：http://domain/key
 	 */
 	public PublishRet publish(String domain) throws RSException {
-		String url = Config.RS_HOST + "/publish/" + encode(domain) + "/from/"
+		String url = Config.RS_HOST + "/publish/" + urlsafeEncode(domain) + "/from/"
 				+ this.tableName;
 		CallRet callRet = conn.call(url, 1, 3);
 		return new PublishRet(callRet);
@@ -74,7 +74,7 @@ public class RSService {
 	 * func Unpublish(domain string) => (code int, err Error) 取消发布
 	 */
 	public PublishRet unpublish(String domain) throws RSException {
-		String url = Config.RS_HOST + "/unpublish/" + encode(domain);
+		String url = Config.RS_HOST + "/unpublish/" + urlsafeEncode(domain);
 		CallRet callRet = conn.call(url, 1, 3);
 		return new PublishRet(callRet);
 	}
@@ -84,7 +84,7 @@ public class RSService {
 	 */
 	public DeleteRet delete(String key) throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/delete/" + encode(entryURI);
+		String url = Config.RS_HOST + "/delete/" + urlsafeEncode(entryURI);
 		CallRet callRet = conn.call(url, 1, 3);
 		return new DeleteRet(callRet);
 	}
@@ -98,9 +98,7 @@ public class RSService {
 		return new DropRet(callRet);
 	}
 	
-	private Base64 encoder = new Base64(true);
-
-	protected String encode(String text) {
-		return encoder.encodeBase64String(text.getBytes());
+	protected String urlsafeEncode(String text) {
+		return new String(Base64.encodeBase64(text.getBytes(), false, false));
 	}
 }

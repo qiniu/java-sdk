@@ -1,12 +1,7 @@
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.HashMap;
 
 import com.qiniu.qbox.Config;
-import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.OAuth2Client;
-import com.qiniu.qbox.auth.UpTokenClient;
 import com.qiniu.qbox.rs.DeleteRet;
 import com.qiniu.qbox.rs.DropRet;
 import com.qiniu.qbox.rs.GetRet;
@@ -17,10 +12,6 @@ import com.qiniu.qbox.rs.RSClient;
 import com.qiniu.qbox.rs.RSException;
 import com.qiniu.qbox.rs.RSService;
 import com.qiniu.qbox.rs.StatRet;
-import com.qiniu.qbox.up.BlockProgress;
-import com.qiniu.qbox.up.BlockProgressNotifier;
-import com.qiniu.qbox.up.ProgressNotifier;
-import com.qiniu.qbox.up.UpService;
 
 
 public class RSDemo {

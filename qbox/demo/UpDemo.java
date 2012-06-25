@@ -5,10 +5,10 @@ import java.io.RandomAccessFile;
 import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.UpTokenClient;
 import com.qiniu.qbox.rs.PutFileRet;
+import com.qiniu.qbox.rs.RSClient;
 import com.qiniu.qbox.up.BlockProgress;
 import com.qiniu.qbox.up.BlockProgressNotifier;
 import com.qiniu.qbox.up.ProgressNotifier;
-import com.qiniu.qbox.up.UpClient;
 import com.qiniu.qbox.up.UpService;
 
 
@@ -49,7 +49,7 @@ public class UpDemo {
 			
 			Notifier notif = new Notifier();
 			
-			PutFileRet putFileRet = UpClient.resumablePutFile(upClient, 
+			PutFileRet putFileRet = RSClient.resumablePutFile(upClient, 
 					checksums, progresses, 
 					(ProgressNotifier)notif, (BlockProgressNotifier)notif, 
 					tblName + ":" + key, "", f, fsize, "CustomMeta", "");

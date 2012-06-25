@@ -70,9 +70,11 @@ public class UpTokenClient extends Client {
 		return new String(authToken);
 	}
 	
-	private Base64 encoder = new Base64(false);
-	
-	public byte[] urlsafeEncode(byte[] src) {
+	public static byte[] urlsafeEncode(byte[] src) {
 		return Base64.encodeBase64(src, false, false);
+	}
+
+	public static String urlsafeEncodeString(byte[] src) {
+		return new String(urlsafeEncode(src));
 	}
 }
