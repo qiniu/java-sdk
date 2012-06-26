@@ -1,28 +1,17 @@
 package com.qiniu.qbox.auth;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 public abstract class Client {
@@ -64,53 +53,6 @@ public abstract class Client {
 		} finally {
 			client.getConnectionManager().shutdown();
 		}
-	}
-	
-	public CallRet callWithFile(String url, String action, String localFile, HashMap<String, String> params) {
-		File file = new File(localFile);
-		if (!file.exists() || !file.canRead()) {
-			return new CallRet(404, new Exception("File does not exist or not readable."));
-		}
-
-		MultipartEntity requestEntity = new MultipartEntity();
-		try {
-			requestEntity.addPart("action", new StringBody(action));
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		}
-
-		FileBody fileBody = new FileBody(new File(localFile));
-		requestEntity.addPart("file", fileBody);
-
-		if (params != null && !params.isEmpty()) {
-			ArrayList<NameValuePair> callbackParamList = new ArrayList<NameValuePair>();
-			for (Entry<String, String> entry : params.entrySet()) {
-				callbackParamList.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-			}
-			try {
-				requestEntity.addPart("params", new StringBody(URLEncodedUtils.format(callbackParamList, "UTF-8")));
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
-		}
-
-		HttpPost postMethod = new HttpPost(url);
-		postMethod.setEntity(requestEntity);
-
-		setAuth(postMethod);
-		
-		DefaultHttpClient client = new DefaultHttpClient();
-		try {
-			HttpResponse response = client.execute(postMethod);
-			return handleResult(response);
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			client.getConnectionManager().shutdown();
-		}
-		return null;
 	}
 	
 	public CallRet callWithBinary(String url, String contentType, byte[] body, long bodyLength) {
@@ -159,5 +101,17 @@ public abstract class Client {
 		int statusCode = (status == null) ? 400 : status.getStatusCode();
 		
 		return new CallRet(statusCode, responseBody);
+	}
+
+	public static byte[] urlsafeEncodeBytes(byte[] src) {
+		return Base64.encodeBase64(src, false, false);
+	}
+
+	public static String urlsafeEncodeString(byte[] src) {
+		return new String(urlsafeEncodeBytes(src));
+	}
+
+	public static String urlsafeEncode(String text) {
+		return new String(Base64.encodeBase64(text.getBytes(), false, false));
 	}
 }

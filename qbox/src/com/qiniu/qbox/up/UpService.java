@@ -9,7 +9,6 @@ import org.apache.commons.codec.binary.Base64;
 import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
-import com.qiniu.qbox.auth.UpTokenClient;
 import com.qiniu.qbox.rs.PutFileRet;
 
 public class UpService {
@@ -38,7 +37,7 @@ public class UpService {
 			params += "/params/" + new String(Base64.encodeBase64(callbackParams.getBytes(), false, false));
 		}
 		
-		String url = Config.UP_HOST + cmd + UpTokenClient.urlsafeEncodeString(entry.getBytes()) + "/fsize/" + String.valueOf(fsize) + params;
+		String url = Config.UP_HOST + cmd + Client.urlsafeEncodeString(entry.getBytes()) + "/fsize/" + String.valueOf(fsize) + params;
 		
 		byte[] body = new byte[20 * checksums.length];
 		
@@ -179,8 +178,8 @@ public class UpService {
 				}
 				
 				ResumablePutRet ret = resumablePutBlock(file, 
-						blockIndex, blockSize, Config.CHUNK_SIZE, 
-						Config.RETRY_TIMES, 
+						blockIndex, blockSize, Config.PUT_CHUNK_SIZE, 
+						Config.PUT_RETRY_TIMES, 
 						progresses[i], 
 						blockProgressNotifier);
 				

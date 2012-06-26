@@ -22,23 +22,16 @@ public class UpDemo {
 		String tblName = "tblName";
 		String key = "RSDemo.class";
 		
-		String path = RSDemo.class.getClassLoader().getResource("").getPath();
-		
+		String path = RSDemo.class.getClassLoader().getResource("").getPath();		
 		System.out.println("Resumably putting file: " + path + key);
-		// test@qbox.net
-		// AccessKey: RLT1NBD08g3kih5-0v8Yi6nX6cBhesa2Dju4P7mT 
-		// SecretKey: k6uZoSDAdKBXQcNYG3UOm4bP3spDVkTg-9hWHIKm 
-		byte[] accessKey = "RLT1NBD08g3kih5-0v8Yi6nX6cBhesa2Dju4P7mT".getBytes();
-		byte[] secretKey = "k6uZoSDAdKBXQcNYG3UOm4bP3spDVkTg-9hWHIKm".getBytes();
+
+		AuthPolicy policy = new AuthPolicy("tblName", 3600);
+		String token = policy.makeAuthTokenString();
 		
-		AuthPolicy policy = new AuthPolicy("tblName", "", "", System.currentTimeMillis() / 1000 + 3600);
-		
-		UpTokenClient upTokenClient = new UpTokenClient(accessKey, secretKey, policy);
-		
+		UpTokenClient upTokenClient = new UpTokenClient(token);
 		UpService upClient = new UpService(upTokenClient);
 		
 		try {
-			
 			RandomAccessFile f = new RandomAccessFile(path + key, "r");
 
 			long fsize = f.length();
@@ -64,7 +57,5 @@ public class UpDemo {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
-
 }

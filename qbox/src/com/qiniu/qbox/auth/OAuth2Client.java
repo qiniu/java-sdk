@@ -1,7 +1,3 @@
-/**
- * Port of simple oauth2 python library.
- */
-
 package com.qiniu.qbox.auth;
 
 import java.io.UnsupportedEncodingException;
@@ -29,8 +25,8 @@ public class OAuth2Client extends Client {
 	public OAuth2Client() {
 		this.authUrl = Config.AUTHORIZATION_ENDPOINT;
 		this.tokenUrl = Config.TOKEN_ENDPOINT;
-		this.clientId = Config.CLIENT_ID;
-		this.clientSecret = Config.CLIENT_SECRET;
+		this.clientId = "";
+		this.clientSecret = "";
 	}
 
 	public OAuth2Client(String authUrl, String tokenUrl, String clientId,

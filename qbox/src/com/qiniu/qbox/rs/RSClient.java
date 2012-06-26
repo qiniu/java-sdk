@@ -33,7 +33,7 @@ public class RSClient {
 	
 	/**
 	 * func PutFile(url, key, mimeType, localFile, customMeta, callbackParams string) => (data PutRet, code int, err Error)
-	 * ÄäÃûÉÏ´«Ò»¸öÎÄ¼þ(ÉÏ´«ÓÃµÄÁÙÊ± url Í¨¹ý $rs->PutAuth µÃµ½)
+	 * åŒ¿åä¸Šä¼ ä¸€ä¸ªæ–‡ä»¶(ä¸Šä¼ ç”¨çš„ä¸´æ—¶ url é€šè¿‡ $rs->PutAuth å¾—åˆ°)
 	 * @throws IOException 
 	 * @throws RSException 
 	 * @throws JSONException 
@@ -93,6 +93,25 @@ public class RSClient {
 		}
 	}
 	
+	private static PutFileRet handleResult(HttpResponse response) {
+		
+		if (response == null || response.getStatusLine() == null) {
+			return new PutFileRet(new CallRet(400, "No response"));
+		}
+		
+		try {
+			String responseBody = EntityUtils.toString(response.getEntity());
+			
+			StatusLine status = response.getStatusLine();
+			int statusCode = (status == null) ? 400 : status.getStatusCode();
+			
+			return new PutFileRet(new CallRet(statusCode, responseBody));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new PutFileRet(new CallRet(400, e));
+		}
+	}
+
 	public static PutFileRet resumablePutFile(UpService c, String[] checksums, BlockProgress[] progresses, 
 			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier,
 			String entryUri, String mimeType, RandomAccessFile f, long fsize, String customMeta, String callbackParams) {
@@ -114,24 +133,5 @@ public class RSClient {
 		PutFileRet putFileRet = c.makeFile("/rs-mkfile/", entryUri, fsize, params, callbackParams, checksums);
 		
 		return putFileRet;
-	}
-
-	private static PutFileRet handleResult(HttpResponse response) {
-		
-		if (response == null || response.getStatusLine() == null) {
-			return new PutFileRet(new CallRet(400, "No response"));
-		}
-		
-		try {
-			String responseBody = EntityUtils.toString(response.getEntity());
-			
-			StatusLine status = response.getStatusLine();
-			int statusCode = (status == null) ? 400 : status.getStatusCode();
-			
-			return new PutFileRet(new CallRet(statusCode, responseBody));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new PutFileRet(new CallRet(400, e));
-		}
 	}
 }

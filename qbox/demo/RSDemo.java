@@ -1,6 +1,5 @@
 import java.util.HashMap;
 
-import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.OAuth2Client;
 import com.qiniu.qbox.rs.DeleteRet;
 import com.qiniu.qbox.rs.DropRet;
@@ -13,7 +12,6 @@ import com.qiniu.qbox.rs.RSException;
 import com.qiniu.qbox.rs.RSService;
 import com.qiniu.qbox.rs.StatRet;
 
-
 public class RSDemo {
 	
 	public static void main(String[] args) throws RSException {
@@ -23,6 +21,8 @@ public class RSDemo {
 		
 		String tblName = "tblName";
 		String key = "RSDemo.class";
+	
+		String DEMO_DOMAIN = "http://iovip.qbox.me/tblName";
 		
 		String path = RSDemo.class.getClassLoader().getResource("").getPath();
         System.out.println("Test to put local file: " + path + key);   
@@ -80,12 +80,12 @@ public class RSDemo {
 				System.out.println("  URL: " + getIfNotModifiedRet.getUrl());
 			}
 			
-			System.out.println("Publish " + tblName + " as: " + Config.DEMO_DOMAIN + "/" + tblName);
-			PublishRet publishRet = rs.publish(Config.DEMO_DOMAIN + "/" + tblName);
+			System.out.println("Publish " + tblName + " as: " + DEMO_DOMAIN);
+			PublishRet publishRet = rs.publish(DEMO_DOMAIN);
 			System.out.println("Result of publish: " + (publishRet.ok() ? "Succeeded." : "Failed."));
 
-			System.out.println("Unpublish " + tblName + " as: " + Config.DEMO_DOMAIN + "/" + tblName);
-			PublishRet unpublishRet = rs.unpublish(Config.DEMO_DOMAIN + "/" + tblName);
+			System.out.println("Unpublish " + tblName + " as: " + DEMO_DOMAIN);
+			PublishRet unpublishRet = rs.unpublish(DEMO_DOMAIN);
 			System.out.println("Result of unpublish: " + (unpublishRet.ok() ? "Succeeded." : "Failed."));
 
 			System.out.println("Delete " + key);
