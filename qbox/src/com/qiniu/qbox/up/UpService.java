@@ -9,7 +9,6 @@ import org.apache.commons.codec.binary.Base64;
 import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
-import com.qiniu.qbox.rs.PutFileRet;
 
 public class UpService {
 	
@@ -31,7 +30,7 @@ public class UpService {
 		return new ResumablePutRet(ret);
 	}
 	
-	public PutFileRet makeFile(String cmd, String entry, long fsize, String params, String callbackParams, String[] checksums) {
+	public CallRet makeFile(String cmd, String entry, long fsize, String params, String callbackParams, String[] checksums) {
 		
 		if (callbackParams != null && !callbackParams.isEmpty()) {
 			params += "/params/" + new String(Base64.encodeBase64(callbackParams.getBytes(), false, false));
@@ -48,7 +47,7 @@ public class UpService {
 		
 		CallRet ret = this.conn.callWithBinary(url, null, body, body.length);
 		
-		return new PutFileRet(ret);
+		return ret;
 	}
 	
 	public static int blockCount(long fsize) {
@@ -79,8 +78,9 @@ public class UpService {
 			byte[] body = new byte[bodyLength];
 			
 			try {
+				file.seek(blockSize * blockIndex);
 				int readBytes = file.read(body, 0, bodyLength);
-				if (readBytes == -1) { // Didn't get anything
+				if (readBytes != bodyLength) { // Didn't get expected content.
 					return new ResumablePutRet(new CallRet(400, "Read nothing"));
 				}
 				
@@ -117,36 +117,38 @@ public class UpService {
 			int bodyLength = (int)((chunkSize < progress.restSize) ? chunkSize : progress.restSize);
 			
 			byte[] body = new byte[bodyLength];
-			//int retries = retryTimes;
 			
-			try {
-				int readBytes = file.read(body, 0, bodyLength);
-				if (readBytes == -1) { // Didn't get anything
-					// TODO: Something wrong!
-				}
-				
-				ret = putBlock(blockSize, progress.context, progress.offset, body, bodyLength);
-				if (ret.ok()) {
+			for (int retries = retryTimes; retries > 0; --retries) {
+			
+				try {
 					
-					CRC32 crc32 = new CRC32();
-					crc32.update(body, 0, bodyLength);
-					
-					if (ret.getCrc32() == crc32.getValue()) {
-	
-						progress.context = ret.getCtx();
-						progress.offset += bodyLength;
-						progress.restSize -= bodyLength;
-						
-						notifier.notify(blockIndex, progress);
-					
-						continue;
+					file.seek(blockIndex * blockSize + progress.offset);
+					int readBytes = file.read(body, 0, bodyLength);
+					if (readBytes != bodyLength) { // Didn't get anything
+						return new ResumablePutRet(new CallRet(400, "Read nothing"));
 					}
+					
+					ret = putBlock(blockSize, progress.context, progress.offset, body, bodyLength);
+					if (ret.ok()) {
+						
+						CRC32 crc32 = new CRC32();
+						crc32.update(body, 0, bodyLength);
+						
+						if (ret.getCrc32() == crc32.getValue()) {
+		
+							progress.context = ret.getCtx();
+							progress.offset += bodyLength;
+							progress.restSize -= bodyLength;
+							
+							notifier.notify(blockIndex, progress);
+						
+							break; // Break to while loop.
+						}
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+					return new ResumablePutRet(new CallRet(400, e));
 				}
-				
-				// TODO: Retry if fails.
-				
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 		if (ret == null) {
