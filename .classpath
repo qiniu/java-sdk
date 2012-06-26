@@ -3,12 +3,15 @@
 	<classpathentry kind="src" path="qbox/demo"/>
 	<classpathentry kind="src" path="qbox/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="qbox/lib/commons-codec-1.6.jar"/>
-	<classpathentry kind="lib" path="qbox/lib/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="qbox/lib/fluent-hc-4.2.jar"/>
-	<classpathentry kind="lib" path="qbox/lib/httpclient-4.2.jar" sourcepath="/Users/lvguihua/Downloads/httpcomponents-client-4.2-src.zip"/>
-	<classpathentry kind="lib" path="qbox/lib/httpclient-cache-4.2.jar"/>
-	<classpathentry kind="lib" path="qbox/lib/httpcore-4.2.jar" sourcepath="/Users/lvguihua/Downloads/httpcomponents-core-4.2-src.zip"/>
-	<classpathentry kind="lib" path="qbox/lib/httpmime-4.2.jar"/>
+	<classpathentry kind="lib" path="/home/xushiwei/xushiwei.com/java-sdk/qbox/lib/commons-codec-1.6.jar"/>
+	<classpathentry kind="lib" path="/home/xushiwei/xushiwei.com/java-sdk/qbox/lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/home/xushiwei/xushiwei.com/java-sdk/qbox/lib/fluent-hc-4.2.jar"/>
+	<classpathentry kind="lib" path="/home/xushiwei/xushiwei.com/java-sdk/qbox/lib/httpclient-4.2.jar"/>
+	<classpathentry kind="lib" path="/home/xushiwei/xushiwei.com/java-sdk/qbox/lib/httpclient-cache-4.2.jar"/>
+	<classpathentry kind="lib" path="/home/xushiwei/xushiwei.com/java-sdk/qbox/lib/httpcore-4.2.1.jar"/>
+	<classpathentry kind="lib" path="/home/xushiwei/xushiwei.com/java-sdk/qbox/lib/httpcore-4.2.jar"/>
+	<classpathentry kind="lib" path="/home/xushiwei/xushiwei.com/java-sdk/qbox/lib/httpcore-ab-4.2.1.jar"/>
+	<classpathentry kind="lib" path="/home/xushiwei/xushiwei.com/java-sdk/qbox/lib/httpcore-nio-4.2.1.jar"/>
+	<classpathentry kind="lib" path="/home/xushiwei/xushiwei.com/java-sdk/qbox/lib/httpmime-4.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

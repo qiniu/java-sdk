@@ -2,6 +2,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.UpTokenClient;
 import com.qiniu.qbox.rs.PutFileRet;
@@ -18,6 +19,9 @@ public class UpDemo {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+
+		Config.ACCESS_KEY = "<Please apply your access key>";
+		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
 
 		String bucketName = "tblName";
 		String key = "RSDemo.class";

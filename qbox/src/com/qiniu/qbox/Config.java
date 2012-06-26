@@ -1,1 +1,1 @@
-Config.java.test
+Config.java.pro
