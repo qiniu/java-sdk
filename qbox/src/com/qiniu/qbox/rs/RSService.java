@@ -1,185 +1,103 @@
 package com.qiniu.qbox.rs;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import sun.misc.BASE64Encoder;
-
 import com.qiniu.qbox.Config;
-import com.qiniu.qbox.oauth2.AuthException;
-import com.qiniu.qbox.oauth2.CallRet;
-import com.qiniu.qbox.oauth2.Client;
+import com.qiniu.qbox.auth.CallRet;
+import com.qiniu.qbox.auth.Client;
 
 public class RSService {
 
 	private Client conn;
 	private String tableName;
-	private BASE64Encoder encoder = new BASE64Encoder();
 
 	public RSService(Client conn, String tblName) {
 		this.conn = conn;
 		this.tableName = tblName;
 	}
 
-	// func PutAuth() => PutAuthRet
-	// …œ¥´ ⁄»®£®…˙≥…“ª∏ˆ∂Ã∆⁄”––ßµƒø…ƒ‰√˚…œ¥´URL£©
+	/**
+	 *  func PutAuth() => PutAuthRet
+	 *  ‰∏ä‰º†ÊéàÊùÉÔºàÁîüÊàê‰∏Ä‰∏™Áü≠ÊúüÊúâÊïàÁöÑÂèØÂåøÂêç‰∏ä‰º†URLÔºâ
+	 */
 	public PutAuthRet putAuth() throws RSException {
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(Config.IO_HOST + "/put-auth/", 1, 3);
-			if (callRet.ok()) {
-				return new PutAuthRet(new JSONObject(callRet.getResult()));
-			} else {
-				return new PutAuthRet(callRet);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-			throw new RSException("Response is not in valid JSON format.", e);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		CallRet callRet = conn.call(Config.IO_HOST + "/put-auth/", 1, 3);
+		return new PutAuthRet(callRet);
 	}
 
 	/**
-	 * func Get(key string, attName string) => (data GetRet, code int, err
-	 * Error) œ¬‘ÿ ⁄»®£®…˙≥…“ª∏ˆ∂Ã∆⁄”––ßµƒø…ƒ‰√˚œ¬‘ÿURL£©
+	 * func Get(key string, attName string) => (data GetRet, code int, err Error)
+	 * ‰∏ãËΩΩÊéàÊùÉÔºàÁîüÊàê‰∏Ä‰∏™Áü≠ÊúüÊúâÊïàÁöÑÂèØÂåøÂêç‰∏ãËΩΩURLÔºâ
 	 */
 	public GetRet get(String key, String attName) throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/get/" + encode(entryURI) + "/attName/"
-				+ encode(attName);
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			if (callRet.ok()) {
-				return new GetRet(new JSONObject(callRet.getResult()));
-			} else {
-				return new GetRet(callRet);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-			throw new RSException("Response is not in valid JSON format.", e);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		String url = Config.RS_HOST + "/get/" + Client.urlsafeEncode(entryURI) + "/attName/"
+				+ Client.urlsafeEncode(attName);
+		CallRet callRet = conn.call(url, 1, 3);
+		return new GetRet(callRet);
 	}
 
 	/**
-	 * func GetIfNotModified(key string, attName string, base string) => (data
-	 * GetRet, code int, err Error)
-	 * œ¬‘ÿ ⁄»®£®…˙≥…“ª∏ˆ∂Ã∆⁄”––ßµƒø…ƒ‰√˚œ¬‘ÿURL£©£¨»Áπ˚∑˛ŒÒ∂ÀŒƒº˛√ª±ª»À–ﬁ∏ƒµƒª∞£®”√”⁄∂œµ„–¯¥´£©
+	 * func GetIfNotModified(key string, attName string, base string) => (data GetRet, code int, err Error)
+	 * ‰∏ãËΩΩÊéàÊùÉÔºàÁîüÊàê‰∏Ä‰∏™Áü≠ÊúüÊúâÊïàÁöÑÂèØÂåøÂêç‰∏ãËΩΩURLÔºâÔºåÂ¶ÇÊûúÊúçÂä°Á´ØÊñá‰ª∂Ê≤°Ë¢´‰∫∫‰øÆÊîπÁöÑËØùÔºàÁî®‰∫éÊñ≠ÁÇπÁª≠‰º†Ôºâ
 	 */
 	public GetRet getIfNotModified(String key, String attName, String base)
 			throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/get/" + encode(entryURI) + "/attName/"
-				+ encode(attName) + "/base/" + base;
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			if (callRet.ok()) {
-				return new GetRet(new JSONObject(callRet.getResult()));
-			} else {
-				return new GetRet(callRet);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-			throw new RSException("Response is not in valid JSON format. ", e);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		String url = Config.RS_HOST + "/get/" + Client.urlsafeEncode(entryURI) + "/attName/"
+				+ Client.urlsafeEncode(attName) + "/base/" + base;
+		CallRet callRet = conn.call(url, 1, 3);
+		return new GetRet(callRet);
 	}
 
 	/**
-	 * func Stat(key string) => (entry Entry, code int, err Error) »°◊ ‘¥ Ù–‘
+	 * func Stat(key string) => (entry Entry, code int, err Error)
+	 * ÂèñËµÑÊ∫êÂ±ûÊÄß
 	 */
 	public StatRet stat(String key) throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/stat/" + encode(entryURI);
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			if (callRet.ok()) {
-				return new StatRet(new JSONObject(callRet.getResult()));
-			} else {
-				return new StatRet(callRet);
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-			throw new RSException("Response is not in valid JSON format.", e);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		String url = Config.RS_HOST + "/stat/" + Client.urlsafeEncode(entryURI);
+		CallRet callRet = conn.call(url, 1, 3);
+		return new StatRet(callRet);
 	}
 
 	/**
-	 * func Publish(domain string) => (code int, err Error) Ω´±æ Table
-	 * µƒƒ⁄»›◊˜Œ™æ≤Ã¨◊ ‘¥∑¢≤º°£æ≤Ã¨◊ ‘¥µƒurlŒ™£∫http://domain/key
+	 * func Publish(domain string) => (code int, err Error)
+	 * Â∞ÜÊú¨ Table ÁöÑÂÜÖÂÆπ‰Ωú‰∏∫ÈùôÊÄÅËµÑÊ∫êÂèëÂ∏É„ÄÇÈùôÊÄÅËµÑÊ∫êÁöÑurl‰∏∫Ôºöhttp://domain/key
 	 */
 	public PublishRet publish(String domain) throws RSException {
-		String url = Config.RS_HOST + "/publish/" + encode(domain) + "/from/"
+		String url = Config.RS_HOST + "/publish/" + Client.urlsafeEncode(domain) + "/from/"
 				+ this.tableName;
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			return new PublishRet(callRet);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		CallRet callRet = conn.call(url, 1, 3);
+		return new PublishRet(callRet);
 	}
 
 	/**
-	 * func Unpublish(domain string) => (code int, err Error) »°œ˚∑¢≤º
+	 * func Unpublish(domain string) => (code int, err Error)
+	 * ÂèñÊ∂àÂèëÂ∏É
 	 */
 	public PublishRet unpublish(String domain) throws RSException {
-		String url = Config.RS_HOST + "/unpublish/" + encode(domain);
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			return new PublishRet(callRet);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		String url = Config.RS_HOST + "/unpublish/" + Client.urlsafeEncode(domain);
+		CallRet callRet = conn.call(url, 1, 3);
+		return new PublishRet(callRet);
 	}
 
 	/**
-	 * func Delete(key string) => (code int, err Error) …æ≥˝◊ ‘¥
+	 * func Delete(key string) => (code int, err Error)
+	 * Âà†Èô§ËµÑÊ∫ê
 	 */
 	public DeleteRet delete(String key) throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/delete/" + encode(entryURI);
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			return new DeleteRet(callRet);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
+		String url = Config.RS_HOST + "/delete/" + Client.urlsafeEncode(entryURI);
+		CallRet callRet = conn.call(url, 1, 3);
+		return new DeleteRet(callRet);
 	}
 
 	/**
-	 * func Drop() => (code int, err Error) …æ≥˝’˚∏ˆ±Ì£®…˜”√£°£©
+	 * func Drop() => (code int, err Error)
+	 * Âà†Èô§Êï¥‰∏™Ë°®ÔºàÊÖéÁî®ÔºÅÔºâ
 	 */
 	public DropRet drop() throws RSException {
 		String url = Config.RS_HOST + "/drop/" + this.tableName;
-		CallRet callRet = null;
-		try {
-			callRet = conn.call(url, 1, 3);
-			return new DropRet(callRet);
-		} catch (AuthException e) {
-			e.printStackTrace();
-			throw new RSException("Auth failed: " + e.getMessage(), e);
-		}
-	}
-
-	protected String encode(String text) {
-		return this.encoder.encode(text.getBytes());
+		CallRet callRet = conn.call(url, 1, 3);
+		return new DropRet(callRet);
 	}
 }
