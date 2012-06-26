@@ -133,8 +133,8 @@ public class RSClient {
 		}
 
 		String entryUri = bucketName + ":" + key;
-		PutFileRet putFileRet = c.makeFile("/rs-mkfile/", entryUri, fsize, params, callbackParams, checksums);
+		CallRet callRet = c.makeFile("/rs-mkfile/", entryUri, fsize, params, callbackParams, checksums);
 		
-		return putFileRet;
+		return new PutFileRet(callRet);
 	}
 }
