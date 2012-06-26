@@ -19,7 +19,7 @@ public class UpDemo {
 	 */
 	public static void main(String[] args) {
 
-		String tblName = "tblName";
+		String bucketName = "tblName";
 		String key = "RSDemo.class";
 		
 		String path = RSDemo.class.getClassLoader().getResource("").getPath();		
@@ -30,7 +30,7 @@ public class UpDemo {
 		
 		UpTokenClient upTokenClient = new UpTokenClient(token);
 		UpService upClient = new UpService(upTokenClient);
-		
+
 		try {
 			RandomAccessFile f = new RandomAccessFile(path + key, "r");
 
@@ -41,16 +41,16 @@ public class UpDemo {
 			BlockProgress[] progresses = new BlockProgress[(int)blockCount];
 			
 			Notifier notif = new Notifier();
-			
+
 			PutFileRet putFileRet = RSClient.resumablePutFile(upClient, 
 					checksums, progresses, 
 					(ProgressNotifier)notif, (BlockProgressNotifier)notif, 
-					tblName + ":" + key, "", f, fsize, "CustomMeta", "");
-			
+					bucketName, key, "", f, fsize, "CustomMeta", "");
+
 			if (putFileRet.ok()) {
 				System.out.println("Successfully put file resumably: " + putFileRet.getHash());
 			} else {
-				System.out.println("Failed to put file resumably: " + putFileRet.getException());
+				System.out.println("Failed to put file resumably: " + putFileRet);
 			}
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();

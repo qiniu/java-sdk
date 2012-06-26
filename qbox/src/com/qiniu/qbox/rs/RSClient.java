@@ -38,7 +38,7 @@ public class RSClient {
 	 * @throws RSException 
 	 * @throws JSONException 
 	 */
-	public static PutFileRet putFile(String url, String tblName, String key, String mimeType, String localFile, String customMeta, HashMap<String, String> callbackParams) throws RSException {
+	public static PutFileRet putFile(String url, String bucketName, String key, String mimeType, String localFile, String customMeta, HashMap<String, String> callbackParams) throws RSException {
 		
 		File file = new File(localFile);
 		if (!file.exists() || !file.canRead()) {
@@ -49,7 +49,7 @@ public class RSClient {
 			mimeType = "application/octet-stream";
 		}
 
-		String entryURI = tblName + ":" + key;
+		String entryURI = bucketName + ":" + key;
 		String action = "/rs-put/" + Base64.encodeBase64String(entryURI.getBytes()) + 
 				"/mimeType/" + Base64.encodeBase64String(mimeType.getBytes());
 		if (customMeta != null && !customMeta.isEmpty()) {
@@ -112,9 +112,11 @@ public class RSClient {
 		}
 	}
 
-	public static PutFileRet resumablePutFile(UpService c, String[] checksums, BlockProgress[] progresses, 
+	public static PutFileRet resumablePutFile(
+			UpService c, String[] checksums, BlockProgress[] progresses, 
 			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier,
-			String entryUri, String mimeType, RandomAccessFile f, long fsize, String customMeta, String callbackParams) {
+			String bucketName, String key, String mimeType,
+			RandomAccessFile f, long fsize, String customMeta, String callbackParams) {
 		
 		ResumablePutRet ret = c.resumablePut(f, fsize, checksums, progresses, progressNotifier, blockProgressNotifier);
 		if (!ret.ok()) {
@@ -129,7 +131,8 @@ public class RSClient {
 		if (customMeta != null && !customMeta.isEmpty()) {
 			params += "/meta/" + Base64.encodeBase64String(customMeta.getBytes());
 		}
-		
+
+		String entryUri = bucketName + ":" + key;
 		PutFileRet putFileRet = c.makeFile("/rs-mkfile/", entryUri, fsize, params, callbackParams, checksums);
 		
 		return putFileRet;

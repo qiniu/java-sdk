@@ -104,7 +104,18 @@ public abstract class Client {
 	}
 
 	public static byte[] urlsafeEncodeBytes(byte[] src) {
-		return Base64.encodeBase64(src, false, false);
+		if (src.length % 3 == 0) {
+			return Base64.encodeBase64(src, false, true);
+		}
+		byte[] b = Base64.encodeBase64(src, false, true);
+		int pad = 4 - b.length % 4;
+		byte[] b2 = new byte[b.length + pad];
+		System.arraycopy(b, 0, b2, 0, b.length);
+		b2[b.length] = '=';
+		if (pad > 1) {
+			b2[b.length+1] = '=';
+		}
+		return b2;
 	}
 
 	public static String urlsafeEncodeString(byte[] src) {
@@ -112,6 +123,6 @@ public abstract class Client {
 	}
 
 	public static String urlsafeEncode(String text) {
-		return new String(Base64.encodeBase64(text.getBytes(), false, false));
+		return new String(urlsafeEncodeBytes(text.getBytes()));
 	}
 }
