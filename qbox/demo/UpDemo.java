@@ -19,26 +19,19 @@ public class UpDemo {
 	 */
 	public static void main(String[] args) {
 
-		String tblName = "tblName";
+		String bucketName = "tblName";
 		String key = "RSDemo.class";
 		
-		String path = RSDemo.class.getClassLoader().getResource("").getPath();
-		
+		String path = RSDemo.class.getClassLoader().getResource("").getPath();		
 		System.out.println("Resumably putting file: " + path + key);
-		// test@qbox.net
-		// AccessKey: RLT1NBD08g3kih5-0v8Yi6nX6cBhesa2Dju4P7mT 
-		// SecretKey: k6uZoSDAdKBXQcNYG3UOm4bP3spDVkTg-9hWHIKm 
-		byte[] accessKey = "RLT1NBD08g3kih5-0v8Yi6nX6cBhesa2Dju4P7mT".getBytes();
-		byte[] secretKey = "k6uZoSDAdKBXQcNYG3UOm4bP3spDVkTg-9hWHIKm".getBytes();
+
+		AuthPolicy policy = new AuthPolicy("tblName", 3600);
+		String token = policy.makeAuthTokenString();
 		
-		AuthPolicy policy = new AuthPolicy("tblName", "", "", System.currentTimeMillis() / 1000 + 3600);
-		
-		UpTokenClient upTokenClient = new UpTokenClient(accessKey, secretKey, policy);
-		
+		UpTokenClient upTokenClient = new UpTokenClient(token);
 		UpService upClient = new UpService(upTokenClient);
-		
+
 		try {
-			
 			RandomAccessFile f = new RandomAccessFile(path + key, "r");
 
 			long fsize = f.length();
@@ -48,23 +41,21 @@ public class UpDemo {
 			BlockProgress[] progresses = new BlockProgress[(int)blockCount];
 			
 			Notifier notif = new Notifier();
-			
+
 			PutFileRet putFileRet = RSClient.resumablePutFile(upClient, 
 					checksums, progresses, 
 					(ProgressNotifier)notif, (BlockProgressNotifier)notif, 
-					tblName + ":" + key, "", f, fsize, "CustomMeta", "");
-			
+					bucketName, key, "", f, fsize, "CustomMeta", "");
+
 			if (putFileRet.ok()) {
 				System.out.println("Successfully put file resumably: " + putFileRet.getHash());
 			} else {
-				System.out.println("Failed to put file resumably: " + putFileRet.getException());
+				System.out.println("Failed to put file resumably: " + putFileRet);
 			}
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
-
 }

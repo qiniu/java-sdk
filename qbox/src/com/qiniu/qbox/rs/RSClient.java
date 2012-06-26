@@ -33,12 +33,12 @@ public class RSClient {
 	
 	/**
 	 * func PutFile(url, key, mimeType, localFile, customMeta, callbackParams string) => (data PutRet, code int, err Error)
-	 * ÄäÃûÉÏ´«Ò»¸öÎÄ¼þ(ÉÏ´«ÓÃµÄÁÙÊ± url Í¨¹ý $rs->PutAuth µÃµ½)
+	 * åŒ¿åä¸Šä¼ ä¸€ä¸ªæ–‡ä»¶(ä¸Šä¼ ç”¨çš„ä¸´æ—¶ url é€šè¿‡ $rs->PutAuth å¾—åˆ°)
 	 * @throws IOException 
 	 * @throws RSException 
 	 * @throws JSONException 
 	 */
-	public static PutFileRet putFile(String url, String tblName, String key, String mimeType, String localFile, String customMeta, HashMap<String, String> callbackParams) throws RSException {
+	public static PutFileRet putFile(String url, String bucketName, String key, String mimeType, String localFile, String customMeta, HashMap<String, String> callbackParams) throws RSException {
 		
 		File file = new File(localFile);
 		if (!file.exists() || !file.canRead()) {
@@ -49,7 +49,7 @@ public class RSClient {
 			mimeType = "application/octet-stream";
 		}
 
-		String entryURI = tblName + ":" + key;
+		String entryURI = bucketName + ":" + key;
 		String action = "/rs-put/" + Base64.encodeBase64String(entryURI.getBytes()) + 
 				"/mimeType/" + Base64.encodeBase64String(mimeType.getBytes());
 		if (customMeta != null && !customMeta.isEmpty()) {
@@ -93,29 +93,6 @@ public class RSClient {
 		}
 	}
 	
-	public static PutFileRet resumablePutFile(UpService c, String[] checksums, BlockProgress[] progresses, 
-			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier,
-			String entryUri, String mimeType, RandomAccessFile f, long fsize, String customMeta, String callbackParams) {
-		
-		ResumablePutRet ret = c.resumablePut(f, fsize, checksums, progresses, progressNotifier, blockProgressNotifier);
-		if (!ret.ok()) {
-			return new PutFileRet(ret);
-		}
-		
-		if (mimeType == null || mimeType.isEmpty()) {
-			mimeType = "application/octet-stream";
-		}
-		
-		String params = "/mimeType/" + Base64.encodeBase64String(mimeType.getBytes());
-		if (customMeta != null && !customMeta.isEmpty()) {
-			params += "/meta/" + Base64.encodeBase64String(customMeta.getBytes());
-		}
-		
-		PutFileRet putFileRet = c.makeFile("/rs-mkfile/", entryUri, fsize, params, callbackParams, checksums);
-		
-		return putFileRet;
-	}
-
 	private static PutFileRet handleResult(HttpResponse response) {
 		
 		if (response == null || response.getStatusLine() == null) {
@@ -133,5 +110,31 @@ public class RSClient {
 			e.printStackTrace();
 			return new PutFileRet(new CallRet(400, e));
 		}
+	}
+
+	public static PutFileRet resumablePutFile(
+			UpService c, String[] checksums, BlockProgress[] progresses, 
+			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier,
+			String bucketName, String key, String mimeType,
+			RandomAccessFile f, long fsize, String customMeta, String callbackParams) {
+		
+		ResumablePutRet ret = c.resumablePut(f, fsize, checksums, progresses, progressNotifier, blockProgressNotifier);
+		if (!ret.ok()) {
+			return new PutFileRet(ret);
+		}
+		
+		if (mimeType == null || mimeType.isEmpty()) {
+			mimeType = "application/octet-stream";
+		}
+		
+		String params = "/mimeType/" + Base64.encodeBase64String(mimeType.getBytes());
+		if (customMeta != null && !customMeta.isEmpty()) {
+			params += "/meta/" + Base64.encodeBase64String(customMeta.getBytes());
+		}
+
+		String entryUri = bucketName + ":" + key;
+		PutFileRet putFileRet = c.makeFile("/rs-mkfile/", entryUri, fsize, params, callbackParams, checksums);
+		
+		return putFileRet;
 	}
 }

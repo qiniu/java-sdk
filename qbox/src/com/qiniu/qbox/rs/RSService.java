@@ -1,7 +1,5 @@
 package com.qiniu.qbox.rs;
 
-import org.apache.commons.codec.binary.Base64;
-
 import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
@@ -16,89 +14,90 @@ public class RSService {
 		this.tableName = tblName;
 	}
 
-	// func PutAuth() => PutAuthRet
-	// ÉÏ´«ÊÚÈ¨£¨Éú³ÉÒ»¸ö¶ÌÆÚÓĞĞ§µÄ¿ÉÄäÃûÉÏ´«URL£©
+	/**
+	 *  func PutAuth() => PutAuthRet
+	 *  ä¸Šä¼ æˆæƒï¼ˆç”Ÿæˆä¸€ä¸ªçŸ­æœŸæœ‰æ•ˆçš„å¯åŒ¿åä¸Šä¼ URLï¼‰
+	 */
 	public PutAuthRet putAuth() throws RSException {
 		CallRet callRet = conn.call(Config.IO_HOST + "/put-auth/", 1, 3);
 		return new PutAuthRet(callRet);
 	}
 
 	/**
-	 * func Get(key string, attName string) => (data GetRet, code int, err
-	 * Error) ÏÂÔØÊÚÈ¨£¨Éú³ÉÒ»¸ö¶ÌÆÚÓĞĞ§µÄ¿ÉÄäÃûÏÂÔØURL£©
+	 * func Get(key string, attName string) => (data GetRet, code int, err Error)
+	 * ä¸‹è½½æˆæƒï¼ˆç”Ÿæˆä¸€ä¸ªçŸ­æœŸæœ‰æ•ˆçš„å¯åŒ¿åä¸‹è½½URLï¼‰
 	 */
 	public GetRet get(String key, String attName) throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/get/" + urlsafeEncode(entryURI) + "/attName/"
-				+ urlsafeEncode(attName);
+		String url = Config.RS_HOST + "/get/" + Client.urlsafeEncode(entryURI) + "/attName/"
+				+ Client.urlsafeEncode(attName);
 		CallRet callRet = conn.call(url, 1, 3);
 		return new GetRet(callRet);
 	}
 
 	/**
-	 * func GetIfNotModified(key string, attName string, base string) => (data
-	 * GetRet, code int, err Error)
-	 * ÏÂÔØÊÚÈ¨£¨Éú³ÉÒ»¸ö¶ÌÆÚÓĞĞ§µÄ¿ÉÄäÃûÏÂÔØURL£©£¬Èç¹û·şÎñ¶ËÎÄ¼şÃ»±»ÈËĞŞ¸ÄµÄ»°£¨ÓÃÓÚ¶ÏµãĞø´«£©
+	 * func GetIfNotModified(key string, attName string, base string) => (data GetRet, code int, err Error)
+	 * ä¸‹è½½æˆæƒï¼ˆç”Ÿæˆä¸€ä¸ªçŸ­æœŸæœ‰æ•ˆçš„å¯åŒ¿åä¸‹è½½URLï¼‰ï¼Œå¦‚æœæœåŠ¡ç«¯æ–‡ä»¶æ²¡è¢«äººä¿®æ”¹çš„è¯ï¼ˆç”¨äºæ–­ç‚¹ç»­ä¼ ï¼‰
 	 */
 	public GetRet getIfNotModified(String key, String attName, String base)
 			throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/get/" + urlsafeEncode(entryURI) + "/attName/"
-				+ urlsafeEncode(attName) + "/base/" + base;
+		String url = Config.RS_HOST + "/get/" + Client.urlsafeEncode(entryURI) + "/attName/"
+				+ Client.urlsafeEncode(attName) + "/base/" + base;
 		CallRet callRet = conn.call(url, 1, 3);
 		return new GetRet(callRet);
 	}
 
 	/**
-	 * func Stat(key string) => (entry Entry, code int, err Error) È¡×ÊÔ´ÊôĞÔ
+	 * func Stat(key string) => (entry Entry, code int, err Error)
+	 * å–èµ„æºå±æ€§
 	 */
 	public StatRet stat(String key) throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/stat/" + urlsafeEncode(entryURI);
+		String url = Config.RS_HOST + "/stat/" + Client.urlsafeEncode(entryURI);
 		CallRet callRet = conn.call(url, 1, 3);
 		return new StatRet(callRet);
 	}
 
 	/**
-	 * func Publish(domain string) => (code int, err Error) ½«±¾ Table
-	 * µÄÄÚÈİ×÷Îª¾²Ì¬×ÊÔ´·¢²¼¡£¾²Ì¬×ÊÔ´µÄurlÎª£ºhttp://domain/key
+	 * func Publish(domain string) => (code int, err Error)
+	 * å°†æœ¬ Table çš„å†…å®¹ä½œä¸ºé™æ€èµ„æºå‘å¸ƒã€‚é™æ€èµ„æºçš„urlä¸ºï¼šhttp://domain/key
 	 */
 	public PublishRet publish(String domain) throws RSException {
-		String url = Config.RS_HOST + "/publish/" + urlsafeEncode(domain) + "/from/"
+		String url = Config.RS_HOST + "/publish/" + Client.urlsafeEncode(domain) + "/from/"
 				+ this.tableName;
 		CallRet callRet = conn.call(url, 1, 3);
 		return new PublishRet(callRet);
 	}
 
 	/**
-	 * func Unpublish(domain string) => (code int, err Error) È¡Ïû·¢²¼
+	 * func Unpublish(domain string) => (code int, err Error)
+	 * å–æ¶ˆå‘å¸ƒ
 	 */
 	public PublishRet unpublish(String domain) throws RSException {
-		String url = Config.RS_HOST + "/unpublish/" + urlsafeEncode(domain);
+		String url = Config.RS_HOST + "/unpublish/" + Client.urlsafeEncode(domain);
 		CallRet callRet = conn.call(url, 1, 3);
 		return new PublishRet(callRet);
 	}
 
 	/**
-	 * func Delete(key string) => (code int, err Error) É¾³ı×ÊÔ´
+	 * func Delete(key string) => (code int, err Error)
+	 * åˆ é™¤èµ„æº
 	 */
 	public DeleteRet delete(String key) throws RSException {
 		String entryURI = this.tableName + ":" + key;
-		String url = Config.RS_HOST + "/delete/" + urlsafeEncode(entryURI);
+		String url = Config.RS_HOST + "/delete/" + Client.urlsafeEncode(entryURI);
 		CallRet callRet = conn.call(url, 1, 3);
 		return new DeleteRet(callRet);
 	}
 
 	/**
-	 * func Drop() => (code int, err Error) É¾³ıÕû¸ö±í£¨É÷ÓÃ£¡£©
+	 * func Drop() => (code int, err Error)
+	 * åˆ é™¤æ•´ä¸ªè¡¨ï¼ˆæ…ç”¨ï¼ï¼‰
 	 */
 	public DropRet drop() throws RSException {
 		String url = Config.RS_HOST + "/drop/" + this.tableName;
 		CallRet callRet = conn.call(url, 1, 3);
 		return new DropRet(callRet);
-	}
-	
-	protected String urlsafeEncode(String text) {
-		return new String(Base64.encodeBase64(text.getBytes(), false, false));
 	}
 }
