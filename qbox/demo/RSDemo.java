@@ -1,5 +1,6 @@
 import java.util.HashMap;
 
+import com.qiniu.qbox.auth.AuthRet;
 import com.qiniu.qbox.auth.OAuth2Client;
 import com.qiniu.qbox.rs.DeleteRet;
 import com.qiniu.qbox.rs.DropRet;
@@ -17,7 +18,8 @@ public class RSDemo {
 	public static void main(String[] args) throws RSException {
 		
 		OAuth2Client conn = new OAuth2Client();
-		conn.exchangeByPassword("test@qbox.net", "test");
+		AuthRet ret = conn.exchangeByPassword("test@qbox.net", "test");
+		System.out.println("Auth: " + ret);
 		
 		String tblName = "tblName";
 		String key = "RSDemo.class";
@@ -36,7 +38,7 @@ public class RSDemo {
 		
 		System.out.println("Delete " + key);
 		DeleteRet deleteRet = rs.delete(key);
-		System.out.println("Result of delete: " + (deleteRet.ok() ? "Succeeded." : "Failed."));
+		System.out.println("Result of delete: " + (deleteRet.ok() ? "Succeeded." : deleteRet));
 		
 		System.out.println("Putting file: " + path + key);
 		PutFileRet putFileRet = RSClient.putFile(

@@ -25,8 +25,8 @@ public class OAuth2Client extends Client {
 	public OAuth2Client() {
 		this.authUrl = Config.AUTHORIZATION_ENDPOINT;
 		this.tokenUrl = Config.TOKEN_ENDPOINT;
-		this.clientId = "";
-		this.clientSecret = "";
+		this.clientId = "a75604760c4da4caaa456c0c5895c061c3065c5a";
+		this.clientSecret = "75df554a39f58accb7eb293b550fa59618674b7d";
 	}
 
 	public OAuth2Client(String authUrl, String tokenUrl, String clientId,
