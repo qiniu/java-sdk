@@ -3,18 +3,27 @@ package com.qiniu.qbox.rs;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.qiniu.qbox.oauth2.CallRet;
+import com.qiniu.qbox.auth.CallRet;
 
 public class PutFileRet extends CallRet {
 
 	private String hash;
 	
 	public PutFileRet(CallRet ret) {
-		super(ret.getStatusCode(), ret.getResult());
+		super(ret);
+		
+		if (this.response != null) {
+			try {
+				unmarshal(ret.getResponse());
+			} catch (Exception e) {
+				this.exception = e;
+			}
+		}
 	}
 	
-	public PutFileRet(JSONObject jsonObject) throws JSONException {
-		super(200, jsonObject.toString());
+	public void unmarshal(String json) throws JSONException {
+		
+		JSONObject jsonObject = new JSONObject(json);
 		
 		if (jsonObject.has("hash")) {
 			this.hash = (String)jsonObject.get("hash");

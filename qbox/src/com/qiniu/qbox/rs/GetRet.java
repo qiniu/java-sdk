@@ -3,7 +3,7 @@ package com.qiniu.qbox.rs;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.qiniu.qbox.oauth2.CallRet;
+import com.qiniu.qbox.auth.CallRet;
 
 public class GetRet extends CallRet {
 	private String hash;
@@ -12,12 +12,20 @@ public class GetRet extends CallRet {
 	private String url;
 
 	public GetRet(CallRet ret) {
-		super(ret.getStatusCode(), ret.getResult());
+		super(ret);
+		
+		if (ret.ok() && ret.getResponse() != null) {
+			try {
+				unmarshal(ret.getResponse());
+			} catch (Exception e) {
+				this.exception = e;
+			}
+		}
 	}
 	
-	public GetRet(JSONObject jsonObject) throws JSONException {
+	public void unmarshal(String json) throws JSONException {
 		
-		super(200, jsonObject.toString());
+		JSONObject jsonObject = new JSONObject(json);
 		
 		if (jsonObject.has("hash") && jsonObject.has("fsize") && 
 				jsonObject.has("mimeType") && jsonObject.has("url")) {
