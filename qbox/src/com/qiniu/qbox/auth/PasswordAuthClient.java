@@ -7,13 +7,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.http.HttpMessage;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.qiniu.qbox.Config;
 
-public class OAuth2Client extends Client {
+public class PasswordAuthClient extends Client {
 
 	private String authUrl;
 	private String tokenUrl;
@@ -22,14 +22,14 @@ public class OAuth2Client extends Client {
 	private String accessToken;
 	private String refreshToken;
 
-	public OAuth2Client() {
+	public PasswordAuthClient() {
 		this.authUrl = Config.AUTHORIZATION_ENDPOINT;
 		this.tokenUrl = Config.TOKEN_ENDPOINT;
 		this.clientId = "a75604760c4da4caaa456c0c5895c061c3065c5a";
 		this.clientSecret = "75df554a39f58accb7eb293b550fa59618674b7d";
 	}
 
-	public OAuth2Client(String authUrl, String tokenUrl, String clientId,
+	public PasswordAuthClient(String authUrl, String tokenUrl, String clientId,
 			String clientSecret) {
 
 		this.authUrl = authUrl;
@@ -121,9 +121,9 @@ public class OAuth2Client extends Client {
 	}
 
 	@Override
-	public void setAuth(HttpMessage httpMessage) {
+	public void setAuth(HttpPost post) {
 		if (this.accessToken != null) {
-			httpMessage.setHeader("Authorization", "Bearer " + this.accessToken);
+			post.setHeader("Authorization", "Bearer " + this.accessToken);
 		}
 	}
 }

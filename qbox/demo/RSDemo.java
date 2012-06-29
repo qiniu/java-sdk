@@ -1,7 +1,7 @@
 import java.util.HashMap;
 
-import com.qiniu.qbox.auth.AuthRet;
-import com.qiniu.qbox.auth.OAuth2Client;
+import com.qiniu.qbox.Config;
+import com.qiniu.qbox.auth.DigestAuthClient;
 import com.qiniu.qbox.rs.DeleteRet;
 import com.qiniu.qbox.rs.DropRet;
 import com.qiniu.qbox.rs.GetRet;
@@ -16,11 +16,12 @@ import com.qiniu.qbox.rs.StatRet;
 public class RSDemo {
 	
 	public static void main(String[] args) throws RSException {
-		
-		OAuth2Client conn = new OAuth2Client();
-		AuthRet ret = conn.exchangeByPassword("test@qbox.net", "test");
-		System.out.println("Auth: " + ret);
-		
+
+		Config.ACCESS_KEY = "<Please apply your access key>";
+		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
+
+		DigestAuthClient conn = new DigestAuthClient();
+
 		String tblName = "tblName";
 		String key = "RSDemo.class";
 	

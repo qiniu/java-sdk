@@ -1,6 +1,6 @@
 package com.qiniu.qbox.auth;
 
-import org.apache.http.HttpMessage;
+import org.apache.http.client.methods.HttpPost;
 
 public class UpTokenClient extends Client {
 
@@ -11,8 +11,8 @@ public class UpTokenClient extends Client {
 	}
 	
 	@Override
-	public void setAuth(HttpMessage httpMessage) {
-		httpMessage.setHeader("Authorization", token);
+	public void setAuth(HttpPost post) {
+		post.setHeader("Authorization", token);
 	}
 
 	public String getToken() {
