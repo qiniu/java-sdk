@@ -19,7 +19,7 @@ public class RSService {
 	 *  上传授权（生成一个短期有效的可匿名上传URL）
 	 */
 	public PutAuthRet putAuth() throws RSException {
-		CallRet callRet = conn.call(Config.IO_HOST + "/put-auth/", 1, 3);
+		CallRet callRet = conn.call(Config.IO_HOST + "/put-auth/");
 		return new PutAuthRet(callRet);
 	}
 
@@ -31,7 +31,7 @@ public class RSService {
 		String entryURI = this.tableName + ":" + key;
 		String url = Config.RS_HOST + "/get/" + Client.urlsafeEncode(entryURI) + "/attName/"
 				+ Client.urlsafeEncode(attName);
-		CallRet callRet = conn.call(url, 1, 3);
+		CallRet callRet = conn.call(url);
 		return new GetRet(callRet);
 	}
 
@@ -44,7 +44,7 @@ public class RSService {
 		String entryURI = this.tableName + ":" + key;
 		String url = Config.RS_HOST + "/get/" + Client.urlsafeEncode(entryURI) + "/attName/"
 				+ Client.urlsafeEncode(attName) + "/base/" + base;
-		CallRet callRet = conn.call(url, 1, 3);
+		CallRet callRet = conn.call(url);
 		return new GetRet(callRet);
 	}
 
@@ -55,7 +55,7 @@ public class RSService {
 	public StatRet stat(String key) throws RSException {
 		String entryURI = this.tableName + ":" + key;
 		String url = Config.RS_HOST + "/stat/" + Client.urlsafeEncode(entryURI);
-		CallRet callRet = conn.call(url, 1, 3);
+		CallRet callRet = conn.call(url);
 		return new StatRet(callRet);
 	}
 
@@ -66,7 +66,7 @@ public class RSService {
 	public PublishRet publish(String domain) throws RSException {
 		String url = Config.RS_HOST + "/publish/" + Client.urlsafeEncode(domain) + "/from/"
 				+ this.tableName;
-		CallRet callRet = conn.call(url, 1, 3);
+		CallRet callRet = conn.call(url);
 		return new PublishRet(callRet);
 	}
 
@@ -76,7 +76,7 @@ public class RSService {
 	 */
 	public PublishRet unpublish(String domain) throws RSException {
 		String url = Config.RS_HOST + "/unpublish/" + Client.urlsafeEncode(domain);
-		CallRet callRet = conn.call(url, 1, 3);
+		CallRet callRet = conn.call(url);
 		return new PublishRet(callRet);
 	}
 
@@ -87,7 +87,7 @@ public class RSService {
 	public DeleteRet delete(String key) throws RSException {
 		String entryURI = this.tableName + ":" + key;
 		String url = Config.RS_HOST + "/delete/" + Client.urlsafeEncode(entryURI);
-		CallRet callRet = conn.call(url, 1, 3);
+		CallRet callRet = conn.call(url);
 		return new DeleteRet(callRet);
 	}
 
@@ -97,7 +97,7 @@ public class RSService {
 	 */
 	public DropRet drop() throws RSException {
 		String url = Config.RS_HOST + "/drop/" + this.tableName;
-		CallRet callRet = conn.call(url, 1, 3);
+		CallRet callRet = conn.call(url);
 		return new DropRet(callRet);
 	}
 }

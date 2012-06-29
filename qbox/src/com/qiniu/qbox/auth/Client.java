@@ -3,7 +3,6 @@ package com.qiniu.qbox.auth;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
@@ -11,20 +10,20 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 public abstract class Client {
 	
-	public abstract void setAuth(HttpMessage httpMessage);
+	public abstract void setAuth(HttpPost post);
 
-	public CallRet call(String url, int retries, int maxRetries) {
+	public CallRet call(String url) {
 		HttpPost postMethod = new HttpPost(url);
-		setAuth(postMethod);
 		HttpClient client = new DefaultHttpClient();
 		try {
+			setAuth(postMethod);
 			HttpResponse response = client.execute(postMethod);
-			
 			return handleResult(response);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -36,16 +35,15 @@ public abstract class Client {
 	
 	public CallRet call(String url, List<NameValuePair> nvps) {
 		HttpPost postMethod = new HttpPost(url);
-		postMethod.setHeader("Content-Type", "application/x-www-form-urlencoded");
-		
-		setAuth(postMethod);
-		
 		HttpClient client = new DefaultHttpClient();
 		try {
-			postMethod.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
+			StringEntity entity = new UrlEncodedFormEntity(nvps, "UTF-8");
+			entity.setContentType("application/x-www-form-urlencoded");
+			postMethod.setEntity(entity);
 
+			setAuth(postMethod);
 			HttpResponse response = client.execute(postMethod);
-			
+
 			return handleResult(response);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -58,21 +56,20 @@ public abstract class Client {
 	public CallRet callWithBinary(String url, String contentType, byte[] body, long bodyLength) {
 
 		ByteArrayEntity entity = new ByteArrayEntity(body);
-		
-		HttpPost postMethod = new HttpPost(url);
-		
+
 		if (contentType == null || contentType.isEmpty()) {
-			postMethod.setHeader("Content-Type", "application/octet-stream");
-		} else {
-			postMethod.setHeader("Content-Type", contentType);
+			contentType = "application/octet-stream";
 		}
+		entity.setContentType(contentType);
+
+		HttpPost postMethod = new HttpPost(url);
+
 		postMethod.setEntity(entity);
 
-		setAuth(postMethod);
-		
 		DefaultHttpClient client = new DefaultHttpClient();
-		
+
 		try {
+			setAuth(postMethod);
 			HttpResponse response = client.execute(postMethod);
 			return handleResult(response);
 		} catch (Exception e) {
