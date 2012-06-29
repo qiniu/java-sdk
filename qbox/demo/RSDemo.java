@@ -9,13 +9,12 @@ import com.qiniu.qbox.rs.PublishRet;
 import com.qiniu.qbox.rs.PutAuthRet;
 import com.qiniu.qbox.rs.PutFileRet;
 import com.qiniu.qbox.rs.RSClient;
-import com.qiniu.qbox.rs.RSException;
 import com.qiniu.qbox.rs.RSService;
 import com.qiniu.qbox.rs.StatRet;
 
 public class RSDemo {
 	
-	public static void main(String[] args) throws RSException {
+	public static void main(String[] args) throws Exception {
 
 		Config.ACCESS_KEY = "<Please apply your access key>";
 		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
@@ -24,7 +23,7 @@ public class RSDemo {
 
 		String tblName = "tblName";
 		String key = "RSDemo.class";
-	
+
 		String DEMO_DOMAIN = "http://iovip.qbox.me/tblName";
 		
 		String path = RSDemo.class.getClassLoader().getResource("").getPath();
@@ -43,7 +42,7 @@ public class RSDemo {
 		
 		System.out.println("Putting file: " + path + key);
 		PutFileRet putFileRet = RSClient.putFile(
-				putAuthRet.getUrl(), tblName, key, "", path + key, "CustomData", callbackParams);
+			putAuthRet.getUrl(), tblName, key, "", path + key, "CustomData", callbackParams);
 		if (!putFileRet.ok()) {
 			System.out.println("Failed to put file " + path + key + ": " + putFileRet);
 			return;

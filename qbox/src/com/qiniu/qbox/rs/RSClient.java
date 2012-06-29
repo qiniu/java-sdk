@@ -1,28 +1,20 @@
 package com.qiniu.qbox.rs;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONException;
 
 import com.qiniu.qbox.auth.CallRet;
+import com.qiniu.qbox.auth.Client;
 import com.qiniu.qbox.up.BlockProgress;
 import com.qiniu.qbox.up.BlockProgressNotifier;
 import com.qiniu.qbox.up.ProgressNotifier;
@@ -32,14 +24,14 @@ import com.qiniu.qbox.up.UpService;
 public class RSClient {
 	
 	/**
-	 * func PutFile(url, key, mimeType, localFile, customMeta, callbackParams string) => (data PutRet, code int, err Error)
+	 * func PutFile(url, bucketName, key, mimeType, localFile, customMeta, callbackParams string)
 	 * 匿名上传一个文件(上传用的临时 url 通过 $rs->PutAuth 得到)
-	 * @throws IOException 
-	 * @throws RSException 
-	 * @throws JSONException 
+	 * @throws Exception 
 	 */
-	public static PutFileRet putFile(String url, String bucketName, String key, String mimeType, String localFile, String customMeta, HashMap<String, String> callbackParams) throws RSException {
-		
+	public static PutFileRet putFile(
+		String url, String bucketName, String key, String mimeType, String localFile,
+		String customMeta, Object callbackParams1) throws Exception {
+
 		File file = new File(localFile);
 		if (!file.exists() || !file.canRead()) {
 			return new PutFileRet(new CallRet(400, new Exception("File does not exist or not readable.")));
@@ -55,29 +47,19 @@ public class RSClient {
 		if (customMeta != null && !customMeta.isEmpty()) {
 			action += "/meta/" + Base64.encodeBase64String(customMeta.getBytes());
 		}
-		
+
 		MultipartEntity requestEntity = new MultipartEntity();
-		try {
-			requestEntity.addPart("action", new StringBody(action));
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		}
+		requestEntity.addPart("action", new StringBody(action));
 
 		FileBody fileBody = new FileBody(new File(localFile));
 		requestEntity.addPart("file", fileBody);
 
-		if (callbackParams != null && !callbackParams.isEmpty()) {
-			ArrayList<NameValuePair> callbackParamList = new ArrayList<NameValuePair>();
-			for (Entry<String, String> entry : callbackParams.entrySet()) {
-				callbackParamList.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-			}
-			try {
-				requestEntity.addPart("params", new StringBody(URLEncodedUtils.format(callbackParamList, "UTF-8")));
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+		if (callbackParams1 != null) {
+			String callbackParams = Client.encodeParams(callbackParams1);
+			if (callbackParams != null) {
+				requestEntity.addPart("params", new StringBody(callbackParams));
 			}
 		}
-
 		HttpPost postMethod = new HttpPost(url);
 		postMethod.setEntity(requestEntity);
 		
@@ -92,7 +74,7 @@ public class RSClient {
 			client.getConnectionManager().shutdown();
 		}
 	}
-	
+
 	private static PutFileRet handleResult(HttpResponse response) {
 		
 		if (response == null || response.getStatusLine() == null) {
