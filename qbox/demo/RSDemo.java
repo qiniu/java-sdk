@@ -21,15 +21,15 @@ public class RSDemo {
 
 		DigestAuthClient conn = new DigestAuthClient();
 
-		String tblName = "tblName";
+		String bucketName = "bucketName";
 		String key = "RSDemo.class";
 
-		String DEMO_DOMAIN = "http://iovip.qbox.me/tblName";
+		String DEMO_DOMAIN = "http://iovip.qbox.me/bucketName";
 		
 		String path = RSDemo.class.getClassLoader().getResource("").getPath();
         System.out.println("Test to put local file: " + path + key);   
 		
-		RSService rs = new RSService(conn, tblName);
+		RSService rs = new RSService(conn, bucketName);
 		PutAuthRet putAuthRet = rs.putAuth();
 		System.out.println("Put URL: " + putAuthRet.getUrl());
 		
@@ -42,7 +42,7 @@ public class RSDemo {
 		
 		System.out.println("Putting file: " + path + key);
 		PutFileRet putFileRet = RSClient.putFile(
-			putAuthRet.getUrl(), tblName, key, "", path + key, "CustomData", callbackParams);
+			putAuthRet.getUrl(), bucketName, key, "", path + key, "CustomData", callbackParams);
 		if (!putFileRet.ok()) {
 			System.out.println("Failed to put file " + path + key + ": " + putFileRet);
 			return;
@@ -82,11 +82,11 @@ public class RSDemo {
 				System.out.println("  URL: " + getIfNotModifiedRet.getUrl());
 			}
 			
-			System.out.println("Publish " + tblName + " as: " + DEMO_DOMAIN);
+			System.out.println("Publish " + bucketName + " as: " + DEMO_DOMAIN);
 			PublishRet publishRet = rs.publish(DEMO_DOMAIN);
 			System.out.println("Result of publish: " + (publishRet.ok() ? "Succeeded." : "Failed."));
 
-			System.out.println("Unpublish " + tblName + " as: " + DEMO_DOMAIN);
+			System.out.println("Unpublish " + bucketName + " as: " + DEMO_DOMAIN);
 			PublishRet unpublishRet = rs.unpublish(DEMO_DOMAIN);
 			System.out.println("Result of unpublish: " + (unpublishRet.ok() ? "Succeeded." : "Failed."));
 
@@ -94,7 +94,7 @@ public class RSDemo {
 			deleteRet = rs.delete(key);
 			System.out.println("Result of delete: " + (deleteRet.ok() ? "Succeeded." : "Failed."));
 			
-			System.out.println("Drop table " + tblName);
+			System.out.println("Drop table " + bucketName);
 			DropRet dropRet = rs.drop();
 			System.out.println("Result of drop: " + (dropRet.ok() ? "Succeeded." : "Failed."));
 			
