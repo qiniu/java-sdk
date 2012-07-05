@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -16,36 +17,75 @@ import com.qiniu.qbox.up.BlockProgressNotifier;
 import com.qiniu.qbox.up.ProgressNotifier;
 import com.qiniu.qbox.up.UpService;
 
-
 public class ResumablePutDemo {
 
-	public static void readProgress(String file, String[] checksums, BlockProgress[] progresses, int blockCount) throws Exception {
-
+	public static void readProgress(String file, String[] checksums,
+			BlockProgress[] progresses, int blockCount) throws Exception {
+		File fi = new File(file);
+		if (!fi.exists()) {
+			return;
+		}
 		FileReader f = new FileReader(file);
 		BufferedReader is = new BufferedReader(f);
+
 		for (;;) {
 			String line = is.readLine();
 			if (line == null)
 				break;
+
 			JSONObject o = new JSONObject(line);
+
 			Object block = o.get("block");
+
 			if (block == null) {
 				// error ...
 				break;
 			}
-			int blockIdx = (Integer)block;
+			int blockIdx = (Integer) block;
 			if (blockIdx < 0 || blockIdx >= blockCount) {
 				// error ...
 				break;
+			} else {
+
 			}
-			Object checksum = o.get("checksum");
+
+			Object checksum = null;
+			if (o.has("checksum")) {
+				checksum = o.get("checksum");
+			}
+
 			if (checksum != null) {
-				checksums[blockIdx] = (String)checksum;
+				checksums[blockIdx] = (String) checksum;
 				continue;
 			}
-			Object progress = o.get("progress");
+
+			JSONObject progress = null;
+			if (o.has("progress")) {
+				progress = (JSONObject) o.get("progress");
+			}
+
+			/*
+			 * System.out.println(o); System.out.println(o.get("progress"));
+			 * System.out.println();
+			 * 
+			 * if(progress.has("context") || progress.has("offset") ||
+			 * progress.has("restSize")){ progresses[blockIdx].context =
+			 * progress.getString("context"); progresses[blockIdx].offset =
+			 * progress.getInt("offset"); progresses[blockIdx].restSize =
+			 * progress.getInt("restSize");
+			 * System.out.println(progress.getString("context") + "abcdddd");
+			 * continue;
+			 * 
+			 * }
+			 */
+
 			if (progress != null) {
-				progresses[blockIdx] = (BlockProgress)progress;
+				BlockProgress bp = new BlockProgress();
+				bp.context = progress.getString("context");
+				bp.offset = progress.getInt("offset");
+				bp.restSize = progress.getInt("restSize");
+				progresses[blockIdx] = bp;
+
 				continue;
 			}
 			break; // error ...
@@ -56,16 +96,17 @@ public class ResumablePutDemo {
 
 		Config.ACCESS_KEY = "<Please apply your access key>";
 		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
+		Config.ACCESS_KEY = "RLT1NBD08g3kih5-0v8Yi6nX6cBhesa2Dju4P7mT";
+		Config.SECRET_KEY = "k6uZoSDAdKBXQcNYG3UOm4bP3spDVkTg-9hWHIKm";
 
 		String inputFile = args[0];
-		String progressFile = inputFile + ".progress";
 
 		String bucketName = "bucketName";
 		String key = "RSDemo.class";
 
 		AuthPolicy policy = new AuthPolicy("bucketName", 3600);
 		String token = policy.makeAuthTokenString();
-		
+
 		UpTokenClient upTokenClient = new UpTokenClient(token);
 		UpService upClient = new UpService(upTokenClient);
 
@@ -74,23 +115,32 @@ public class ResumablePutDemo {
 
 			long fsize = f.length();
 			int blockCount = UpService.blockCount(fsize);
-			
-			String[] checksums = new String[(int)blockCount];
-			BlockProgress[] progresses = new BlockProgress[(int)blockCount];
+			String progressFile = inputFile + ".progress" + fsize;
+			String[] checksums = new String[(int) blockCount];
+			BlockProgress[] progresses = new BlockProgress[(int) blockCount];
 
 			readProgress(progressFile, checksums, progresses, blockCount);
 
+			for(int i = 0;i < progresses.length;i++){
+				BlockProgress bp = new BlockProgress();
+				bp = progresses[i];
+				if(progresses[i] != null)
+				System.out.println(progresses[i].context + "--" + progresses[i].offset +"--"+progresses[i].restSize);
+			}
+			
 			ResumableNotifier notif = new ResumableNotifier(progressFile);
 
-			PutFileRet putFileRet = RSClient.resumablePutFile(upClient, 
-					checksums, progresses, 
-					(ProgressNotifier)notif, (BlockProgressNotifier)notif, 
-					bucketName, key, "", f, fsize, "CustomMeta", "");
+			PutFileRet putFileRet = RSClient.resumablePutFile(upClient,
+					checksums, progresses, (ProgressNotifier) notif,
+					(BlockProgressNotifier) notif, bucketName, key, "", f,
+					fsize, "CustomMeta", "");
 
 			if (putFileRet.ok()) {
-				System.out.println("Successfully put file resumably: " + putFileRet.getHash());
+				System.out.println("Successfully put file resumably: "
+						+ putFileRet.getHash());
 			} else {
-				System.out.println("Failed to put file resumably: " + putFileRet);
+				System.out.println("Failed to put file resumably: "
+						+ putFileRet);
 			}
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
