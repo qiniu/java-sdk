@@ -17,7 +17,7 @@ import com.qiniu.qbox.up.BlockProgressNotifier;
 import com.qiniu.qbox.up.ProgressNotifier;
 import com.qiniu.qbox.up.UpService;
 
-public class ResumablePutDemo {
+public class ResumableGUIPutDemo {
 
 	public static void readProgress(String file, String[] checksums,
 			BlockProgress[] progresses, int blockCount) throws Exception {
@@ -77,15 +77,17 @@ public class ResumablePutDemo {
 		}
 	}
 
+	
+	
 	public static void main(String[] args) throws Exception {
 
 		Config.ACCESS_KEY = "<Please apply your access key>";
 		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
-
+		
 		String inputFile = args[0];
 
 		String bucketName = "bucketName";
-		String key = "RSDemo.class";
+		String key = "RSDemo-" + System.currentTimeMillis();
 
 		AuthPolicy policy = new AuthPolicy("bucketName", 3600);
 		String token = policy.makeAuthTokenString();
@@ -104,14 +106,7 @@ public class ResumablePutDemo {
 
 			readProgress(progressFile, checksums, progresses, blockCount);
 
-			for(int i = 0;i < progresses.length;i++){
-				BlockProgress bp = new BlockProgress();
-				bp = progresses[i];
-				if(progresses[i] != null)
-				System.out.println(progresses[i].context + "--" + progresses[i].offset +"--"+progresses[i].restSize);
-			}
-			
-			ResumableNotifier notif = new ResumableNotifier(progressFile);
+			ResumableGUINotifier notif = new ResumableGUINotifier(progressFile ,progresses ,fsize);
 
 			PutFileRet putFileRet = RSClient.resumablePutFile(upClient,
 					checksums, progresses, (ProgressNotifier) notif,
