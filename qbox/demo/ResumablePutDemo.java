@@ -64,21 +64,6 @@ public class ResumablePutDemo {
 				progress = (JSONObject) o.get("progress");
 			}
 
-			/*
-			 * System.out.println(o); System.out.println(o.get("progress"));
-			 * System.out.println();
-			 * 
-			 * if(progress.has("context") || progress.has("offset") ||
-			 * progress.has("restSize")){ progresses[blockIdx].context =
-			 * progress.getString("context"); progresses[blockIdx].offset =
-			 * progress.getInt("offset"); progresses[blockIdx].restSize =
-			 * progress.getInt("restSize");
-			 * System.out.println(progress.getString("context") + "abcdddd");
-			 * continue;
-			 * 
-			 * }
-			 */
-
 			if (progress != null) {
 				BlockProgress bp = new BlockProgress();
 				bp.context = progress.getString("context");
@@ -96,8 +81,6 @@ public class ResumablePutDemo {
 
 		Config.ACCESS_KEY = "<Please apply your access key>";
 		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
-		Config.ACCESS_KEY = "RLT1NBD08g3kih5-0v8Yi6nX6cBhesa2Dju4P7mT";
-		Config.SECRET_KEY = "k6uZoSDAdKBXQcNYG3UOm4bP3spDVkTg-9hWHIKm";
 
 		String inputFile = args[0];
 
