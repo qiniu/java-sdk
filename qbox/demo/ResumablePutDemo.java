@@ -104,13 +104,6 @@ public class ResumablePutDemo {
 
 			readProgress(progressFile, checksums, progresses, blockCount);
 
-			for(int i = 0;i < progresses.length;i++){
-				BlockProgress bp = new BlockProgress();
-				bp = progresses[i];
-				if(progresses[i] != null)
-				System.out.println(progresses[i].context + "--" + progresses[i].offset +"--"+progresses[i].restSize);
-			}
-			
 			ResumableNotifier notif = new ResumableNotifier(progressFile);
 
 			PutFileRet putFileRet = RSClient.resumablePutFile(upClient,
