@@ -83,7 +83,7 @@ public class ResumableGUIPutDemo {
 
 		Config.ACCESS_KEY = "<Please apply your access key>";
 		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
-		
+
 		String inputFile = args[0];
 
 		String bucketName = "bucketName";

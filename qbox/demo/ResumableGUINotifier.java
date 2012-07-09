@@ -32,7 +32,7 @@ public class ResumableGUINotifier implements ProgressNotifier,
 	private long realSpeed; //the speed of the file upload
 	// 创建一条垂直进度条
 	private JProgressBar bar;
-	private JLabel realTimeSpeedLabel = new JLabel("上传速度：");
+	private JLabel realTimeSpeedLabel = new JLabel();
 	JFrame frame;
 	boolean pauseFlag = false;
 
@@ -86,6 +86,9 @@ public class ResumableGUINotifier implements ProgressNotifier,
 				// 以任务的当前完成量设置进度条的value
 				bar.setValue((int) current);
 				realTimeSpeedLabel.setText(realSpeed/1024 + "KB/s");
+				if(bar.getPercentComplete() == 1.0) {
+					frame.dispose();
+				}
 			}
 		});
 		timer.start();

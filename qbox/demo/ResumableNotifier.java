@@ -4,10 +4,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
 import org.json.JSONObject;
-import org.json.JSONStringer;
 
 import com.qiniu.qbox.up.BlockProgress;
 import com.qiniu.qbox.up.BlockProgressNotifier;

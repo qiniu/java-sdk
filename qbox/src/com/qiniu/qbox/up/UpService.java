@@ -78,7 +78,7 @@ public class UpService {
 			byte[] body = new byte[bodyLength];
 			
 			try {
-				file.seek(blockSize * blockIndex);
+				file.seek(Config.BLOCK_SIZE * blockIndex);
 				int readBytes = file.read(body, 0, bodyLength);
 				if (readBytes != bodyLength) { // Didn't get expected content.
 					return new ResumablePutRet(new CallRet(400, "Read nothing"));
@@ -122,7 +122,7 @@ public class UpService {
 			
 				try {
 					
-					file.seek(blockIndex * blockSize + progress.offset);
+					file.seek(blockIndex * Config.BLOCK_SIZE + progress.offset);
 					int readBytes = file.read(body, 0, bodyLength);
 					if (readBytes != bodyLength) { // Didn't get anything
 						return new ResumablePutRet(new CallRet(400, "Read nothing"));
