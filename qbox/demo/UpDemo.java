@@ -23,10 +23,12 @@ public class UpDemo {
 		Config.ACCESS_KEY = "<Please apply your access key>";
 		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
 
+
 		String bucketName = "bucketName";
-		String key = "RSDemo.class";
+		String key = "ff1.txt";
 		
-		String path = RSDemo.class.getClassLoader().getResource("").getPath();		
+		//String path = RSDemo.class.getClassLoader().getResource("").getPath();		
+		String path = "/Users/rwfeng/test/";
 		System.out.println("Resumably putting file: " + path + key);
 
 		AuthPolicy policy = new AuthPolicy("bucketName", 3600);
