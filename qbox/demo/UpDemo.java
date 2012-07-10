@@ -25,7 +25,7 @@ public class UpDemo {
 
 
 		String bucketName = "bucketName";
-		String key = "";
+		String key = "RSDemo.class";
 		
 		String path = RSDemo.class.getClassLoader().getResource("").getPath();		
 		System.out.println("Resumably putting file: " + path + key);
