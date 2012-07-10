@@ -1,4 +1,4 @@
-import java.awt.FlowLayout;
+ï»¿import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileOutputStream;
@@ -30,7 +30,7 @@ public class ResumableGUINotifier implements ProgressNotifier,
 	private long amount;
 	private long lastTime; //the timestamp of last chunck upload
 	private long realSpeed; //the speed of the file upload
-	// ´´½¨Ò»Ìõ´¹Ö±½ø¶ÈÌõ
+	// åˆ›å»ºä¸€æ¡å‚ç›´è¿›åº¦æ¡
 	private JProgressBar bar;
 	private JLabel realTimeSpeedLabel = new JLabel();
 	JFrame frame;
@@ -50,11 +50,11 @@ public class ResumableGUINotifier implements ProgressNotifier,
 		this.current = currentSize;
 		this.amount = fileSize;
 		this.realSpeed = 0;
-		this.frame = new JFrame("¶ÏµãĞø´«²âÊÔ");
-		// ´´½¨Ò»Ìõ´¹Ö±½ø¶ÈÌõ
+		this.frame = new JFrame("æ–­ç‚¹ç»­ä¼ æµ‹è¯•");
+		// åˆ›å»ºä¸€æ¡å‚ç›´è¿›åº¦æ¡
 		this.bar = new JProgressBar(JProgressBar.HORIZONTAL);
 
-		final JButton terminal = new JButton("ÍË³ö");
+		final JButton terminal = new JButton("é€€å‡º");
 
 		Box funcBox = new Box(BoxLayout.Y_AXIS);
 		Box infoBox = new Box(BoxLayout.Y_AXIS);
@@ -62,11 +62,11 @@ public class ResumableGUINotifier implements ProgressNotifier,
 
 		funcBox.add(terminal);
 
-		realSpeedBox.add(new JLabel("ÉÏ´«¼´Ê±ËÙ¶È£º"));
+		realSpeedBox.add(new JLabel("ä¸Šä¼ å³æ—¶é€Ÿåº¦ï¼š"));
 		realSpeedBox.add(this.realTimeSpeedLabel);
 		
 		infoBox.add(this.bar);
-		infoBox.add(new JLabel("ÎÄ¼ş´óĞ¡£º" + fileSize/(1024 * 1024) + "M"),1);
+		infoBox.add(new JLabel("æ–‡ä»¶å¤§å°ï¼š" + fileSize/(1024 * 1024) + "M"),1);
 		infoBox.add(realSpeedBox);
 		
 		this.frame.setLayout(new FlowLayout());
@@ -74,16 +74,16 @@ public class ResumableGUINotifier implements ProgressNotifier,
 		this.frame.add(funcBox);
 
 
-		// ÉèÖÃÔÚ½ø¶ÈÌõÖĞ»æÖÆÍê³É°Ù·Ö±È
+		// è®¾ç½®åœ¨è¿›åº¦æ¡ä¸­ç»˜åˆ¶å®Œæˆç™¾åˆ†æ¯”
 		this.bar.setStringPainted(true);
 
-		// ÉèÖÃ½ø¶ÈÌõµÄ×î´óÖµºÍ×îĞ¡Öµ,
+		// è®¾ç½®è¿›åº¦æ¡çš„æœ€å¤§å€¼å’Œæœ€å°å€¼,
 		this.bar.setMinimum(0);
-		// ÒÔ×ÜÈÎÎñÁ¿×÷Îª½ø¶ÈÌõµÄ×î´óÖµ
+		// ä»¥æ€»ä»»åŠ¡é‡ä½œä¸ºè¿›åº¦æ¡çš„æœ€å¤§å€¼
 		this.bar.setMaximum((int) this.amount);
 		Timer timer = new Timer(100, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// ÒÔÈÎÎñµÄµ±Ç°Íê³ÉÁ¿ÉèÖÃ½ø¶ÈÌõµÄvalue
+				// ä»¥ä»»åŠ¡çš„å½“å‰å®Œæˆé‡è®¾ç½®è¿›åº¦æ¡çš„value
 				bar.setValue((int) current);
 				realTimeSpeedLabel.setText(realSpeed/1024 + "KB/s");
 				if(bar.getPercentComplete() == 1.0) {
