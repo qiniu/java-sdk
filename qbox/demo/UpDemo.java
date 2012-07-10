@@ -25,10 +25,9 @@ public class UpDemo {
 
 
 		String bucketName = "bucketName";
-		String key = "ff1.txt";
+		String key = "";
 		
-		//String path = RSDemo.class.getClassLoader().getResource("").getPath();		
-		String path = "/Users/rwfeng/test/";
+		String path = RSDemo.class.getClassLoader().getResource("").getPath();		
 		System.out.println("Resumably putting file: " + path + key);
 
 		AuthPolicy policy = new AuthPolicy("bucketName", 3600);
