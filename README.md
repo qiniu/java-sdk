@@ -8,11 +8,11 @@
 安装 Maven 的插件：[The Maven Integration for Eclipse](http://www.eclipse.org/m2e/)
 
 添加依赖
-<dependency>
-	<groupId>com.qiniu</groupId>
-	<artifactId>sdk</artifactId>
-	<version>0.0.1</version>
-</dependency>
+	<dependency>
+		<groupId>com.qiniu</groupId>
+		<artifactId>sdk</artifactId>
+		<version>0.0.1</version>
+	</dependency>
 
 ## 使用
 
