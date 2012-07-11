@@ -3,15 +3,5 @@
 	<classpathentry kind="src" path="qbox/demo"/>
 	<classpathentry kind="src" path="qbox/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/Users/rwfeng/golang/sdk/java-sdk-bak/qbox/lib/commons-codec-1.6.jar"/>
-	<classpathentry kind="lib" path="/Users/rwfeng/golang/sdk/java-sdk-bak/qbox/lib/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="/Users/rwfeng/golang/sdk/java-sdk-bak/qbox/lib/fluent-hc-4.2.jar"/>
-	<classpathentry kind="lib" path="/Users/rwfeng/golang/sdk/java-sdk-bak/qbox/lib/httpclient-4.2.jar"/>
-	<classpathentry kind="lib" path="/Users/rwfeng/golang/sdk/java-sdk-bak/qbox/lib/httpclient-cache-4.2.jar"/>
-	<classpathentry kind="lib" path="/Users/rwfeng/golang/sdk/java-sdk-bak/qbox/lib/httpcore-4.2.1.jar"/>
-	<classpathentry kind="lib" path="/Users/rwfeng/golang/sdk/java-sdk-bak/qbox/lib/httpcore-4.2.jar"/>
-	<classpathentry kind="lib" path="/Users/rwfeng/golang/sdk/java-sdk-bak/qbox/lib/httpcore-ab-4.2.1.jar"/>
-	<classpathentry kind="lib" path="/Users/rwfeng/golang/sdk/java-sdk-bak/qbox/lib/httpcore-nio-4.2.1.jar"/>
-	<classpathentry kind="lib" path="/Users/rwfeng/golang/sdk/java-sdk-bak/qbox/lib/httpmime-4.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
