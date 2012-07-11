@@ -5,21 +5,14 @@
 此 Java SDK 适用于 Java 6 及以上版本，基于 [七牛云存储官方API](http://docs.qiniutek.com/v2/api/) 构建。使用此 SDK 构建您的网络应用程序，能让您以非常便捷地方式将数据安全地存储到七牛云存储上。无论您的网络应用是一个网站程序，还是包括从云端（服务端程序）到终端（手持设备应用）的架构的服务或应用，通过七牛云存储及其 SDK，都能让您应用程序的终端用户高速上传和下载，同时也让您的服务端更加轻盈。
 
 ## 安装
+安装 Maven 的插件：[The Maven Integration for Eclipse](http://www.eclipse.org/m2e/)
 
-需要在Eclipse工程中，导入七牛云存储的 SDK。目前，七牛云存储的 SDK 依赖于一下第三方包：
-
-- commons-codec-1.6.jar
-- commons-logging-1.1.1.jar
-- fluent-hc-4.2.jar
-- httpclient-4.2.jar
-- httpclient-cache-4.2.jar
-- httpcore-4.2.1.jar
-- httpcore-4.2.jar
-- httpcore-ab-4.2.1.jar
-- httpcore-nio-4.2.1.jar
-- httpmime-4.2.jar
-
-七牛云存储 SDK 中的 qbox/lib 目录默认已经包含这些第三方包，您直接使用就行。但是，也有可能因为你本地编译环境问题，需要重新载入这些包。
+添加依赖
+<dependency>
+	<groupId>com.qiniu</groupId>
+	<artifactId>sdk</artifactId>
+	<version>0.0.1</version>
+</dependency>
 
 ## 使用
 
