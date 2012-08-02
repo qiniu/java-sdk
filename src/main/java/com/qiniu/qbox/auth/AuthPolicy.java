@@ -15,11 +15,23 @@ public class AuthPolicy {
 	public String scope;
 	public String callbackUrl;
 	public String returnUrl;
+	public String customer;
+	public String callbackBodyType;
 	public long deadline;
 	
+	
+	public void setCallbackBodyType(String callbackBodyType) {
+		this.callbackBodyType = callbackBodyType;
+	}
+
 	public AuthPolicy(String scope, long expires) {
 		this.scope = scope;
 		this.deadline = System.currentTimeMillis() / 1000 + expires;
+	}
+	
+	public AuthPolicy(String scope, long expires, String customer) {
+		this(scope, expires);
+		this.customer = customer;
 	}
 
 	public void setCallbackUrl(String callbackUrl) {
@@ -41,6 +53,12 @@ public class AuthPolicy {
 		}
 		if (this.returnUrl != null) {
 			stringer.key("returnUrl").value(this.returnUrl);
+		}
+		if (this.customer != null) {
+			stringer.key("customer").value(this.customer);
+		}
+		if (this.callbackBodyType != null) {
+			stringer.key("callbackBodyType").value(this.callbackBodyType);
 		}
 		stringer.key("deadline").value(this.deadline);
 		stringer.endObject();

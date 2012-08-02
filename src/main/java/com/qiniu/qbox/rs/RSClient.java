@@ -22,15 +22,27 @@ import com.qiniu.qbox.up.ResumablePutRet;
 import com.qiniu.qbox.up.UpService;
 
 public class RSClient {
-	
+
 	/**
 	 * func PutFile(url, bucketName, key, mimeType, localFile, customMeta, callbackParams string)
 	 * 匿名上传一个文件(上传用的临时 url 通过 $rs->PutAuth 得到)
 	 * @throws Exception 
 	 */
 	public static PutFileRet putFile(
+			String url, String bucketName, String key, String mimeType, String localFile,
+			String customMeta, Object callbackParams1) throws Exception {
+			return putFile(url, bucketName, key, mimeType, localFile, customMeta, callbackParams1,  "");
+		
+	}
+	
+	/**
+	 * func PutFile(url, bucketName, key, mimeType, localFile, customMeta, callbackParams string, String upToken)
+	 * 匿名上传一个文件(上传用的临时 url Config.UP_HOST + "/upload")
+	 * @throws Exception 
+	 */
+	public static PutFileRet putFile(
 		String url, String bucketName, String key, String mimeType, String localFile,
-		String customMeta, Object callbackParams1) throws Exception {
+		String customMeta, Object callbackParams1, String upToken) throws Exception {
 
 		File file = new File(localFile);
 		if (!file.exists() || !file.canRead()) {
@@ -53,6 +65,10 @@ public class RSClient {
 
 		FileBody fileBody = new FileBody(new File(localFile));
 		requestEntity.addPart("file", fileBody);
+		
+		if (upToken != "") {
+			requestEntity.addPart("auth", new StringBody(upToken));			
+		}
 
 		if (callbackParams1 != null) {
 			String callbackParams = Client.encodeParams(callbackParams1);
@@ -74,6 +90,8 @@ public class RSClient {
 			client.getConnectionManager().shutdown();
 		}
 	}
+	
+	
 
 	private static PutFileRet handleResult(HttpResponse response) {
 		

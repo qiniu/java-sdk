@@ -20,8 +20,8 @@ public class UpDemo {
 	 */
 	public static void main(String[] args) {
 
-		Config.ACCESS_KEY = "<Please apply your access key>";
-		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
+		//Config.ACCESS_KEY = "<Please apply your access key>";
+		//Config.SECRET_KEY = "<Dont send your secret key to anyone>";
 
 
 		String bucketName = "bucketName";
