@@ -13,7 +13,7 @@ public class GetRet extends CallRet {
 
 	public GetRet(CallRet ret) {
 		super(ret);
-		
+
 		if (ret.ok() && ret.getResponse() != null) {
 			try {
 				unmarshal(ret.getResponse());
@@ -22,29 +22,11 @@ public class GetRet extends CallRet {
 			}
 		}
 	}
-	
-	public void unmarshal(String json) throws JSONException {
-		
-		JSONObject jsonObject = new JSONObject(json);
-		
-		if (jsonObject.has("hash") && jsonObject.has("fsize") && 
-				jsonObject.has("mimeType") && jsonObject.has("url")) {
-			this.hash = (String)jsonObject.get("hash");
-			Object fsizeObject = jsonObject.get("fsize");
-			if (fsizeObject instanceof Long) {
-				this.fsize = (Long)fsizeObject;
-			} else if (fsizeObject instanceof Integer) {
-				this.fsize = new Long((int)(Integer)fsizeObject);
-			}
-			this.mimeType = (String)jsonObject.get("mimeType");
-			this.url = (String)jsonObject.get("url");
-		}
-	}
-	
+
 	public String getHash() {
 		return this.hash;
 	}
-	
+
 	public long getFsize() {
 		return this.fsize;
 	}
@@ -56,4 +38,23 @@ public class GetRet extends CallRet {
 	public String getMimeType() {
 		return this.mimeType;
 	}
+
+	public void unmarshal(String json) throws JSONException {
+
+		JSONObject jsonObject = new JSONObject(json);
+
+		if (jsonObject.has("hash") && jsonObject.has("fsize")
+				&& jsonObject.has("mimeType") && jsonObject.has("url")) {
+			this.hash = (String) jsonObject.get("hash");
+			Object fsizeObject = jsonObject.get("fsize");
+			if (fsizeObject instanceof Long) {
+				this.fsize = (Long) fsizeObject;
+			} else if (fsizeObject instanceof Integer) {
+				this.fsize = new Long((int) (Integer) fsizeObject);
+			}
+			this.mimeType = (String) jsonObject.get("mimeType");
+			this.url = (String) jsonObject.get("url");
+		}
+	}
+
 }

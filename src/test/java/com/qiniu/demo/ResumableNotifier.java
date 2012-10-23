@@ -1,3 +1,4 @@
+package com.qiniu.demo;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -20,7 +21,6 @@ public class ResumableNotifier implements ProgressNotifier, BlockProgressNotifie
 		this.os = new PrintStream(out, true);
 	}
 	
-	@Override
 	public void notify(int blockIndex, String checksum) {
 	
 		try {
@@ -28,16 +28,18 @@ public class ResumableNotifier implements ProgressNotifier, BlockProgressNotifie
 			doc.put("block", blockIndex);
 			doc.put("checksum", checksum);
 			String json = JSONObject.valueToString(doc);
+			System.out.println("ResumableNotify.notify() : " + json);
+			// write to file
 			os.println(json);
-			System.out.println("Progress Notify:" +
+			System.out.println("***Progress Notify:" +
 					"\n\tBlockIndex: " + String.valueOf(blockIndex) + 
 					"\n\tChecksum: " + checksum);
 		} catch (Exception e) {
 			// nothing to do;
+			e.printStackTrace() ;
 		}
 	}
 
-	@Override
 	public void notify(int blockIndex, BlockProgress progress) {
 
 		try {
@@ -60,6 +62,11 @@ public class ResumableNotifier implements ProgressNotifier, BlockProgressNotifie
 					"\n\tRestSize: " + String.valueOf(progress.restSize));
 		} catch (Exception e) {
 			// nothing to do;
+			e.printStackTrace() ;
 		}
+	}
+	
+	public void rollBack(int blockIndex) {
+		
 	}
 }

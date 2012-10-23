@@ -23,8 +23,8 @@ public class PasswordAuthClient extends Client {
 	private String refreshToken;
 
 	public PasswordAuthClient() {
-		this.authUrl = Config.AUTHORIZATION_ENDPOINT;
-		this.tokenUrl = Config.TOKEN_ENDPOINT;
+		this.authUrl = Config.getAuthorizationEndPoint();
+		this.tokenUrl = Config.getTokenEndPoint();
 		this.clientId = "a75604760c4da4caaa456c0c5895c061c3065c5a";
 		this.clientSecret = "75df554a39f58accb7eb293b550fa59618674b7d";
 	}

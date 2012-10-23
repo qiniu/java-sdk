@@ -1,3 +1,4 @@
+package com.qiniu.demo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,7 +18,7 @@ import com.qiniu.qbox.up.BlockProgressNotifier;
 import com.qiniu.qbox.up.ProgressNotifier;
 import com.qiniu.qbox.up.UpService;
 
-public class ResumablePutDemo {
+public class ResumableGUIPutDemo {
 
 	public static void readProgress(String file, String[] checksums,
 			BlockProgress[] progresses, int blockCount) throws Exception {
@@ -27,7 +28,6 @@ public class ResumablePutDemo {
 		}
 		FileReader f = new FileReader(file);
 		BufferedReader is = new BufferedReader(f);
-
 		for (;;) {
 			String line = is.readLine();
 			if (line == null)
@@ -45,10 +45,7 @@ public class ResumablePutDemo {
 			if (blockIdx < 0 || blockIdx >= blockCount) {
 				// error ...
 				break;
-			} else {
-
-			}
-
+			} 
 			Object checksum = null;
 			if (o.has("checksum")) {
 				checksum = o.get("checksum");
@@ -75,15 +72,20 @@ public class ResumablePutDemo {
 			}
 			break; // error ...
 		}
+		if (is != null) {
+			is.close() ;
+			is = null ;
+		}
 	}
 
+	
+	
 	public static void main(String[] args) throws Exception {
-
-		Config.ACCESS_KEY = "<Please apply your access key>";
-		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
-
-		String inputFile = args[0];
-
+		
+		Config.init("QBox.config") ;
+		
+		String inputFile = args[0] ;
+		// String inputFile = "/home/wangjinlei/java-sdk/tmp.dat" ;
 		String bucketName = "bucketName";
 		String key = "RSDemo.class";
 
@@ -104,7 +106,7 @@ public class ResumablePutDemo {
 
 			readProgress(progressFile, checksums, progresses, blockCount);
 
-			ResumableNotifier notif = new ResumableNotifier(progressFile);
+			ResumableGUINotifier notif = new ResumableGUINotifier(progressFile ,progresses ,fsize);
 
 			PutFileRet putFileRet = RSClient.resumablePutFile(upClient,
 					checksums, progresses, (ProgressNotifier) notif,

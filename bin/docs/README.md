@@ -63,14 +63,13 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 
 首先，到 [https://github.com/qiniu/java-sdk/tags](https://github.com/qiniu/java-sdk/tags) 下载SDK源码。
 
-然后，将SDK导入到您的 Eclipse 项目中，并编辑当前工程目录下QBox.config文件，确保其包含您从七牛开发者平台所获取的 [Access Key 和 Secret Key](#acc-appkey)：
+然后，将SDK导入到您的 Eclipse 项目中，并编辑 com.qiniu.qbox 这个包下的 Config.java 文件，确保其包含您从七牛开发者平台所获取的 [Access Key 和 Secret Key](#acc-appkey)：
 
-    ACCESS_KEY	: "<Please apply your access key>";
-	SECRET_KEY	: "<Dont change here>";
+    public static String ACCESS_KEY	= "<Please apply your access key>";
+	public static String SECRET_KEY	= "<Dont change here>";
 
-在完成 Access Key 和 Secret Key 配置后，为了正常使用该 SDK 提供的功能需要根据配置文件进行初始化，您还需要使用你获得的 Access Key 和 Secret Key 向七牛云存储服务器发出认证请求：
+在完成 Access Key 和 Secret Key 配置后，为了正常使用该 SDK 提供的功能，您还需要使用你获得的 Access Key 和 Secret Key 向七牛云存储服务器发出认证请求：
 
-	Config.init("QBox.config"); // 此处通过传入配置文件完成初始化，您可以将配置文件存放任何位置，初始化时候要注意传入路径的正确性。
 	DigestAuthClient conn = new DigestAuthClient();
 
 请求成功后得到的 conn 即可用于您正常使用七牛云存储的一系列功能，接下来将一一介绍。
@@ -82,9 +81,6 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 ### 1. 新建资源表
 
 新建资源表的意义在于，您可以将所有上传的资源分布式加密存储在七牛云存储服务端后还能保持相应的完整映射索引。
-
-    // 通过传入配置文件，完成初始化工作
-    Config.init("QBox.config") ;
 
     // 首先定义资源表名
     String bucketName = "bucketName";
@@ -105,7 +101,6 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 要取得上传授权，只需调用已经实例化好的资源表对象的 putAuth() 方法。实例代码如下：
 
     // 获得上传授权之前需要通过签名认证的方式来实例化一个资源表对象
-    Config.init("QBox.config") ;
     String bucketName = "bucketName";
     DigestAuthClient conn = new DigestAuthClient();
     RSService rs = new RSService(conn, bucketName);
@@ -128,14 +123,13 @@ Java SDK 目前提供了两种类型的服务器端数据上传方式，一种�
 
 要上传某个本地文件，只需调用实例化好的资源表对象rs的 putFile() 方法，示例代码如下：
 
-    // 服务器端上传文件之前需要获得针对某个资源表名的签名认证
-    Config.init("QBox.config") ;
-    String bucketName = "bucketName";
-    DigestAuthClient conn = new DigestAuthClient();
+	// 服务器端上传文件之前需要获得针对某个资源表名的签名认证
+	String bucketName = "bucketName";
+	DigestAuthClient conn = new DigestAuthClient();
     RSService rs = new RSService(conn, bucketName);
     
     // 通过该实例化的资源表对象来进行文件上传
-    PutFileRet putFileRet = rs.putFile(key, mimeType, localFile, customMeta);
+	PutFileRet putFileRet = rs.putFile(key, mimeType, localFile, customMeta);
 	
 
 ##### 2. 客户端上传
@@ -145,7 +139,6 @@ Java SDK 目前提供了两种类型的服务器端数据上传方式，一种�
 客户端使用一个实例化好的资源表对象返回的匿名 URL 进行文件上传，示例代码如下：
 
 	// 在客户端上传文件之前，需要向服务器端获取上传认证，并通过该上传认证获取一个供上传文件的临时 URL
-    Config.init("QBox.config") ;
 	String bucketName = "bucketName";
 	DigestAuthClient conn = new DigestAuthClient();
     RSService rs = new RSService(conn, bucketName);
@@ -163,7 +156,6 @@ Java SDK 目前提供了两种类型的服务器端数据上传方式，一种�
 您可以调用资源表对象的 Stat() 方法并传入一个 Key（类似ID）来获取指定文件的相关信息。
 
 	// 实例化一个资源表对象，并获得一个相应的授权认证
-    Config.init("QBox.config") ;
 	String bucketName = "bucketName";
 	DigestAuthClient conn = new DigestAuthClient();
     RSService rs = new RSService(conn, bucketName);
@@ -186,7 +178,6 @@ Java SDK 目前提供了两种类型的服务器端数据上传方式，一种�
 要下载一个文件，首先需要取得下载授权，所谓下载授权，就是取得一个临时合法有效的下载链接，只需调用资源表对象的 Get() 方法并传入相应的 文件ID 和下载要保存的文件名 作为参数即可。示例代码如下：
 
 	// 实例化一个资源表对象，并获得一个下载已上传文件信息的授权认证
-    Config.init("QBox.config") ;
 	String bucketName = "bucketName";
 	DigestAuthClient conn = new DigestAuthClient();
     RSService rs = new RSService(conn, bucketName);
@@ -219,14 +210,12 @@ GetIfNotModified() 方法返回的结果包含的字段同 Get() 方法一致。
 要公开发布一个资源表里边的所有文件，只需调用改资源表对象的 Publish() 方法并传入 域名 作为参数即可。如下示例：
 
 	// 实例化一个资源表对象，并获得一个发布公开资源的授权认证
-    Config.init("QBox.config") ;
 	String bucketName = "bucketName";
 	DigestAuthClient conn = new DigestAuthClient();
     RSService rs = new RSService(conn, bucketName);
-    String DEMO_DOMAIN = "http://iovip.qbox.me/test";
     
     // 公开发布某个资源表
-    PublishRet publishRet = rs.publish(DEMO_DOMAIN + "/" + bucketName);
+    PublishRet publishRet = rs.publish(Config.DEMO_DOMAIN + "/" + bucketName);
 
 <a name="rs-Unpublish"></a>
 
@@ -235,14 +224,12 @@ GetIfNotModified() 方法返回的结果包含的字段同 Get() 方法一致。
 调用资源表对象的 Unpublish() 方法可取消该资源表内所有文件的静态外链。
 
     // 实例化一个资源表对象，并获得一个取消发布公开资源的授权认证
-    Config.init("QBox.config") ;
 	String bucketName = "bucketName";
-    String DEMO_DOMAIN = "http://iovip.qbox.me/test";
 	DigestAuthClient conn = new DigestAuthClient();
     RSService rs = new RSService(conn, bucketName);
     
     // 取消公开发布某个资源表
-    PublishRet unpublishRet = rs.unpublish(DEMO_DOMAIN + "/" + bucketName);
+    PublishRet unpublishRet = rs.unpublish(Config.DEMO_DOMAIN + "/" + bucketName);
 
 <a name="rs-Delete"></a>
 
@@ -251,7 +238,6 @@ GetIfNotModified() 方法返回的结果包含的字段同 Get() 方法一致。
 要删除指定的文件，只需调用资源表对象的 Delete() 方法并传入 文件ID（key）作为参数即可。如下示例代码：
 
     // 实例化一个资源表对象，并获得一个删除资源表中特定文件的授权认证
-    Config.init("QBox.config") ;
 	String bucketName = "bucketName";
 	DigestAuthClient conn = new DigestAuthClient();
     RSService rs = new RSService(conn, bucketName);
@@ -268,7 +254,6 @@ GetIfNotModified() 方法返回的结果包含的字段同 Get() 方法一致。
 需慎重，这会删除整个表及其所有文件
 
     // 实例化一个资源表对象，并获得一个删除整张资源表的授权认证
-    Config.init("QBox.config") ;
 	String bucketName = "bucketName";
 	DigestAuthClient conn = new DigestAuthClient();
     RSService rs = new RSService(conn, bucketName);

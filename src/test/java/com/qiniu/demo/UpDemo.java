@@ -1,3 +1,4 @@
+package com.qiniu.demo;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -15,18 +16,12 @@ import com.qiniu.qbox.up.UpService;
 
 public class UpDemo {
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
-
-		Config.ACCESS_KEY = "<Please apply your access key>";
-		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
-
-
+		String dir = System.getProperty("user.dir");
+		System.out.println(dir) ;
+		Config.init("QBox.config") ;
 		String bucketName = "bucketName";
-		String key = "RSDemo.class";
-		
+		String key = "README.md";
 		String path = RSDemo.class.getClassLoader().getResource("").getPath();		
 		System.out.println("Resumably putting file: " + path + key);
 
