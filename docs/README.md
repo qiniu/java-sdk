@@ -66,7 +66,9 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 然后，将SDK导入到您的 Eclipse 项目中，并编辑当前工程目录下QBox.config文件，确保其包含您从七牛开发者平台所获取的 [Access Key 和 Secret Key](#acc-appkey)：
 
     ACCESS_KEY	: "<Please apply your access key>";
-	SECRET_KEY	: "<Dont change here>";
+	SECRET_KEY	: "<Dont send your secret key to anyone>";
+
+
 
 在完成 Access Key 和 Secret Key 配置后，为了正常使用该 SDK 提供的功能需要根据配置文件进行初始化，您还需要使用你获得的 Access Key 和 Secret Key 向七牛云存储服务器发出认证请求：
 
@@ -154,6 +156,8 @@ Java SDK 目前提供了两种类型的服务器端数据上传方式，一种�
     
     // 通过该临时 URL 进行文件上传
 	PutFileRet putFileRet = RSClient.putFile(uploadUrl, bucketName, key, "", path + key, "", null);
+
+##### 3. 断点续上传
 
 
 <a name="rs-Stat"></a>
@@ -275,3 +279,144 @@ GetIfNotModified() 方法返回的结果包含的字段同 Get() 方法一致。
     
     // 删除资源表中的某个文件
     DropRet dropRet = rs.drop();
+
+##图像处理接口
+### 1. 查看图片属性信息
+
+SDK 提供的 com.qiniu.qbox.rs.RSService 中的 imageInfo 方法，可以基于一张存储于七牛云存储服务器上的图片，针对其下载链接来获取该张图片的属性信息。  
+参数 ：  
+imgUrl  
+必须，字符串类型（String），图片的下载链接，需是 com.qiniu.qbox.rs.RSService 中 get 方法返回结果中 url 字段的值，且文件本身必须是图片。
+
+返回值：  
+如果请求成功得到的返回结果 imgInfoRet 包含如下的字段：  
+  
+    "format"	       // 原始图片类型
+    "width"      	   // 原始图片宽度，单位像素
+    "height"     	   // 原始图片高度，单位像素
+    "colorModel" 	   // 原始图片着色模式
+示例程序如下：  
+
+    Config.init("QBox.config") ;  
+    DigestAuthClient conn = new DigestAuthClient();
+    String bucketName = "testPhotos";
+    String key = "dao.jpg";
+    
+    RSService rs = new RSService(conn, bucketName);
+    PutAuthRet putAuthRet = rs.putAuth();
+    String putUrl = putAuthRet.getUrl();
+    Map<String, String> callbackParams = new HashMap<String, String>();
+    callbackParams.put("key", key);
+    PutFileRet putFileRet = RSClient.putFile(putAuthRet.getUrl(),
+    		bucketName, key, "", key, "CustomData", callbackParams);
+    GetRet getRet = rs.get(key, key);
+    // 得到图片的下载url
+    String imgDownloadUrl = getRet.getUrl() ;
+    
+    FileOp fp = new FileOp() ;
+    ImageInfoRet imgInfoRet = rs.imageInfo(fp.getImageInfoURL(imgDownloadUrl)) ;
+
+### 2. 获取图片EXIF信息
+
+RSservice 中的 imageEXIF 方法，可以基于一张存储于七牛云存储服务器上的原始图片图片，取到该图片的 EXIF 信息。 
+  
+参数：  
+imgUrl  
+必须，字符串类型（String），图片的下载链接，需是 com.qiniu.qbox.rs.RSService 中 get 方法返回结果中 url 字段的值，且文件本身必须是图片。
+
+返回值：  
+如果请求参数 url 所代表的图片没有 EXIF 信息，返回结果中的响应字段为 false。否则，返回一个包含 EXIF 信息的 Hash 结构。
+
+示例代码：
+
+    CallRet imgExRet = rs.imageEXIF(fp.getImageEXIFURL(imgDownloadUrl)) ;
+
+
+### 3. 获取指定规格的缩略图预览地址
+
+FileOp 中的 getImageMogrifyPreviewURL 方法，可以基于一张存储于七牛云存储服务器上的图片，针对其下载链接，以及指定的缩略图规格类型，来获取该张图片的缩略图地址。 
+
+参数：  
+imgUrl  
+必须，字符串类型（String），图片的下载链接，需是 com.qiniu.qbox.rs.RSService 中 get 方法返回结果中 url 字段的值，且文件本身必须是图片。
+
+thumbType
+可选，整型值，指定缩略图的具体规格，参考 七牛云存储API之缩略图预览 和 自定义缩略图规格 。该值缺省为 0 （即输出宽800px高600px图片质量为85的缩略图）
+
+返回值：  
+返回一个字符串类型的缩略图 URL
+
+示例代码：
+    
+    String imgPreviewUrl = fp.getImagePreviewURL(imgDownloadUrl, 0) ;
+  
+
+### 4. 高级图像处理（缩略、裁剪、旋转、转化）
+
+FileOp 中的 getImageMogrifyPreviewURL 方法支持将一个存储在七牛云存储的图片进行缩略、裁剪、旋转和格式转化处理，该方法返回一个可以直接预览缩略图的URL。
+
+参数：  
+imgUrl  
+必须，字符串类型（String），图片的下载链接，需是 com.qiniu.qbox.rs.RSService 中 get 方法返回结果中 url 字段的值，且文件本身必须是图片。
+
+opts 
+必须，Hash Map 格式的图像处理参数。  
+具体规格如下：
+    
+    thumbnail    <ImageSizeGeometry> 
+    gravity      <GravityType>=NorthWest, North, NorthEast, West, Center, East, SouthWest, South, SouthEast
+    crop         <ImageSizeAndOffsetGeometry>
+    quality      <ImageQuality> 
+    rotate       <RotateDegree> 
+    format       <DestinationImageFormat> =jpg, gif, png, tif, etc.
+    auto_orient  <TrueOrFalse>
+
+返回值：  
+返回一个可以预览最终缩略图的URL，String 类型。
+
+示例代码：
+    
+    Map<String, String> opts = new HashMap<String, String>() ;
+    opts.put("thumbnail", "!120x120r") ;
+    opts.put("gravity", "center") ;
+    opts.put("crop", "!120x120a0a0") ;
+    opts.put("quality", "85") ;
+    opts.put("rotate", "45") ;
+    opts.put("format", "jpg") ;
+    opts.put("auto_orient", "True") ;
+    String mogrifyPreviewUrl = fp.getImageMogrifyPreviewURL(imgDownloadUrl, opts) ;
+### 5. 高级图像处理（缩略、裁剪、旋转、转化）并持久化存储处理结果
+
+RSService 中的 imageMogrifySaveAs 方法支持将一个存储在七牛云存储的图片进行缩略、裁剪、旋转和格式转化处理，并且将处理后的缩略图作为一个新文件持久化存储到七牛云存储服务器上，这样就可以供后续直接使用而不用每次都传入参数进行图像处理。
+
+参数：  
+targetBucketName  
+必须，字符串类型（string），指定最终缩略图要存放的 bucket 。  
+  
+targetKey  
+必须，字符串类型（string），指定最终缩略图存放在云存储服务端的唯一文件ID。
+
+srcImgUrl  
+必须，字符串类型（string），指定原始图片的下载链接，可以根据 rs.get() 获取到。
+
+opts  
+必须，Hash Map 格式的图像处理参数。  
+具体规格如下：
+    
+    thumbnail    <ImageSizeGeometry> 
+    gravity      <GravityType>=NorthWest, North, NorthEast, West, Center, East, SouthWest, South, SouthEast
+    crop         <ImageSizeAndOffsetGeometry>
+    quality      <ImageQuality> 
+    rotate       <RotateDegree> 
+    format       <DestinationImageFormat> =jpg, gif, png, tif, etc.
+    auto_orient  <TrueOrFalse>
+
+
+返回值：  
+如果请求失败，返回错误信息；否则，返回如下一个 Hash 类型的结构： 
+ 
+    {"hash":"FiA388M_-D3Gt-RXBYl4J3U1c96a"}
+
+示例代码：
+    
+    CallRet imgSaveAsRet = rs.imageMogrifySaveAs("testTarget", key, imgDownloadUrl, opts) ;

@@ -21,10 +21,14 @@ public class Config {
 	private static String rsHost;
 	private static String upHost;
 	
-	private static int blockSize;		// 单位为B(4M = 4 * 1024 * 1024 = 4194304B)
-	private static int putChuncksize;	// 单位为B(256K = 256 * 1024 = 262144)
+	/** 单位为字节(例如：4M = 4 * 1024 * 1024 = 4194304字节) */
+	private static int blockSize;	
+	/**	单位为字节(例如：256K = 256 * 1024 = 262144字节) */
+	private static int putChuncksize;	 
+	/**	上传失败后重试的次数 (例如：3次)*/
 	private static int putRetryTimes;	
-	private static int putTimeOut;		// 单位为秒
+	/**	 单位为秒 */
+	private static int putTimeOut;		
 
 	public static String getAccessKey() {
 		return accessKey;
@@ -80,6 +84,11 @@ public class Config {
 
 	private Config() {}
 	
+	/**
+	 * Reads the file line by line, and concatenate the each line as a big String.
+	 * @param 		file the config file passed by the caller
+	 * @return 		A String containing all the content of the file
+	 */
 	private static String loadConfig(String file) {
 		BufferedReader reader = null;
 		StringBuffer jsonBuf = new StringBuffer();
@@ -104,6 +113,11 @@ public class Config {
 		return jsonBuf.toString();
 	}
 
+	/**
+	 * Initializes each field with the content according to the json object.
+	 * @param 	json		An json object
+	 * @throws 	Exception	If any key not presents in the config file
+	 */
 	private static void unmarshal(JSONObject json) throws Exception {
 		try {
 			if (json.has("ACCESS_KEY")) {
@@ -176,6 +190,10 @@ public class Config {
 		}
 	}
 
+	/**
+	 * Initializes the global config information using the specified config file.
+	 * @param 	configFile	The global config file passed by the user.
+	 */
 	public static void init(String configFile) {
 		String jsonString = loadConfig(configFile);
 		JSONObject json;

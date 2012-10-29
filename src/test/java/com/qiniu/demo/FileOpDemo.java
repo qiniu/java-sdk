@@ -8,6 +8,7 @@ import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.DigestAuthClient;
 import com.qiniu.qbox.rs.FileOp;
 import com.qiniu.qbox.rs.GetRet;
+import com.qiniu.qbox.rs.ImageInfoRet;
 import com.qiniu.qbox.rs.PutAuthRet;
 import com.qiniu.qbox.rs.PutFileRet;
 import com.qiniu.qbox.rs.RSClient;
@@ -19,13 +20,13 @@ public class FileOpDemo {
 	public static void main(String[] args) throws Exception {
 		
 		// First of all, get the config information through the specified file.
-		Config.init("QBox.config") ;
+		Config.init("/home/wangjinlei/QBox.config") ;
 		
 		DigestAuthClient conn = new DigestAuthClient();
 		String bucketName = "testPhotos";
 		String key = "/home/wangjinlei/dao.jpg";
-
-		String path = RSDemo.class.getClassLoader().getResource("").getPath();
+		//String key = "dao.jpg" ;
+		String path = FileOpDemo.class.getClassLoader().getResource("").getPath();
 		System.out.println("Test to put local file: " + path + key);
 
 		RSService rs = new RSService(conn, bucketName);
@@ -61,12 +62,22 @@ public class FileOpDemo {
 		
 		FileOp fp = new FileOp() ;
 		// get the image info from the specified url
-		CallRet imgRet = rs.imageInfo(fp.getImageInfoURL(imgDownloadUrl)) ;
-		System.out.println("ImageInfo " + imgRet) ;
+		ImageInfoRet imgInfoRet = rs.imageInfo(fp.getImageInfoURL(imgDownloadUrl)) ;
+		System.out.println("Resulst of imageInfo() : ") ;
+		System.out.println("**    format : " + imgInfoRet.getFormat()) ;
+		System.out.println("**    width  : " + imgInfoRet.getWidth()) ;
+		System.out.println("**    height : " + imgInfoRet.getHeight()) ;
+		System.out.println("**colorModel : " + imgInfoRet.getColorMode()) ;
 		
 		// get the exif info from the specified image url
 		CallRet imgExRet = rs.imageEXIF(fp.getImageEXIFURL(imgDownloadUrl)) ;
-		System.out.println("ImageExif  : " + imgExRet) ;
+		System.out.println("Result of imageEXIF()  : ") ;
+		System.out.println("**    ok : " + imgExRet.ok()) ;
+		System.out.println("**       : " + imgExRet.getResponse()) ;
+		
+		// get image preview url
+		String imgPreviewUrl = fp.getImagePreviewURL(imgDownloadUrl, 1) ;
+		System.out.println("imgPreviewUrl : " + imgPreviewUrl) ;
 		
 		
 		Map<String, String> opts = new HashMap<String, String>() ;
@@ -81,7 +92,9 @@ public class FileOpDemo {
 		String mogrifyPreviewUrl = fp.getImageMogrifyPreviewURL(imgDownloadUrl, opts) ;
 		System.out.println("ImageMogrifyPreviewUrl : " + mogrifyPreviewUrl) ;
 		
-		CallRet imgSaveAsRet = rs.imageMogrifySaveAs(key, imgDownloadUrl, opts) ;
+		
+		
+		CallRet imgSaveAsRet = rs.imageMogrifySaveAs("testTarget", key, imgDownloadUrl, opts) ;
 		if (imgSaveAsRet.ok()) {
 			System.out.println("OK : " + imgSaveAsRet) ;
 		} else {

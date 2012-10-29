@@ -65,7 +65,7 @@ public class ResumablePutDemo {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Config.init("QBox.config") ;
+		Config.init("/home/wangjinlei/QBox.config") ;
 		
 		String dir = System.getProperty("user.dir");
 		String fileName = "tmp.dat";
