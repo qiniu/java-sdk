@@ -2,13 +2,7 @@ package com.qiniu.qbox.rs;
 
 import java.util.Map;
 
-import com.qiniu.qbox.auth.Client;
-
 public class FileOp {
-
-	public String mkStyleURL(String url, String tmpPngFile, String params, int quality) {
-		return url + "?makeStyle/" + Client.urlsafeEncode(tmpPngFile) + "/params/" + Client.urlsafeEncode(params) + quality ;
-	}
 	
 	public String getImagePreviewURL(String url, int thumbType) {
 		return url + "?imagePreview/" + thumbType ;
@@ -29,6 +23,26 @@ public class FileOp {
 	
 	public String getImage90x90URL(String url) {
 		return url += "?imageMogr/auto-orient/thumbnail/!90x90r/gravity/center/crop/90x90" ;
+	}
+	
+	public String getImageViewURL(String url, Map<String, String> params) {
+		return url += "?imageView/" + this.mkImageViewParams(params) ;
+	}
+	
+	public String mkImageViewParams(Map<String, String> opts) {
+		String[] keys = {"w", "h", "q", "format", "sharpen", "watermark"} ;
+		String params = "" ;
+		String modeVal = opts.get("mode") ;
+		params += modeVal ;
+		
+		for (String key : keys) {
+			String val = opts.get(key) ;
+			if (val != null) {
+				params += "/" + key + "/" + val ;
+			}
+		}
+		
+		return params ;
 	}
 	
 	public String mkImageMogrifyParams(Map<String, String> opts) {

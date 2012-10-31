@@ -17,20 +17,17 @@ import com.qiniu.qbox.up.UpService;
 public class UpDemo {
 
 	public static void main(String[] args) {
-		String dir = System.getProperty("user.dir");
-		System.out.println(dir) ;
-		Config.init("QBox.config") ;
+		Config.init("/home/wangjinlei/QBox.config") ;
 		String bucketName = "bucketName";
-		String key = "README.md";
-		String path = RSDemo.class.getClassLoader().getResource("").getPath();		
-		System.out.println("Resumably putting file: " + path + key);
-
-		AuthPolicy policy = new AuthPolicy("bucketName", 3600);
+		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
 		String token = policy.makeAuthTokenString();
-		
 		UpTokenClient upTokenClient = new UpTokenClient(token);
 		UpService upClient = new UpService(upTokenClient);
-
+		
+		String key = "README.md";
+		String path = RSDemo.class.getClassLoader().getResource("").getPath();	
+		
+		System.out.println("Resumably putting file: " + path + key);
 		try {
 			RandomAccessFile f = new RandomAccessFile(path + key, "r");
 
@@ -40,6 +37,8 @@ public class UpDemo {
 			String[] checksums = new String[(int)blockCount];
 			BlockProgress[] progresses = new BlockProgress[(int)blockCount];
 			
+			// 此处的Notifier并未做任何持久化的工作，所以此处的效果相当于直传 
+			// 并不是断点续传
 			Notifier notif = new Notifier();
 
 			PutFileRet putFileRet = RSClient.resumablePutFile(upClient, 

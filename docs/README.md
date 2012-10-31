@@ -122,42 +122,63 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 
 ### 3. 上传文件
 
-一旦建立好资源表和取得上传授权，就可以开始上传文件了。七牛云存储上传文件的方式分为服务器端上传和客户端上传两种。
+七牛云存储上传文件的方式分为直传和断点续传两种。
 
-##### 1. 服务器端上传
+##### 1.文件上传
+Java SDK 目前支持从本地上传某个文件，用户可以根据需要选择是直传还是断点续传。  
+要以直传的方式上传文件，用户只需获得相关认证就可以上传文件了。  
+如果上传成功，得到的 putFileRet 会包含对应的 hash 值，否则返回对应的错误。
 
-Java SDK 目前提供了两种类型的服务器端数据上传方式，一种是直接上传某个本地文件 ，另一种是通过某个带有特定文件信息的文件类上传文件。这两种上传方式都是以直传的方式进行。
-
-要上传某个本地文件，只需调用实例化好的资源表对象rs的 putFile() 方法，示例代码如下：
-
-    // 服务器端上传文件之前需要获得针对某个资源表名的签名认证
+示例代码如下：
+   
+    // 获得认证
     Config.init("QBox.config") ;
     String bucketName = "bucketName";
-    DigestAuthClient conn = new DigestAuthClient();
-    RSService rs = new RSService(conn, bucketName);
-    
-    // 通过该实例化的资源表对象来进行文件上传
-    PutFileRet putFileRet = rs.putFile(key, mimeType, localFile, customMeta);
+    AuthPolicy policy = new AuthPolicy(bucketName, 3600);
+    String token = policy.makeAuthTokenString();
+    UpTokenClient upTokenClient = new UpTokenClient(token);
+    UpService upClient = new UpService(upTokenClient);
+
+    // 上传文件
+    String key = "README.md";
+    String path = RSDemo.class.getClassLoader().getResource("").getPath();		
+    RandomAccessFile f = new RandomAccessFile(path + key, "r");
+    long fsize = f.length();
+    long blockCount = UpService.blockCount(fsize);
+    String[] checksums = new String[(int)blockCount];
+    BlockProgress[] progresses = new BlockProgress[(int)blockCount];
+    // 由于此处的 Notifer 未提供任何的"持久化"功能，所以此处相当于文件直传
+    Notifier notif = new Notifier();
+
+    PutFileRet putFileRet = RSClient.resumablePutFile(upClient, 
+		checksums, progresses, 
+		(ProgressNotifier)notif, (BlockProgressNotifier)notif, 
+		bucketName, key, "", f, fsize, "CustomMeta", "");
+
 	
 
-##### 2. 客户端上传
-	    
-客户端上传跟服务器端上传不太一样，客户的文件无需经过您服务器即可上传到七牛云存储服务器。这类上传方式常见于面向首次设备终端用户的应用中，其客户通过向服务器请求的方式得到一个匿名 URL 进行上传。当终端用户上传成功后，七牛云存储服务端会向您指定的 callback_url 发送回调数据。
 
-客户端使用一个实例化好的资源表对象返回的匿名 URL 进行文件上传，示例代码如下：
+##### 2. 断点续上传
 
-	// 在客户端上传文件之前，需要向服务器端获取上传认证，并通过该上传认证获取一个供上传文件的临时 URL
-    Config.init("QBox.config") ;
+客户端在上传文件的时候也可以根据需求选择断点续上传的方式，此处所说的断点上传是指用户在某次上传过程中出现错误，再重新上传的时候只需要从上次上传失败处上传即可。用户可以根据通过修改配置文件改变上传块（Config文件中的PUT_CHUNK_SIZE对应的值）的大小来适应用户所处的网络环境。为了提供一个简单的接口，我们将上传进度持久化的相关工作内置在了 SDK 中，当然用户也可以根据需要自己实现文件上传进度的持久化工作。
+
+如果上传成功，得到的 putFileRet 会包含对应的 hash 值，否则返回对应的错误。
+
+示例代码如下：  
+
+    Config.init("/home/wangjinlei/QBox.config") ;
 	String bucketName = "bucketName";
-	DigestAuthClient conn = new DigestAuthClient();
-    RSService rs = new RSService(conn, bucketName);
-    PutAuthRet putAuthRet = rs.putAuth();
-    uploadUrl = putAuthRet.getUrl();
-    
-    // 通过该临时 URL 进行文件上传
-	PutFileRet putFileRet = RSClient.putFile(uploadUrl, bucketName, key, "", path + key, "", null);
+	String key = "RSDemo.class";
+				
+	AuthPolicy policy = new AuthPolicy("bucketName", 3600);
+	String token = policy.makeAuthTokenString();
+	UpTokenClient upTokenClient = new UpTokenClient(token);
+	UpService upClient = new UpService(upTokenClient);
+	PutFileRet  putFileRet = null ;
+	
+	putFileRet = RSClient.resumablePutFile(upClient,
+				bucketName, key, "", inputFile, "CustomMeta", "", "");
 
-##### 3. 断点续上传
 
 
 <a name="rs-Stat"></a>
@@ -227,7 +248,7 @@ GetIfNotModified() 方法返回的结果包含的字段同 Get() 方法一致。
 	String bucketName = "bucketName";
 	DigestAuthClient conn = new DigestAuthClient();
     RSService rs = new RSService(conn, bucketName);
-    String DEMO_DOMAIN = "http://iovip.qbox.me/test";
+    String DEMO_DOMAIN = "http://test.dn.qbox.me";
     
     // 公开发布某个资源表
     PublishRet publishRet = rs.publish(DEMO_DOMAIN + "/" + bucketName);
@@ -334,21 +355,29 @@ imgUrl
 
 ### 3. 获取指定规格的缩略图预览地址
 
-FileOp 中的 getImageMogrifyPreviewURL 方法，可以基于一张存储于七牛云存储服务器上的图片，针对其下载链接，以及指定的缩略图规格类型，来获取该张图片的缩略图地址。 
+FileOp 中的 getImageViewURL 方法，可以基于一张存储于七牛云存储服务器上的图片，针对其下载链接，以及指定的缩略图规格类型，来获取该张图片的缩略图地址。 
 
 参数：  
 imgUrl  
 必须，字符串类型（String），图片的下载链接，需是 com.qiniu.qbox.rs.RSService 中 get 方法返回结果中 url 字段的值，且文件本身必须是图片。
 
-thumbType
-可选，整型值，指定缩略图的具体规格，参考 七牛云存储API之缩略图预览 和 自定义缩略图规格 。该值缺省为 0 （即输出宽800px高600px图片质量为85的缩略图）
+opts 
+必须，Hash Map 格式的图像处理参数。  
 
 返回值：  
 返回一个字符串类型的缩略图 URL
 
 示例代码：
     
-    String imgPreviewUrl = fp.getImagePreviewURL(imgDownloadUrl, 0) ;
+    Map<String, String> imgViewOpts = new HashMap<String, String>() ;
+	imgViewOpts.put("mode", "1") ;
+	imgViewOpts.put("w", "100") ;
+	imgViewOpts.put("h", "100") ;
+	imgViewOpts.put("q", "1") ;
+	imgViewOpts.put("format", "jpg") ;
+	imgViewOpts.put("sharpen", "10") ;
+	String imgViewUrl = fp.getImageViewURL(imgDownloadUrl, imgViewOpts) ;
+	System.out.println("image view url : " + imgViewUrl) ;
   
 
 ### 4. 高级图像处理（缩略、裁剪、旋转、转化）

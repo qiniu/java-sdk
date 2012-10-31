@@ -23,7 +23,7 @@ public class RSDemo {
 		String bucketName = "test";
 		String key = "RSDemo.class";
 
-		String DEMO_DOMAIN = "http://iovip.qbox.me/test";
+		String DEMO_DOMAIN = "http://test.dn.qbox.me";
 		
 		String path = RSDemo.class.getClassLoader().getResource("").getPath();
         System.out.println("Test to put local file: " + path + key);   

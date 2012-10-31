@@ -24,7 +24,7 @@ public class FileOpDemo {
 		
 		DigestAuthClient conn = new DigestAuthClient();
 		String bucketName = "testPhotos";
-		String key = "/home/wangjinlei/dao.jpg";
+		String key = "/home/wangjinlei/dg.jpg";
 		//String key = "dao.jpg" ;
 		String path = FileOpDemo.class.getClassLoader().getResource("").getPath();
 		System.out.println("Test to put local file: " + path + key);
@@ -78,6 +78,17 @@ public class FileOpDemo {
 		// get image preview url
 		String imgPreviewUrl = fp.getImagePreviewURL(imgDownloadUrl, 1) ;
 		System.out.println("imgPreviewUrl : " + imgPreviewUrl) ;
+		
+		// get image view url 
+		Map<String, String> imgViewOpts = new HashMap<String, String>() ;
+		imgViewOpts.put("mode", "1") ;
+		imgViewOpts.put("w", "100") ;
+		imgViewOpts.put("h", "200") ;
+		imgViewOpts.put("q", "1") ;
+		imgViewOpts.put("format", "jpg") ;
+		imgViewOpts.put("sharpen", "100") ;
+		String imgViewUrl = fp.getImageViewURL(imgDownloadUrl, imgViewOpts) ;
+		System.out.println("image view url : " + imgViewUrl) ;
 		
 		
 		Map<String, String> opts = new HashMap<String, String>() ;
