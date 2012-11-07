@@ -62,20 +62,6 @@ public class UpService {
 			System.arraycopy(buf,  0, body, i * 20, buf.length);
 		}
 		CallRet ret = this.conn.callWithBinary(url, null, body, body.length);
-		/*
-		StringBuffer bufBody = new StringBuffer() ;
-		for (int i = 0; i < checksums.length; i++) {
-			String tmp = null ;
-			if (i == checksums.length - 1) {
-				tmp = new String(Base64.decodeBase64(checksums[i])) ;
-			} else {
-				tmp = new String(Base64.decodeBase64(checksums[i] +",")) ;
-			}
-			bufBody.append(tmp) ;
-		}
-		
-		CallRet ret = this.conn.callWithBinary(url, null, bufBody.toString().getBytes(), bufBody.toString().getBytes().length);
-		*/
 		return ret;
 	}
 	
