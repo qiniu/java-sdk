@@ -206,7 +206,6 @@ public class RSClient {
 			if (progressFile == null || "".equals(progressFile)) {
 				progressFile = inputFile + ".progress" + fsize;
 			}
-			System.out.println("fsize : " + fsize);
 			String[] checksums = new String[(int) blockCount];
 			BlockProgress[] progresses = new BlockProgress[(int) blockCount];
 			
