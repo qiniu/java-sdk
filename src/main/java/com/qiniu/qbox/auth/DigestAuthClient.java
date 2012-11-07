@@ -15,6 +15,11 @@ import org.apache.http.client.methods.HttpPost;
 import com.qiniu.qbox.Config;
 
 public class DigestAuthClient extends Client {
+	
+	public DigestAuthClient() {
+		
+	}
+	
 
 	@Override
 	public void setAuth(HttpPost post) {
@@ -23,7 +28,7 @@ public class DigestAuthClient extends Client {
 		String query = uri.getRawQuery();
 		HttpEntity entity = post.getEntity();
 
-		byte[] secretKey = Config.SECRET_KEY.getBytes();
+		byte[] secretKey = Config.getSecretKey().getBytes();
 		try {
 			Mac mac = Mac.getInstance("HmacSHA1");
 			SecretKeySpec keySpec = new SecretKeySpec(secretKey, "HmacSHA1");
@@ -48,7 +53,7 @@ public class DigestAuthClient extends Client {
 
 			StringBuffer b = new StringBuffer();
 			b.append("QBox ");
-			b.append(Config.ACCESS_KEY);
+			b.append(Config.getAccessKey());
 			b.append(':');
 			b.append(new String(digestBase64));
 

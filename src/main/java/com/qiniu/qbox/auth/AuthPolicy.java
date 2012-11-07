@@ -50,8 +50,8 @@ public class AuthPolicy {
 
 	public byte[] makeAuthToken() {
 
-		byte[] accessKey = Config.ACCESS_KEY.getBytes();
-		byte[] secretKey = Config.SECRET_KEY.getBytes();
+		byte[] accessKey = Config.getAccessKey().getBytes();
+		byte[] secretKey = Config.getSecretKey().getBytes();
 		try {
 			String policyJson = this.marshal();
 			byte[] policyBase64 = Client.urlsafeEncodeBytes(policyJson.getBytes());

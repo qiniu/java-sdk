@@ -1,6 +1,9 @@
+package com.qiniu.demo;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.qiniu.qbox.Config;
+import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.DigestAuthClient;
 import com.qiniu.qbox.rs.DeleteRet;
 import com.qiniu.qbox.rs.DropRet;
@@ -15,16 +18,12 @@ import com.qiniu.qbox.rs.StatRet;
 public class RSDemo {
 	
 	public static void main(String[] args) throws Exception {
-
-		Config.ACCESS_KEY = "<Please apply your access key>";
-		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
-
+		Config.init("QBox.config") ;
 		DigestAuthClient conn = new DigestAuthClient();
-
-		String bucketName = "bucketName";
+		String bucketName = "test";
 		String key = "RSDemo.class";
 
-		String DEMO_DOMAIN = "http://iovip.qbox.me/bucketName";
+		String DEMO_DOMAIN = "http://test.dn.qbox.me";
 		
 		String path = RSDemo.class.getClassLoader().getResource("").getPath();
         System.out.println("Test to put local file: " + path + key);   
@@ -33,13 +32,19 @@ public class RSDemo {
 		PutAuthRet putAuthRet = rs.putAuth();
 		System.out.println("Put URL: " + putAuthRet.getUrl());
 		
-		HashMap<String, String> callbackParams = new HashMap<String, String>();
+		path += "com/qiniu/demo/" ;
+		
+		Map<String, String> callbackParams = new HashMap<String, String>();
 		callbackParams.put("key", key);
 		
 		System.out.println("Delete " + key);
 		DeleteRet deleteRet = rs.delete(key);
 		System.out.println("Result of delete: " + (deleteRet.ok() ? "Succeeded." : deleteRet));
 		
+		System.out.println("Make new bucket " + "anotherBucketName") ;
+		CallRet mkBukRet = rs.mkBucket("anotherBucketName") ;
+		System.out.println("Result of make new bucket : " + (mkBukRet.ok() ? "Succeeded." : mkBukRet)) ;
+	
 		System.out.println("Putting file: " + path + key);
 		PutFileRet putFileRet = RSClient.putFile(
 			putAuthRet.getUrl(), bucketName, key, "", path + key, "CustomData", callbackParams);
@@ -84,11 +89,11 @@ public class RSDemo {
 			
 			System.out.println("Publish " + bucketName + " as: " + DEMO_DOMAIN);
 			PublishRet publishRet = rs.publish(DEMO_DOMAIN);
-			System.out.println("Result of publish: " + (publishRet.ok() ? "Succeeded." : "Failed."));
+			System.out.println("Result of publish: " + (publishRet.ok() ? "Succeeded." : publishRet));
 
 			System.out.println("Unpublish " + bucketName + " as: " + DEMO_DOMAIN);
 			PublishRet unpublishRet = rs.unpublish(DEMO_DOMAIN);
-			System.out.println("Result of unpublish: " + (unpublishRet.ok() ? "Succeeded." : "Failed."));
+			System.out.println("Result of unpublish: " + (unpublishRet.ok() ? "Succeeded." : unpublishRet));
 
 			System.out.println("Delete " + key);
 			deleteRet = rs.delete(key);
