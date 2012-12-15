@@ -17,43 +17,26 @@ public class UpService {
 	public UpService(Client conn) {
 		this.conn = conn;
 	}
-	/**
-	 * @param blockSize
-	 * @param body 	In fact, the content of the body is the first chunk  
-	 * @param bodyLength depends on the file size, if the file size >= chunk size(typically 256k) 
-	 * 		  bodyLength equals to chunk size, otherwise equals to file size .
-	 * @return
-	 */
 	
 	public ResumablePutRet makeBlock(long blockSize, byte[] body, long bodyLength) {
-		CallRet ret = this.conn.callWithBinary(Config.getUpHost() + "/mkblk/" + String.valueOf(blockSize), "application/octet-stream", body, bodyLength);
+		CallRet ret = this.conn.callWithBinary(Config.UP_HOST + "/mkblk/" + String.valueOf(blockSize), "application/octet-stream", body, bodyLength);
 		
 		return new ResumablePutRet(ret);
 	}
 
-	/**
-	 * put the chunk data into the 
-	 * @param blockSize
-	 * @param ctx
-	 * @param offset
-	 * @param body
-	 * @param bodyLength
-	 * @return
-	 */
 	public ResumablePutRet putBlock(long blockSize, String ctx, long offset, byte[] body, long bodyLength) {
-		CallRet ret = this.conn.callWithBinary(Config.getUpHost() + "/bput/" + ctx + "/" + String.valueOf(offset), "application/octet-stream", body, bodyLength);
+		CallRet ret = this.conn.callWithBinary(Config.UP_HOST + "/bput/" + ctx + "/" + String.valueOf(offset), "application/octet-stream", body, bodyLength);
 		
 		return new ResumablePutRet(ret);
 	}
 	
-	public CallRet makeFile(String cmd, String entry, long fsize, String params, String callbackParams, 
-			String[] checksums) {
+	public CallRet makeFile(String cmd, String entry, long fsize, String params, String callbackParams, String[] checksums) {
 		
 		if (callbackParams != null && !callbackParams.isEmpty()) {
 			params += "/params/" + new String(Base64.encodeBase64(callbackParams.getBytes(), false, false));
 		}
 		
-		String url = Config.getUpHost() + cmd + Client.urlsafeEncodeString(entry.getBytes()) + "/fsize/" + String.valueOf(fsize) + params;
+		String url = Config.UP_HOST + cmd + Client.urlsafeEncodeString(entry.getBytes()) + "/fsize/" + String.valueOf(fsize) + params;
 		
 		byte[] body = new byte[20 * checksums.length];
 		
@@ -61,12 +44,14 @@ public class UpService {
 			byte[] buf = Base64.decodeBase64(checksums[i]);
 			System.arraycopy(buf,  0, body, i * 20, buf.length);
 		}
+		
 		CallRet ret = this.conn.callWithBinary(url, null, body, body.length);
+		
 		return ret;
 	}
 	
 	public static int blockCount(long fsize) {
-		return (int)((fsize + Config.getBlockSize() - 1) / Config.getBlockSize());
+		return (int)((fsize + Config.BLOCK_SIZE - 1) / Config.BLOCK_SIZE);
 	}
 
 	/**
@@ -89,19 +74,20 @@ public class UpService {
 
 		if (progress.context == null || progress.context.isEmpty()) { // This block has never been uploaded.
 			int bodyLength = (int)((blockSize > chunkSize) ? chunkSize : blockSize); // Smaller one.
+			
 			byte[] body = new byte[bodyLength];
 			
 			try {
-				file.seek(Config.getBlockSize() * blockIndex);
+				file.seek(Config.BLOCK_SIZE * blockIndex);
 				int readBytes = file.read(body, 0, bodyLength);
 				if (readBytes != bodyLength) { // Didn't get expected content.
 					return new ResumablePutRet(new CallRet(400, "Read nothing"));
 				}
-				// make a new block and put the first chunk data
-				ret = makeBlock((int)blockSize, body, bodyLength);
 				
-				if (!ret.ok()) { 				// statusCode == 200
-					return ret; 				// Error handling
+				ret = makeBlock((int)blockSize, body, bodyLength);
+				if (!ret.ok()) {
+					// Error handling
+					return ret;
 				}
 				
 				CRC32 crc32 = new CRC32();
@@ -118,6 +104,7 @@ public class UpService {
 				progress.restSize = blockSize - bodyLength;
 				
 				notifier.notify(blockIndex, progress);
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -125,14 +112,17 @@ public class UpService {
 			// Invalid arg.
 			return new ResumablePutRet(new CallRet(400, "Invalid arg. File length does not match"));
 		}
+		
 		while (progress.restSize > 0) {
 			int bodyLength = (int)((chunkSize < progress.restSize) ? chunkSize : progress.restSize);
 			
 			byte[] body = new byte[bodyLength];
 			
 			for (int retries = retryTimes; retries > 0; --retries) {
+			
 				try {
-					file.seek(blockIndex * Config.getBlockSize() + progress.offset);
+					
+					file.seek(blockIndex * Config.BLOCK_SIZE + progress.offset);
 					int readBytes = file.read(body, 0, bodyLength);
 					if (readBytes != bodyLength) { // Didn't get anything
 						return new ResumablePutRet(new CallRet(400, "Read nothing"));
@@ -140,51 +130,33 @@ public class UpService {
 					
 					ret = putBlock(blockSize, progress.context, progress.offset, body, bodyLength);
 					if (ret.ok()) {
+						
 						CRC32 crc32 = new CRC32();
 						crc32.update(body, 0, bodyLength);
 						
 						if (ret.getCrc32() == crc32.getValue()) {
+		
 							progress.context = ret.getCtx();
 							progress.offset += bodyLength;
 							progress.restSize -= bodyLength;
+							
 							notifier.notify(blockIndex, progress);
+						
 							break; // Break to while loop.
 						}
-					} else if (ret.getStatusCode() == 701) {
-						// error occurs, We should roll back to the latest block that uploaded successfully,
-						// and put the whole block that currently failed from the first chunk again.
-						// For convenient, we just fabricate a progress with empty context.
-						progress.context = "" ;
-						notifier.notify(blockIndex, progress) ;
-					
-						return ret ;
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
 					return new ResumablePutRet(new CallRet(400, e));
 				}
-			} // end of for
-		} // end of while
-		
+			}
+		}
 		if (ret == null) {
 			ret = new ResumablePutRet(new CallRet(400, (String)null));
 		}
-		
 		return ret;
 	}
 	
-	/**
-	 * This function provides the service that allows users to upload a file in a resumable way.
-	 * They don't need to worry about the accidents such as PC'power off, network failure etc...
-	 * when uploading a file. 
-	 * @param file
-	 * @param fsize
-	 * @param checksums
-	 * @param progresses
-	 * @param progressNotifier
-	 * @param blockProgressNotifier
-	 * @return
-	 */
 	public ResumablePutRet resumablePut(RandomAccessFile file, long fsize,
 			String[] checksums, BlockProgress[] progresses, 
 			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier) {
@@ -198,9 +170,9 @@ public class UpService {
 		for (int i = 0; i < blockCount; i++) {
 			if (checksums[i] == null || checksums[i].isEmpty()) {
 				int blockIndex = i;
-				long blockSize = Config.getBlockSize();
+				long blockSize = Config.BLOCK_SIZE;
 				if (blockIndex == blockCount - 1) {
-					blockSize = fsize - Config.getBlockSize() * blockIndex;
+					blockSize = fsize - Config.BLOCK_SIZE * blockIndex;
 				}
 				
 				if (progresses[i] == null) {
@@ -208,18 +180,17 @@ public class UpService {
 				}
 				
 				ResumablePutRet ret = resumablePutBlock(file, 
-						blockIndex, blockSize, Config.getPutChuncksize(), 
-						Config.getPutRetryTimes(), 
+						blockIndex, blockSize, Config.PUT_CHUNK_SIZE, 
+						Config.PUT_RETRY_TIMES, 
 						progresses[i], 
 						blockProgressNotifier);
-
+				
 				if (!ret.ok()) {
 					return ret;
 				}
-
-				checksums[i] = ret.getChecksum() ;
-				//checksums[i] = ret.getCtx() ;
-				// notify the completion of a block
+				
+				checksums[i] = ret.getChecksum();
+				
 				progressNotifier.notify(i, checksums[i]);
 			}
 		}

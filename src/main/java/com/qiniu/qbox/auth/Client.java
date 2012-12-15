@@ -46,6 +46,7 @@ public abstract class Client {
 			StringEntity entity = new UrlEncodedFormEntity(nvps, "UTF-8");
 			entity.setContentType("application/x-www-form-urlencoded");
 			postMethod.setEntity(entity);
+
 			setAuth(postMethod);
 			HttpResponse response = client.execute(postMethod);
 
@@ -79,8 +80,9 @@ public abstract class Client {
 	}
 
 	public CallRet callWithBinary(String url, String contentType, byte[] body, long bodyLength) {
+
 		ByteArrayEntity entity = new ByteArrayEntity(body);
-		
+
 		if (contentType == null || contentType.isEmpty()) {
 			contentType = "application/octet-stream";
 		}
@@ -89,13 +91,12 @@ public abstract class Client {
 		return callWithBinary(url, entity);
 	}
 
-	
 	private CallRet handleResult(HttpResponse response) {
 
 		if (response == null || response.getStatusLine() == null) {
 			return new CallRet(400, "No response");
 		}
-		
+
 		String responseBody;
 		try {
 			responseBody = EntityUtils.toString(response.getEntity());
@@ -150,12 +151,13 @@ public abstract class Client {
 		}
 		return b64;
 	}
+
+	@SuppressWarnings("unchecked")
 	public static String encodeParams(Object params1) {
 		if (params1 instanceof String) {
 			return (String)params1;
 		}
 		if (params1 instanceof HashMap<?, ?>) {
-			@SuppressWarnings("unchecked")
 			HashMap<String, String> params = (HashMap<String, String>)params1;
 			ArrayList<NameValuePair> list = new ArrayList<NameValuePair>();
 			for (Entry<String, String> entry : params.entrySet()) {

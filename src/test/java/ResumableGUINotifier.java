@@ -1,5 +1,4 @@
-﻿package com.qiniu.demo;
-import java.awt.FlowLayout;
+﻿import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileOutputStream;
@@ -107,6 +106,7 @@ public class ResumableGUINotifier implements ProgressNotifier,
 		this.lastTime = System.currentTimeMillis();
 	}
 
+	@Override
 	public void notify(int blockIndex, String checksum) {
 
 		try {
@@ -122,10 +122,11 @@ public class ResumableGUINotifier implements ProgressNotifier,
 		}
 	}
 
+	@Override
 	public void notify(int blockIndex, BlockProgress progress) {
 
 		try {
-			this.realSpeed = Config.getPutChuncksize() / (System.currentTimeMillis() - this.lastTime) * 1000;
+			this.realSpeed = Config.PUT_CHUNK_SIZE / (System.currentTimeMillis() - this.lastTime) * 1000;
 			if (this.pauseFlag) {
 				wait();
 			}
@@ -141,10 +142,11 @@ public class ResumableGUINotifier implements ProgressNotifier,
 			String json = JSONObject.valueToString(doc);
 			os.println(json);
 
-			this.current = (int) this.current + Config.getPutChuncksize();		
+			this.current = (int) this.current + Config.PUT_CHUNK_SIZE;		
 			this.lastTime = System.currentTimeMillis();
 		} catch (Exception e) {
 			// nothing to do;
 		}
 	}
+
 }

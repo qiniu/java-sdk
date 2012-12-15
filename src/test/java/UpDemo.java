@@ -1,4 +1,3 @@
-package com.qiniu.demo;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -16,18 +15,28 @@ import com.qiniu.qbox.up.UpService;
 
 public class UpDemo {
 
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
-		Config.init("/home/wangjinlei/QBox.config") ;
+
+		Config.ACCESS_KEY = "<Please apply your access key>";
+		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
+
+
 		String bucketName = "bucketName";
-		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
+		String key = "ff1.txt";
+		
+		//String path = RSDemo.class.getClassLoader().getResource("").getPath();		
+		String path = "/Users/rwfeng/test/";
+		System.out.println("Resumably putting file: " + path + key);
+
+		AuthPolicy policy = new AuthPolicy("bucketName", 3600);
 		String token = policy.makeAuthTokenString();
+		
 		UpTokenClient upTokenClient = new UpTokenClient(token);
 		UpService upClient = new UpService(upTokenClient);
-		
-		String key = "README.md";
-		String path = RSDemo.class.getClassLoader().getResource("").getPath();	
-		
-		System.out.println("Resumably putting file: " + path + key);
+
 		try {
 			RandomAccessFile f = new RandomAccessFile(path + key, "r");
 
@@ -37,8 +46,6 @@ public class UpDemo {
 			String[] checksums = new String[(int)blockCount];
 			BlockProgress[] progresses = new BlockProgress[(int)blockCount];
 			
-			// 此处的Notifier并未做任何持久化的工作，所以此处的效果相当于直传 
-			// 并不是断点续传
 			Notifier notif = new Notifier();
 
 			PutFileRet putFileRet = RSClient.resumablePutFile(upClient, 

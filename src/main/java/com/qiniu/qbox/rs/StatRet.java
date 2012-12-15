@@ -11,25 +11,9 @@ public class StatRet extends CallRet {
 	private long putTime;
 	private String mimeType;
 
-	public String getHash() {
-		return this.hash;
-	}
-
-	public long getFsize() {
-		return this.fsize;
-	}
-
-	public long getPutTime() {
-		return this.putTime;
-	}
-
-	public String getMimeType() {
-		return this.mimeType;
-	}
-
 	public StatRet(CallRet ret) {
 		super(ret);
-
+		
 		if (ret.ok() && ret.getResponse() != null) {
 			try {
 				unmarshal(ret.getResponse());
@@ -41,27 +25,36 @@ public class StatRet extends CallRet {
 
 	public void unmarshal(String json) throws JSONException {
 		JSONObject jsonObject = new JSONObject(json);
-
-		this.hash = (String) jsonObject.get("hash");
+		
+		this.hash = (String)jsonObject.get("hash");
 		Object fsizeObject = jsonObject.get("fsize");
 		if (fsizeObject instanceof Long) {
-			this.fsize = (Long) fsizeObject;
+			this.fsize = (Long)fsizeObject;
 		} else if (fsizeObject instanceof Integer) {
-			this.fsize = new Long((int) (Integer) fsizeObject);
+			this.fsize = new Long((int)(Integer)fsizeObject);
 		}
 		Object putTimeObject = jsonObject.get("putTime");
 		if (putTimeObject instanceof Long) {
-			this.putTime = (Long) putTimeObject;
+			this.putTime = (Long)putTimeObject;
 		} else if (putTimeObject instanceof Integer) {
-			this.putTime = new Long((int) (Integer) putTimeObject);
+			this.putTime = new Long((int)(Integer)putTimeObject);
 		}
-		this.mimeType = (String) jsonObject.get("mimeType");
+		this.mimeType = (String)jsonObject.get("mimeType");
+	}
+	
+	public String getHash() {
+		return this.hash;
+	}
+	
+	public long getFsize() {
+		return this.fsize;
 	}
 
-	/*@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
+	public long getPutTime() {
+		return this.putTime;
+	}
 
-		return sb.toString();
-	}*/
+	public String getMimeType() {
+		return this.mimeType;
+	}
 }
