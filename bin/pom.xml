@@ -61,11 +61,5 @@
 			<scope>test</scope>
 		</dependency>
 
-
-		<!-- <dependency>
-			<groupId>com.qiniu</groupId>
-			<artifactId>sdk</artifactId>
-			<version>0.01</version>
-		</dependency> -->
 	</dependencies>
 </project>
