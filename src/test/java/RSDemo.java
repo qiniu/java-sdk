@@ -1,6 +1,7 @@
 import java.util.HashMap;
 
 import com.qiniu.qbox.Config;
+import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.DigestAuthClient;
 import com.qiniu.qbox.rs.DeleteRet;
 import com.qiniu.qbox.rs.DropRet;
@@ -16,18 +17,18 @@ public class RSDemo {
 	
 	public static void main(String[] args) throws Exception {
 
-		Config.ACCESS_KEY = "<Please apply your access key>";
-		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
+		Config.ACCESS_KEY = "<Keep it secret!>";
+		Config.SECRET_KEY = "<Keep it secret!>";
 
 		DigestAuthClient conn = new DigestAuthClient();
 
-		String bucketName = "bucketName";
-		String key = "RSDemo.class";
+		String bucketName = "test";
+		String key = "upload.jpg";
 
 		String DEMO_DOMAIN = "http://iovip.qbox.me/bucketName";
 		
-		String path = RSDemo.class.getClassLoader().getResource("").getPath();
-        System.out.println("Test to put local file: " + path + key);   
+		String path = System.getProperty("user.dir");
+        System.out.println("Test to put local file: " + path +"/"+ key);   
 		
 		RSService rs = new RSService(conn, bucketName);
 		PutAuthRet putAuthRet = rs.putAuth();
@@ -40,11 +41,12 @@ public class RSDemo {
 		DeleteRet deleteRet = rs.delete(key);
 		System.out.println("Result of delete: " + (deleteRet.ok() ? "Succeeded." : deleteRet));
 		
-		System.out.println("Putting file: " + path + key);
+		System.out.println("Putting file: " + path +"/"+ key);
+		@SuppressWarnings("deprecation")
 		PutFileRet putFileRet = RSClient.putFile(
-			putAuthRet.getUrl(), bucketName, key, "", path + key, "CustomData", callbackParams);
+			putAuthRet.getUrl(), bucketName, key, "", path +"/"+ key, "CustomData", callbackParams);
 		if (!putFileRet.ok()) {
-			System.out.println("Failed to put file " + path + key + ": " + putFileRet);
+			System.out.println("Failed to put file " + path +"/"+ key + ": " + putFileRet);
 			return;
 		}
 		
@@ -93,13 +95,37 @@ public class RSDemo {
 			System.out.println("Delete " + key);
 			deleteRet = rs.delete(key);
 			System.out.println("Result of delete: " + (deleteRet.ok() ? "Succeeded." : "Failed."));
-			
-			System.out.println("Drop table " + bucketName);
-			DropRet dropRet = rs.drop();
-			System.out.println("Result of drop: " + (dropRet.ok() ? "Succeeded." : "Failed."));
-			
 		} catch (Exception e) {
 			System.out.println("Failed testing " + key + " with reason:" + e.getMessage());
 		}
+		
+		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
+		String token = policy.makeAuthTokenString();
+		PutFileRet putRet = null ;
+		try {
+			putRet = RSClient.putFileWithToken(token, bucketName, key, path+"/"+key, "", "", "", "2") ;
+			if (putRet.ok()) {
+				System.out.println("Upload " + path+"/"+key + " with token successfully!") ;
+			} else {
+				System.out.println("Upload " + path+"/"+key + " with token failed!") ;
+			}
+			
+			GetRet getRet = rs.get(key, key);
+			System.out.println("Result of get() for " + key);
+			if (!getRet.ok()) {
+				System.out.println("Failed to get " + key + ": " + getRet);
+			} else {
+				System.out.println("  Hash: " + getRet.getHash());
+				System.out.println("  Fsize: " + String.valueOf(getRet.getFsize()));
+				System.out.println("  MimeType: " + getRet.getMimeType());
+				System.out.println("  URL: " + getRet.getUrl());
+			}
+		} catch (Exception ignore) {
+			
+		}
+		
+		System.out.println("Drop table " + bucketName);
+		DropRet dropRet = rs.drop();
+		System.out.println("Result of drop: " + (dropRet.ok() ? "Succeeded." : "Failed."));
 	}
 }
