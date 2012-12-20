@@ -1,6 +1,7 @@
 package com.qiniu.qbox.rs;
 
 import java.io.File;
+import java.util.Map;
 
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ContentType;
@@ -138,5 +139,50 @@ public class RSService {
 		String url = Config.RS_HOST + "/drop/" + this.bucketName;
 		CallRet callRet = conn.call(url);
 		return new DropRet(callRet);
+	}
+	
+	/**
+	 * func Mkbucket(bucketname string) => Bool
+     * 创建一个资源表
+	 */
+	public CallRet mkBucket(String newBucketName) throws Exception {
+		String url = Config.RS_HOST + "/mkbucket/" + newBucketName ;
+		CallRet callRet = conn.call(url) ;
+		return callRet ;
+	}
+
+
+	/**
+	 * func SaveAs(target_key, source_url, opWithParams string) => Bool
+	 * 调用相关接口进行云处理并持久化存储处理结构
+	 */
+	public CallRet saveAs(String targetBucketName, String targetKey, String srcUrl, String opWirthParams) {
+		String entryUrl = targetBucketName + ":" + targetKey ;
+		String encodedUrl = Client.urlsafeEncode(entryUrl) ;
+		String url = srcUrl + "?" + opWirthParams + "/save-as/" + encodedUrl ;
+		CallRet callRet = conn.call(url) ;
+		return callRet ;
+	}
+	/**
+	 * func ImageMogrifyAs(target_key string, source_img_url string, opts map) => Bool
+     * 基于指定URL的原图生成缩略图并以指定的key持久化存储该缩略图
+	 * @param key
+	 * @param srcImgUrl
+	 * @param opts
+	 * @return
+	 */
+	public CallRet imageMogrifySaveAs(String targetBucketName, String targetKey, String srcImgUrl, Map<String, String> opts) {
+		String mogrifyParams = new Fileop().mkImageMogrifyParams(opts) ;
+		return this.saveAs(targetBucketName, targetKey, srcImgUrl, mogrifyParams) ;
+	}
+
+	public ImageInfoRet imageInfo(String imgUrl) {
+		CallRet callRet = conn.call(imgUrl) ;
+		return new ImageInfoRet(callRet) ;
+	}
+
+	public CallRet imageEXIF(String imgUrl) {
+		CallRet callRet = conn.call(imgUrl) ;
+		return callRet ;
 	}
 }

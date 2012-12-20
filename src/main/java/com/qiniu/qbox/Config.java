@@ -11,7 +11,7 @@ public class Config {
 
 	public static String IO_HOST = "http://iovip.qbox.me";
 	public static String FS_HOST = "https://fs.qbox.me";
-	public static String RS_HOST = "http://rs.qbox.me:10100";
+	public static String RS_HOST = "http://rs.qbox.me";
 	public static String UP_HOST = "http://up.qbox.me";
 
 	public static int BLOCK_SIZE = 1024 * 1024 * 4;
