@@ -75,6 +75,10 @@ public class ResumablePutDemo {
 			}
 			break; // error ...
 		}
+		if (is != null) {
+			is.close() ;
+			is = null ;
+		}
 	}
 
 	public static void main(String[] args) throws Exception {
