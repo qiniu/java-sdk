@@ -139,4 +139,32 @@ public class RSService {
 		CallRet callRet = conn.call(url);
 		return new DropRet(callRet);
 	}
+	
+	
+	
+    public CallRet setProtected(int protectedMode)
+    {
+        String url = Config.PU_HOST + "/accessMode/" + this.bucketName + "/mode/" + ((Integer)protectedMode).toString();
+        return conn.call(url);
+    }
+
+    public CallRet setSeparator(String sep)
+    {
+        String url = Config.PU_HOST + "/separator/" + this.bucketName + "/sep/" + Client.urlsafeEncode(sep);
+        return conn.call(url);
+    }
+
+    public CallRet SetStyle(String name, String style)
+    {
+        String url = Config.PU_HOST + "/style/" + this.bucketName + 
+            "/name/" + Client.urlsafeEncode(name) + "/style/" + Client.urlsafeEncode(style);
+        return conn.call(url);
+    }
+
+    public CallRet UnsetStyle(String name)
+    {
+        String url = Config.PU_HOST + "/unstyle/" + this.bucketName + "/name/" + Client.urlsafeEncode(name);
+        return conn.call(url);
+    }
+	
 }
