@@ -69,6 +69,19 @@ public class RSDemo {
 				System.out.println("  Fsize: " + String.valueOf(getRet.getFsize()));
 				System.out.println("  MimeType: " + getRet.getMimeType());
 				System.out.println("  URL: " + getRet.getUrl());
+				System.out.println("  Expires: " + getRet.getExpires());
+			}
+
+			GetRet getweRet = rs.getWithExpires(key, key, 60);
+			System.out.println("Result of getWithExpires() for " + key);
+			if (!getweRet.ok()) {
+				System.out.println("Failed getting with expires of " + key + ": " + getweRet);
+			} else {
+				System.out.println("  Hash: " + getweRet.getHash());
+				System.out.println("  Fsize: " + String.valueOf(getweRet.getFsize()));
+				System.out.println("  MimeType: " + getweRet.getMimeType());
+				System.out.println("  URL: " + getweRet.getUrl());
+				System.out.println("  Expires: " + getweRet.getExpires());
 			}
 			
 			GetRet getIfNotModifiedRet = rs.getIfNotModified(key, key, getRet.getHash());

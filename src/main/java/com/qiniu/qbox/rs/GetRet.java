@@ -10,6 +10,7 @@ public class GetRet extends CallRet {
 	private long fsize;
 	private String mimeType;
 	private String url;
+	private long expires;
 
 	public GetRet(CallRet ret) {
 		super(ret);
@@ -36,6 +37,14 @@ public class GetRet extends CallRet {
 			} else if (fsizeObject instanceof Integer) {
 				this.fsize = new Long((int)(Integer)fsizeObject);
 			}
+
+			Object expiresObject = jsonObject.get("expires");
+			if (expiresObject instanceof Long) {
+				this.expires = (Long)expiresObject;
+			} else if (expiresObject instanceof Integer) {
+				this.expires = new Long((int)(Integer)expiresObject);
+			}
+
 			this.mimeType = (String)jsonObject.get("mimeType");
 			this.url = (String)jsonObject.get("url");
 		}
@@ -55,5 +64,9 @@ public class GetRet extends CallRet {
 
 	public String getMimeType() {
 		return this.mimeType;
+	}
+	
+	public long getExpires() {
+		return this.expires;
 	}
 }
