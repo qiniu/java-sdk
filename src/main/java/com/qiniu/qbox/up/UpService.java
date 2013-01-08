@@ -11,21 +11,23 @@ import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
 
 public class UpService {
-	
+	private static final int INVALID_CTX = 701 ;
 	private Client conn;
+	private static String upHost = Config.UP_HOST ;
 	
 	public UpService(Client conn) {
 		this.conn = conn;
 	}
 	
 	public ResumablePutRet makeBlock(long blockSize, byte[] body, long bodyLength) {
-		CallRet ret = this.conn.callWithBinary(Config.UP_HOST + "/mkblk/" + String.valueOf(blockSize), "application/octet-stream", body, bodyLength);
-		
-		return new ResumablePutRet(ret);
+		CallRet ret = this.conn.callWithBinary(upHost + "/mkblk/" + String.valueOf(blockSize), "application/octet-stream", body, bodyLength);
+		ResumablePutRet putRet = new ResumablePutRet(ret) ;
+		upHost = putRet.getHost() ;
+		return putRet;
 	}
 
 	public ResumablePutRet putBlock(long blockSize, String ctx, long offset, byte[] body, long bodyLength) {
-		CallRet ret = this.conn.callWithBinary(Config.UP_HOST + "/bput/" + ctx + "/" + String.valueOf(offset), "application/octet-stream", body, bodyLength);
+		CallRet ret = this.conn.callWithBinary(upHost + "/bput/" + ctx + "/" + String.valueOf(offset), "application/octet-stream", body, bodyLength);
 		
 		return new ResumablePutRet(ret);
 	}
@@ -36,7 +38,7 @@ public class UpService {
 			params += "/params/" + new String(Base64.encodeBase64(callbackParams.getBytes(), false, false));
 		}
 		
-		String url = Config.UP_HOST + cmd + Client.urlsafeEncodeString(entry.getBytes()) + "/fsize/" + String.valueOf(fsize) + params;
+		String url = upHost + cmd + Client.urlsafeEncodeString(entry.getBytes()) + "/fsize/" + String.valueOf(fsize) + params;
 		
 		byte[] body = new byte[20 * checksums.length];
 		
@@ -107,6 +109,7 @@ public class UpService {
 				
 			} catch (IOException e) {
 				e.printStackTrace();
+				return new ResumablePutRet(new CallRet(400, e));
 			}
 		} else if (progress.offset + progress.restSize != blockSize) {
 			// Invalid arg.
@@ -144,6 +147,12 @@ public class UpService {
 						
 							break; // Break to while loop.
 						}
+					} else if (ret.getStatusCode() == INVALID_CTX) {
+						// invalid context
+						progress.context = "" ;
+						notifier.notify(blockIndex, progress) ;
+
+						return ret ;
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
