@@ -78,23 +78,23 @@ public class ResumablePutDemo {
 	}
 
 	public static void main(String[] args) throws Exception {
-
 		Config.ACCESS_KEY = "<Please apply your access key>";
 		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
 
-		String inputFile = args[0];
-
-		String bucketName = "bucketName";
-		String key = "RSDemo.class";
-
-		AuthPolicy policy = new AuthPolicy("bucketName", 3600);
+		String bucketName = "bucket";
+		String key = "upload.txt";
+		String path = System.getProperty("user.dir") ;
+		String inputFile = path + "/" + key;
+		
+		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
 		String token = policy.makeAuthTokenString();
 
 		UpTokenClient upTokenClient = new UpTokenClient(token);
 		UpService upClient = new UpService(upTokenClient);
 
+		RandomAccessFile f = null ;
 		try {
-			RandomAccessFile f = new RandomAccessFile(inputFile, "r");
+			f = new RandomAccessFile(inputFile, "r");
 
 			long fsize = f.length();
 			int blockCount = UpService.blockCount(fsize);
@@ -112,16 +112,25 @@ public class ResumablePutDemo {
 					fsize, "CustomMeta", "");
 
 			if (putFileRet.ok()) {
-				System.out.println("Successfully put file resumably: "
-						+ putFileRet.getHash());
+				System.out.println("Successfully put file resumably: "+ putFileRet.getHash());
+				File progress = new File(progressFile) ;
+				progress.delete() ;
 			} else {
-				System.out.println("Failed to put file resumably: "
-						+ putFileRet);
+				System.out.println("Failed to put file resumably: " + putFileRet);
 			}
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				if (f != null) {
+					f.close() ;
+					f = null ;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
