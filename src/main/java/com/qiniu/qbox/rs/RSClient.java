@@ -153,7 +153,6 @@ public class RSClient {
 			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier,
 			String bucketName, String key, String mimeType,
 			RandomAccessFile f, long fsize, String customMeta, String callbackParams) {
-		
 		ResumablePutRet ret = c.resumablePut(f, fsize, checksums, progresses, progressNotifier, blockProgressNotifier);
 		if (!ret.ok()) {
 			return new PutFileRet(ret);
@@ -169,7 +168,8 @@ public class RSClient {
 		}
 
 		String entryUri = bucketName + ":" + key;
-		CallRet callRet = c.makeFile("/rs-mkfile/", entryUri, fsize, params, callbackParams, checksums);
+		String upHost = ret.getHost() ;
+		CallRet callRet = c.makeFile(upHost, "/rs-mkfile/", entryUri, fsize, params, callbackParams, checksums);
 		
 		return new PutFileRet(callRet);
 	}
