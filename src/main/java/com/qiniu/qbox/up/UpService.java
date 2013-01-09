@@ -83,6 +83,7 @@ public class UpService {
 				if (readBytes != bodyLength) { // Didn't get expected content.
 					return new ResumablePutRet(new CallRet(400, "Read nothing"));
 				}
+				
 				ret = makeBlock(upHost, (int)blockSize, body, bodyLength);
 				upHost = ret.getHost() ;
 				if (!ret.ok()) {
@@ -128,6 +129,7 @@ public class UpService {
 					if (readBytes != bodyLength) { // Didn't get anything
 						return new ResumablePutRet(new CallRet(400, "Read nothing"));
 					}
+					
 					ret = putBlock(upHost, blockSize, progress.context, progress.offset, body, bodyLength);
 					if (ret.ok()) {
 						
@@ -166,6 +168,7 @@ public class UpService {
 	public ResumablePutRet resumablePut(RandomAccessFile file, long fsize,
 			String[] checksums, BlockProgress[] progresses, 
 			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier) {
+		
 		String upHost = Config.UP_HOST ;
 		ResumablePutRet ret = null ;
 		int blockCount = blockCount(fsize);
@@ -185,11 +188,13 @@ public class UpService {
 				if (progresses[i] == null) {
 					progresses[i] = new BlockProgress();
 				}
+				
 				ret = resumablePutBlock(upHost, file, 
 						blockIndex, blockSize, Config.PUT_CHUNK_SIZE, 
 						Config.PUT_RETRY_TIMES, 
 						progresses[i], 
 						blockProgressNotifier);
+				
 				if (i == 0) {
 						upHost = ret.getHost() ;
 				}
@@ -202,6 +207,7 @@ public class UpService {
 				progressNotifier.notify(i, checksums[i]);
 			}
 		}
+		
 		ret.setHost(upHost) ;
 		return ret;
 	}
