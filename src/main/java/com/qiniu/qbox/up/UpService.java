@@ -69,6 +69,7 @@ public class UpService {
 			int blockIndex, long blockSize, long chunkSize, 
 			int retryTimes,
 			BlockProgress progress, BlockProgressNotifier notifier) {
+		
 		ResumablePutRet ret = null;
 
 		if (progress.context == null || progress.context.isEmpty()) { // This block has never been uploaded.
