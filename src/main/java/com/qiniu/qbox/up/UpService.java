@@ -13,7 +13,6 @@ import com.qiniu.qbox.auth.Client;
 public class UpService {
 	private static final int INVALID_CTX = 701 ;
 	private Client conn;
-	//private String upHost = Config.UP_HOST ;
 	
 	public UpService(Client conn) {
 		this.conn = conn;
