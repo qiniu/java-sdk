@@ -17,7 +17,7 @@ public class FileopDemo {
 	public static void main(String[] args) throws Exception {
 		Config.ACCESS_KEY = "<Please apply your access key>";
 		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
-
+		
 		DigestAuthClient conn = new DigestAuthClient();
 		String bucketName = "bucket";
 		String key = "upload.jpg";
@@ -51,7 +51,7 @@ public class FileopDemo {
 
 		Fileop fp = new Fileop();
 		// get the image info from the specified url
-		ImageInfoRet imgInfoRet = rs.imageInfo(fp.getImageInfoURL(imgDownloadUrl));
+		ImageInfoRet imgInfoRet = rs.imageInfo(Fileop.getImageInfoURL(imgDownloadUrl));
 		if (imgInfoRet.ok()) {
 			System.out.println("Resulst of imageInfo() : ");
 			System.out.println("format     : " + imgInfoRet.getFormat());
@@ -64,7 +64,7 @@ public class FileopDemo {
 		}
 		
 		// get the exif info from the specified image url
-		CallRet imgExRet = rs.imageEXIF(fp.getImageExifURL(imgDownloadUrl));
+		CallRet imgExRet = rs.imageEXIF(Fileop.getImageExifURL(imgDownloadUrl));
 		if (imgExRet.ok()) {
 			System.out.println("Result of imageEXIF()  : ");
 			System.out.println(imgExRet.getResponse());
@@ -72,10 +72,6 @@ public class FileopDemo {
 		} else {
 			System.out.println("Fileop getImgExif failed : " + imgExRet) ;
 		}
-
-		// get image preview url
-		String imgPreviewUrl = fp.getImagePreviewURL(imgDownloadUrl, 1);
-		System.out.println("imgPreviewUrl : " + imgPreviewUrl + "\n");
 
 		// get image view url
 		Map<String, String> imgViewOpts = new HashMap<String, String>();
@@ -85,7 +81,7 @@ public class FileopDemo {
 		imgViewOpts.put("q", "1");
 		imgViewOpts.put("format", "jpg");
 		imgViewOpts.put("sharpen", "100");
-		String imgViewUrl = fp.getImageViewURL(imgDownloadUrl, imgViewOpts);
+		String imgViewUrl = Fileop.getImageViewURL(imgDownloadUrl, imgViewOpts);
 		System.out.println("image view url : " + imgViewUrl + "\n");
 		
 		// get image mogrify url
@@ -97,7 +93,7 @@ public class FileopDemo {
 		opts.put("rotate", "45");
 		opts.put("format", "jpg");
 		opts.put("auto_orient", "True");
-		String mogrifyPreviewUrl = fp.getImageMogrifyURL(imgDownloadUrl, opts);
+		String mogrifyPreviewUrl = Fileop.getImageMogrifyURL(imgDownloadUrl, opts);
 		System.out.println("ImageMogrifyPreviewUrl : " + mogrifyPreviewUrl + "\n");
 
 		

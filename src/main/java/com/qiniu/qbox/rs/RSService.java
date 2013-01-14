@@ -156,7 +156,7 @@ public class RSService {
 	 * func SaveAs(target_key, source_url, opWithParams string) => Bool
 	 * 调用相关接口进行云处理并持久化存储处理结构
 	 */
-	public CallRet saveAs(String targetBucketName, String targetKey, String srcUrl, String opWirthParams) {
+	private CallRet saveAs(String targetBucketName, String targetKey, String srcUrl, String opWirthParams) {
 		String entryUrl = targetBucketName + ":" + targetKey ;
 		String encodedUrl = Client.urlsafeEncode(entryUrl) ;
 		String url = srcUrl + "?" + opWirthParams + "/save-as/" + encodedUrl ;
@@ -172,11 +172,11 @@ public class RSService {
 	 * @return
 	 */
 	public CallRet imageMogrifySaveAs(String targetBucketName, String targetKey, String srcImgUrl, Map<String, String> opts) {
-		String mogrifyParams = new Fileop().mkImageMogrifyParams(opts) ;
+		String mogrifyParams = Fileop.mkImageMogrifyParams(opts) ;
 		return this.saveAs(targetBucketName, targetKey, srcImgUrl, mogrifyParams) ;
 	}
 
-	public ImageInfoRet imageInfo(String imgUrl) {
+	public ImageInfoRet imageInfo(String imgUrl) throws Exception {
 		CallRet callRet = conn.call(imgUrl) ;
 		return new ImageInfoRet(callRet) ;
 	}

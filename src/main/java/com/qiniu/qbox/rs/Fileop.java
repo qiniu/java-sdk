@@ -4,64 +4,58 @@ import java.util.Map;
 
 public class Fileop {
 
-	public String getImagePreviewURL(String url, int thumbType) {
-		return url + "?imagePreview/" + thumbType ;
-	}
-
-	public String getImageMogrURL(String url, String params) {
+	public static String getImageMogrURL(String url, String params) {
 		return url + "?imageMogr/" + params ;
 	}
 
-	public String getImageInfoURL(String url) {
+	public static String getImageInfoURL(String url) {
 		return url + "?imageInfo" ;
 	}
 
-	public String getImageExifURL(String url) {
+	public static String getImageExifURL(String url) {
 		return url + "?exif" ;
 	}
 
 
-	public String getImage90x90URL(String url) {
-		return url += "?imageMogr/auto-orient/thumbnail/!90x90r/gravity/center/crop/90x90" ;
+	public static String getImageViewURL(String url, Map<String, String> params) {
+		return url + "?imageView/" + mkImageViewParams(params) ;
 	}
 
-	public String getImageViewURL(String url, Map<String, String> params) {
-		return url += "?imageView/" + this.mkImageViewParams(params) ;
-	}
-
-	private String mkImageViewParams(Map<String, String> opts) {
+	private static String mkImageViewParams(Map<String, String> opts) {
 		String[] keys = {"w", "h", "q", "format", "sharpen", "watermark"} ;
-		String params = "" ;
+		StringBuilder params = new StringBuilder() ;
 		String modeVal = opts.get("mode") ;
-		params += modeVal ;
+		if (modeVal != null) {
+			params.append(modeVal) ;
+		}
 
 		for (String key : keys) {
 			String val = opts.get(key) ;
 			if (val != null) {
-				params += "/" + key + "/" + val ;
+				params.append("/" + key + "/" + val) ;
 			}
 		}
 
-		return params ;
+		return params.toString() ;
 	}
 
-	String mkImageMogrifyParams(Map<String, String> opts) {
+	static String mkImageMogrifyParams(Map<String, String> opts) {
 		String[] keys = {"thumbnail", "gravity", "crop", "quality", "rotate", "format"} ;
-		String params = "" ;
+		StringBuilder params = new StringBuilder() ;
 		for (String key : keys) {
 			String val = opts.get(key) ;
 			if (val != null) {
-				params += "/" + key + "/" + val ;
+				params.append("/" + key + "/" + val) ;
 			}
 		}
 		String autoOrient = opts.get("auto_orient") ;
 		if (autoOrient != null && autoOrient == "True") {
-			params += "/auto-orient" ;
+			params.append("/auto-orient") ;
 		}
-		return "imageMogr" + params ;
+		return "imageMogr" + params.toString() ;
 	}
 
-	public String getImageMogrifyURL(String srcImgUrl, Map<String, String> opts) {
-		return srcImgUrl + "?" + this.mkImageMogrifyParams(opts) ;
+	public static String getImageMogrifyURL(String srcImgUrl, Map<String, String> opts) {
+		return srcImgUrl + "?" + mkImageMogrifyParams(opts) ;
 	}
 }

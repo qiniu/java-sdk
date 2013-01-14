@@ -12,6 +12,7 @@ public class ImageInfoRet extends CallRet {
 	/** The height of the original image, in pixel */
 	private int height ;
 	private String colorMode ;
+	
 	public String getFormat() {
 		return format;
 	}
@@ -25,14 +26,10 @@ public class ImageInfoRet extends CallRet {
 		return colorMode;
 	}
 
-	public ImageInfoRet(CallRet ret) {
+	public ImageInfoRet(CallRet ret) throws Exception{
 		super(ret) ;
 		if (ret.ok() && ret.getResponse() != null) {
-			try {
-				unmarshal(ret.getResponse());
-			} catch (Exception e) {
-				e.printStackTrace() ;
-			}
+			unmarshal(ret.getResponse());
 		}
 	}
 	private void unmarshal(String json) throws JSONException {
@@ -43,6 +40,8 @@ public class ImageInfoRet extends CallRet {
 			this.width = jsonObj.getInt("width") ;
 			this.height = jsonObj.getInt("height") ;
 			this.colorMode = jsonObj.getString("colorModel") ;
+		} else {
+			throw new JSONException("Bad result!") ;
 		}
 	}
 }
