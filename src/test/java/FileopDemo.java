@@ -33,6 +33,7 @@ public class FileopDemo {
 			System.out.println("Upload " + path+"/"+key + " with token successfully!") ;
 		} else {
 			System.out.println("Upload " + path+"/"+key + " with token failed!") ;
+			return ;
 		}
 		
 		DigestAuthClient conn = new DigestAuthClient();
@@ -42,6 +43,7 @@ public class FileopDemo {
 			System.out.println("RS get failed : " + getRet) ;
 			return ;
 		}
+		
 		String imgDownloadUrl = getRet.getUrl();
 		System.out.println("Image Download Url : " + imgDownloadUrl + "\n");
 
@@ -66,8 +68,7 @@ public class FileopDemo {
 			System.out.println(imgExRet.getResponse());
 			System.out.println() ;
 		} else {
-			System.out.println("Fileop getImgExif failed : " + imgExRet) ;
-			return ;
+			System.out.println("Fileop getImgExif failed or has no exif data. " + imgExRet) ;
 		}
 
 		// get image view url
@@ -79,7 +80,7 @@ public class FileopDemo {
 		imgViewOpts.put("format", "jpg");
 		imgViewOpts.put("sharpen", "100");
 		String imgViewUrl = Fileop.getImageViewURL(imgDownloadUrl, imgViewOpts);
-		System.out.println("image view url : " + imgViewUrl + "\n");
+		System.out.println("imageView url : " + imgViewUrl + "\n");
 		
 		// get image mogrify url
 		Map<String, String> opts = new HashMap<String, String>();
@@ -91,8 +92,7 @@ public class FileopDemo {
 		opts.put("format", "jpg");
 		opts.put("auto_orient", "True");
 		String mogrifyPreviewUrl = Fileop.getImageMogrifyURL(imgDownloadUrl, opts);
-		System.out.println("ImageMogrifyPreviewUrl : " + mogrifyPreviewUrl + "\n");
-
+		System.out.println("ImageMogrifyUrl : " + mogrifyPreviewUrl + "\n");
 		
 		CallRet imgSaveAsRet = rs.imageMogrifySaveAs("test", key,
 				imgDownloadUrl, opts);

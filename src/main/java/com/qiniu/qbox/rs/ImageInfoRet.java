@@ -26,10 +26,14 @@ public class ImageInfoRet extends CallRet {
 		return colorMode;
 	}
 
-	public ImageInfoRet(CallRet ret) throws Exception{
+	public ImageInfoRet(CallRet ret) {
 		super(ret) ;
 		if (ret.ok() && ret.getResponse() != null) {
-			unmarshal(ret.getResponse());
+			try {
+				unmarshal(ret.getResponse());
+			} catch (JSONException e) {
+				this.exception = e ;
+			}
 		}
 	}
 	private void unmarshal(String json) throws JSONException {

@@ -17,16 +17,18 @@ public class Fileop {
 	}
 
 
-	public static String getImageViewURL(String url, Map<String, String> params) {
-		return url + "?imageView/" + mkImageViewParams(params) ;
+	public static String getImageViewURL(String url, Map<String, String> params) throws Exception {
+		return url + "?imageView" + mkImageViewParams(params) ;
 	}
 
-	private static String mkImageViewParams(Map<String, String> opts) {
+	private static String mkImageViewParams(Map<String, String> opts) throws Exception {
 		String[] keys = {"w", "h", "q", "format", "sharpen", "watermark"} ;
 		StringBuilder params = new StringBuilder() ;
 		String modeVal = opts.get("mode") ;
 		if (modeVal != null) {
-			params.append(modeVal) ;
+			params.append("/" + modeVal) ;
+		} else {
+			throw new Exception("No mode value specified!") ;
 		}
 
 		for (String key : keys) {
