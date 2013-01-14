@@ -2,12 +2,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.qiniu.qbox.Config;
+import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.DigestAuthClient;
 import com.qiniu.qbox.rs.Fileop;
 import com.qiniu.qbox.rs.GetRet;
 import com.qiniu.qbox.rs.ImageInfoRet;
-import com.qiniu.qbox.rs.PutAuthRet;
 import com.qiniu.qbox.rs.PutFileRet;
 import com.qiniu.qbox.rs.RSClient;
 import com.qiniu.qbox.rs.RSService;
@@ -17,30 +17,26 @@ public class FileopDemo {
 	public static void main(String[] args) throws Exception {
 		Config.ACCESS_KEY = "<Please apply your access key>";
 		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
-		
-		DigestAuthClient conn = new DigestAuthClient();
+				
 		String bucketName = "bucket";
 		String key = "upload.jpg";
 		String path = System.getProperty("user.dir");
 		System.out.println("Test to put local image: " + path + "/" + key + "\n");
 
-		RSService rs = new RSService(conn, bucketName);
-		PutAuthRet putAuthRet = rs.putAuth();
-		String putUrl = putAuthRet.getUrl();
-		System.out.println("Put URL: " + putUrl);
-
 		Map<String, String> callbackParams = new HashMap<String, String>();
 		callbackParams.put("key", key);
 
-		PutFileRet putFileRet = RSClient.putFile(putAuthRet.getUrl(),
-				bucketName, key, "", key, "CustomData", callbackParams);
-		if (!putFileRet.ok()) {
-			System.out.println("Failed to put file " + path + "/" + key + ": " + putFileRet);
-			return;
+		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
+		String token = policy.makeAuthTokenString();
+		PutFileRet putRet = RSClient.putFileWithToken(token, bucketName, key, path+"/"+key, "", "", "", "2") ;
+		if (putRet.ok()) {
+			System.out.println("Upload " + path+"/"+key + " with token successfully!") ;
 		} else {
-			System.out.println("Put file " + path + "/" + key + " successfully.\n");
+			System.out.println("Upload " + path+"/"+key + " with token failed!") ;
 		}
-
+		
+		DigestAuthClient conn = new DigestAuthClient();
+		RSService rs = new RSService(conn, bucketName);
 		GetRet getRet = rs.get(key, key);
 		if (!getRet.ok()) {
 			System.out.println("RS get failed : " + getRet) ;
@@ -49,7 +45,6 @@ public class FileopDemo {
 		String imgDownloadUrl = getRet.getUrl();
 		System.out.println("Image Download Url : " + imgDownloadUrl + "\n");
 
-		Fileop fp = new Fileop();
 		// get the image info from the specified url
 		ImageInfoRet imgInfoRet = rs.imageInfo(Fileop.getImageInfoURL(imgDownloadUrl));
 		if (imgInfoRet.ok()) {
@@ -61,6 +56,7 @@ public class FileopDemo {
 			System.out.println() ;
 		} else {
 			System.out.println("Fileop getImageInfo failed : " + imgInfoRet) ;
+			return ;
 		}
 		
 		// get the exif info from the specified image url
@@ -71,6 +67,7 @@ public class FileopDemo {
 			System.out.println() ;
 		} else {
 			System.out.println("Fileop getImgExif failed : " + imgExRet) ;
+			return ;
 		}
 
 		// get image view url
