@@ -16,7 +16,7 @@ public class FileopDemo {
 
 	public static void main(String[] args) throws Exception {
 		Config.ACCESS_KEY = "<Please apply your access key>";
-		Config.SECRET_KEY = "<Dont send your secret key to anyone>";
+		Config.SECRET_KEY = "<Do not send your secret key to anyone>";
 
 		String bucketName = "bucket";
 		String key = "upload.jpg";
