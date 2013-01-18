@@ -1,7 +1,6 @@
 package com.qiniu.qbox.rs;
 
 import java.io.File;
-import java.util.Map;
 
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ContentType;
@@ -10,7 +9,6 @@ import org.apache.http.entity.FileEntity;
 import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
-import com.qiniu.qbox.fileop.ImageInfoRet;
 
 public class RSService {
 
