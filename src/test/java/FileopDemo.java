@@ -28,8 +28,6 @@ public class FileopDemo {
 		System.out.println("Test to put local image: " + path + "/" + key + "\n");
 
 		// upload an image to the qiniu cloud platform
-		Map<String, String> callbackParams = new HashMap<String, String>();
-		callbackParams.put("key", key);
 		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
 		String token = policy.makeAuthTokenString();
 		PutFileRet putRet = RSClient.putFileWithToken(token, bucketName, key, path+"/"+key, "", "", "", "") ;
