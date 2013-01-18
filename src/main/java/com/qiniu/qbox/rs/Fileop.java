@@ -22,7 +22,7 @@ public class Fileop {
 	}
 
 	private static String mkImageViewParams(Map<String, String> opts) throws Exception {
-		String[] keys = {"w", "h", "q", "format", "sharpen", "watermark"} ;
+		String[] keys = {"w", "h", "q", "format", "sharpen"} ;
 		StringBuilder params = new StringBuilder() ;
 		String modeVal = opts.get("mode") ;
 		if (modeVal != null) {

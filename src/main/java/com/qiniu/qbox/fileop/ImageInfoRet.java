@@ -1,4 +1,4 @@
-package com.qiniu.qbox.rs;
+package com.qiniu.qbox.fileop;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,23 +16,26 @@ public class ImageInfoRet extends CallRet {
 	public String getFormat() {
 		return format;
 	}
+
 	public int getWidth() {
 		return width;
 	}
+
 	public int getHeight() {
 		return height;
 	}
+
 	public String getColorMode() {
 		return colorMode;
 	}
 
 	public ImageInfoRet(CallRet ret) {
-		super(ret) ;
+		super(ret);
 		if (ret.ok() && ret.getResponse() != null) {
 			try {
 				unmarshal(ret.getResponse());
 			} catch (JSONException e) {
-				this.exception = e ;
+				this.exception = e;
 			}
 		}
 	}
