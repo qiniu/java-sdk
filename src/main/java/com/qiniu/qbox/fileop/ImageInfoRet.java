@@ -6,35 +6,19 @@ import org.json.JSONObject;
 import com.qiniu.qbox.auth.CallRet;
 
 public class ImageInfoRet extends CallRet {
-	private String format ;
+	public String format ;
 	/** The width of the original image, in pixel */
-	private int width ;
+	public int width ;
 	/** The height of the original image, in pixel */
-	private int height ;
-	private String colorMode ;
-
-	public String getFormat() {
-		return format;
-	}
-
-	public int getWidth() {
-		return width;
-	}
-
-	public int getHeight() {
-		return height;
-	}
-
-	public String getColorMode() {
-		return colorMode;
-	}
+	public int height ;
+	public String colorMode ;
 
 	public ImageInfoRet(CallRet ret) {
 		super(ret);
 		if (ret.ok() && ret.getResponse() != null) {
 			try {
 				unmarshal(ret.getResponse());
-			} catch (JSONException e) {
+			} catch (Exception e) {
 				this.exception = e;
 			}
 		}

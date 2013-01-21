@@ -1,15 +1,14 @@
 package com.qiniu.qbox.fileop;
 
 import com.qiniu.qbox.auth.CallRet;
-import com.qiniu.qbox.auth.Client;
 
 public class ImageExif {
 	private String url;
-	private Client conn;
+	private DefaultHttpClient conn  ;
 
-	public ImageExif(String url, Client conn) {
+	public ImageExif(String url) {
 		this.url = url;
-		this.conn = conn;
+		this.conn = new DefaultHttpClient();
 	}
 
 	public String makeURL() {
@@ -17,7 +16,7 @@ public class ImageExif {
 	}
 
 	public CallRet call() {
-		url = this.makeURL();
+		String url = this.makeURL();
 		CallRet ret = conn.call(url);
 		return ret;
 	}

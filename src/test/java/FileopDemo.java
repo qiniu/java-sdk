@@ -1,6 +1,3 @@
-import java.util.HashMap;
-import java.util.Map;
-
 import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.CallRet;
@@ -50,14 +47,14 @@ public class FileopDemo {
 		System.out.println("Image Download Url : " + imageUrl + "\n");
 		
 		// imageInfo demo
-		ImageInfo imgInfo = new ImageInfo(imageUrl, conn) ;
+		ImageInfo imgInfo = new ImageInfo(imageUrl) ;
 		ImageInfoRet imgInfoRet = imgInfo.call() ;
 		if (imgInfoRet.ok()) {
 			System.out.println("Resulst of imageInfo() : ");
-			System.out.println("format     : " + imgInfoRet.getFormat());
-			System.out.println("width      : " + imgInfoRet.getWidth());
-			System.out.println("height     : " + imgInfoRet.getHeight());
-			System.out.println("colorModel : " + imgInfoRet.getColorMode()); 
+			System.out.println("format     : " + imgInfoRet.format);
+			System.out.println("width      : " + imgInfoRet.width);
+			System.out.println("height     : " + imgInfoRet.height);
+			System.out.println("colorModel : " + imgInfoRet.colorMode); 
 			System.out.println() ;
 		} else {
 			System.out.println("Fileop getImageInfo failed : " + imgInfoRet) ;
@@ -65,7 +62,7 @@ public class FileopDemo {
 		}
 		
 		// imageExif demo
-		ImageExif imgExif = new ImageExif(imageUrl, conn) ;
+		ImageExif imgExif = new ImageExif(imageUrl) ;
 		CallRet imgExifRet = imgExif.call() ;
 		if (imgExifRet.ok()) {
 			System.out.println("Result of imageEXIF()  : ");
@@ -76,28 +73,28 @@ public class FileopDemo {
 		}
 		
 		// imageView demo
-		Map<String, String> imgViewOpts = new HashMap<String, String>() ;
-		imgViewOpts.put("mode", "1");
-		imgViewOpts.put("w", "100");
-		imgViewOpts.put("h", "200");
-		imgViewOpts.put("q", "1");
-		imgViewOpts.put("format", "jpg");
-		imgViewOpts.put("sharpen", "100");
-		ImageView imgView = new ImageView(imgViewOpts) ;
-		String imgViewUrl = imgView.makeURL(imageUrl) ;
-		System.out.println("imageView url : " + imgViewUrl) ;
+		ImageView imgView = new ImageView(imageUrl) ;
+		imgView.mode = 1 ;
+		imgView.width = 100 ;
+		imgView.height = 200 ;
+		imgView.quality = 1 ;
+		imgView.format = "jpg" ;
+		imgView.sharpen = 100 ;
+		System.out.println("imageView url : " + imgView.makeURL()) ;
+		CallRet imgViewRet = imgView.call() ;
+		System.out.println("Result of imageView: " + (imgViewRet.ok() ? "Succeeded." : imgViewRet)) ;
 		
 		// imageMogr demo
-		Map<String, String> imgMogrOpts = new HashMap<String, String>() ;
-		imgMogrOpts.put("thumbnail", "!120x120r");
-		imgMogrOpts.put("gravity", "center");
-		imgMogrOpts.put("crop", "!120x120a0a0");
-		imgMogrOpts.put("quality", "85");
-		imgMogrOpts.put("rotate", "45");
-		imgMogrOpts.put("format", "jpg");
-		imgMogrOpts.put("auto_orient", "True");
-		ImageMogrify imgMogrify = new ImageMogrify(imgMogrOpts) ;
-		String imgMogrUrl = imgMogrify.makeURL(imageUrl) ;
-		System.out.println("imageMogrify url : " + imgMogrUrl) ;
+		ImageMogrify imgMogr = new ImageMogrify(imageUrl) ;
+		imgMogr.thumbnail = "!120x120r" ;
+		imgMogr.gravity = "center" ;
+		imgMogr.crop = "!120x120a0a0" ;
+		imgMogr.quality = 85 ;
+		imgMogr.rotate = 45 ;
+		imgMogr.format = "jpg" ;
+		imgMogr.autoOrient = true ;
+		System.out.println("imageMogrify url : " + imgMogr.makeURL()) ;
+		CallRet imgMogrRet = imgMogr.call() ;
+		System.out.println("Result of imageMogr: " + (imgMogrRet.ok() ? "Succeeded." : imgMogrRet)) ;
 	}
 }
