@@ -10,7 +10,7 @@ public class ImageInfo {
     }
     
     public static ImageInfoRet call(String url) {
-          CallRet ret = new Client().call(url) ; 
+          CallRet ret = new Client().call(makeRequest(url)) ; 
           return new ImageInfoRet(ret) ;
     }
 }
