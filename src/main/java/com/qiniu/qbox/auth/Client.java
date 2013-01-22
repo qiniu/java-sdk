@@ -20,9 +20,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
-public abstract class Client {
+public class Client {
 
-	public abstract void setAuth(HttpPost post);
+	public void setAuth(HttpPost post) {
+	}
 
 	public CallRet call(String url) {
 		HttpPost postMethod = new HttpPost(url);

@@ -1,7 +1,5 @@
 package com.qiniu.qbox.fileop;
 
-import org.apache.http.client.methods.HttpPost;
-
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
 
@@ -46,10 +44,7 @@ public class ImageMogrify {
 	}
 	
 	public CallRet call(String url) {
-		CallRet ret = new Client(){
-			public void setAuth(HttpPost post) {
-				// nothing to do
-			}}.call(url) ;
+		CallRet ret = new Client().call(url) ;
 		return ret;
 	}
 }
