@@ -42,7 +42,7 @@ public class ImageView {
 	}
 	
 	public CallRet call(String url) {
-		CallRet ret = new Client().call(url) ;
+		CallRet ret = new Client().call(this.makeRequest(url)) ;
 		return ret;
 	}
 }
