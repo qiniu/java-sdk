@@ -49,7 +49,7 @@ public class FileopDemo {
 		// imageInfo demo
 		String imgInfoRequestUrl = ImageInfo.makeRequest(imageUrl) ;
 		System.out.println("ImageInfo request url : " + imgInfoRequestUrl) ;
-		ImageInfoRet imgInfoRet = ImageInfo.call(imgInfoRequestUrl) ;
+		ImageInfoRet imgInfoRet = ImageInfo.call(imageUrl) ;
 		if (imgInfoRet.ok()) {
 			System.out.println("Resulst of imageInfo() : ");
 			System.out.println("format     : " + imgInfoRet.format);
@@ -65,7 +65,7 @@ public class FileopDemo {
 		// imageExif demo
 		String imgExifRequestUrl = ImageExif.makeRequest(imageUrl) ;
 		System.out.println("ImageExif request url : " + imgExifRequestUrl) ;
-		CallRet imgExifRet = ImageExif.call(imgExifRequestUrl) ;
+		CallRet imgExifRet = ImageExif.call(imageUrl) ;
 		if (imgExifRet.ok()) {
 			System.out.println("Result of imageEXIF()  : ");
 			System.out.println(imgExifRet.getResponse());
@@ -84,7 +84,7 @@ public class FileopDemo {
 		imgView.sharpen = 100 ;
 		String imgViewReuqestUrl = imgView.makeRequest(imageUrl) ;
 		System.out.println("ImageView request url : " + imgViewReuqestUrl) ;
-		CallRet imgViewRet = imgView.call(imgViewReuqestUrl) ;
+		CallRet imgViewRet = imgView.call(imageUrl) ;
 		System.out.println("Result of imageView: " + (imgViewRet.ok() ? "Succeeded." : imgViewRet)) ;
 		
 		// imageMogr demo
@@ -98,7 +98,7 @@ public class FileopDemo {
 		imgMogr.autoOrient = true ;
 		String imgMogrRequestUrl = imgMogr.makeRequest(imageUrl) ;
 		System.out.println("ImageMogrify request url : " + imgMogrRequestUrl) ;
-		CallRet imgMogrRet = imgMogr.call(imgMogrRequestUrl) ;
+		CallRet imgMogrRet = imgMogr.call(imageUrl) ;
 		System.out.println("Result of imageMogr: " + (imgMogrRet.ok() ? "Succeeded." : imgMogrRet)) ;
 	}
 }
