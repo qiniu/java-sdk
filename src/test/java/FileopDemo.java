@@ -47,14 +47,16 @@ public class FileopDemo {
 		System.out.println("Image Download Url : " + imageUrl + "\n");
 		
 		// imageInfo demo
-		ImageInfo imgInfo = new ImageInfo(imageUrl) ;
-		ImageInfoRet imgInfoRet = imgInfo.call() ;
+		ImageInfo imgInfo = new ImageInfo() ;
+		String imgInfoRequestUrl = imgInfo.makeRequest(imageUrl) ;
+		System.out.println("ImageInfo request url : " + imgInfoRequestUrl) ;
+		ImageInfoRet imgInfoRet = imgInfo.call(imgInfoRequestUrl) ;
 		if (imgInfoRet.ok()) {
 			System.out.println("Resulst of imageInfo() : ");
 			System.out.println("format     : " + imgInfoRet.format);
 			System.out.println("width      : " + imgInfoRet.width);
 			System.out.println("height     : " + imgInfoRet.height);
-			System.out.println("colorModel : " + imgInfoRet.colorMode); 
+			System.out.println("colorModel : " + imgInfoRet.colorModel); 
 			System.out.println() ;
 		} else {
 			System.out.println("Fileop getImageInfo failed : " + imgInfoRet) ;
@@ -62,8 +64,10 @@ public class FileopDemo {
 		}
 		
 		// imageExif demo
-		ImageExif imgExif = new ImageExif(imageUrl) ;
-		CallRet imgExifRet = imgExif.call() ;
+		ImageExif imgExif = new ImageExif() ;
+		String imgExifRequestUrl = imgExif.makeRequest(imageUrl) ;
+		System.out.println("ImageExif request url : " + imgExifRequestUrl) ;
+		CallRet imgExifRet = imgExif.call(imgExifRequestUrl) ;
 		if (imgExifRet.ok()) {
 			System.out.println("Result of imageEXIF()  : ");
 			System.out.println(imgExifRet.getResponse());
@@ -73,19 +77,20 @@ public class FileopDemo {
 		}
 		
 		// imageView demo
-		ImageView imgView = new ImageView(imageUrl) ;
+		ImageView imgView = new ImageView() ;
 		imgView.mode = 1 ;
 		imgView.width = 100 ;
 		imgView.height = 200 ;
 		imgView.quality = 1 ;
 		imgView.format = "jpg" ;
 		imgView.sharpen = 100 ;
-		System.out.println("imageView url : " + imgView.makeURL()) ;
-		CallRet imgViewRet = imgView.call() ;
+		String imgViewReuqestUrl = imgView.makeRequest(imageUrl) ;
+		System.out.println("ImageView request url : " + imgViewReuqestUrl) ;
+		CallRet imgViewRet = imgView.call(imgViewReuqestUrl) ;
 		System.out.println("Result of imageView: " + (imgViewRet.ok() ? "Succeeded." : imgViewRet)) ;
 		
 		// imageMogr demo
-		ImageMogrify imgMogr = new ImageMogrify(imageUrl) ;
+		ImageMogrify imgMogr = new ImageMogrify() ;
 		imgMogr.thumbnail = "!120x120r" ;
 		imgMogr.gravity = "center" ;
 		imgMogr.crop = "!120x120a0a0" ;
@@ -93,8 +98,9 @@ public class FileopDemo {
 		imgMogr.rotate = 45 ;
 		imgMogr.format = "jpg" ;
 		imgMogr.autoOrient = true ;
-		System.out.println("imageMogrify url : " + imgMogr.makeURL()) ;
-		CallRet imgMogrRet = imgMogr.call() ;
+		String imgMogrRequestUrl = imgMogr.makeRequest(imageUrl) ;
+		System.out.println("ImageMogrify request url : " + imgMogrRequestUrl) ;
+		CallRet imgMogrRet = imgMogr.call(imgMogrRequestUrl) ;
 		System.out.println("Result of imageMogr: " + (imgMogrRet.ok() ? "Succeeded." : imgMogrRet)) ;
 	}
 }

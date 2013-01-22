@@ -1,23 +1,21 @@
 package com.qiniu.qbox.fileop;
 
+import org.apache.http.client.methods.HttpPost;
+
 import com.qiniu.qbox.auth.CallRet;
+import com.qiniu.qbox.auth.Client;
 
 public class ImageExif {
-	private String url;
-	private DefaultHttpClient conn  ;
 
-	public ImageExif(String url) {
-		this.url = url;
-		this.conn = new DefaultHttpClient();
+	public String makeRequest(String url) {
+		return url + "?exif";
 	}
 
-	public String makeURL() {
-		return this.url + "?exif";
-	}
-
-	public CallRet call() {
-		String url = this.makeURL();
-		CallRet ret = conn.call(url);
+	public CallRet call(String url) {
+		CallRet ret = new Client(){
+			public void setAuth(HttpPost post) {
+				// nothing to do
+			}}.call(url) ;
 		return ret;
 	}
 }

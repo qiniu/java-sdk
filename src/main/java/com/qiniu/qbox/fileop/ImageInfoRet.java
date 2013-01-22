@@ -11,7 +11,7 @@ public class ImageInfoRet extends CallRet {
 	public int width ;
 	/** The height of the original image, in pixel */
 	public int height ;
-	public String colorMode ;
+	public String colorModel ;
 
 	public ImageInfoRet(CallRet ret) {
 		super(ret);
@@ -30,7 +30,7 @@ public class ImageInfoRet extends CallRet {
 			this.format = jsonObj.getString("format") ;
 			this.width = jsonObj.getInt("width") ;
 			this.height = jsonObj.getInt("height") ;
-			this.colorMode = jsonObj.getString("colorModel") ;
+			this.colorModel = jsonObj.getString("colorModel") ;
 		} else {
 			throw new JSONException("Bad result!") ;
 		}

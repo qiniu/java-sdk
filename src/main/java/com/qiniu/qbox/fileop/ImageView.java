@@ -1,6 +1,9 @@
 package com.qiniu.qbox.fileop;
 
+import org.apache.http.client.methods.HttpPost;
+
 import com.qiniu.qbox.auth.CallRet;
+import com.qiniu.qbox.auth.Client;
 
 
 public class ImageView {
@@ -10,13 +13,6 @@ public class ImageView {
 	public int quality ;
 	public String format ;
 	public int sharpen ;
-	private String url ;
-	private DefaultHttpClient conn;
-	
-	public ImageView(String url) {
-		this.url = url ;
-		this.conn = new DefaultHttpClient() ;
-	}
 	
 	public String makeParams() {
 		StringBuilder params = new StringBuilder() ;
@@ -43,13 +39,15 @@ public class ImageView {
 		return params.toString() ;
 	}
 	
-	public String makeURL() {
-		return this.url + "?imageView" + this.makeParams() ;
+	public String makeRequest(String url) {
+		return url + "?imageView" + this.makeParams() ;
 	}
 	
-	public CallRet call() {
-		String url = this.makeURL();
-		CallRet ret = conn.call(url);
+	public CallRet call(String url) {
+		CallRet ret = new Client(){
+			public void setAuth(HttpPost post) {
+				// nothing to do
+			}}.call(url) ;
 		return ret;
 	}
 }
