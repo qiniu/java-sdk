@@ -7,7 +7,7 @@ import com.qiniu.qbox.auth.Client;
 
 public class ImageExif {
 
-	public String makeRequest(String url) {
+	public static String makeRequest(String url) {
 		return url + "?exif";
 	}
 

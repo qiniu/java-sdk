@@ -48,7 +48,7 @@ public class FileopDemo {
 		
 		// imageInfo demo
 		ImageInfo imgInfo = new ImageInfo() ;
-		String imgInfoRequestUrl = imgInfo.makeRequest(imageUrl) ;
+		String imgInfoRequestUrl = ImageInfo.makeRequest(imageUrl) ;
 		System.out.println("ImageInfo request url : " + imgInfoRequestUrl) ;
 		ImageInfoRet imgInfoRet = imgInfo.call(imgInfoRequestUrl) ;
 		if (imgInfoRet.ok()) {
@@ -65,7 +65,7 @@ public class FileopDemo {
 		
 		// imageExif demo
 		ImageExif imgExif = new ImageExif() ;
-		String imgExifRequestUrl = imgExif.makeRequest(imageUrl) ;
+		String imgExifRequestUrl = ImageExif.makeRequest(imageUrl) ;
 		System.out.println("ImageExif request url : " + imgExifRequestUrl) ;
 		CallRet imgExifRet = imgExif.call(imgExifRequestUrl) ;
 		if (imgExifRet.ok()) {
