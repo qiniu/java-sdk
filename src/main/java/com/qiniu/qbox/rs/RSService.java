@@ -139,4 +139,14 @@ public class RSService {
 		CallRet callRet = conn.call(url);
 		return new DropRet(callRet);
 	}
+	
+	/**
+	 * func Mkbucket(bucketname string) => Bool
+     * 创建一个资源表
+	 */
+	public CallRet mkBucket(String newBucketName) throws Exception {
+		String url = Config.RS_HOST + "/mkbucket/" + newBucketName ;
+		CallRet callRet = conn.call(url) ;
+		return callRet ;
+	}
 }
