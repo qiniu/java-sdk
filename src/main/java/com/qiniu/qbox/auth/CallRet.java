@@ -31,7 +31,7 @@ public class CallRet {
 	}
 	
 	public boolean ok() {
-		return this.statusCode / 100 == 2;
+		return this.statusCode / 100 == 2 && this.exception == null;
 	}
 	
 	public Exception getException() {
