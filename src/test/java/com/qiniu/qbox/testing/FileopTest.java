@@ -105,4 +105,5 @@ public class FileopTest extends TestCase {
 		url = imgMogr.makeRequest(testUrl) ;
 		assertEquals(testUrl+"?imageMogr/format/jpg/auto-orient", url) ;
 	}
+	
 }
