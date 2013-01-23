@@ -43,9 +43,7 @@ public class FileopTest extends TestCase {
 		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
 		String token = policy.makeAuthTokenString();
 		PutFileRet putRet = RSClient.putFileWithToken(token, bucketName, key, absFilePath, "", "", "", "") ;
-		
-		GetRet getRet = this.rsGet() ;
-		String hash = getRet.getHash() ;
+		String hash = putRet.getHash() ;
 		assertTrue(putRet.ok() && (expectHash.equals(hash))) ;
 	}
 	
