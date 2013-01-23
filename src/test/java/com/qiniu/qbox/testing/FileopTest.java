@@ -18,7 +18,6 @@ import com.qiniu.qbox.rs.RSService;
 public class FileopTest extends TestCase {
 	public String key = "upload.jpg";
 	public String bucketName = "junit_fileop";
-	public static String url ;
 	
 	public void setUp() {
 		Config.ACCESS_KEY = "ttXNqIvhrYu04B_dWM6GwSpcXOZJvGoYFdznAWnz" ;
@@ -35,25 +34,33 @@ public class FileopTest extends TestCase {
 		assertTrue(putRet.ok()) ;
 	}
 	
-	public void testRsGet() throws Exception {
+	public GetRet rsGet() throws Exception {
 		DigestAuthClient conn = new DigestAuthClient();
 		RSService rs = new RSService(conn, bucketName);
 		GetRet getRet = rs.get(key, key);
-		url = getRet.getUrl();
-		assertTrue(getRet.ok()) ;
+		return getRet ;
 	}
 	
-	public void testImageInfo() {
+	public void testImageInfo() throws Exception {
+		GetRet getRet = this.rsGet() ;
+		assertTrue(getRet.ok()) ;
+		String url = getRet.getUrl() ;
 		CallRet callRet = ImageInfo.call(url) ;
 		assertTrue("ImageInfo " + url + " failed!", callRet.ok()) ;
 	}
 	
-	public void testImageExif() {
+	public void testImageExif() throws Exception {
+		GetRet getRet = this.rsGet() ;
+		assertTrue(getRet.ok()) ;
+		String url = getRet.getUrl() ;
 		CallRet callRet = ImageExif.call(url) ;
 		assertTrue("ImageExif " + url + " failed!", callRet.ok()) ;
 	}
 	
-	public void testImageView() {
+	public void testImageView() throws Exception {
+		GetRet getRet = this.rsGet() ;
+		assertTrue(getRet.ok()) ;
+		String url = getRet.getUrl() ;
 		ImageView imgView = new ImageView() ;
 		imgView.mode = 1 ;
 		imgView.width = 100 ;
@@ -65,7 +72,11 @@ public class FileopTest extends TestCase {
 		assertTrue("ImageView " + url + " failed!", imgViewRet.ok()) ;
 	}
 	
-	public void testImageMogrify() {
+	public void testImageMogrify() throws Exception {
+		GetRet getRet = this.rsGet() ;
+		assertTrue(getRet.ok()) ;
+		String url = getRet.getUrl() ;
+		
 		ImageMogrify imgMogr = new ImageMogrify() ;
 		imgMogr.thumbnail = "!120x120r" ;
 		imgMogr.gravity = "center" ;
