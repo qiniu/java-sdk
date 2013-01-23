@@ -1,1 +1,9 @@
 language: java
+
+env:
+    - QINIU_ACCESS_KEY=ttXNqIvhrYu04B_dWM6GwSpcXOZJvGoYFdznAWnz
+    - QINIU_SECRET_KEY=rX-7Omdag0BIBEtOyuGQXzx4pmTUTeLxoPEw6G8d
+    - QINIU_UP_HOST=http://up.qbox.me
+    - QINIU_RS_HOST=http://rs.qbox.me
+    - QINIU_IO_HOST=http://iovip.qbox.me
+    - QINIU_TEST_BUCKET=junit_bucket
