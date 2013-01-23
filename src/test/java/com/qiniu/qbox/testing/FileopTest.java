@@ -2,6 +2,7 @@ package com.qiniu.qbox.testing;
 
 import junit.framework.TestCase;
 
+import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.DigestAuthClient;
@@ -16,35 +17,25 @@ import com.qiniu.qbox.rs.RSService;
 
 public class FileopTest extends TestCase {
 	
-	static {
-	
-		
-		
-		/*Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY") ;
-		Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY") ;
+	public void setUp() {
+		Config.ACCESS_KEY =  System.getenv("QINIU_ACCESS_KEY");
+		Config.SECRET_KEY =  System.getenv("QINIU_SECRET_KEY");
 		Config.UP_HOST = System.getenv("QINIU_UP_HOST") ;
-		Config.IO_HOST = System.getenv("QINIU_IO_HOST") ;
 		Config.RS_HOST = System.getenv("QINIU_RS_HOST") ;
+		Config.IO_HOST = System.getenv("QINIU_IO_HOST") ;
 		String bucketName = System.getenv("QINIU_TEST_BUCKET") ;
-	
-System.out.println("accessKey : " + System.getenv("QINIU_ACCESS_KEY")) ;
-System.out.println("secretkey : " + System.getenv("QINIU_SECRET_KEY")) ;
-System.out.println("uphost : " + System.getenv("QINIU_UP_HOST")) ;
-System.out.println("rshost : " + System.getenv("QINIU_RS_HOST")) ;
-System.out.println("bucketName : " + System.getenv("QINIU_TEST_BUCKET")) ;
-
-
+		
 		assertNotNull(Config.ACCESS_KEY) ;
 		assertNotNull(Config.SECRET_KEY) ;
 		assertNotNull(Config.UP_HOST) ;
 		assertNotNull(Config.RS_HOST) ;
 		assertNotNull(Config.IO_HOST) ;
 		assertNotNull(bucketName) ;
-*/	}
+	}
 	
 	public void testUploadWithToken() throws Exception {
 		String key = "upload.jpg" ;
-		String bucketName =  TestEnv.bucketName ;
+		String bucketName = System.getenv("QINIU_TEST_BUCKET") ;
 		String expectHash = "FnM8Lt3Mk6yCcYPaosvnAOwWZqyM" ;
 		String dir = System.getProperty("user.dir") ;
 		String absFilePath = dir + "/res/" + key ;
@@ -60,7 +51,7 @@ System.out.println("bucketName : " + System.getenv("QINIU_TEST_BUCKET")) ;
 	
 	public GetRet rsGet() throws Exception {
 		String key = "upload.jpg" ;
-		String bucketName =  TestEnv.bucketName ;
+		String bucketName = System.getenv("QINIU_TEST_BUCKET") ;
 		DigestAuthClient conn = new DigestAuthClient();
 		RSService rs = new RSService(conn, bucketName);
 		GetRet getRet = rs.get(key, key);
