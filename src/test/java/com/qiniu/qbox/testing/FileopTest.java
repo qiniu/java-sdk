@@ -2,7 +2,6 @@ package com.qiniu.qbox.testing;
 
 import junit.framework.TestCase;
 
-import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.DigestAuthClient;
@@ -17,25 +16,9 @@ import com.qiniu.qbox.rs.RSService;
 
 public class FileopTest extends TestCase {
 	
-	//public void setUp() {
-	static {
-		Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY") ;
-		Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY") ;
-		Config.UP_HOST = System.getenv("QINIU_UP_HOST") ;
-		Config.IO_HOST = System.getenv("QINIU_IO_HOST") ;
-		Config.RS_HOST = System.getenv("QINIU_RS_HOST") ;
-		String bucket = System.getenv("QINIU_TEST_BUCKET") ;
-		assertNotNull(Config.ACCESS_KEY) ;
-		assertNotNull(Config.SECRET_KEY) ;
-		assertNotNull(Config.UP_HOST) ;
-		assertNotNull(Config.RS_HOST) ;
-		assertNotNull(Config.IO_HOST) ;
-		assertNotNull(bucket) ;
-	}
-	
 	public void testUploadWithToken() throws Exception {
 		String key = "upload.jpg" ;
-		String bucketName = System.getenv("QINIU_TEST_BUCKET") ;
+		String bucketName = TestEnv.bucketName ;
 		String expectHash = "FnM8Lt3Mk6yCcYPaosvnAOwWZqyM" ;
 		String dir = System.getProperty("user.dir") ;
 		String absFilePath = dir + "/res/" + key ;
@@ -51,7 +34,7 @@ public class FileopTest extends TestCase {
 	
 	public GetRet rsGet() throws Exception {
 		String key = "upload.jpg" ;
-		String bucketName = System.getenv("QINIU_TEST_BUCKET") ;
+		String bucketName = TestEnv.bucketName ;
 		DigestAuthClient conn = new DigestAuthClient();
 		RSService rs = new RSService(conn, bucketName);
 		GetRet getRet = rs.get(key, key);
