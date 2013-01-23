@@ -19,6 +19,9 @@ public class TestEnv extends TestCase {
 		Config.IO_HOST = System.getenv("QINIU_IO_HOST") ;
 		Config.RS_HOST = System.getenv("QINIU_RS_HOST") ;
 		bucketName = System.getenv("QINIU_TEST_BUCKET") ;
+	
+System.out.println("accessKey : " + Config.ACCESS_KEY) ;
+System.out.println("bucketName : " + bucketName) ;
 		assertNotNull(Config.ACCESS_KEY) ;
 		assertNotNull(Config.SECRET_KEY) ;
 		assertNotNull(Config.UP_HOST) ;
