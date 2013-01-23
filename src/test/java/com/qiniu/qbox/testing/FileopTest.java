@@ -2,9 +2,6 @@ package com.qiniu.qbox.testing;
 
 import junit.framework.TestCase;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.CallRet;
