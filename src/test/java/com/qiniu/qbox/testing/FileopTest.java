@@ -23,13 +23,11 @@ public class FileopTest extends TestCase {
 	public String bucketName = "junit_fileop";
 	public static String url ;
 	
-	@BeforeClass
 	public void setUp() {
 		Config.ACCESS_KEY = "ttXNqIvhrYu04B_dWM6GwSpcXOZJvGoYFdznAWnz" ;
 		Config.SECRET_KEY = "rX-7Omdag0BIBEtOyuGQXzx4pmTUTeLxoPEw6G8d" ;
 	}
 	
-	@Test
 	public void testUploadWithToken() throws Exception {
 		String dir = System.getProperty("user.dir") ;
 		String absFilePath = dir + "/res/" + key ;
@@ -40,7 +38,6 @@ public class FileopTest extends TestCase {
 		assertTrue(putRet.ok()) ;
 	}
 	
-	@Test
 	public void testRsGet() throws Exception {
 		DigestAuthClient conn = new DigestAuthClient();
 		RSService rs = new RSService(conn, bucketName);
@@ -49,19 +46,16 @@ public class FileopTest extends TestCase {
 		assertTrue(getRet.ok()) ;
 	}
 	
-	@Test
 	public void testImageInfo() {
 		CallRet callRet = ImageInfo.call(url) ;
 		assertTrue("ImageInfo " + url + " failed!", callRet.ok()) ;
 	}
 	
-	@Test 
 	public void testImageExif() {
 		CallRet callRet = ImageExif.call(url) ;
 		assertTrue("ImageExif " + url + " failed!", callRet.ok()) ;
 	}
 	
-	@Test
 	public void testImageView() {
 		ImageView imgView = new ImageView() ;
 		imgView.mode = 1 ;
@@ -74,7 +68,6 @@ public class FileopTest extends TestCase {
 		assertTrue("ImageView " + url + " failed!", imgViewRet.ok()) ;
 	}
 	
-	@Test
 	public void testImageMogrify() {
 		ImageMogrify imgMogr = new ImageMogrify() ;
 		imgMogr.thumbnail = "!120x120r" ;
@@ -88,7 +81,6 @@ public class FileopTest extends TestCase {
 		assertTrue("ImageMogr " + url + " failed!", imgMogrRet.ok()) ;
 	}
 	
-	@Test 
 	public void testImageViewMakeRequest() {
 		String testUrl = "http://iovip.qbox.me/file/xyz==" ;
 		ImageView imgView = new ImageView() ;
@@ -105,7 +97,6 @@ public class FileopTest extends TestCase {
 		assertEquals(testUrl + "?imageView/2/h/200/sharpen/10", url) ;
 	}
 	
-	@Test
 	public void testImageMogrifyMakeRequest() {
 		String testUrl = "http://iovip.qbox.me/file/xyz==" ;
 		ImageMogrify imgMogr = new ImageMogrify() ;
