@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 import com.qiniu.qbox.Config;
 
 public class TestEnv extends TestCase {
-	public static String accessKey ;
+	/*public static String accessKey ;
 	public static String secretKey ;
 	public static String bucketName ;
 	public static String upHost ;
@@ -31,5 +31,5 @@ System.out.println("bucketName : " + System.getenv("QINIU_TEST_BUCKET")) ;
 		assertNotNull(Config.RS_HOST) ;
 		assertNotNull(Config.IO_HOST) ;
 		assertNotNull(bucketName) ;
-	}
+	}*/
 }
