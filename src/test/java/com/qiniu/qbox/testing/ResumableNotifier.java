@@ -57,6 +57,7 @@ public class ResumableNotifier implements ProgressNotifier, BlockProgressNotifie
 			os.println(json);
 			System.out.println("BlockProgress Notify:" +
 					"\n\tBlockIndex: " + String.valueOf(blockIndex) + 
+					"\n\tHost: " + progress.host + 
 					"\n\tContext: " + progress.context +
 					"\n\tOffset: " + String.valueOf(progress.offset) +
 					"\n\tRestSize: " + String.valueOf(progress.restSize));
