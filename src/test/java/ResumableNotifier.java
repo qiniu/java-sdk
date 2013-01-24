@@ -49,6 +49,7 @@ public class ResumableNotifier implements ProgressNotifier, BlockProgressNotifie
 			map.put("context", progress.context);
 			map.put("offset", progress.offset + "");
 			map.put("restSize", progress.restSize + "");
+			map.put("host", progress.host) ;
 			doc.put("progress",map);
 			
 			String json = JSONObject.valueToString(doc);

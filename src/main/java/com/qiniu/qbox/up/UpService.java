@@ -103,6 +103,7 @@ public class UpService {
 				progress.context = ret.getCtx();
 				progress.offset = bodyLength;
 				progress.restSize = blockSize - bodyLength;
+				progress.host = upHost ;
 				
 				notifier.notify(blockIndex, progress);
 				
@@ -141,6 +142,7 @@ public class UpService {
 							progress.context = ret.getCtx();
 							progress.offset += bodyLength;
 							progress.restSize -= bodyLength;
+							progress.host = upHost ;
 							
 							notifier.notify(blockIndex, progress);
 						
@@ -170,6 +172,9 @@ public class UpService {
 			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier) {
 		
 		String upHost = Config.UP_HOST ;
+		if (progresses[0] != null) {
+			upHost = progresses[0].host ;
+		}
 		ResumablePutRet ret = null ;
 		int blockCount = blockCount(fsize);
 		
@@ -208,6 +213,7 @@ public class UpService {
 			}
 		}
 		
+		ret = new ResumablePutRet(new CallRet(200, (String)null));
 		ret.setHost(upHost) ;
 		return ret;
 	}
