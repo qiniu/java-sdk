@@ -3,6 +3,7 @@ package com.qiniu.qbox.testing;
 import junit.framework.TestCase;
 
 import com.qiniu.qbox.Config;
+import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.DigestAuthClient;
 import com.qiniu.qbox.rs.DeleteRet;
 import com.qiniu.qbox.rs.DropRet;
@@ -88,7 +89,8 @@ public class RsTest extends TestCase {
 	
 	public void testMkBucket() throws Exception {
 		String newBucketName = "a_new_bucketname_for_junit_test" ;
-		rs.mkBucket(newBucketName) ;
+		CallRet mkBucketRet = rs.mkBucket(newBucketName) ;
+		assertTrue(mkBucketRet.ok()) ;
 	}
 	
 	public void testDropBucket() throws Exception {
