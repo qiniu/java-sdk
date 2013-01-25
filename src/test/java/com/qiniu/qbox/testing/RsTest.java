@@ -17,9 +17,9 @@ import com.qiniu.qbox.rs.StatRet;
 
 public class RsTest extends TestCase {
 	
-	public final String DEMO_DOMAIN = "io.qbox.me/junit_test" ;
-	public final String key = "upload.jpg" ;
-	public final String expectedHash = "FnM8Lt3Mk6yCcYPaosvnAOwWZqyM" ;
+	public final String DEMO_DOMAIN = "junit-bucket.qiniudn.com" ;
+	public final String key = "logo.png" ;
+	public final String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR" ;
 	public RSService rs ;
 	public String bucketName ;
 	
@@ -47,7 +47,7 @@ public class RsTest extends TestCase {
 	public void testPutFile() throws Exception {
 	
 		String dir = System.getProperty("user.dir") ;
-		String absFilePath = dir + "/res/" + key ;
+		String absFilePath = dir + "/testdata/" + key ;
 		
 		PutAuthRet putAuthRet = rs.putAuth() ;
 		String authorizedUrl = putAuthRet.getUrl() ;
@@ -58,44 +58,51 @@ public class RsTest extends TestCase {
 	}
 	
 	public void testRsGet() throws Exception {
+		
 		GetRet getRet = rs.get(key, key) ;
 		assertTrue(getRet.ok() && expectedHash.equals(getRet.getHash())) ;
 	}
 	
 	public void testRsStat() throws Exception {
+		
 		StatRet statRet = rs.stat(key) ;
 		assertTrue(statRet.ok() && expectedHash.equals(statRet.getHash())) ;
 	}
 
 	public void testRsGetIfNotModified() throws Exception {
+		
 		GetRet getIfNotModifiedRet = rs.getIfNotModified(key, key, expectedHash) ;
 		assertTrue(getIfNotModifiedRet.ok() && expectedHash.equals(getIfNotModifiedRet.getHash())) ;
 	}
 	
 	public void testPublish() throws Exception {
+		
 		PublishRet publishRet = rs.publish(DEMO_DOMAIN);
 		assertTrue(publishRet.ok()) ;
 	}
 	
 	public void testUnpublish() throws Exception {
+		
 		PublishRet unpublishRet = rs.unpublish(DEMO_DOMAIN);
 		assertTrue(unpublishRet.ok()) ;
 	}
 	
 	public void testDelete() throws Exception {
+		
 		DeleteRet deleteRet = rs.delete(key) ;
 		assertTrue(deleteRet.ok()) ;
 	}
 	
 	public void testMkBucket() throws Exception {
-		String newBucketName = "a_new_bucketname_for_junit_test" ;
+		
+		String newBucketName = "a-new-bucketname-for-junit-test" ;
 		CallRet mkBucketRet = rs.mkBucket(newBucketName) ;
 		assertTrue(mkBucketRet.ok()) ;
 	}
 	
 	public void testDropBucket() throws Exception {
 		
-		String delBucketName = "a_new_bucketname_for_junit_test" ;
+		String delBucketName = "a-new-bucketname-for-junit-test" ;
 		DigestAuthClient conn = new DigestAuthClient() ;
 		RSService rs = new RSService(conn, delBucketName) ;
 		DropRet dropRet = rs.drop() ;
