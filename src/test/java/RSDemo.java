@@ -23,9 +23,9 @@ public class RSDemo {
 		DigestAuthClient conn = new DigestAuthClient();
 
 		String bucketName = "test";
-		String key = "upload.jpg";
+		String key = "README.md";
 
-		String DEMO_DOMAIN = "http://iovip.qbox.me/bucketName";
+		String DEMO_DOMAIN = "java-sdk.qiniudn.com";
 		
 		String path = System.getProperty("user.dir");
         System.out.println("Test to put local file: " + path +"/"+ key);   
@@ -71,6 +71,18 @@ public class RSDemo {
 				System.out.println("  Fsize: " + String.valueOf(getRet.getFsize()));
 				System.out.println("  MimeType: " + getRet.getMimeType());
 				System.out.println("  URL: " + getRet.getUrl());
+			}
+			
+			GetRet getRetWithExpires = rs.getWithExpires(key, key, 60) ;
+			System.out.println("Result of getWithExpires() for " + key) ;
+			if (!getRetWithExpires.ok()) {
+				System.out.println("Failed to get " + key + ": " + getRetWithExpires);
+			} else {
+				System.out.println("  Hash: " + getRetWithExpires.getHash());
+				System.out.println("  Fsize: " + String.valueOf(getRetWithExpires.getFsize()));
+				System.out.println("  MimeType: " + getRetWithExpires.getMimeType());
+				System.out.println("  URL: " + getRetWithExpires.getUrl());
+				System.out.println("  Expires: " + getRetWithExpires.getExpires()) ;
 			}
 			
 			GetRet getIfNotModifiedRet = rs.getIfNotModified(key, key, getRet.getHash());
@@ -124,6 +136,8 @@ public class RSDemo {
 			
 		}
 		
+		// rs.drop() will delete the bucket and all the files in the bucket,
+		// which are not recoverable. Don't do this, unless necessary.
 		System.out.println("Drop table " + bucketName);
 		DropRet dropRet = rs.drop();
 		System.out.println("Result of drop: " + (dropRet.ok() ? "Succeeded." : "Failed."));
