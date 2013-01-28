@@ -109,11 +109,11 @@ public class UpTest extends TestCase {
 	
 	public void testResumablePut() throws Exception {
 		
-		String key = "upload.pdf";  //upload.pdf > 4M
+		String key = "upload.file";  //upload.file > 4M
 		String dir = System.getProperty("user.dir") ;
 		String absFilePath = dir + "/res/" + key;
-		String expectHash = "lk3qgwcshEy1HT0qQYY9RXF2Vm_a" ;
 		
+		String expectHash = "ltpWa7uTHPnnrLxHi2djbeLGQsmR" ;
 		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
 		String token = policy.makeAuthTokenString();
 		UpTokenClient upTokenClient = new UpTokenClient(token);
@@ -122,7 +122,8 @@ public class UpTest extends TestCase {
 		RandomAccessFile f = null;
 		try {
 			
-			f = new RandomAccessFile(absFilePath, "r");	
+			// fsize = 4M + 1byte
+			f = FileUtils.makeFixedSizeTestFile(1024 * 1024 * 4 + 1) ;
 			long fsize = f.length();
 			int blockCount = UpService.blockCount(fsize);
 			
@@ -138,7 +139,7 @@ public class UpTest extends TestCase {
 					"CustomMeta", "");
 	
 			String hash = putFileRet.getHash() ;
-			assert(putFileRet.ok() &&(expectHash.equals(hash))) ;
+			assertTrue(putFileRet.ok() &&(expectHash.equals(hash))) ;
 			
 			// if upload successfully, delete the progress file.
 			File progress = new File(progressFile) ;
