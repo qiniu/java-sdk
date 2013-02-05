@@ -73,8 +73,8 @@ public class RSDemo {
 				System.out.println("  URL: " + getRet.getUrl());
 			}
 			
-			GetRet getRetWithExpires = rs.getWithExpires(key, key, 60) ;
-			System.out.println("Result of getWithExpires() for " + key) ;
+			GetRet getRetWithExpires = rs.getWithExpires(key, key, 30);
+			System.out.println("Result of getWithExpires() for " + key);
 			if (!getRetWithExpires.ok()) {
 				System.out.println("Failed to get " + key + ": " + getRetWithExpires);
 			} else {
@@ -82,7 +82,7 @@ public class RSDemo {
 				System.out.println("  Fsize: " + String.valueOf(getRetWithExpires.getFsize()));
 				System.out.println("  MimeType: " + getRetWithExpires.getMimeType());
 				System.out.println("  URL: " + getRetWithExpires.getUrl());
-				System.out.println("  Expires: " + getRetWithExpires.getExpires()) ;
+				System.out.println("  Expiry: " + getRetWithExpires.getExpiry());
 			}
 			
 			GetRet getIfNotModifiedRet = rs.getIfNotModified(key, key, getRet.getHash());
@@ -119,7 +119,7 @@ public class RSDemo {
 			if (putRet.ok()) {
 				System.out.println("Upload " + path+"/"+key + " with token successfully!") ;
 			} else {
-				System.out.println("Upload " + path+"/"+key + " with token failed!") ;
+				System.out.println("Upload " + path+"/"+key + " with token failed!" + putRet) ;
 			}
 			
 			GetRet getRet = rs.get(key, key);

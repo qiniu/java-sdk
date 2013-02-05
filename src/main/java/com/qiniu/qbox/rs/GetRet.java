@@ -10,7 +10,7 @@ public class GetRet extends CallRet {
 	private long fsize;
 	private String mimeType;
 	private String url;
-	private long expires ;
+	private long expiry;
 	
 	public GetRet(CallRet ret) {
 		super(ret);
@@ -40,7 +40,8 @@ public class GetRet extends CallRet {
 			}
 			this.mimeType = (String)jsonObject.get("mimeType");
 			this.url = (String)jsonObject.get("url");
-			this.expires = jsonObject.getLong("expires") ;
+			long expires = jsonObject.getLong("expires");
+			this.expiry = expires + System.currentTimeMillis() / 1000;
 		}
 	}
 	
@@ -60,7 +61,7 @@ public class GetRet extends CallRet {
 		return this.mimeType;
 	}
 	
-	public long getExpires() {
-		return this.expires ;
+	public long getExpiry() {
+		return this.expiry;
 	}
 }
