@@ -4,7 +4,6 @@ import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.DigestAuthClient;
 import com.qiniu.qbox.rs.DeleteRet;
-import com.qiniu.qbox.rs.DropRet;
 import com.qiniu.qbox.rs.GetRet;
 import com.qiniu.qbox.rs.PublishRet;
 import com.qiniu.qbox.rs.PutAuthRet;
@@ -23,9 +22,9 @@ public class RSDemo {
 		DigestAuthClient conn = new DigestAuthClient();
 
 		String bucketName = "test";
-		String key = "upload.jpg";
+		String key = "README.md";
 
-		String DEMO_DOMAIN = "http://iovip.qbox.me/bucketName";
+		String DEMO_DOMAIN = "java-sdk.qiniudn.com";
 		
 		String path = System.getProperty("user.dir");
         System.out.println("Test to put local file: " + path +"/"+ key);   
@@ -73,6 +72,18 @@ public class RSDemo {
 				System.out.println("  URL: " + getRet.getUrl());
 			}
 			
+			GetRet getRetWithExpires = rs.getWithExpires(key, key, 30);
+			System.out.println("Result of getWithExpires() for " + key);
+			if (!getRetWithExpires.ok()) {
+				System.out.println("Failed to get " + key + ": " + getRetWithExpires);
+			} else {
+				System.out.println("  Hash: " + getRetWithExpires.getHash());
+				System.out.println("  Fsize: " + String.valueOf(getRetWithExpires.getFsize()));
+				System.out.println("  MimeType: " + getRetWithExpires.getMimeType());
+				System.out.println("  URL: " + getRetWithExpires.getUrl());
+				System.out.println("  Expiry: " + getRetWithExpires.getExpiry());
+			}
+			
 			GetRet getIfNotModifiedRet = rs.getIfNotModified(key, key, getRet.getHash());
 			System.out.println("Result of getIfNotModified() for " + key);
 			if (!getIfNotModifiedRet.ok()) {
@@ -107,7 +118,7 @@ public class RSDemo {
 			if (putRet.ok()) {
 				System.out.println("Upload " + path+"/"+key + " with token successfully!") ;
 			} else {
-				System.out.println("Upload " + path+"/"+key + " with token failed!") ;
+				System.out.println("Upload " + path+"/"+key + " with token failed!" + putRet) ;
 			}
 			
 			GetRet getRet = rs.get(key, key);
@@ -124,8 +135,5 @@ public class RSDemo {
 			
 		}
 		
-		System.out.println("Drop table " + bucketName);
-		DropRet dropRet = rs.drop();
-		System.out.println("Result of drop: " + (dropRet.ok() ? "Succeeded." : "Failed."));
 	}
 }
