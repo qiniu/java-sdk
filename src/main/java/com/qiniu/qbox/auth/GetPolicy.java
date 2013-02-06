@@ -53,11 +53,4 @@ public final class GetPolicy {
 		return Config.ACCESS_KEY + ":" + checksum + ":" + signature;
 	}
 
-	public static void main(String[] args) throws Exception {
-        Config.ACCESS_KEY = "ttXNqIvhrYu04B_dWM6GwSpcXOZJvGoYFdznAWnz";
-        Config.SECRET_KEY = "rX-7Omdag0BIBEtOyuGQXzx4pmTUTeLxoPEw6G8d";
-        GetPolicy p = new GetPolicy(20, "");
-        String token = p.token();
-        System.out.println(token);
-    }
 }
