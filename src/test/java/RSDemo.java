@@ -4,7 +4,6 @@ import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.DigestAuthClient;
 import com.qiniu.qbox.rs.DeleteRet;
-import com.qiniu.qbox.rs.DropRet;
 import com.qiniu.qbox.rs.GetRet;
 import com.qiniu.qbox.rs.PublishRet;
 import com.qiniu.qbox.rs.PutAuthRet;
@@ -136,10 +135,5 @@ public class RSDemo {
 			
 		}
 		
-		// rs.drop() will delete the bucket and all the files in the bucket,
-		// which are not recoverable. Don't do this, unless necessary.
-		System.out.println("Drop table " + bucketName);
-		DropRet dropRet = rs.drop();
-		System.out.println("Result of drop: " + (dropRet.ok() ? "Succeeded." : "Failed."));
 	}
 }
