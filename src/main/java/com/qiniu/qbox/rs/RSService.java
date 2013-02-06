@@ -75,6 +75,16 @@ public class RSService {
 		return new GetRet(callRet);
 	}
 
+	public GetRet getWithExpires(String key, String attName, long expires) 
+			throws Exception {
+	    String entryURI = this.bucketName + ":" + key;
+		String url = Config.RS_HOST + "/get/" + Client.urlsafeEncode(entryURI)
+				+ "/attName/" + Client.urlsafeEncode(attName) + "/expires/"
+				+ String.valueOf(expires);
+	    CallRet callRet = conn.call(url);
+	    return new GetRet(callRet);
+	}
+	
 	/**
 	 * func GetIfNotModified(key string, attName string, base string) => (data GetRet, code int, err Error)
 	 * 下载授权（生成一个短期有效的可匿名下载URL），如果服务端文件没被人修改的话（用于断点续传）
