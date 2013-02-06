@@ -29,8 +29,7 @@ public class GetRet extends CallRet {
 		JSONObject jsonObject = new JSONObject(json);
 		
 		if (jsonObject.has("hash") && jsonObject.has("fsize") && 
-				jsonObject.has("mimeType") && jsonObject.has("url")
-				&& jsonObject.has("expires")) {
+				jsonObject.has("url")&& jsonObject.has("expires")) {
 			this.hash = (String)jsonObject.get("hash");
 			Object fsizeObject = jsonObject.get("fsize");
 			if (fsizeObject instanceof Long) {
