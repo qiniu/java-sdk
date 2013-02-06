@@ -17,6 +17,8 @@ import com.qiniu.qbox.rs.RSService;
 
 public class FileopTest extends TestCase {
 	
+	public final String key = "logo.png" ;
+	
 	public void setUp() {
 		Config.ACCESS_KEY =  System.getenv("QINIU_ACCESS_KEY");
 		Config.SECRET_KEY =  System.getenv("QINIU_SECRET_KEY");
@@ -34,11 +36,11 @@ public class FileopTest extends TestCase {
 	}
 	
 	public void testUploadWithToken() throws Exception {
-		String key = "upload.jpg" ;
+
 		String bucketName = System.getenv("QINIU_TEST_BUCKET") ;
-		String expectHash = "FnM8Lt3Mk6yCcYPaosvnAOwWZqyM" ;
+		String expectHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR" ;
 		String dir = System.getProperty("user.dir") ;
-		String absFilePath = dir + "/res/" + key ;
+		String absFilePath = dir + "/testdata/" + key ;
 		
 		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
 		String token = policy.makeAuthTokenString();
@@ -48,7 +50,7 @@ public class FileopTest extends TestCase {
 	}
 	
 	public GetRet rsGet() throws Exception {
-		String key = "upload.jpg" ;
+		
 		String bucketName = System.getenv("QINIU_TEST_BUCKET") ;
 		DigestAuthClient conn = new DigestAuthClient();
 		RSService rs = new RSService(conn, bucketName);
@@ -57,6 +59,7 @@ public class FileopTest extends TestCase {
 	}
 	
 	public void testImageInfo() throws Exception {
+		
 		GetRet getRet = this.rsGet() ;
 		assertTrue(getRet.ok()) ;
 		String url = getRet.getUrl() ;
@@ -65,14 +68,18 @@ public class FileopTest extends TestCase {
 	}
 	
 	public void testImageExif() throws Exception {
+		
 		GetRet getRet = this.rsGet() ;
 		assertTrue(getRet.ok()) ;
 		String url = getRet.getUrl() ;
 		CallRet callRet = ImageExif.call(url) ;
-		assertTrue("ImageExif " + url + " failed!", callRet.ok()) ;
+		// The upload image has no exif, which should return false.
+		// Here we use not operator to get uniform assertions.
+		assertTrue("ImageExif " + url + " failed!", !callRet.ok()) ;
 	}
 	
 	public void testImageView() throws Exception {
+		
 		GetRet getRet = this.rsGet() ;
 		assertTrue(getRet.ok()) ;
 		String url = getRet.getUrl() ;
@@ -88,6 +95,7 @@ public class FileopTest extends TestCase {
 	}
 	
 	public void testImageMogrify() throws Exception {
+		
 		GetRet getRet = this.rsGet() ;
 		assertTrue(getRet.ok()) ;
 		String url = getRet.getUrl() ;
@@ -105,6 +113,7 @@ public class FileopTest extends TestCase {
 	}
 	
 	public void testImageViewMakeRequest() {
+		
 		String testUrl = "http://iovip.qbox.me/file/xyz==" ;
 		ImageView imgView = new ImageView() ;
 		imgView.mode = 2 ;
@@ -121,6 +130,7 @@ public class FileopTest extends TestCase {
 	}
 	
 	public void testImageMogrifyMakeRequest() {
+		
 		String testUrl = "http://iovip.qbox.me/file/xyz==" ;
 		ImageMogrify imgMogr = new ImageMogrify() ;
 		imgMogr.format = "jpg" ;
