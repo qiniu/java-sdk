@@ -40,7 +40,7 @@ public class GetRet extends CallRet {
 			}
 			this.mimeType = (String)jsonObject.get("mimeType");
 			this.url = (String)jsonObject.get("url");
-			long expires = jsonObject.getLong("expires"); 	// in seconds.
+			long expires = jsonObject.getLong("expires"); 	 // in seconds.
 			this.expiry = expires + System.currentTimeMillis() / 1000;
 		} else {
 			throw new JSONException("Bad result!");
