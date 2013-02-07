@@ -1,8 +1,5 @@
 package com.qiniu.qbox.auth;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -11,16 +8,17 @@ import org.json.JSONStringer;
 
 import com.qiniu.qbox.Config;
 
-@Deprecated
-public class AuthPolicy {
+public class PutPolicy {
+	
 	public String scope;
 	public String callbackUrl;
 	public String returnUrl;
-	public long deadline;
+	public long expiry;
 	
-	public AuthPolicy(String scope, long expires) {
+	public PutPolicy(String scope, long expires) {
+		
 		this.scope = scope;
-		this.deadline = System.currentTimeMillis() / 1000 + expires;
+		this.expiry = System.currentTimeMillis() / 1000 + expires;
 	}
 
 	public void setCallbackUrl(String callbackUrl) {
@@ -34,7 +32,6 @@ public class AuthPolicy {
 	public String marshal() throws JSONException {
 
 		JSONStringer stringer = new JSONStringer();
-		
 		stringer.object();
 		stringer.key("scope").value(this.scope);
 		if (this.callbackUrl != null) {
@@ -43,16 +40,17 @@ public class AuthPolicy {
 		if (this.returnUrl != null) {
 			stringer.key("returnUrl").value(this.returnUrl);
 		}
-		stringer.key("deadline").value(this.deadline);
+		stringer.key("deadline").value(this.expiry);
 		stringer.endObject();
 
 		return stringer.toString();
 	}
 
-	public byte[] makeAuthToken() {
+	public byte[] makePutAuthToken() throws Exception {
 
 		byte[] accessKey = Config.ACCESS_KEY.getBytes();
 		byte[] secretKey = Config.SECRET_KEY.getBytes();
+		
 		try {
 			String policyJson = this.marshal();
 			byte[] policyBase64 = Client.urlsafeEncodeBytes(policyJson.getBytes());
@@ -72,18 +70,14 @@ public class AuthPolicy {
 			System.arraycopy(policyBase64, 0, token, accessKey.length + 30, policyBase64.length);
 
 			return token;
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new Exception("Fail to get qiniu put policy!", e);
 		}
-		return null;
 	}
 
-	public String makeAuthTokenString() {
-		byte[] authToken = this.makeAuthToken();
+	public String token() throws Exception {
+		byte[] authToken = this.makePutAuthToken();
 		return new String(authToken);
 	}
+
 }
