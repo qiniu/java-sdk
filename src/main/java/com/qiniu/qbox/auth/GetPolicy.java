@@ -8,7 +8,7 @@ import org.json.JSONStringer;
 
 import com.qiniu.qbox.Config;
 
-public final class GetPolicy {
+public class GetPolicy {
 
 	public long expiry;
 	public String scope;
