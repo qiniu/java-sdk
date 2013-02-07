@@ -20,9 +20,7 @@ public class PutPolicy {
 		if (expiry <= 0) {
 			throw new IllegalArgumentException("expiry can't be negative or zero!");
 		}
-		if (scope == null || scope.trim().length() == 0) {
-			throw new IllegalArgumentException("scope can't be null or an empty value!");
-		}
+		
 		this.scope = scope;
 		this.expiry = System.currentTimeMillis() / 1000 + expiry;
 	}

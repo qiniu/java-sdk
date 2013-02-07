@@ -13,9 +13,18 @@ public class GetPolicy {
 	public long expiry;
 	public String scope;
 	
+	public GetPolicy(String scope) {
+		
+		if (scope == null || scope.length() == 0) {
+			throw new IllegalArgumentException("scope can't be null or an empty value!");
+		}
+		this.expiry = System.currentTimeMillis() / 1000 + 3600;
+		this.scope = scope;
+	}
+	
 	public GetPolicy(String scope, long expiry) {
 		
-		if (scope == null || scope.trim().length() == 0) {
+		if (scope == null || scope.length() == 0) {
 			throw new IllegalArgumentException("scope can't be null or an empty value!");
 		}
 		if (expiry <= 0) {
