@@ -15,10 +15,16 @@ public class PutPolicy {
 	public String returnUrl;
 	public long expiry;
 	
-	public PutPolicy(String scope, long expires) {
+	public PutPolicy(String scope, long expiry) {
 		
+		if (expiry <= 0) {
+			throw new IllegalArgumentException("expiry can't be negative or zero!");
+		}
+		if (scope == null || scope.trim().length() == 0) {
+			throw new IllegalArgumentException("scope can't be null or an empty value!");
+		}
 		this.scope = scope;
-		this.expiry = System.currentTimeMillis() / 1000 + expires;
+		this.expiry = System.currentTimeMillis() / 1000 + expiry;
 	}
 
 	public void setCallbackUrl(String callbackUrl) {
@@ -29,7 +35,7 @@ public class PutPolicy {
 		this.returnUrl = returnUrl;
 	}
 
-	public String marshal() throws JSONException {
+	private String marshal() throws JSONException {
 
 		JSONStringer stringer = new JSONStringer();
 		stringer.object();
@@ -46,7 +52,7 @@ public class PutPolicy {
 		return stringer.toString();
 	}
 
-	public byte[] makePutAuthToken() throws Exception {
+	private byte[] makeToken() throws Exception {
 
 		byte[] accessKey = Config.ACCESS_KEY.getBytes();
 		byte[] secretKey = Config.SECRET_KEY.getBytes();
@@ -76,8 +82,9 @@ public class PutPolicy {
 	}
 
 	public String token() throws Exception {
-		byte[] authToken = this.makePutAuthToken();
-		return new String(authToken);
+		
+		byte[] token = this.makeToken();
+		return new String(token);
 	}
 
 }

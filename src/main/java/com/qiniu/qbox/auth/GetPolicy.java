@@ -12,14 +12,14 @@ public class GetPolicy {
 
 	public long expiry;
 	public String scope;
-
-	public GetPolicy(long expiry, String scope) throws Exception {
+	
+	public GetPolicy(String scope, long expiry) {
 		
-		if (expiry <= 0) {
-			expiry = 3600; // set to default value, an hour
-		}
 		if (scope == null || scope.trim().length() == 0) {
-			scope = "*/*"; // set to default.
+			throw new IllegalArgumentException("scope can't be null or an empty value!");
+		}
+		if (expiry <= 0) {
+			throw new IllegalArgumentException("expiry can't be negative or zero!");
 		}
 		
 		this.expiry = System.currentTimeMillis() / 1000 + expiry;
@@ -47,7 +47,7 @@ public class GetPolicy {
 	}
 
 	public String token() throws Exception {
-
+		
 		String signature = generateSignature();
 		String checksum = Client.urlsafeEncodeString(makeHmac(signature));
 		return Config.ACCESS_KEY + ":" + checksum + ":" + signature;
