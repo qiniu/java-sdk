@@ -108,12 +108,12 @@ public class UpTest extends TestCase {
 	
 	
 	public void testResumablePut() throws Exception {
-		
-		String key = "upload.file";  //upload.file > 4M
-		String dir = System.getProperty("user.dir") ;
-		String absFilePath = dir + "/res/" + key;
-		
-		String expectHash = "ltpWa7uTHPnnrLxHi2djbeLGQsmR" ;
+
+		String key = "upload.file"; // upload.file > 4M
+		String dir = System.getProperty("user.dir");
+		String absFilePath = dir + "/testdata/" + key;
+
+		String expectHash = "ltpWa7uTHPnnrLxHi2djbeLGQsmR";
 		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
 		String token = policy.makeAuthTokenString();
 		UpTokenClient upTokenClient = new UpTokenClient(token);
@@ -121,32 +121,32 @@ public class UpTest extends TestCase {
 
 		RandomAccessFile f = null;
 		try {
-			
+
 			// fsize = 4M + 1byte
-			f = FileUtils.makeFixedSizeTestFile(1024 * 1024 * 4 + 1) ;
+			f = FileUtils.makeFixedSizeTestFile(1024 * 1024 * 4 + 1);
 			long fsize = f.length();
 			int blockCount = UpService.blockCount(fsize);
-			
+
 			String progressFile = absFilePath + ".progress" + fsize;
 			String[] checksums = new String[(int) blockCount];
 			BlockProgress[] progresses = new BlockProgress[(int) blockCount];
 			readProgress(progressFile, checksums, progresses, blockCount);
-			
-			ResumableNotifier notif = new ResumableNotifier(progressFile);	
-			PutFileRet putFileRet = RSClient.resumablePutFile(upClient, checksums,
-					progresses, (ProgressNotifier) notif,
-					(BlockProgressNotifier) notif, bucketName, key, "", f, fsize,
-					"CustomMeta", "");
-	
-			String hash = putFileRet.getHash() ;
-			assertTrue(putFileRet.ok() &&(expectHash.equals(hash))) ;
-			
+
+			ResumableNotifier notif = new ResumableNotifier(progressFile);
+			PutFileRet putFileRet = RSClient.resumablePutFile(upClient,
+					checksums, progresses, (ProgressNotifier) notif,
+					(BlockProgressNotifier) notif, bucketName, key, "", f,
+					fsize, "CustomMeta", "");
+
+			String hash = putFileRet.getHash();
+			assertTrue(putFileRet.ok() && (expectHash.equals(hash)));
+
 			// if upload successfully, delete the progress file.
-			File progress = new File(progressFile) ;
-			progress.delete() ;
-			
+			File progress = new File(progressFile);
+			progress.delete();
+
 		} finally {
-			
+
 			if (f != null) {
 				f.close();
 				f = null;
