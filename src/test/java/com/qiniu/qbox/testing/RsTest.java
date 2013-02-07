@@ -110,4 +110,3 @@ public class RsTest extends TestCase {
 	}
 	
 }
-

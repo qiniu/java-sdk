@@ -3,9 +3,9 @@ package com.qiniu.qbox.testing;
 import junit.framework.TestCase;
 
 import com.qiniu.qbox.Config;
-import com.qiniu.qbox.auth.AuthPolicy;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.DigestAuthClient;
+import com.qiniu.qbox.auth.PutPolicy;
 import com.qiniu.qbox.fileop.ImageExif;
 import com.qiniu.qbox.fileop.ImageInfo;
 import com.qiniu.qbox.fileop.ImageMogrify;
@@ -42,8 +42,8 @@ public class FileopTest extends TestCase {
 		String dir = System.getProperty("user.dir") ;
 		String absFilePath = dir + "/testdata/" + key ;
 		
-		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
-		String token = policy.makeAuthTokenString();
+		PutPolicy policy = new PutPolicy(bucketName, 3600);
+		String token = policy.token();
 		PutFileRet putRet = RSClient.putFileWithToken(token, bucketName, key, absFilePath, "", "", "", "") ;
 		String hash = putRet.getHash() ;
 		assertTrue(putRet.ok() && (expectHash.equals(hash))) ;
