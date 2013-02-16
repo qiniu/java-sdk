@@ -1,6 +1,9 @@
 package com.qiniu.qbox.rs;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ContentType;
@@ -9,6 +12,7 @@ import org.apache.http.entity.FileEntity;
 import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
+import com.qiniu.qbox.auth.DigestAuthClient;
 
 public class RSService {
 
@@ -158,5 +162,78 @@ public class RSService {
 		String url = Config.RS_HOST + "/mkbucket/" + newBucketName ;
 		CallRet callRet = conn.call(url) ;
 		return callRet ;
+	}
+	
+	public CallRet batchDelete(List<String> keys) {
+		
+		return batchUnaryOp("delete", keys);
+	}
+	
+	public CallRet batchStat(List<String> keys) {
+		
+		return batchUnaryOp("stat", keys);
+	}
+	
+	private CallRet batchUnaryOp(String cmd, List<String> keys) {
+		
+		StringBuilder sbuf = new StringBuilder();
+		for (Iterator<String> iter = keys.iterator(); iter.hasNext();) {
+			String entryUri = this.bucketName + ":" + iter.next();
+			String encodedUri = Client.urlsafeEncode(entryUri);
+			sbuf.append("op=/" + cmd + "/").append(encodedUri).append("&");
+		}
+		// remove the last &
+		sbuf.deleteCharAt(sbuf.length() - 1);
+		String url = Config.RS_HOST + "/batch";
+		CallRet callRet = this.conn.callWithBinary(url,
+				"application/x-www-form-urlencoded",
+				sbuf.toString().getBytes(), sbuf.length());
+
+		return callRet;
+	}
+	
+	public CallRet batchCopy(List<SrcDestPair> pairs) {
+		return batchBinaryOp("copy", pairs);
+	}
+	
+	public CallRet batchMove(List<SrcDestPair> pairs) {
+		return batchBinaryOp("move", pairs);
+	}
+	
+	private CallRet batchBinaryOp(String cmd, List<SrcDestPair> pairs) {
+		
+		StringBuilder sbuf = new StringBuilder();
+		for (Iterator<SrcDestPair> iter = pairs.iterator(); iter.hasNext();) {
+			SrcDestPair pair = iter.next();
+			String encodedSrc = Client.urlsafeEncode(pair.srcEntryUri);
+			String encodedDest = Client.urlsafeEncode(pair.destEntryUri);
+			sbuf.append("op=/" + cmd + "/").append(encodedSrc)
+					.append("/" + encodedDest + "&");
+		}
+		// remove the last &, either.
+		sbuf.deleteCharAt(sbuf.length() - 1);
+		
+		String url = Config.RS_HOST + "/batch";
+		CallRet callRet = this.conn.callWithBinary(url,
+				"application/x-www-form-urlencoded",
+				sbuf.toString().getBytes(), sbuf.length());
+
+		return callRet;
+	}
+	
+	public static void main(String[] args) {
+		Config.ACCESS_KEY = "ttXNqIvhrYu04B_dWM6GwSpcXOZJvGoYFdznAWnz";
+		Config.SECRET_KEY = "rX-7Omdag0BIBEtOyuGQXzx4pmTUTeLxoPEw6G8d";
+		
+		DigestAuthClient conn = new DigestAuthClient();
+		RSService rs = new RSService(conn, "batch");
+		List<String> keys = new ArrayList<String>();
+		keys.add("mm");
+		keys.add("ww");
+/*		CallRet ret = rs.batchDelete(keys);
+		System.out.println("batch delete : " + ret);
+*/		
+		CallRet statRet = rs.batchStat(keys);
+		System.out.println("batch stat : " + statRet);
 	}
 }
