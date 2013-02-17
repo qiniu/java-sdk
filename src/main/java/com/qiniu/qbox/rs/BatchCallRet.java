@@ -10,12 +10,11 @@ import org.json.JSONTokener;
 
 import com.qiniu.qbox.auth.CallRet;
 
-public class BatchStatRet extends CallRet {
+public class BatchCallRet extends CallRet {
 
-	public List<StatRet> statRetList = new ArrayList<StatRet>();
-
-	public BatchStatRet(CallRet ret) {
-
+	List<CallRet> callRetList = new ArrayList<CallRet>(); 
+	
+	public BatchCallRet(CallRet ret) {
 		super(ret);
 		if (ret.ok() && ret.getResponse() != null) {
 			try {
@@ -26,23 +25,24 @@ public class BatchStatRet extends CallRet {
 			}
 		}
 	}
-
-	public void unmarshal(String response) throws JSONException {
+	
+public void unmarshal(String response) throws JSONException {
 		
 		JSONTokener tokens = new JSONTokener(response);
 		JSONArray arr = new JSONArray(tokens);
 		
 		for (int i = 0; i < arr.length(); i++) {
+			CallRet ret = new CallRet();
 			JSONObject jsonObj = arr.getJSONObject(i);
-			if (jsonObj.has("code") && jsonObj.has("data")) {
+			if (jsonObj.has("code")) {
 				int code = jsonObj.getInt("code");
-				JSONObject body = jsonObj.getJSONObject("data");
-				CallRet ret = new CallRet(code, body.toString());
-				StatRet statRet = new StatRet(ret);
-				statRetList.add(statRet);
-			} else {
-				new JSONException("Bad BatchStat result!");
+				ret.statusCode = code;
 			}
+			if (jsonObj.has("data")) {
+				JSONObject body = jsonObj.getJSONObject("data");
+				ret.response = body.toString();
+			}
+			callRetList.add(ret);
 		}
 	}
 	

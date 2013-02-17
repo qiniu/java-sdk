@@ -6,6 +6,10 @@ public class CallRet {
 	public String response;
 	public Exception exception;
 	
+	public CallRet() {
+		
+	}
+	
 	public CallRet(int statusCode, String response) {
 		this.statusCode = statusCode;
 		this.response = response;

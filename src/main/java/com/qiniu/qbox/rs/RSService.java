@@ -1,7 +1,6 @@
 package com.qiniu.qbox.rs;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -12,7 +11,6 @@ import org.apache.http.entity.FileEntity;
 import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
-import com.qiniu.qbox.auth.DigestAuthClient;
 
 public class RSService {
 
@@ -164,76 +162,93 @@ public class RSService {
 		return callRet ;
 	}
 	
-	public CallRet batchDelete(List<String> keys) {
-		
-		return batchUnaryOp("delete", keys);
+	public BatchCallRet batchDelete(List<String> keys) {
+		BatchCallRet ret = batchOp("delete", keys);
+		return ret;
 	}
 	
-	public CallRet batchStat(List<String> keys) {
-		
-		return batchUnaryOp("stat", keys);
+	public BatchStatRet batchStat(List<String> keys) {
+		BatchCallRet ret = batchOp("stat", keys);
+		return new BatchStatRet(ret);
 	}
 	
-	private CallRet batchUnaryOp(String cmd, List<String> keys) {
+	private BatchCallRet batchOp(String cmd, List<String> keys) {
 		
 		StringBuilder sbuf = new StringBuilder();
 		for (Iterator<String> iter = keys.iterator(); iter.hasNext();) {
 			String entryUri = this.bucketName + ":" + iter.next();
-			String encodedUri = Client.urlsafeEncode(entryUri);
-			sbuf.append("op=/" + cmd + "/").append(encodedUri).append("&");
+			String encodedEntryUri = Client.urlsafeEncode(entryUri);
+			sbuf.append("op=/").append(cmd).append("/")
+				.append(encodedEntryUri).append("&");
 		}
+		
+		return batchCall(sbuf);
+	}
+	
+	private BatchCallRet batchCall(StringBuilder body) {
 		// remove the last &
-		sbuf.deleteCharAt(sbuf.length() - 1);
+		body.deleteCharAt(body.length() - 1);
+		
 		String url = Config.RS_HOST + "/batch";
 		CallRet callRet = this.conn.callWithBinary(url,
 				"application/x-www-form-urlencoded",
-				sbuf.toString().getBytes(), sbuf.length());
-
-		return callRet;
+				body.toString().getBytes(), body.length());
+	
+		return new BatchCallRet(callRet);
 	}
 	
-	public CallRet batchCopy(List<SrcDestPair> pairs) {
-		return batchBinaryOp("copy", pairs);
-	}
-	
-	public CallRet batchMove(List<SrcDestPair> pairs) {
-		return batchBinaryOp("move", pairs);
-	}
-	
-	private CallRet batchBinaryOp(String cmd, List<SrcDestPair> pairs) {
+	private BatchCallRet batchOp(String cmd, String srcBucket, List<String> srcKeys,
+			String destBucket, List<String> destKeys) {
+		
+		if (srcKeys.size() != destKeys.size()) {
+			throw new RuntimeException("The length of src and dest keys are not matched!");
+		}
 		
 		StringBuilder sbuf = new StringBuilder();
-		for (Iterator<SrcDestPair> iter = pairs.iterator(); iter.hasNext();) {
-			SrcDestPair pair = iter.next();
-			String encodedSrc = Client.urlsafeEncode(pair.srcEntryUri);
-			String encodedDest = Client.urlsafeEncode(pair.destEntryUri);
-			sbuf.append("op=/" + cmd + "/").append(encodedSrc)
-					.append("/" + encodedDest + "&");
+		for (int i = 0; i < srcKeys.size(); i++) {
+			String srcEntryUri = srcBucket + ":" + srcKeys.get(i);
+			String destEntryUri = destBucket + ":" + destKeys.get(i);
+			String encodedEntryUriSrc = Client.urlsafeEncode(srcEntryUri);
+			String encodedEntryUriDest = Client.urlsafeEncode(destEntryUri);
+			sbuf.append("op=/").append(cmd).append("/")
+				.append(encodedEntryUriSrc).append("/")
+				.append(encodedEntryUriDest).append("&");
 		}
-		// remove the last &, either.
-		sbuf.deleteCharAt(sbuf.length() - 1);
 		
-		String url = Config.RS_HOST + "/batch";
-		CallRet callRet = this.conn.callWithBinary(url,
-				"application/x-www-form-urlencoded",
-				sbuf.toString().getBytes(), sbuf.length());
-
-		return callRet;
+		return batchCall(sbuf);
 	}
 	
-	public static void main(String[] args) {
-		Config.ACCESS_KEY = "ttXNqIvhrYu04B_dWM6GwSpcXOZJvGoYFdznAWnz";
-		Config.SECRET_KEY = "rX-7Omdag0BIBEtOyuGQXzx4pmTUTeLxoPEw6G8d";
-		
-		DigestAuthClient conn = new DigestAuthClient();
-		RSService rs = new RSService(conn, "batch");
-		List<String> keys = new ArrayList<String>();
-		keys.add("mm");
-		keys.add("ww");
-/*		CallRet ret = rs.batchDelete(keys);
-		System.out.println("batch delete : " + ret);
-*/		
-		CallRet statRet = rs.batchStat(keys);
-		System.out.println("batch stat : " + statRet);
+	/**
+	 * Copys the files specifed by the source bucket name and source keys
+	 * to the dest bucket and use dest keys to identify them. Unlike "batchMove",
+	 * the source keys are still available in the source bucket.
+	 * 
+	 * @param srcBucket the source bucket name
+	 * @param srcKeys the keys in the source bucket
+	 * @param destBucket the dest bucket name
+	 * @param destKeys the new key names in the dest bucket
+	 * @return BatchCallRet contains a list of CallRet
+	 */
+	public BatchCallRet batchCopy(String srcBucket, List<String> srcKeys, 
+			String destBucket, List<String> destKeys) {
+		BatchCallRet ret = batchOp("copy", srcBucket, srcKeys, destBucket, destKeys);
+		return ret;
+	}
+	
+	/**
+	 * Moves the files specifed by the source bucket name and source keys
+	 * to the dest bucket and use dest keys to identify them. Notice that
+	 * the source bucket will not have the source keys any more.
+	 * 
+	 * @param srcBucket the source bucket name
+	 * @param srcKeys the keys in the source bucket
+	 * @param destBucket the dest bucket name
+	 * @param destKeys the new key names in the dest bucket
+	 * @return BatchCallRet contains a list of CallRet
+	 */
+	public BatchCallRet batchMove(String srcBucket, List<String> srcKeys, 
+			String destBucket, List<String> destKeys) {
+		BatchCallRet ret = batchOp("move", srcBucket, srcKeys, destBucket, destKeys);
+		return ret;
 	}
 }
