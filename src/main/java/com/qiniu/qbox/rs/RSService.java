@@ -163,7 +163,7 @@ public class RSService {
 	}
 	
 	/**
-	 * batchDelete deletes all the files, specified by the parameter entryUris
+	 * batchDelete deletes all the files, specified by the parameter entryUris.
 	 * 
 	 * @param entryUris 
 	 * @return BatchCallRet consists a list of CallRet
@@ -174,7 +174,8 @@ public class RSService {
 	}
 	
 	/**
-	 * batchStat gets the basic information of the files, identified by the keys.
+	 * batchStat gets the basic information of the files, specified by parameter
+	 * entryUris.
 	 * 
 	 * @param entryUris 
 	 * @return
