@@ -162,21 +162,33 @@ public class RSService {
 		return callRet ;
 	}
 	
-	public BatchCallRet batchDelete(List<String> keys) {
-		BatchCallRet ret = batchOp("delete", keys);
+	/**
+	 * batchDelete deletes all the files, specified by the parameter entryUris
+	 * 
+	 * @param entryUris 
+	 * @return BatchCallRet consists a list of CallRet
+	 */
+	public BatchCallRet batchDelete(List<String> entryUris) {
+		BatchCallRet ret = batchOp("delete", entryUris);
 		return ret;
 	}
 	
-	public BatchStatRet batchStat(List<String> keys) {
-		BatchCallRet ret = batchOp("stat", keys);
+	/**
+	 * batchStat gets the basic information of the files, identified by the keys.
+	 * 
+	 * @param entryUris 
+	 * @return
+	 */
+	public BatchStatRet batchStat(List<String> entryUris) {
+		BatchCallRet ret = batchOp("stat", entryUris);
 		return new BatchStatRet(ret);
 	}
 	
-	private BatchCallRet batchOp(String cmd, List<String> keys) {
+	private BatchCallRet batchOp(String cmd, List<String> entryUris) {
 		
 		StringBuilder sbuf = new StringBuilder();
-		for (Iterator<String> iter = keys.iterator(); iter.hasNext();) {
-			String entryUri = this.bucketName + ":" + iter.next();
+		for (Iterator<String> iter = entryUris.iterator(); iter.hasNext();) {
+			String entryUri = iter.next();
 			String encodedEntryUri = Client.urlsafeEncode(entryUri);
 			sbuf.append("op=/").append(cmd).append("/")
 				.append(encodedEntryUri).append("&");
@@ -197,19 +209,14 @@ public class RSService {
 		return new BatchCallRet(callRet);
 	}
 	
-	private BatchCallRet batchOp(String cmd, String srcBucket, List<String> srcKeys,
-			String destBucket, List<String> destKeys) {
-		
-		if (srcKeys.size() != destKeys.size()) {
-			throw new RuntimeException("The length of src and dest keys are not matched!");
-		}
+	
+	private BatchCallRet batchOpPairs(String cmd, List<EntryUriPair> entryUriPairs) {
 		
 		StringBuilder sbuf = new StringBuilder();
-		for (int i = 0; i < srcKeys.size(); i++) {
-			String srcEntryUri = srcBucket + ":" + srcKeys.get(i);
-			String destEntryUri = destBucket + ":" + destKeys.get(i);
-			String encodedEntryUriSrc = Client.urlsafeEncode(srcEntryUri);
-			String encodedEntryUriDest = Client.urlsafeEncode(destEntryUri);
+		for (Iterator<EntryUriPair> iter = entryUriPairs.iterator(); iter.hasNext();) {
+			EntryUriPair e = iter.next();
+			String encodedEntryUriSrc = Client.urlsafeEncode(e.srcEntryUri);
+			String encodedEntryUriDest = Client.urlsafeEncode(e.destEntryUri);
 			sbuf.append("op=/").append(cmd).append("/")
 				.append(encodedEntryUriSrc).append("/")
 				.append(encodedEntryUriDest).append("&");
@@ -219,36 +226,22 @@ public class RSService {
 	}
 	
 	/**
-	 * Copys the files specifed by the source bucket name and source keys
-	 * to the dest bucket and use dest keys to identify them. Unlike "batchMove",
-	 * the source keys are still available in the source bucket.
-	 * 
-	 * @param srcBucket the source bucket name
-	 * @param srcKeys the keys in the source bucket
-	 * @param destBucket the dest bucket name
-	 * @param destKeys the new key names in the dest bucket
-	 * @return BatchCallRet contains a list of CallRet
+	 * batchCopy copys the files from the source bucket to the dest bucket,
+	 * unlike "batchMove", the source files are still available in the source 
+	 * bucket.
+	 *  
+	 * @param entryUriPairs a pair of source/destination entryUri
+	 * an entryUri usually looks like bucket:key. 
+	 * @return BatchCallRet consists of a list of CallRet
 	 */
-	public BatchCallRet batchCopy(String srcBucket, List<String> srcKeys, 
-			String destBucket, List<String> destKeys) {
-		BatchCallRet ret = batchOp("copy", srcBucket, srcKeys, destBucket, destKeys);
+	public BatchCallRet batchCopy(List<EntryUriPair> entryUriPairs) {
+		BatchCallRet ret = this.batchOpPairs("copy", entryUriPairs);
 		return ret;
 	}
 	
-	/**
-	 * Moves the files specifed by the source bucket name and source keys
-	 * to the dest bucket and use dest keys to identify them. Notice that
-	 * the source bucket will not have the source keys any more.
-	 * 
-	 * @param srcBucket the source bucket name
-	 * @param srcKeys the keys in the source bucket
-	 * @param destBucket the dest bucket name
-	 * @param destKeys the new key names in the dest bucket
-	 * @return BatchCallRet contains a list of CallRet
-	 */
-	public BatchCallRet batchMove(String srcBucket, List<String> srcKeys, 
-			String destBucket, List<String> destKeys) {
-		BatchCallRet ret = batchOp("move", srcBucket, srcKeys, destBucket, destKeys);
+	public BatchCallRet batchMove(List<EntryUriPair> entryUriPairs) {
+		BatchCallRet ret = this.batchOpPairs("move", entryUriPairs);
 		return ret;
 	}
+	
 }
