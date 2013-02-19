@@ -161,10 +161,26 @@ public class RSService {
 		return callRet ;
 	}
 	
+	/**
+	 * moves files to the dest bucket, while the source keys will be removed
+	 * from the source bucket.
+	 * 
+	 * @param entryUriSrc
+	 * @param entryUriDest
+	 * @return
+	 */
 	public CallRet move(String entryUriSrc, String entryUriDest) {
 		return execute("move", entryUriSrc, entryUriDest);
 	}
 
+	/**
+	 * copy files from the source bucket to the dest bucket, unlike "move",
+	 * the source files are still available in the source bucket.
+	 * 
+	 * @param entryUriSrc
+	 * @param entryUriDest
+	 * @return
+	 */
 	public CallRet copy(String entryUriSrc, String entryUriDest) {
 		return execute("copy", entryUriSrc, entryUriDest);
 	}
@@ -177,7 +193,12 @@ public class RSService {
 		CallRet callRet = conn.call(url);
 		return callRet;
 	}
-
+	
+	/**
+	 * buckets lists all the bucket name
+	 *  
+	 * @return BucketRet consists of a List with all the bucket name
+	 */
 	public BucketsRet buckets() {
 		String url = Config.RS_HOST + "/buckets";
 		CallRet ret = conn.call(url);
@@ -195,7 +216,7 @@ public class RSService {
 			RSService rs = new RSService(conn, "");
 			String key = "mm";
 DropRet dr = rs.drop();
-System.out.println("dr : " + dr.response + " : " + dr.statusCode);
+System.out.println("drop a empty bucket : " + dr.response + " : " + dr.statusCode);
 			String src = bucketName + ":" + key;
 			String dest = bucketName2 + ":" + key;
 
