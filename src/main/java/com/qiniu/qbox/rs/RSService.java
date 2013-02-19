@@ -161,17 +161,17 @@ public class RSService {
 		return callRet ;
 	}
 	
-	public CallRet move(String src, String dest) {
-		return execute("move", src, dest);
+	public CallRet move(String entryUriSrc, String entryUriDest) {
+		return execute("move", entryUriSrc, entryUriDest);
 	}
 
-	public CallRet copy(String src, String dest) {
-		return execute("copy", src, dest);
+	public CallRet copy(String entryUriSrc, String entryUriDest) {
+		return execute("copy", entryUriSrc, entryUriDest);
 	}
 
-	private CallRet execute(String cmd, String src, String dest) {
-		String encodedSrc = Client.urlsafeEncode(src);
-		String encodedDest = Client.urlsafeEncode(dest);
+	private CallRet execute(String cmd, String entryUriSrc, String entryUriDest) {
+		String encodedSrc = Client.urlsafeEncode(entryUriSrc);
+		String encodedDest = Client.urlsafeEncode(entryUriDest);
 		String url = Config.RS_HOST + "/" + cmd + "/" + encodedSrc + "/"
 				+ encodedDest;
 		CallRet callRet = conn.call(url);
