@@ -9,7 +9,6 @@ import org.apache.http.entity.FileEntity;
 import com.qiniu.qbox.Config;
 import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
-import com.qiniu.qbox.auth.DigestAuthClient;
 
 public class RSService {
 
@@ -203,32 +202,5 @@ public class RSService {
 		String url = Config.RS_HOST + "/buckets";
 		CallRet ret = conn.call(url);
 		return new BucketsRet(ret);
-	}
-
-	public static void main(String[] args) {
-		
-		try {
-			String bucketName = "wjl-test1";
-			String bucketName2 = "wjl-test2";
-			Config.ACCESS_KEY = "ttXNqIvhrYu04B_dWM6GwSpcXOZJvGoYFdznAWnz";
-			Config.SECRET_KEY = "rX-7Omdag0BIBEtOyuGQXzx4pmTUTeLxoPEw6G8d";
-			DigestAuthClient conn = new DigestAuthClient();
-			RSService rs = new RSService(conn, "");
-			String key = "mm";
-DropRet dr = rs.drop();
-System.out.println("drop a empty bucket : " + dr.response + " : " + dr.statusCode);
-			String src = bucketName + ":" + key;
-			String dest = bucketName2 + ":" + key;
-
-			//CallRet ret = rs.move(src, dest);
-			 CallRet ret = rs.copy(dest, src);
-			System.out.println("move resposne : " + ret.response);
-			System.out.println("move statuscode : " + ret.statusCode);
-			System.out.println("move exception : " + ret.getException());
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 	}
 }
