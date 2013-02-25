@@ -227,8 +227,8 @@ public class RSService {
 	}
 	
 	/**
-	 * batchCopy copys the files from the source bucket to the dest bucket,
-	 * unlike "batchMove", the source files are still available in the source 
+	 * copys the files from the source bucket to the dest bucket, unlike 
+	 * "batchMove", the source files are still available in the source 
 	 * bucket.
 	 *  
 	 * @param entryUriPairs a pair of source/destination entryUri
