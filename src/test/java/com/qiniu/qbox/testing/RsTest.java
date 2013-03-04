@@ -218,5 +218,4 @@ public class RsTest extends TestCase {
 		BucketsRet ret = rs.buckets();
 		assertTrue(ret.ok());
 	}
-	
 }
