@@ -136,7 +136,7 @@ public class RsTest extends TestCase {
 					srcKey, "", absFilePath, "", "");
 			assertTrue(putFileRet.ok()&& expectedHash.equals(putFileRet.getHash()));
 
-			// copy
+			// move
 			rs = new RSService(conn, srcBucket);
 			CallRet moveRet = rs.move(entryUriSrc, entryUriDest);
 			assertTrue(moveRet.ok());
