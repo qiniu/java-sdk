@@ -11,14 +11,14 @@ import com.qiniu.qbox.auth.CallRet;
 
 public class BucketsRet extends CallRet {
 
-	public List<String> allBuckets;
+	public List<String> items;
 
 	public BucketsRet(CallRet ret) {
 		super(ret);
 		
 		if (ret.ok() && ret.getResponse() != null) {
 			try {
-				allBuckets = new ArrayList<String>();
+				items = new ArrayList<String>();
 				unmarshal(ret.getResponse());
 			} catch (Exception e) {
 				this.exception = e;
@@ -26,12 +26,12 @@ public class BucketsRet extends CallRet {
 		}
 	}
 
-	public void unmarshal(String response) throws JSONException {
+	private void unmarshal(String response) throws JSONException {
 		
 		JSONTokener tokens = new JSONTokener(response);
 		JSONArray arr = new JSONArray(tokens);
 		for (int i = 0; i < arr.length(); i++) {
-			allBuckets.add(arr.getString(i));
+			items.add(arr.getString(i));
 		}
 	}
 

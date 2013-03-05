@@ -212,7 +212,7 @@ public class RsTest extends TestCase {
 
 	public void testBuckets() throws Exception {
 		// just test ret.ok().
-		// it is not a good way to compare wheter the result contains all the 
+		// it is not a good way to compare whether the result contains all the 
 		// existing buckets. Because it's a shared account, other users may also
 		// create or drop bucket at the same time.
 		BucketsRet ret = rs.buckets();
