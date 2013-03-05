@@ -1,6 +1,8 @@
 package com.qiniu.qbox.rs;
 
 import java.io.File;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ContentType;
@@ -84,7 +86,7 @@ public class RSService {
 	    CallRet callRet = conn.call(url);
 	    return new GetRet(callRet);
 	}
-	
+
 	/**
 	 * func GetIfNotModified(key string, attName string, base string) => (data GetRet, code int, err Error)
 	 * 下载授权（生成一个短期有效的可匿名下载URL），如果服务端文件没被人修改的话（用于断点续传）
@@ -149,7 +151,7 @@ public class RSService {
 		CallRet callRet = conn.call(url);
 		return new DropRet(callRet);
 	}
-	
+
 	/**
 	 * func Mkbucket(bucketname string) => Bool
      * 创建一个资源表
@@ -159,48 +161,88 @@ public class RSService {
 		CallRet callRet = conn.call(url) ;
 		return callRet ;
 	}
-	
+
 	/**
-	 * moves files to the dest bucket, while the source keys will be removed
-	 * from the source bucket.
+	 * batchDelete deletes all the files, specified by the parameter entryUris.
 	 * 
-	 * @param entryUriSrc
-	 * @param entryUriDest
-	 * @return
+	 * @param entryUris 
+	 * @return BatchCallRet consists a list of CallRet
 	 */
-	public CallRet move(String entryUriSrc, String entryUriDest) {
-		return execute("move", entryUriSrc, entryUriDest);
+	public BatchCallRet batchDelete(List<String> entryUris) {
+		BatchCallRet ret = batchOp("delete", entryUris);
+		return ret;
 	}
 
 	/**
-	 * copy files from the source bucket to the dest bucket, unlike "move",
-	 * the source files are still available in the source bucket.
+	 * batchStat gets the basic information of the files, specified by parameter
+	 * entryUris.
 	 * 
-	 * @param entryUriSrc
-	 * @param entryUriDest
+	 * @param entryUris 
 	 * @return
 	 */
-	public CallRet copy(String entryUriSrc, String entryUriDest) {
-		return execute("copy", entryUriSrc, entryUriDest);
+	public BatchStatRet batchStat(List<String> entryUris) {
+		BatchCallRet ret = batchOp("stat", entryUris);
+		return new BatchStatRet(ret);
 	}
 
-	private CallRet execute(String cmd, String entryUriSrc, String entryUriDest) {
-		String encodedSrc = Client.urlsafeEncode(entryUriSrc);
-		String encodedDest = Client.urlsafeEncode(entryUriDest);
-		String url = Config.RS_HOST + "/" + cmd + "/" + encodedSrc + "/"
-				+ encodedDest;
-		CallRet callRet = conn.call(url);
-		return callRet;
+	private BatchCallRet batchOp(String cmd, List<String> entryUris) {
+
+		StringBuilder sbuf = new StringBuilder();
+		for (Iterator<String> iter = entryUris.iterator(); iter.hasNext();) {
+			String entryUri = iter.next();
+			String encodedEntryUri = Client.urlsafeEncode(entryUri);
+			sbuf.append("op=/").append(cmd).append("/")
+				.append(encodedEntryUri).append("&");
+		}
+
+		return batchCall(sbuf);
 	}
-	
+
+	private BatchCallRet batchCall(StringBuilder body) {
+		// remove the last &
+		body.deleteCharAt(body.length() - 1);
+
+		String url = Config.RS_HOST + "/batch";
+		CallRet callRet = this.conn.callWithBinary(url,
+				"application/x-www-form-urlencoded",
+				body.toString().getBytes(), body.length());
+
+		return new BatchCallRet(callRet);
+	}
+
+
+	private BatchCallRet batchOpPairs(String cmd, List<EntryUriPair> entryUriPairs) {
+
+		StringBuilder sbuf = new StringBuilder();
+		for (Iterator<EntryUriPair> iter = entryUriPairs.iterator(); iter.hasNext();) {
+			EntryUriPair e = iter.next();
+			String encodedEntryUriSrc = Client.urlsafeEncode(e.src);
+			String encodedEntryUriDest = Client.urlsafeEncode(e.dest);
+			sbuf.append("op=/").append(cmd).append("/")
+				.append(encodedEntryUriSrc).append("/")
+				.append(encodedEntryUriDest).append("&");
+		}
+
+		return batchCall(sbuf);
+	}
+
 	/**
-	 * buckets lists all the bucket name
+	 * copys the files from the source bucket to the dest bucket, unlike 
+	 * "batchMove", the source files are still available in the source 
+	 * bucket.
 	 *  
-	 * @return BucketRet consists of a List with all the bucket name
+	 * @param entryUriPairs a pair of source/destination entryUri
+	 * an entryUri usually looks like bucket:key. 
+	 * @return BatchCallRet consists of a list of CallRet
 	 */
-	public BucketsRet buckets() {
-		String url = Config.RS_HOST + "/buckets";
-		CallRet ret = conn.call(url);
-		return new BucketsRet(ret);
+	public BatchCallRet batchCopy(List<EntryUriPair> entryUriPairs) {
+		BatchCallRet ret = this.batchOpPairs("copy", entryUriPairs);
+		return ret;
 	}
+
+	public BatchCallRet batchMove(List<EntryUriPair> entryUriPairs) {
+		BatchCallRet ret = this.batchOpPairs("move", entryUriPairs);
+		return ret;
+	}
+
 }
