@@ -1,5 +1,37 @@
 ## CHANGE LOG
 
+### v2.4.2
+
+Add Feature [#38](https://github.com/qiniu/java-sdk/pull/38) 增加批量拷贝(batchCopy),批量移动(batchMove),批量删除(batchDelete),（batchStat)以及对应的单元测试
+
+- `com.qiniu.qbox.rs.BatchCallRet`
+- `com.qiniu.qbox.rs.BatchStatRet`
+- `com.qiniu.qbox.rs.EntryUriPair`
+- `public BatchStatRet batchStat(List<String> entryUris)`
+- `public BatchCallRet batchCopy(List<EntryUriPair> entryUriPairs)`
+- `public BatchCallRet batchMove(List<EntryUriPair> entryUriPairs)`
+- `public BatchCallRet batchDelete(List<String> entryUris)`
+- `public void testBatchStat() throws Exception`
+- `public void testBatchMove() throws Exception`
+- `public void testBatchDelete() throws Exception`
+- `public void testBatchCopy() throws Exception`
+
+Add Feature [#37](https://github.com/qiniu/java-sdk/pull/37) 增加拷贝(copy),移动(move),列出所有bucket(buckets)相应的代码以及对应的单元测试案例
+
+- `com.qiniu.qbox.rs.BucketsRet`
+- `public CallRet move(String entryUriSrc, String entryUriDest)`
+- `public CallRet copy(String entryUriSrc, String entryUriDest)`
+- `public BucketsRet buckets() `
+- `public void testMove() throws Exception`
+- `public void testCopy() throws Exception`
+- `public void testBuckets() throws Exception`
+
+Add Feature [#31](https://github.com/qiniu/java-sdk/pull/31) 增加 `up` 服务的断点续传的单元测试 
+
+- `com.qiniu.qbox.testing.UpTest`
+- `com.qiniu.qbox.testing.ResumableNotifier`
+- `com.qiniu.qbox.testing.FileUtils`
+
 ### v2.4.1
 
 Add Feature [#35](https://github.com/qiniu/java-sdk/pull/35) 增加以 `downloadtoken` 方式下载私有资源, 并将生成token的方式做成统一的接口
@@ -8,8 +40,6 @@ Add Feature [#35](https://github.com/qiniu/java-sdk/pull/35) 增加以 `download
 - `com.qiniu.qbox.PutPolicy`
 
 更多详细信息,请参见[私有资源下载](http://docs.qiniutek.com/v3/api/io/#private-download)
-
-Add Feature [#31](https://github.com/qiniu/java-sdk/pull/31) 增加 `up` 服务的断点续传的单元测试 
 
 
 Add Feature [#34](https://github.com/qiniu/java-sdk/pull/34) 增加 `GetRet` 的 `expiry` 字段，基于此用户可以控制 `url` 有效期

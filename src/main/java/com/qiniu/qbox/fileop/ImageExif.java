@@ -10,7 +10,7 @@ public class ImageExif {
 	}
 
 	public static CallRet call(String url) {
-		CallRet ret = new Client().call(makeRequest(url)) ;
+		CallRet ret = new Client().call(makeRequest(url));
 		return ret;
 	}
 }

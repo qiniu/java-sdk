@@ -19,6 +19,7 @@ import com.qiniu.qbox.up.BlockProgressNotifier;
 import com.qiniu.qbox.up.ProgressNotifier;
 import com.qiniu.qbox.up.UpService;
 
+@SuppressWarnings("deprecation")
 public class UpTest extends TestCase {
 
 	public String bucketName;
