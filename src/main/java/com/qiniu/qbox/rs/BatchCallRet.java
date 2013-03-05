@@ -12,7 +12,7 @@ import com.qiniu.qbox.auth.CallRet;
 
 public class BatchCallRet extends CallRet {
 
-	List<CallRet> callRetList = new ArrayList<CallRet>(); 
+	public List<CallRet> results = new ArrayList<CallRet>(); 
 	
 	public BatchCallRet(CallRet ret) {
 		super(ret);
@@ -26,7 +26,7 @@ public class BatchCallRet extends CallRet {
 		}
 	}
 	
-public void unmarshal(String response) throws JSONException {
+	private void unmarshal(String response) throws JSONException {
 		
 		JSONTokener tokens = new JSONTokener(response);
 		JSONArray arr = new JSONArray(tokens);
@@ -42,7 +42,7 @@ public void unmarshal(String response) throws JSONException {
 				JSONObject body = jsonObj.getJSONObject("data");
 				ret.response = body.toString();
 			}
-			callRetList.add(ret);
+			results.add(ret);
 		}
 	}
 	

@@ -12,7 +12,7 @@ import com.qiniu.qbox.auth.CallRet;
 
 public class BatchStatRet extends CallRet {
 
-	public List<StatRet> statRetList = new ArrayList<StatRet>();
+	public List<StatRet> results = new ArrayList<StatRet>();
 
 	public BatchStatRet(CallRet ret) {
 
@@ -39,7 +39,7 @@ public class BatchStatRet extends CallRet {
 				JSONObject body = jsonObj.getJSONObject("data");
 				CallRet ret = new CallRet(code, body.toString());
 				StatRet statRet = new StatRet(ret);
-				statRetList.add(statRet);
+				results.add(statRet);
 			} else {
 				new JSONException("Bad BatchStat result!");
 			}

@@ -216,8 +216,8 @@ public class RSService {
 		StringBuilder sbuf = new StringBuilder();
 		for (Iterator<EntryUriPair> iter = entryUriPairs.iterator(); iter.hasNext();) {
 			EntryUriPair e = iter.next();
-			String encodedEntryUriSrc = Client.urlsafeEncode(e.srcEntryUri);
-			String encodedEntryUriDest = Client.urlsafeEncode(e.destEntryUri);
+			String encodedEntryUriSrc = Client.urlsafeEncode(e.src);
+			String encodedEntryUriDest = Client.urlsafeEncode(e.dest);
 			sbuf.append("op=/").append(cmd).append("/")
 				.append(encodedEntryUriSrc).append("/")
 				.append(encodedEntryUriDest).append("&");
