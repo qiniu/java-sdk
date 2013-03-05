@@ -17,36 +17,36 @@ import com.qiniu.qbox.rs.RSService;
 
 public class FileopTest extends TestCase {
 	
-	public final String key = "logo.png" ;
+	public final String key = "logo.png";
 	public String bucketName;
 	
 	public void setUp() {
 		Config.ACCESS_KEY =  System.getenv("QINIU_ACCESS_KEY");
 		Config.SECRET_KEY =  System.getenv("QINIU_SECRET_KEY");
-		Config.UP_HOST = System.getenv("QINIU_UP_HOST") ;
-		Config.RS_HOST = System.getenv("QINIU_RS_HOST") ;
-		Config.IO_HOST = System.getenv("QINIU_IO_HOST") ;
-		this.bucketName = System.getenv("QINIU_TEST_BUCKET") ;
+		Config.UP_HOST = System.getenv("QINIU_UP_HOST");
+		Config.RS_HOST = System.getenv("QINIU_RS_HOST");
+		Config.IO_HOST = System.getenv("QINIU_IO_HOST");
+		this.bucketName = System.getenv("QINIU_TEST_BUCKET");
 		
-		assertNotNull(Config.ACCESS_KEY) ;
-		assertNotNull(Config.SECRET_KEY) ;
-		assertNotNull(Config.UP_HOST) ;
-		assertNotNull(Config.RS_HOST) ;
-		assertNotNull(Config.IO_HOST) ;
-		assertNotNull(bucketName) ;
+		assertNotNull(Config.ACCESS_KEY);
+		assertNotNull(Config.SECRET_KEY);
+		assertNotNull(Config.UP_HOST);
+		assertNotNull(Config.RS_HOST);
+		assertNotNull(Config.IO_HOST);
+		assertNotNull(bucketName);
 	}
 	
 	public void testUploadWithToken() throws Exception {
 
-		String expectHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR" ;
-		String dir = System.getProperty("user.dir") ;
-		String absFilePath = dir + "/testdata/" + key ;
+		String expectHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
+		String dir = System.getProperty("user.dir");
+		String absFilePath = dir + "/testdata/" + key;
 		
 		PutPolicy policy = new PutPolicy(bucketName, 3600);
 		String token = policy.token();
 		PutFileRet putRet = RSClient.putFileWithToken(token, bucketName, key, absFilePath, "", "", "", "") ;
-		String hash = putRet.getHash() ;
-		assertTrue(putRet.ok() && (expectHash.equals(hash))) ;
+		String hash = putRet.getHash();
+		assertTrue(putRet.ok() && (expectHash.equals(hash)));
 	}
 	
 	public GetRet rsGet() throws Exception {
@@ -59,11 +59,11 @@ public class FileopTest extends TestCase {
 	
 	public void testImageInfo() throws Exception {
 		
-		GetRet getRet = this.rsGet() ;
-		assertTrue(getRet.ok()) ;
-		String url = getRet.getUrl() ;
-		CallRet callRet = ImageInfo.call(url) ;
-		assertTrue("ImageInfo " + url + " failed!", callRet.ok()) ;
+		GetRet getRet = this.rsGet();
+		assertTrue(getRet.ok());
+		String url = getRet.getUrl();
+		CallRet callRet = ImageInfo.call(url);
+		assertTrue("ImageInfo " + url + " failed!", callRet.ok());
 	}
 	
 	public void testImageExif() throws Exception {

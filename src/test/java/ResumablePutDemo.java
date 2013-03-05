@@ -69,7 +69,7 @@ public class ResumablePutDemo {
 				bp.context = progress.getString("context");
 				bp.offset = progress.getInt("offset");
 				bp.restSize = progress.getInt("restSize");
-				bp.host = progress.getString("host") ;
+				bp.host = progress.getString("host");
 				progresses[blockIdx] = bp;
 
 				continue;
