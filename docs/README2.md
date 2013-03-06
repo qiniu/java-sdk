@@ -392,7 +392,7 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 
     BatchCallRet 会包含一个 `callRet` 对象的列表, 每个callRet对象对应一个key经过处理后的结果。
 
-    关于批量处理更详细的信息，[请点击七牛云存储批量处理api](http://docs.qiniutek.com/v3/api/io/#batch)
+关于批量处理更详细的信息，[请点击七牛云存储批量处理api](http://docs.qiniutek.com/v3/api/io/#batch)
 
 <a name="cloud-processing"></a>
 
