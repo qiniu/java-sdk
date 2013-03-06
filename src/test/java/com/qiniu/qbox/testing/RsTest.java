@@ -98,9 +98,22 @@ public class RsTest extends TestCase {
 	}
 
 	public void testDelete() throws Exception {
+		String fname = key;
+		String delKey = "del-key";
+		try {
+			String dir = System.getProperty("user.dir");
+			String absFilePath = dir + "/testdata/" + fname ;
 
-		DeleteRet deleteRet = rs.delete(key);
-		assertTrue(deleteRet.ok());
+			PutAuthRet putAuthRet = rs.putAuth();
+			String authorizedUrl = putAuthRet.getUrl();
+
+			@SuppressWarnings("deprecation")
+			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, bucketName, delKey, "", absFilePath, "", "");
+			assertTrue(putFileRet.ok() && expectedHash.equals(putFileRet.getHash()));
+		} finally {
+			DeleteRet deleteRet = rs.delete(delKey);
+			assertTrue(deleteRet.ok());
+		}
 	}
 
 	public void testMkBucket() throws Exception {
