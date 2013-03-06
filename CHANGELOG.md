@@ -2,39 +2,30 @@
 
 ### v2.4.2
 
-Add Feature [#38](https://github.com/qiniu/java-sdk/pull/38) 增加批量拷贝(batchCopy),批量移动(batchMove),批量删除(batchDelete),（batchStat)以及对应的单元测试
+Add Feature [#38](https://github.com/qiniu/java-sdk/pull/38) 增加批量操作对应的代码
 
-- `com.qiniu.qbox.rs.BatchCallRet`
-- `com.qiniu.qbox.rs.BatchStatRet`
-- `com.qiniu.qbox.rs.EntryUriPair`
-- `public BatchStatRet batchStat(List<String> entryUris)`
-- `public BatchCallRet batchCopy(List<EntryUriPair> entryUriPairs)`
-- `public BatchCallRet batchMove(List<EntryUriPair> entryUriPairs)`
-- `public BatchCallRet batchDelete(List<String> entryUris)`
-- `public void testBatchStat() throws Exception`
-- `public void testBatchMove() throws Exception`
-- `public void testBatchDelete() throws Exception`
-- `public void testBatchCopy() throws Exception`
+- `com.qiniu.qbox.rs.BatchCallRet`  
+- `com.qiniu.qbox.rs.BatchStatRet`  
+- `com.qiniu.qbox.rs.EntryUriPair`               
+- `batchStat` 方法,位于`com.qiniu.qbox.rs.RSService`类中  
+- `batchCopy` 方法，位于`com.qiniu.qbox.rs.RSService`类中    
+- `batchMove` 方法，位于`com.qiniu.qbox.rs.RSService`类中  
+- `batchDelete` 方法，位于`com.qiniu.qbox.rs.RSService`类中   
 
-Add Feature [#37](https://github.com/qiniu/java-sdk/pull/37) 增加拷贝(copy),移动(move),列出所有bucket(buckets)相应的代码以及对应的单元测试案例
 
-- `com.qiniu.qbox.rs.BucketsRet`
-- `public CallRet move(String entryUriSrc, String entryUriDest)`
-- `public CallRet copy(String entryUriSrc, String entryUriDest)`
-- `public BucketsRet buckets() `
-- `public void testMove() throws Exception`
-- `public void testCopy() throws Exception`
-- `public void testBuckets() throws Exception`
+Add Feature [#37](https://github.com/qiniu/java-sdk/pull/37) 增加拷贝(copy),移动(move),列出所有bucket(buckets)相应的代码
 
-Add Feature [#31](https://github.com/qiniu/java-sdk/pull/31) 增加 `up` 服务的断点续传的单元测试 
+- `com.qiniu.qbox.rs.BucketsRet`  
+- `move` 方法，位于`com.qiniu.qbox.rs.RSService`类中    
+- `copy` 方法，位于`com.qiniu.qbox.rs.RSService`类中    
+- `buckets` 方法，位于`com.qiniu.qbox.rs.RSService`类中    
 
-- `com.qiniu.qbox.testing.UpTest`
-- `com.qiniu.qbox.testing.ResumableNotifier`
-- `com.qiniu.qbox.testing.FileUtils`
+Add Feature [#31](https://github.com/qiniu/java-sdk/pull/31) 增加 `up` 服务的断点续传的单元测试,修 `mkblk` 返回的 `host` 字段未持久化的问题。
+
 
 ### v2.4.1
 
-Add Feature [#35](https://github.com/qiniu/java-sdk/pull/35) 增加以 `downloadtoken` 方式下载私有资源, 并将生成token的方式做成统一的接口
+Add Feature [#35](https://github.com/qiniu/java-sdk/pull/35) 增加以 `downloadtoken` 方式下载私有资源, 并将生成 `token` 的方式做成统一的接口
 
 - `com.qiniu.qbox.GetPolicy`
 - `com.qiniu.qbox.PutPolicy`
@@ -47,13 +38,9 @@ Add Feature [#34](https://github.com/qiniu/java-sdk/pull/34) 增加 `GetRet` 的
 
 Add Feature [#32](https://github.com/qiniu/java-sdk/pull/32) 增加 `rs` 服务相关的单元测试
 
-- `com.qiniu.qbox.test.RSTest`
-
-
 
 Add Feature [#30](https://github.com/qiniu/java-sdk/pull/34) 增加 `Fileop` 相关的 `junit` 单元测试
 
-- `com.qiniu.qbox.testing.FileopTest`
 
 Bug Fix [#29](https://github.com/qiniu/java-sdk/pull/29) 修复 `Fileop` 相关 `api` 的bug
 
