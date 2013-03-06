@@ -20,8 +20,9 @@ public class FileopTest extends TestCase {
 	public final String key = "logo.png";
 	public String bucketName;
 	
+	@Override
 	public void setUp() {
-		
+
 		Config.ACCESS_KEY =  System.getenv("QINIU_ACCESS_KEY");
 		Config.SECRET_KEY =  System.getenv("QINIU_SECRET_KEY");
 		Config.UP_HOST = System.getenv("QINIU_UP_HOST");

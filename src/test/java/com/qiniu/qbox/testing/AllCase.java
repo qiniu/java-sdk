@@ -6,11 +6,12 @@ import junit.framework.TestSuite;
 
 public class AllCase {
 	
-	public static Test suite(){ 
-       TestSuite suite = new ActiveTestSuite();
-       suite.addTestSuite(FileopTest.class);
-       suite.addTestSuite(RsTest.class);
-       suite.addTestSuite(UpTest.class);
-       return suite;
+	public static Test suite() {
+		TestSuite suite = new ActiveTestSuite();
+		suite.addTestSuite(FileopTest.class);
+		suite.addTestSuite(RsTest.class);
+		suite.addTestSuite(UpTest.class);
+		return suite;
 	} 
+	
 }

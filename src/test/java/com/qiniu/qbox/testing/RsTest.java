@@ -33,6 +33,7 @@ public class RsTest extends TestCase {
 	public final String srcBucket = "junit_bucket_src";
 	public final String destBucket = "junit_bucket_dest";
 
+	@Override
 	public void setUp() {
 
 		Config.ACCESS_KEY =  System.getenv("QINIU_ACCESS_KEY");
@@ -269,6 +270,8 @@ public class RsTest extends TestCase {
 			assertTrue(statRet.ok());
 			List<StatRet> statRetList = statRet.results;
 			for (StatRet r : statRetList) {
+				if (!r.ok())
+					System.out.println("testBatchStat stat:" + r.statusCode);
 				assertTrue(r.ok() && r.getHash().equals(expectedHash));
 			}
 		} finally {
@@ -322,6 +325,8 @@ public class RsTest extends TestCase {
 			BatchCallRet ret= rs.batchCopy(pairList);
 			assertTrue(ret.ok());
 			for (CallRet r : ret.results) {
+				if (!r.ok())
+					System.out.println("testBatchCopy : " + ret);
 				assertTrue(r.ok());
 			}
 			// -----------------------------------------------------------------------------------------
@@ -345,6 +350,9 @@ public class RsTest extends TestCase {
 			BatchCallRet srcDeleteRet = rs.batchDelete(entryUris);
 			assertTrue(srcDeleteRet.ok());
 			for (CallRet r : srcDeleteRet.results) {
+				if (!r.ok()) {
+					System.out.println("testBatchCopy del: " + r.statusCode);
+				}
 				assertTrue(r.ok());
 			}
 			// delete files from the dest bucket
@@ -391,6 +399,8 @@ public class RsTest extends TestCase {
 			pairList.add(pair1);
 			pairList.add(pair2);
 			BatchCallRet ret= rs.batchMove(pairList);
+			if (!ret.ok())
+				System.out.println("testBatchMove : " + ret);
 			assertTrue(ret.ok());
 			for (CallRet r : ret.results) {
 				assertTrue(r.ok());
