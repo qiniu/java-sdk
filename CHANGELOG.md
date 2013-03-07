@@ -2,7 +2,7 @@
 
 ### v2.4.2
 
-issue [#41](https://github.com/qiniu/java-sdk/pull/41) 
+issue [#39](https://github.com/qiniu/java-sdk/pull/39) 
 
 - 更新`README`文档
 
