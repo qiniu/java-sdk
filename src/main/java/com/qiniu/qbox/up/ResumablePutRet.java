@@ -9,7 +9,7 @@ public class ResumablePutRet extends CallRet {
 	private String ctx;
 	private String checksum;
 	private long crc32;
-	private String host ;
+	private String host;
 	
 	public String getHost() {
 		return host;

@@ -114,11 +114,11 @@ public class RSDemo {
 		String token = policy.makeAuthTokenString();
 		PutFileRet putRet = null ;
 		try {
-			putRet = RSClient.putFileWithToken(token, bucketName, key, path+"/"+key, "", "", "", "2") ;
+			putRet = RSClient.putFileWithToken(token, bucketName, key, path+"/"+key, "", "", "", "2");
 			if (putRet.ok()) {
-				System.out.println("Upload " + path+"/"+key + " with token successfully!") ;
+				System.out.println("Upload " + path+"/"+key + " with token successfully!");
 			} else {
-				System.out.println("Upload " + path+"/"+key + " with token failed!" + putRet) ;
+				System.out.println("Upload " + path+"/"+key + " with token failed!" + putRet);
 			}
 			
 			GetRet getRet = rs.get(key, key);

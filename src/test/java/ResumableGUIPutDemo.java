@@ -89,7 +89,9 @@ public class ResumableGUIPutDemo {
 		String bucketName = "bucketName";
 		String key = "RSDemo-" + System.currentTimeMillis();
 
+		@SuppressWarnings("deprecation")
 		AuthPolicy policy = new AuthPolicy("bucketName", 3600);
+		@SuppressWarnings("deprecation")
 		String token = policy.makeAuthTokenString();
 
 		UpTokenClient upTokenClient = new UpTokenClient(token);
