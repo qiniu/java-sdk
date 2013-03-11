@@ -6,12 +6,12 @@ import org.json.JSONObject;
 import com.qiniu.qbox.auth.CallRet;
 
 public class ImageInfoRet extends CallRet {
-	public String format ;
+	public String format;
 	/** The width of the original image, in pixel */
-	public int width ;
+	public int width;
 	/** The height of the original image, in pixel */
-	public int height ;
-	public String colorModel ;
+	public int height;
+	public String colorModel;
 
 	public ImageInfoRet(CallRet ret) {
 		super(ret);
@@ -24,15 +24,15 @@ public class ImageInfoRet extends CallRet {
 		}
 	}
 	private void unmarshal(String json) throws JSONException {
-		JSONObject jsonObj = new JSONObject(json) ;
+		JSONObject jsonObj = new JSONObject(json);
 		if (jsonObj.has("format") && jsonObj.has("width")
 				&& jsonObj.has("height") && jsonObj.has("colorModel")) {
-			this.format = jsonObj.getString("format") ;
-			this.width = jsonObj.getInt("width") ;
-			this.height = jsonObj.getInt("height") ;
-			this.colorModel = jsonObj.getString("colorModel") ;
+			this.format = jsonObj.getString("format");
+			this.width = jsonObj.getInt("width");
+			this.height = jsonObj.getInt("height");
+			this.colorModel = jsonObj.getString("colorModel");
 		} else {
-			throw new JSONException("Bad result!") ;
+			throw new JSONException("Bad result!");
 		}
 	}
 }

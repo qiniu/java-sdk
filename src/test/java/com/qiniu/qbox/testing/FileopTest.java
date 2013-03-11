@@ -20,7 +20,9 @@ public class FileopTest extends TestCase {
 	public final String key = "logo.png";
 	public String bucketName;
 	
+	@Override
 	public void setUp() {
+
 		Config.ACCESS_KEY =  System.getenv("QINIU_ACCESS_KEY");
 		Config.SECRET_KEY =  System.getenv("QINIU_SECRET_KEY");
 		Config.UP_HOST = System.getenv("QINIU_UP_HOST");
@@ -46,6 +48,8 @@ public class FileopTest extends TestCase {
 		String token = policy.token();
 		PutFileRet putRet = RSClient.putFileWithToken(token, bucketName, key, absFilePath, "", "", "", "") ;
 		String hash = putRet.getHash();
+		if (!putRet.ok())
+			System.out.println("testUploadWithToken : " + putRet);
 		assertTrue(putRet.ok() && (expectHash.equals(hash)));
 	}
 	
@@ -54,6 +58,8 @@ public class FileopTest extends TestCase {
 		DigestAuthClient conn = new DigestAuthClient();
 		RSService rs = new RSService(conn, bucketName);
 		GetRet getRet = rs.get(key, key);
+		if (!getRet.ok()) 
+			System.out.println("rsGet : " + getRet);
 		return getRet ;
 	}
 	
@@ -63,6 +69,8 @@ public class FileopTest extends TestCase {
 		assertTrue(getRet.ok());
 		String url = getRet.getUrl();
 		CallRet callRet = ImageInfo.call(url);
+		if (!callRet.ok()) 
+			System.out.println("testImageInfo : " + callRet);
 		assertTrue("ImageInfo " + url + " failed!", callRet.ok());
 	}
 	
@@ -74,6 +82,8 @@ public class FileopTest extends TestCase {
 		CallRet callRet = ImageExif.call(url) ;
 		// The upload image has no exif, which should return false.
 		// Here we use not operator to get uniform assertions.
+		if (callRet.ok()) 
+			System.out.println("testImageExif : " + callRet.statusCode);
 		assertTrue("ImageExif " + url + " failed!", !callRet.ok()) ;
 	}
 	
@@ -90,6 +100,8 @@ public class FileopTest extends TestCase {
 		imgView.format = "jpg" ;
 		imgView.sharpen = 100 ;
 		CallRet imgViewRet = imgView.call(url) ;
+		if (!imgViewRet.ok())
+			System.out.println("testImageView : " + imgViewRet.statusCode);
 		assertTrue("ImageView " + url + " failed!", imgViewRet.ok()) ;
 	}
 	
@@ -108,6 +120,8 @@ public class FileopTest extends TestCase {
 		imgMogr.format = "jpg" ;
 		imgMogr.autoOrient = true ;
 		CallRet imgMogrRet = imgMogr.call(url) ;
+		if (!imgMogrRet.ok())
+			System.out.println("testImageMogr : " + imgMogrRet.statusCode);
 		assertTrue("ImageMogr " + url + " failed!", imgMogrRet.ok()) ;
 	}
 	

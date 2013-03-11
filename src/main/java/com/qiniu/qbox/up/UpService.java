@@ -11,7 +11,7 @@ import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
 
 public class UpService {
-	private static final int INVALID_CTX = 701 ;
+	private static final int INVALID_CTX = 701;
 	private Client conn;
 	
 	public UpService(Client conn) {
@@ -150,10 +150,10 @@ public class UpService {
 						}
 					} else if (ret.getStatusCode() == INVALID_CTX) {
 						// invalid context
-						progress.context = "" ;
-						notifier.notify(blockIndex, progress) ;
+						progress.context = "";
+						notifier.notify(blockIndex, progress);
 
-						return ret ;
+						return ret;
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -201,7 +201,7 @@ public class UpService {
 						blockProgressNotifier);
 				
 				if (i == 0) {
-						upHost = ret.getHost() ;
+						upHost = ret.getHost();
 				}
 				if (!ret.ok()) {
 					return ret;
@@ -214,7 +214,7 @@ public class UpService {
 		}
 		
 		ret = new ResumablePutRet(new CallRet(200, (String)null));
-		ret.setHost(upHost) ;
+		ret.setHost(upHost);
 		return ret;
 	}
 }
