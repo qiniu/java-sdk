@@ -11,7 +11,7 @@ import com.qiniu.qbox.auth.CallRet;
 import com.qiniu.qbox.auth.Client;
 
 public class UpService {
-	private static final int INVALID_CTX = 701 ;
+	private static final int INVALID_CTX = 701;
 	private Client conn;
 	
 	public UpService(Client conn) {
@@ -103,6 +103,7 @@ public class UpService {
 				progress.context = ret.getCtx();
 				progress.offset = bodyLength;
 				progress.restSize = blockSize - bodyLength;
+				progress.host = upHost;
 				
 				notifier.notify(blockIndex, progress);
 				
@@ -141,6 +142,7 @@ public class UpService {
 							progress.context = ret.getCtx();
 							progress.offset += bodyLength;
 							progress.restSize -= bodyLength;
+							progress.host = upHost;
 							
 							notifier.notify(blockIndex, progress);
 						
@@ -148,10 +150,10 @@ public class UpService {
 						}
 					} else if (ret.getStatusCode() == INVALID_CTX) {
 						// invalid context
-						progress.context = "" ;
-						notifier.notify(blockIndex, progress) ;
+						progress.context = "";
+						notifier.notify(blockIndex, progress);
 
-						return ret ;
+						return ret;
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -169,7 +171,10 @@ public class UpService {
 			String[] checksums, BlockProgress[] progresses, 
 			ProgressNotifier progressNotifier, BlockProgressNotifier blockProgressNotifier) {
 		
-		String upHost = Config.UP_HOST ;
+		String upHost = Config.UP_HOST;
+		if (progresses[0] != null) {
+			upHost = progresses[0].host;
+		}
 		ResumablePutRet ret = null ;
 		int blockCount = blockCount(fsize);
 		
@@ -196,7 +201,7 @@ public class UpService {
 						blockProgressNotifier);
 				
 				if (i == 0) {
-						upHost = ret.getHost() ;
+						upHost = ret.getHost();
 				}
 				if (!ret.ok()) {
 					return ret;
@@ -208,7 +213,8 @@ public class UpService {
 			}
 		}
 		
-		ret.setHost(upHost) ;
+		ret = new ResumablePutRet(new CallRet(200, (String)null));
+		ret.setHost(upHost);
 		return ret;
 	}
 }
