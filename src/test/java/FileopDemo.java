@@ -25,13 +25,15 @@ public class FileopDemo {
 		System.out.println("Test to put local image: " + path + "/" + key + "\n");
 
 		// upload an image to the qiniu cloud platform
+		@SuppressWarnings("deprecation")
 		AuthPolicy policy = new AuthPolicy(bucketName, 3600);
+		@SuppressWarnings("deprecation")
 		String token = policy.makeAuthTokenString();
-		PutFileRet putRet = RSClient.putFileWithToken(token, bucketName, key, path+"/"+key, "", "", "", "") ;
+		PutFileRet putRet = RSClient.putFileWithToken(token, bucketName, key, path+"/"+key, "", "", "", "");
 		if (putRet.ok()) {
-			System.out.println("Upload " + path+"/"+key + " with token successfully!") ;
+			System.out.println("Upload " + path+"/"+key + " with token successfully!");
 		} else {
-			System.out.println("Upload " + path+"/"+key + " with token failed! " + putRet) ;
+			System.out.println("Upload " + path+"/"+key + " with token failed! " + putRet);
 			return ;
 		}
 		
@@ -40,16 +42,16 @@ public class FileopDemo {
 		RSService rs = new RSService(conn, bucketName);
 		GetRet getRet = rs.get(key, key);
 		if (!getRet.ok()) {
-			System.out.println("RS get failed : " + getRet) ;
+			System.out.println("RS get failed : " + getRet);
 			return ;
 		}
 		String imageUrl = getRet.getUrl();
 		System.out.println("Image Download Url : " + imageUrl + "\n");
 		
 		// imageInfo demo
-		String imgInfoRequestUrl = ImageInfo.makeRequest(imageUrl) ;
-		System.out.println("ImageInfo request url : " + imgInfoRequestUrl) ;
-		ImageInfoRet imgInfoRet = ImageInfo.call(imageUrl) ;
+		String imgInfoRequestUrl = ImageInfo.makeRequest(imageUrl);
+		System.out.println("ImageInfo request url : " + imgInfoRequestUrl);
+		ImageInfoRet imgInfoRet = ImageInfo.call(imageUrl);
 		if (imgInfoRet.ok()) {
 			System.out.println("Resulst of imageInfo() : ");
 			System.out.println("format     : " + imgInfoRet.format);
@@ -58,47 +60,47 @@ public class FileopDemo {
 			System.out.println("colorModel : " + imgInfoRet.colorModel); 
 			System.out.println() ;
 		} else {
-			System.out.println("Fileop getImageInfo failed : " + imgInfoRet) ;
+			System.out.println("Fileop getImageInfo failed : " + imgInfoRet);
 			return ;
 		}
 		
 		// imageExif demo
-		String imgExifRequestUrl = ImageExif.makeRequest(imageUrl) ;
-		System.out.println("ImageExif request url : " + imgExifRequestUrl) ;
-		CallRet imgExifRet = ImageExif.call(imageUrl) ;
+		String imgExifRequestUrl = ImageExif.makeRequest(imageUrl);
+		System.out.println("ImageExif request url : " + imgExifRequestUrl);
+		CallRet imgExifRet = ImageExif.call(imageUrl);
 		if (imgExifRet.ok()) {
 			System.out.println("Result of imageEXIF()  : ");
 			System.out.println(imgExifRet.getResponse());
 			System.out.println() ;
 		} else {
-			System.out.println("Fileop getImgExif failed or has no exif data. " + imgExifRet) ;
+			System.out.println("Fileop getImgExif failed or has no exif data. " + imgExifRet);
 		}
 		
 		// imageView demo
-		ImageView imgView = new ImageView() ;
+		ImageView imgView = new ImageView();
 		imgView.mode = 1 ;
 		imgView.width = 100 ;
 		imgView.height = 200 ;
 		imgView.quality = 1 ;
 		imgView.format = "jpg" ;
 		imgView.sharpen = 100 ;
-		String imgViewReuqestUrl = imgView.makeRequest(imageUrl) ;
-		System.out.println("ImageView request url : " + imgViewReuqestUrl) ;
-		CallRet imgViewRet = imgView.call(imageUrl) ;
-		System.out.println("Result of imageView: " + (imgViewRet.ok() ? "Succeeded." : imgViewRet)) ;
+		String imgViewReuqestUrl = imgView.makeRequest(imageUrl);
+		System.out.println("ImageView request url : " + imgViewReuqestUrl);
+		CallRet imgViewRet = imgView.call(imageUrl);
+		System.out.println("Result of imageView: " + (imgViewRet.ok() ? "Succeeded." : imgViewRet));
 		
 		// imageMogr demo
-		ImageMogrify imgMogr = new ImageMogrify() ;
-		imgMogr.thumbnail = "!120x120r" ;
-		imgMogr.gravity = "center" ;
-		imgMogr.crop = "!120x120a0a0" ;
-		imgMogr.quality = 85 ;
-		imgMogr.rotate = 45 ;
-		imgMogr.format = "jpg" ;
-		imgMogr.autoOrient = true ;
-		String imgMogrRequestUrl = imgMogr.makeRequest(imageUrl) ;
-		System.out.println("ImageMogrify request url : " + imgMogrRequestUrl) ;
-		CallRet imgMogrRet = imgMogr.call(imageUrl) ;
-		System.out.println("Result of imageMogr: " + (imgMogrRet.ok() ? "Succeeded." : imgMogrRet)) ;
+		ImageMogrify imgMogr = new ImageMogrify();
+		imgMogr.thumbnail = "!120x120r";
+		imgMogr.gravity = "center";
+		imgMogr.crop = "!120x120a0a0";
+		imgMogr.quality = 85;
+		imgMogr.rotate = 45;
+		imgMogr.format = "jpg";
+		imgMogr.autoOrient = true;
+		String imgMogrRequestUrl = imgMogr.makeRequest(imageUrl);
+		System.out.println("ImageMogrify request url : " + imgMogrRequestUrl);
+		CallRet imgMogrRet = imgMogr.call(imageUrl);
+		System.out.println("Result of imageMogr: " + (imgMogrRet.ok() ? "Succeeded." : imgMogrRet));
 	}
 }
