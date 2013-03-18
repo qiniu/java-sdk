@@ -75,10 +75,16 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 1. [开通七牛开发者帐号](https://dev.qiniutek.com/signup)
 2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://dev.qiniutek.com/account/keys) 。
 
-在获取到 `Access Key` 和 `Secret Key` 之后，编辑 `com.qiniu.qbox` 包下的 `Config.java` 文件，确保其包含您从七牛开发者平台所获取的 `Access Key` 和 `Secret Key`：
+在获取到 `Access Key` 和 `Secret Key` 之后，您可以按照如下方式进行密钥配置：
 
-    public static String ACCESS_KEY = "<Please apply your access key>";
-    public static String SECRET_KEY = "<Please apply your secret key>";
+    // 引入配置
+    import com.qiniu.qbox.Config;
+
+    // 修改配置
+    Config.ACCESS_KEY = "YOUR_ACCESS_KEY";
+	Config.SECRET_KEY = "YOUR_SECRET_KEY";
+
+可以参考: <https://github.com/qiniu/java-sdk/blob/develop/src/test/java/UpDemo.java>
 
 <a name="Usage"></a>
 
