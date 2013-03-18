@@ -75,10 +75,16 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 1. [开通七牛开发者帐号](https://dev.qiniutek.com/signup)
 2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://dev.qiniutek.com/account/keys) 。
 
-在获取到 `Access Key` 和 `Secret Key` 之后，编辑 `com.qiniu.qbox` 包下的 `Config.java` 文件，确保其包含您从七牛开发者平台所获取的 `Access Key` 和 `Secret Key`：
+在获取到 `Access Key` 和 `Secret Key` 之后，您可以按照如下方式进行密钥配置：
 
-    public static String ACCESS_KEY = "<Please apply your access key>";
-    public static String SECRET_KEY = "<Please apply your secret key>";
+    // 引入配置
+    import com.qiniu.qbox.Config;
+
+    // 修改配置
+    Config.ACCESS_KEY = "YOUR_ACCESS_KEY";
+    Config.SECRET_KEY = "YOUR_SECRET_KEY";
+
+可以参考: <https://github.com/qiniu/java-sdk/blob/develop/src/test/java/UpDemo.java>
 
 <a name="Usage"></a>
 
@@ -94,14 +100,14 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 
 #### 生成上传授权凭证（uploadToken）
 
-要上传一个文件，首先需要调用 SDK 提供的 `com.qiniu.qbox.auth` 包下的`PutPolicy`这个类来获取一个经过授权用于临时匿名上传的 `upload_token`——经过数字签名的一组数据信息，该 `upload_token` 作为文件上传流中 `multipart/form-data` 的一部分进行传输。 
+要上传一个文件，首先需要调用 SDK 提供的 `com.qiniu.qbox.auth` 包下的`PutPolicy`这个类来获取一个经过授权用于临时匿名上传的 `upload_token`——经过数字签名的一组数据信息，该 `upload_token` 作为文件上传流中 `multipart/form-data` 的一部分进行传输。
 
-示例代码如下： 
+示例代码如下：
 
-	String bucketName = "imageBucket";  
-	long expiry = 3600; // an hour  
-	PutPolicy upPolicy = new PutPolicy(bucketName, expiry);   
-	String upToken = upPolicy.token();   
+	String bucketName = "imageBucket";
+	long expiry = 3600; // an hour
+	PutPolicy upPolicy = new PutPolicy(bucketName, expiry);
+	String upToken = upPolicy.token();
 
 更多详细信息请参见[生成上传授权](http://docs.qiniutek.com/v3/api/io/#upload-token)
 
@@ -111,13 +117,13 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 
 方法签名如下：
 
-    public static PutFileRet putFileWithToken(String upToken, 
-                                             String bucketName,  
-                                             String key,   
-                                             String localFile,   
-                                             String mimeType,   
-                                             String customMeta,  
-                                             Object callbackParam,   
+    public static PutFileRet putFileWithToken(String upToken,
+                                             String bucketName,
+                                             String key,
+                                             String localFile,
+                                             String mimeType,
+                                             String customMeta,
+                                             Object callbackParam,
                                              String rotate) throws Exception
 
 **参数**
@@ -144,7 +150,7 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 	String bucketName = "bucket" ;
 	PutPolicy policy = new PutPolicy(bucketName, 3600);
 	String uptoken = policy.token();
-	
+
 	PutFileRet putRet = RSClient.putFileWithToken(uptoken, bucketName, key, absFilePath, "", "", "", "2") ;
 
 
@@ -193,7 +199,7 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 
     GetPolicy getPolicy = new GetPolicy(scope);
     String downloadToken = getPolicy.token();
-    
+
 关于参数的具体详解，请参见 [私有资源下载](http://docs.qiniutek.com/v3/api/io/#private-download)
 
 
@@ -239,7 +245,7 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 	String bucketName = "bucketName";
 	DigestAuthClient conn = new DigestAuthClient();
 	RSService rs = new RSService(conn, bucketName);
-	
+
 	// 获取资源表中特定文件信息
 	StatRet statRet = rs.stat(key);
 
@@ -255,17 +261,17 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 
 #### 复制单个文件
 
-要将一个文件从一个bucket复制到另一个bucket，可以通过使用 `RSService` 中 `copy` 方法来实现，其方法签名如下：  
+要将一个文件从一个bucket复制到另一个bucket，可以通过使用 `RSService` 中 `copy` 方法来实现，其方法签名如下：
 
     public CallRet copy(String entryUriSrc, String entryUriDest)
-    
 
-**参数**  
 
-    entryUriSrc : 由源bucket以及key拼接而成   
-    entryUriDest : 由目标bucket和key拼接而成 
+**参数**
 
-**返回值**  
+    entryUriSrc : 由源bucket以及key拼接而成
+    entryUriDest : 由目标bucket和key拼接而成
+
+**返回值**
 
     如果请求成功, callRet.ok()为true；否则为false
 
@@ -275,19 +281,19 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 #### 移动单个文件
 
 要将一个文件从一个bucket移动到另一个bucket，可以通过使用 `RSService` 中 `move` 方法来实现，其方法签名如下：
-   
-    public CallRet move(String entryUriSrc, String entryUriDest) 
 
-**参数**  
+    public CallRet move(String entryUriSrc, String entryUriDest)
 
-    entryUriSrc : 由源bucket以及key拼接而成   
-    entryUriDest : 由目标bucket和key拼接而成 
+**参数**
 
-**返回值**  
+    entryUriSrc : 由源bucket以及key拼接而成
+    entryUriDest : 由目标bucket和key拼接而成
+
+**返回值**
 
     如果请求成功，callRet.ok()为true；否则为false。
     需要补充说明的是，执行完 `move` 操作之后被移动的文件会从源bucket中移除。
- 
+
 <a name="delete"></a>
 
 ### 删除单个文件
@@ -296,16 +302,16 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 
 方法签名如下：
 
-    public DeleteRet delete(String key) throws Exception 
+    public DeleteRet delete(String key) throws Exception
 
 **参数**
 
-    所要删除文件对应的key。    
+    所要删除文件对应的key。
 
 **返回值**
 
     如果删除成功，则deleteRet.ok()为true，否则为false。
-     
+
 
 
 如下示例代码：
@@ -324,7 +330,7 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 ### 批量操作
 
 为了更高效的处理文件，我们还提供了批量文件处理操作，现支持的操作有 `batchStat`, `batchDelete`, `batchCopy`, `batchMove`,下面分别进行阐述：
-   
+
 <a name="batch-stat"></a>
 
 #### 批量获取文件属性信息
@@ -334,11 +340,11 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
     public BatchStatRet batchStat(List<String> entryUris)
 
 **参数**
-    
-    和stat方法类似，不同的是batchStat接受一个包含所有请求的entryUri的列表  
+
+    和stat方法类似，不同的是batchStat接受一个包含所有请求的entryUri的列表
 
 **返回值**
-    
+
     如果操作成功，BatchStatRet对象的方法ok()为true，而且该对象所包含一个含有所有请求entryUri对应的stat结果。
 
 
@@ -346,15 +352,15 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 #### 批量复制文件
 
 方法签名如下：
-    
-    public BatchCallRet batchCopy(List<EntryUriPair> entryUriPairs)     
+
+    public BatchCallRet batchCopy(List<EntryUriPair> entryUriPairs)
 
 **参数**
 
     每一个`EntryUriPair`对象包含一对字符串，分别是源文件对应的entryUri以及目标文件对应的entryUri。
 
 **返回值**
-  
+
     BatchCallRet 会包含一个 `CallRet` 对象的列表, 每个CallRet对象对应一个key经过处理后的结果。
 
 <a name="batch-move"></a>
@@ -362,9 +368,9 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 #### 批量移动文件
 
 方法签名如下：
-    
+
     public BatchCallRet batchMove(List<EntryUriPair> entryUriPairs)
-   
+
 **参数**
 
 同 `batchCopy`
@@ -383,9 +389,9 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 方法签名如下：
 
     public BatchCallRet batchDelete(List<String> entryUris)
-   
+
 **参数**
-    
+
     一个包含所有要删除文件对应的entryUri列表
 
 **返回值**
@@ -410,18 +416,18 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 首先，您要获得该图片的下载链接，请参见[查看单个文件属性信息](#stat)
 
 示例代码如下：
- 
+
     String imageUrl = "Your image url on the qiniu server" ;
     ImageInfoRet imgInfoRet = ImageInfo.call(imageUrl) ;
 
 如果请求失败，返回相应的错误信息；否则，返回如下一个 Hash 类型的结构：
 
     {
-        "format"     => "jpeg",    // 原始图片类型 
-        "width"      => 640,       // 原始图片宽度，单位像素  
-        "height"     => 425,       // 原始图片高度，单位像素 
-        "colorModel" => "ycbcr"    // 原始图片着色模式 
-    } 
+        "format"     => "jpeg",    // 原始图片类型
+        "width"      => 640,       // 原始图片宽度，单位像素
+        "height"     => 425,       // 原始图片高度，单位像素
+        "colorModel" => "ycbcr"    // 原始图片着色模式
+    }
 
 
 <a name="image-exif"></a>
@@ -433,7 +439,7 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 示例代码如下：
 
     String imageUrl = "Your image url on the qiniu server" ;
-    CallRet imageExifRet = ImageExif.call(imageUrl) ;     
+    CallRet imageExifRet = ImageExif.call(imageUrl) ;
 
 如果参数 `imageUrl` 所代表的图片没有 EXIF 信息 `imageExifRet.ok()` 为 `false`。否则，返回一个包含 EXIF 信息的 Hash 结构。
 
