@@ -1,6 +1,6 @@
 ## CHANGE LOG
 
-### v2.4.2
+### v2.5.0
 
 2013-03-23 issue [#45](https://github.com/qiniu/java-sdk/pull/45)
 
