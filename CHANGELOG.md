@@ -2,7 +2,7 @@
 
 ### v2.5.0
 
-2013-03-23 issue [#45](https://github.com/qiniu/java-sdk/pull/45)
+2013-03-23 issue [#46](https://github.com/qiniu/java-sdk/pull/46)
 
 - 修正帮助文档关于 AccessKey/SecretKey 配置描述的问题。
 - 修正 HttpClient 类的不正确使用。
