@@ -16,9 +16,10 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+
+import com.qiniu.qbox.net.Http;
 
 public class Client {
 
@@ -26,8 +27,8 @@ public class Client {
 	}
 
 	public CallRet call(String url) {
+		HttpClient client = Http.getClient();
 		HttpPost postMethod = new HttpPost(url);
-		HttpClient client = new DefaultHttpClient();
 		try {
 			setAuth(postMethod);
 			HttpResponse response = client.execute(postMethod);
@@ -35,14 +36,12 @@ public class Client {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new CallRet(400, e);
-		} finally {
-			client.getConnectionManager().shutdown();
-		}
+		} 
 	}
 
 	public CallRet call(String url, List<NameValuePair> nvps) {
-		HttpPost postMethod = new HttpPost(url);
-		HttpClient client = new DefaultHttpClient();
+		HttpClient client = Http.getClient();
+		HttpPost postMethod = new HttpPost(url);		
 		try {
 			StringEntity entity = new UrlEncodedFormEntity(nvps, "UTF-8");
 			entity.setContentType("application/x-www-form-urlencoded");
@@ -55,18 +54,14 @@ public class Client {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new CallRet(400, e);
-		} finally {
-			client.getConnectionManager().shutdown();
-		}
+		} 
 	}
 
 	public CallRet callWithBinary(String url, AbstractHttpEntity entity) {
 
+		HttpClient client = Http.getClient();
 		HttpPost postMethod = new HttpPost(url);
-
 		postMethod.setEntity(entity);
-
-		DefaultHttpClient client = new DefaultHttpClient();
 
 		try {
 			setAuth(postMethod);
@@ -75,9 +70,7 @@ public class Client {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new CallRet(400, e);
-		} finally {
-			client.getConnectionManager().shutdown();
-		}
+		} 
 	}
 
 	public CallRet callWithBinary(String url, String contentType, byte[] body, long bodyLength) {

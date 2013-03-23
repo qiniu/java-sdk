@@ -36,8 +36,8 @@ public class RsTest extends TestCase {
 	@Override
 	public void setUp() {
 
-		Config.ACCESS_KEY =  System.getenv("QINIU_ACCESS_KEY");
-		Config.SECRET_KEY =  System.getenv("QINIU_SECRET_KEY");
+		Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY");
+		Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY");
 		Config.UP_HOST = System.getenv("QINIU_UP_HOST");
 		Config.RS_HOST = System.getenv("QINIU_RS_HOST");
 		Config.IO_HOST = System.getenv("QINIU_IO_HOST");
@@ -54,17 +54,17 @@ public class RsTest extends TestCase {
 		rs = new RSService(conn, bucketName);
 	}
 
-
 	public void testPutFile() throws Exception {
 
 		String dir = System.getProperty("user.dir");
-		String absFilePath = dir + "/testdata/" + key ;
+		String absFilePath = dir + "/testdata/" + key;
 
 		PutAuthRet putAuthRet = rs.putAuth();
 		String authorizedUrl = putAuthRet.getUrl();
 
 		@SuppressWarnings("deprecation")
-		PutFileRet putFileRet = RSClient.putFile(authorizedUrl, bucketName, key, "", absFilePath, "", "");
+		PutFileRet putFileRet = RSClient.putFile(authorizedUrl, bucketName,
+				key, "", absFilePath, "", "");
 		assertTrue(putFileRet.ok() && expectedHash.equals(putFileRet.getHash()));
 	}
 
@@ -82,8 +82,10 @@ public class RsTest extends TestCase {
 
 	public void testRsGetIfNotModified() throws Exception {
 
-		GetRet getIfNotModifiedRet = rs.getIfNotModified(key, key, expectedHash);
-		assertTrue(getIfNotModifiedRet.ok() && expectedHash.equals(getIfNotModifiedRet.getHash()));
+		GetRet getIfNotModifiedRet = rs
+				.getIfNotModified(key, key, expectedHash);
+		assertTrue(getIfNotModifiedRet.ok()
+				&& expectedHash.equals(getIfNotModifiedRet.getHash()));
 	}
 
 	public void testPublish() throws Exception {
@@ -103,16 +105,22 @@ public class RsTest extends TestCase {
 		String delKey = "del-key";
 		try {
 			String dir = System.getProperty("user.dir");
-			String absFilePath = dir + "/testdata/" + fname ;
+			String absFilePath = dir + "/testdata/" + fname;
 
 			PutAuthRet putAuthRet = rs.putAuth();
 			String authorizedUrl = putAuthRet.getUrl();
-
+			System.out.println(authorizedUrl);
 			@SuppressWarnings("deprecation")
-			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, bucketName, delKey, "", absFilePath, "", "");
-			assertTrue(putFileRet.ok() && expectedHash.equals(putFileRet.getHash()));
+			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, bucketName,
+					delKey, "", absFilePath, "", "");
+			System.out.println(putFileRet);
+			assertTrue(putFileRet.ok()
+					&& expectedHash.equals(putFileRet.getHash()));
 		} finally {
+			DigestAuthClient conn = new DigestAuthClient();
+			rs = new RSService(conn, bucketName);
 			DeleteRet deleteRet = rs.delete(delKey);
+			System.out.println(deleteRet);
 			assertTrue(deleteRet.ok());
 		}
 	}
@@ -126,7 +134,7 @@ public class RsTest extends TestCase {
 
 	public void testDropBucket() throws Exception {
 
-		String delBucketName = "a-new-bucketname-for-junit-test" ;
+		String delBucketName = "a-new-bucketname-for-junit-test";
 		DigestAuthClient conn = new DigestAuthClient();
 		RSService rs = new RSService(conn, delBucketName);
 		DropRet dropRet = rs.drop();
@@ -153,29 +161,32 @@ public class RsTest extends TestCase {
 			@SuppressWarnings("deprecation")
 			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, srcBucket,
 					srcKey, "", absFilePath, "", "");
-			assertTrue(putFileRet.ok()&& expectedHash.equals(putFileRet.getHash()));
+			assertTrue(putFileRet.ok()
+					&& expectedHash.equals(putFileRet.getHash()));
 
 			// move
-			rs = new RSService(conn, srcBucket);
+			DigestAuthClient conn_ = new DigestAuthClient();
+			rs = new RSService(conn_, srcBucket);
 			CallRet moveRet = rs.move(entryUriSrc, entryUriDest);
 			assertTrue(moveRet.ok());
 
 			// stat to check the result
 			// stat the src, should not exist!
-			rs = new RSService(conn, srcBucket);
+			rs = new RSService(conn_, srcBucket);
 			StatRet srcStatRet = rs.stat(srcKey);
 			assertTrue(!srcStatRet.ok());
 
 			// stat the dest, should exist!
-			rs = new RSService(conn, destBucket);
+			rs = new RSService(conn_, destBucket);
 			StatRet statRet = rs.stat(destKey);
 			assertTrue(statRet.ok() && expectedHash.equals(statRet.getHash()));
-
 		} finally {
 			// delete file in the dest bucket
-			rs = new RSService(conn, destBucket);
+			DigestAuthClient conn1 = new DigestAuthClient();
+			rs = new RSService(conn1, destBucket);
 			DeleteRet destDeleteRet = rs.delete(destKey);
 			assertTrue(destDeleteRet.ok());
+
 		}
 	}
 
@@ -199,31 +210,35 @@ public class RsTest extends TestCase {
 			@SuppressWarnings("deprecation")
 			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, srcBucket,
 					srcKey, "", absFilePath, "", "");
-			assertTrue(putFileRet.ok()&& expectedHash.equals(putFileRet.getHash()));
+			assertTrue(putFileRet.ok()
+					&& expectedHash.equals(putFileRet.getHash()));
 
 			// copy
-			rs = new RSService(conn, srcBucket);
+			DigestAuthClient conn_ = new DigestAuthClient();
+			rs = new RSService(conn_, srcBucket);
 			CallRet copyRet = rs.copy(entryUriSrc, entryUriDest);
 			assertTrue(copyRet.ok());
 
 			// stat to check the result
 			// file should exist in the source bucket
-			rs = new RSService(conn, srcBucket);
+			rs = new RSService(conn_, srcBucket);
 			StatRet srcStatRet = rs.stat(srcKey);
-			assertTrue(srcStatRet.ok()&& expectedHash.equals(srcStatRet.getHash()));
+			assertTrue(srcStatRet.ok()
+					&& expectedHash.equals(srcStatRet.getHash()));
 
 			// file should exist in the dest bucket
-			rs = new RSService(conn, destBucket);
+			rs = new RSService(conn_, destBucket);
 			StatRet statRet = rs.stat(destKey);
-			assertTrue(statRet.ok() && expectedHash.equals(statRet.getHash())) ;
+			assertTrue(statRet.ok() && expectedHash.equals(statRet.getHash()));
 
 		} finally {
 			// delete the file in the source/dest bucket
-			rs = new RSService(conn, srcBucket);
+			DigestAuthClient conn_ = new DigestAuthClient();
+			rs = new RSService(conn_, srcBucket);
 			DeleteRet srcDeleteRet = rs.delete(srcKey);
 			assertTrue(srcDeleteRet.ok());
 
-			rs = new RSService(conn, destBucket);
+			rs = new RSService(conn_, destBucket);
 			DeleteRet destDeleteRet = rs.delete(destKey);
 			assertTrue(destDeleteRet.ok());
 		}
@@ -231,13 +246,13 @@ public class RsTest extends TestCase {
 
 	public void testBuckets() throws Exception {
 		// just test ret.ok().
-		// it is not a good way to compare whether the result contains all the 
+		// it is not a good way to compare whether the result contains all the
 		// existing buckets. Because it's a shared account, other users may also
 		// create or drop bucket at the same time.
 		BucketsRet ret = rs.buckets();
 		assertTrue(ret.ok());
 	}
-	
+
 	public void testBatchStat() throws Exception {
 		// upload some file to the buckets
 		String key1 = "batch-stat1";
@@ -249,24 +264,31 @@ public class RsTest extends TestCase {
 		entryUris.add(entryUri2);
 
 		String dir = System.getProperty("user.dir");
-		String absFilePath = dir + "/testdata/" + key ;
+		String absFilePath = dir + "/testdata/" + key;
 
 		PutAuthRet putAuthRet = rs.putAuth();
 		String authorizedUrl = putAuthRet.getUrl();
 		try {
 			// upload file1 with key1
 			@SuppressWarnings("deprecation")
-			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, bucketName, key1, "", absFilePath, "", "");
-			assertTrue(putFileRet.ok() && expectedHash.equals(putFileRet.getHash())) ;
+			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, bucketName,
+					key1, "", absFilePath, "", "");
+			assertTrue(putFileRet.ok()
+					&& expectedHash.equals(putFileRet.getHash()));
 
 			// upload file2 with key2
 			@SuppressWarnings("deprecation")
-			PutFileRet putFileRet2 = RSClient.putFile(authorizedUrl, bucketName, key2, "", absFilePath, "", "");
-			assertTrue(putFileRet2.ok() && expectedHash.equals(putFileRet2.getHash()));
+			PutFileRet putFileRet2 = RSClient.putFile(authorizedUrl,
+					bucketName, key2, "", absFilePath, "", "");
+			assertTrue(putFileRet2.ok()
+					&& expectedHash.equals(putFileRet2.getHash()));
 			// -----------------------------------------------------------------------------------------
 
-			// stat		
+			// stat
+			DigestAuthClient conn = new DigestAuthClient();
+			rs = new RSService(conn, bucketName);
 			BatchStatRet statRet = rs.batchStat(entryUris);
+
 			assertTrue(statRet.ok());
 			List<StatRet> statRetList = statRet.results;
 			for (StatRet r : statRetList) {
@@ -280,7 +302,7 @@ public class RsTest extends TestCase {
 			assertTrue(deleteRet.ok());
 			List<CallRet> callRetList = deleteRet.results;
 			for (CallRet r : callRetList) {
-				assert(r.ok());
+				assert (r.ok());
 			}
 		}
 	}
@@ -307,22 +329,30 @@ public class RsTest extends TestCase {
 
 			// upload file1 with key1
 			@SuppressWarnings("deprecation")
-			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, srcBucket, srcKey1, "", absFilePath, "", "");
-			assertTrue(putFileRet.ok() && expectedHash.equals(putFileRet.getHash()));
+			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, srcBucket,
+					srcKey1, "", absFilePath, "", "");
+			assertTrue(putFileRet.ok()
+					&& expectedHash.equals(putFileRet.getHash()));
 
 			// upload file2 with key2
 			@SuppressWarnings("deprecation")
-			PutFileRet putFileRet2 = RSClient.putFile(authorizedUrl, srcBucket, srcKey2, "", absFilePath, "", "");
-			assertTrue(putFileRet2.ok() && expectedHash.equals(putFileRet2.getHash()));
+			PutFileRet putFileRet2 = RSClient.putFile(authorizedUrl, srcBucket,
+					srcKey2, "", absFilePath, "", "");
+			assertTrue(putFileRet2.ok()
+					&& expectedHash.equals(putFileRet2.getHash()));
 			// -----------------------------------------------------------------------------------------
 
 			// copy source file to the dest bucket
-			EntryUriPair pair1 = new EntryUriPair(srcBucket + ":" + srcKey1, destBucket + ":" + destKey1);
-			EntryUriPair pair2 = new EntryUriPair(srcBucket + ":" + srcKey2, destBucket + ":" + destKey2);
+			EntryUriPair pair1 = new EntryUriPair(srcBucket + ":" + srcKey1,
+					destBucket + ":" + destKey1);
+			EntryUriPair pair2 = new EntryUriPair(srcBucket + ":" + srcKey2,
+					destBucket + ":" + destKey2);
 			List<EntryUriPair> pairList = new ArrayList<EntryUriPair>();
 			pairList.add(pair1);
 			pairList.add(pair2);
-			BatchCallRet ret= rs.batchCopy(pairList);
+			DigestAuthClient conn = new DigestAuthClient();
+			rs = new RSService(conn, bucketName);
+			BatchCallRet ret = rs.batchCopy(pairList);
 			assertTrue(ret.ok());
 			for (CallRet r : ret.results) {
 				if (!r.ok())
@@ -344,7 +374,7 @@ public class RsTest extends TestCase {
 			for (StatRet r : statRet2.results) {
 				assertTrue(r.ok());
 			}
-		// -----------------------------------------------------------------------------------------
+			// -----------------------------------------------------------------------------------------
 		} finally {
 			// delete files from the source bucket
 			BatchCallRet srcDeleteRet = rs.batchDelete(entryUris);
@@ -379,26 +409,34 @@ public class RsTest extends TestCase {
 
 		PutAuthRet putAuthRet = rs.putAuth();
 		String authorizedUrl = putAuthRet.getUrl();
-
+		DigestAuthClient conn = new DigestAuthClient();
 		try {
 			// upload file1 with key1
 			@SuppressWarnings("deprecation")
-			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, srcBucket, srcKey1, "", absFilePath, "", "");
-			assertTrue(putFileRet.ok() && expectedHash.equals(putFileRet.getHash()));
+			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, srcBucket,
+					srcKey1, "", absFilePath, "", "");
+			assertTrue(putFileRet.ok()
+					&& expectedHash.equals(putFileRet.getHash()));
 
 			// upload file2 with key2
 			@SuppressWarnings("deprecation")
-			PutFileRet putFileRet2 = RSClient.putFile(authorizedUrl, srcBucket, srcKey2, "", absFilePath, "", "");
-			assertTrue(putFileRet2.ok() && expectedHash.equals(putFileRet2.getHash()));
+			PutFileRet putFileRet2 = RSClient.putFile(authorizedUrl, srcBucket,
+					srcKey2, "", absFilePath, "", "");
+			assertTrue(putFileRet2.ok()
+					&& expectedHash.equals(putFileRet2.getHash()));
 			// -----------------------------------------------------------------------------------------
 
 			// move source files to the dest bucket
-			EntryUriPair pair1 = new EntryUriPair(srcBucket + ":" + srcKey1, destBucket + ":" + destKey1);
-			EntryUriPair pair2 = new EntryUriPair(srcBucket + ":" + srcKey2, destBucket + ":" + destKey2);
+			EntryUriPair pair1 = new EntryUriPair(srcBucket + ":" + srcKey1,
+					destBucket + ":" + destKey1);
+			EntryUriPair pair2 = new EntryUriPair(srcBucket + ":" + srcKey2,
+					destBucket + ":" + destKey2);
 			List<EntryUriPair> pairList = new ArrayList<EntryUriPair>();
 			pairList.add(pair1);
 			pairList.add(pair2);
-			BatchCallRet ret= rs.batchMove(pairList);
+
+			rs = new RSService(conn, bucketName);
+			BatchCallRet ret = rs.batchMove(pairList);
 			if (!ret.ok())
 				System.out.println("testBatchMove : " + ret);
 			assertTrue(ret.ok());
@@ -435,7 +473,7 @@ public class RsTest extends TestCase {
 		String key1 = "batch-delete1";
 		String key2 = "batch-delete2";
 		String dir = System.getProperty("user.dir");
-		String absFilePath = dir + "/testdata/" + key ;
+		String absFilePath = dir + "/testdata/" + key;
 
 		PutAuthRet putAuthRet = rs.putAuth();
 		String authorizedUrl = putAuthRet.getUrl();
@@ -443,13 +481,17 @@ public class RsTest extends TestCase {
 		try {
 			// upload file1 with key1
 			@SuppressWarnings("deprecation")
-			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, bucketName, key1, "", absFilePath, "", "") ;
-			assertTrue(putFileRet.ok() && expectedHash.equals(putFileRet.getHash())) ;
+			PutFileRet putFileRet = RSClient.putFile(authorizedUrl, bucketName,
+					key1, "", absFilePath, "", "");
+			assertTrue(putFileRet.ok()
+					&& expectedHash.equals(putFileRet.getHash()));
 
 			// upload file2 with key2
 			@SuppressWarnings("deprecation")
-			PutFileRet putFileRet2 = RSClient.putFile(authorizedUrl, bucketName, key2, "", absFilePath, "", "");
-			assertTrue(putFileRet2.ok() && expectedHash.equals(putFileRet2.getHash()));
+			PutFileRet putFileRet2 = RSClient.putFile(authorizedUrl,
+					bucketName, key2, "", absFilePath, "", "");
+			assertTrue(putFileRet2.ok()
+					&& expectedHash.equals(putFileRet2.getHash()));
 		} finally {
 			// delete the files from the bucket
 			// delete use batchDelete
@@ -459,11 +501,13 @@ public class RsTest extends TestCase {
 			entryUris.add(entryUri1);
 			entryUris.add(entryUri2);
 
+			DigestAuthClient conn = new DigestAuthClient();
+			rs = new RSService(conn, bucketName);
 			BatchCallRet deleteRet = rs.batchDelete(entryUris);
 			assertTrue(deleteRet.ok());
 			List<CallRet> callRetList = deleteRet.results;
 			for (CallRet r : callRetList) {
-				assert(r.ok());
+				assert (r.ok());
 			}
 		}
 	}
