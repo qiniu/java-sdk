@@ -1,5 +1,6 @@
 package com.qiniu.qbox.auth;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,10 +17,12 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import com.qiniu.qbox.net.Http;
+import com.qiniu.qbox.rs.PutFileRet;
 
 public class Client {
 
@@ -85,6 +88,20 @@ public class Client {
 		return callWithBinary(url, entity);
 	}
 
+	public CallRet callWithMultiPart(String url, MultipartEntity requestEntity)
+			throws UnsupportedEncodingException {
+		HttpPost postMethod = new HttpPost(url);
+		postMethod.setEntity(requestEntity);
+		HttpClient client = Http.getClient();
+		try {
+			HttpResponse response = client.execute(postMethod);
+			return handleResult(response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new PutFileRet(new CallRet(400, e));
+		}
+	}
+	
 	private CallRet handleResult(HttpResponse response) {
 
 		if (response == null || response.getStatusLine() == null) {
