@@ -14,7 +14,7 @@
 	<dependency>
 		<groupId>com.qiniu</groupId>
 		<artifactId>sdk</artifactId>
-		<version>0.0.1</version>
+		<version>2.5.0</version>
 	</dependency>
 
 ## 使用
