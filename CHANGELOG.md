@@ -1,5 +1,12 @@
 ## CHANGE LOG
 
+### v2.5.1
+
+2013-03-25 issue [#54](https://github.com/qiniu/java-sdk/pull/54)
+
+- 修正 HttpClient 类的不正确使用：补漏。
+
+
 ### v2.5.0
 
 2013-03-23 issue [#46](https://github.com/qiniu/java-sdk/pull/46)

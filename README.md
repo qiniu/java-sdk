@@ -1,6 +1,6 @@
 # Qiniu Resource (Cloud) Storage SDK for Java
 
-[![Build Status](https://travis-ci.org/qiniu/py.png?branch=master)](https://travis-ci.org/qiniu/py)
+[![Build Status](https://travis-ci.org/qiniu/java-sdk.png?branch=master)](https://travis-ci.org/qiniu/java-sdk)
 
 [![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
 
@@ -14,7 +14,7 @@
 	<dependency>
 		<groupId>com.qiniu</groupId>
 		<artifactId>sdk</artifactId>
-		<version>2.5.0</version>
+		<version>2.5.1</version>
 	</dependency>
 
 ## 使用
