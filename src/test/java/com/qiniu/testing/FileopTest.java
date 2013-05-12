@@ -26,7 +26,7 @@ public class FileopTest extends TestCase {
 
 	public String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
 
-	public String domain = "http://junit-bucket.qiniudn.com";
+	public String domain = "http://junitbucket.qiniudn.com";
 
 	@Override
 	public void setUp() {
