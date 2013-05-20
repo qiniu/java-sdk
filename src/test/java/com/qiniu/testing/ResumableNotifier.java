@@ -31,8 +31,7 @@ public class ResumableNotifier implements ProgressNotifier,
 			doc.put("checksum", checksum);
 			String json = JSONObject.valueToString(doc);
 			os.println(json);
-			System.out.println("Progress Notify:" + "\n\tBlockIndex: "
-					+ String.valueOf(blockIndex) + "\n\tChecksum: " + checksum);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -54,11 +53,7 @@ public class ResumableNotifier implements ProgressNotifier,
 
 			String json = JSONObject.valueToString(doc);
 			os.println(json);
-			System.out.println("BlockProgress Notify:" + "\n\tBlockIndex: "
-					+ String.valueOf(blockIndex) + "\n\tHost: " + progress.host
-					+ "\n\tContext: " + progress.context + "\n\tOffset: "
-					+ String.valueOf(progress.offset) + "\n\tRestSize: "
-					+ String.valueOf(progress.restSize));
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
