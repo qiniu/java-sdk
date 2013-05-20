@@ -21,6 +21,8 @@ public class AllCase {
 		suite.addTestSuite(BatchCopyTest.class);
 		suite.addTestSuite(BatchMoveTest.class);
 		
+		suite.addTestSuite(ResumableUpTest.class);
+		suite.addTestSuite(ResumableUpWithProgressTest.class);
 		return suite;
 	} 
 	
