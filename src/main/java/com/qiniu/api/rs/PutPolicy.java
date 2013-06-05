@@ -27,7 +27,9 @@ public class PutPolicy {
 	 * successfully to the qiniu server.
 	 */
 	public String callbackUrl;
-
+	
+	public String returnUrl;
+	
 	public String callbackBodyType;
 
 	public String custom;
@@ -65,12 +67,30 @@ public class PutPolicy {
 	}
 
 	private String marshal() throws JSONException {
+
 		JSONStringer stringer = new JSONStringer();
 		stringer.object();
 		stringer.key("scope").value(this.scope);
-		if (this.callbackUrl != null) {
+		if (this.callbackUrl != null && this.callbackUrl.length() > 0) {
 			stringer.key("callbackUrl").value(this.callbackUrl);
 		}
+		if (this.returnUrl != null && this.returnUrl.length() > 0) {
+			stringer.key("returnUrl").value(this.returnUrl);
+		}
+		if (this.asyncOps != null && this.asyncOps.length() > 0) {
+			stringer.key("asyncOps").value(this.asyncOps);
+		}
+		
+		if (this.escape != 0) {
+			stringer.key("escape").value(this.escape);
+		}
+		if (this.returnBody != null && this.returnBody.length() > 0) {
+			stringer.key("returnBody").value(this.returnBody);
+		}
+		if (this.callbackBodyType != null && this.callbackBodyType.length() > 0) {
+			stringer.key("callbackBodyType").value(this.callbackBodyType);
+		}
+		
 		stringer.key("deadline").value(this.expiry);
 		stringer.endObject();
 
