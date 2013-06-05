@@ -1,5 +1,12 @@
 ## CHANGE LOG
 
+### v3.0.0
+
+2013-06-05 issue [#61](https://github.com/qiniu/java-sdk/pull/61)
+
+- PutPolicy: add member - escape, asyncOps, returnBody
+
+
 ### v2.5.1
 
 2013-03-25 issue [#54](https://github.com/qiniu/java-sdk/pull/54)
