@@ -86,18 +86,6 @@ public class RsTest extends TestCase {
 		assertTrue(getIfNotModifiedRet.ok() && expectedHash.equals(getIfNotModifiedRet.getHash()));
 	}
 
-	public void testPublish() throws Exception {
-
-		PublishRet publishRet = rs.publish(DEMO_DOMAIN);
-		assertTrue(publishRet.ok());
-	}
-
-	public void testUnpublish() throws Exception {
-
-		PublishRet unpublishRet = rs.unpublish(DEMO_DOMAIN);
-		assertTrue(unpublishRet.ok());
-	}
-
 	public void testDelete() throws Exception {
 		String fname = key;
 		String delKey = "del-key";
