@@ -14,9 +14,7 @@ public class PutPolicy {
 	public String callbackUrl;
 	public String returnUrl;
 	public long expiry;
-	
-	public String callbackBodyType;
-	public String costomer;
+
 	public int escape;
 	public String asyncOps;
 	public String returnBody;
@@ -59,9 +57,6 @@ public class PutPolicy {
 		}
 		if (this.returnBody != null && this.returnBody.length() > 0) {
 			stringer.key("returnBody").value(this.returnBody);
-		}
-		if (this.callbackBodyType != null && this.callbackBodyType.length() > 0) {
-			stringer.key("callbackBodyType").value(this.callbackBodyType);
 		}
 		
 		stringer.key("deadline").value(this.expiry);
