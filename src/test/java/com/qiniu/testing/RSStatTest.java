@@ -28,7 +28,6 @@ public class RSStatTest extends TestCase {
 			Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY");
 			Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY");
 			Config.RS_HOST = System.getenv("QINIU_RS_HOST");
-			Config.IO_HOST = System.getenv("QINIU_IO_HOST");
 			bucketName = System.getenv("QINIU_TEST_BUCKET");
 		}
 
@@ -37,7 +36,6 @@ public class RSStatTest extends TestCase {
 			assertNotNull(Config.ACCESS_KEY);
 			assertNotNull(Config.SECRET_KEY);
 			assertNotNull(Config.RS_HOST);
-			assertNotNull(Config.IO_HOST);
 			assertNotNull(bucketName);
 		}
 
