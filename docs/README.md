@@ -54,7 +54,7 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 	<dependency>
 		<groupId>com.qiniu</groupId>
 		<artifactId>sdk</artifactId>
-		<version>2.4.2</version>
+		<version>6.0.0</version>
 	</dependency>
 
 

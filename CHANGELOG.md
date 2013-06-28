@@ -1,4 +1,8 @@
 ## CHANGE LOG
+### v6.0.0
+2013-06-28 issuse[#62](https://github.com/qiniu/java-sdk/pull/62)
+
+- 遵循 [sdkspec v6.0.0](https://github.com/qiniu/sdkspec/tree/v6.0.0)
 
 ### v2.5.1
 
