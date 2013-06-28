@@ -29,6 +29,7 @@ public class Mac {
 	 * @throws AuthException
 	 */
 	public String sign(byte[] data) throws AuthException {
+		System.out.println("data : " + new String(data));
 		javax.crypto.Mac mac = null;
 		try {
 			mac = javax.crypto.Mac.getInstance("HmacSHA1");
@@ -38,11 +39,11 @@ public class Mac {
 		} catch (InvalidKeyException e) {
 			throw new AuthException("invalid key!", e);
 		} catch (NoSuchAlgorithmException e) {
-			throw new AuthException("no HmacSHA1 algorithm!", e);
+			throw new AuthException("no algorithm called HmacSHA1!", e);
 		}
-		mac.update(data);
-		String encodedSign = EncodeUtils.urlsafeEncodeString(mac.doFinal());
-		return this.accessKey + ":" + encodedSign.substring(0, 27);
+		
+		String encodedSign = EncodeUtils.urlsafeEncodeString(mac.doFinal(data));
+		return this.accessKey + ":" + encodedSign;
 	}
 	
 	/**
