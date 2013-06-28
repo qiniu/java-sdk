@@ -8,6 +8,7 @@ import com.qiniu.api.net.CallRet;
 public class PutRet extends CallRet {
 	/** Etag of the file */
 	private String hash;
+	private String key;
 
 	public PutRet(CallRet ret) {
 		super(ret);
@@ -25,9 +26,16 @@ public class PutRet extends CallRet {
 		if (jsonObject.has("hash")) {
 			this.hash = (String) jsonObject.get("hash");
 		}
+		if (jsonObject.has("key")) {
+			this.key = (String) jsonObject.get("key");
+		}
 	}
 
 	public String getHash() {
 		return this.hash;
+	}
+	
+	public String getKey() {
+		return this.key;
 	}
 }

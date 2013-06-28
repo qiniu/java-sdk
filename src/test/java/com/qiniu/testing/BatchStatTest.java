@@ -1,5 +1,6 @@
 package com.qiniu.testing;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,13 +59,13 @@ public class BatchStatTest extends TestCase {
 			String localFile = dir + "/testdata/" + "logo.png";
 
 			PutExtra extra = new PutExtra();
-			extra.bucket = bucketName;
-			PutRet ret = IoApi.putFile(uptoken, key1, localFile, extra);
+			
+			PutRet ret = IoApi.putFile(uptoken, key1, new File(localFile), extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
 
 			// upload a second one
-			ret = IoApi.putFile(uptoken, key2, localFile, extra);
+			ret = IoApi.putFile(uptoken, key2, new File(localFile), extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
 		}

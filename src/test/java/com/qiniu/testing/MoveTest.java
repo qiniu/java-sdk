@@ -1,5 +1,7 @@
 package com.qiniu.testing;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 
 import com.qiniu.api.auth.AuthException;
@@ -55,8 +57,8 @@ public class MoveTest extends TestCase {
 			String localFile = dir + "/testdata/" + "logo.png";
 
 			PutExtra extra = new PutExtra();
-			extra.bucket = srcBucket;
-			PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
+
+			PutRet ret = IoApi.putFile(uptoken, key, new File(localFile), extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
 		}
@@ -74,8 +76,7 @@ public class MoveTest extends TestCase {
 			String localFile = dir + "/testdata/" + "logo.png";
 
 			PutExtra extra = new PutExtra();
-			extra.bucket = bucketName;
-			PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
+			PutRet ret = IoApi.putFile(uptoken, key, new File(localFile), extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
 		}

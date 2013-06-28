@@ -1,25 +1,15 @@
 package com.qiniu.api.io;
 
+import java.util.Map;
+
 public class PutExtra {
-	/**
-	 * optional, callbackParams can not be null or empty, when callbackurl is
-	 * specified with the uptoken
-	 */
-	public String callbackParams;
+    /** 用户自定义参数，key必须以 "x:" 开头 */
+    public Map<String, String> params;
+    // 可选
+    public String mimeType;
 
-	/**
-	 * optional, no more than 256Byte
-	 */
-	public String customMeta;
+    public long crc32;
 
-	/**
-	 * optional, the client side can specify its mime type when no detecMime
-	 * specified with the uptoken
-	 */
-	public String mimeType;
-	
-	/**
-	 * the target bucket name
-	 */
-	public String bucket;
+    public int checkCrc;
 }
+

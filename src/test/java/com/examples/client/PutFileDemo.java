@@ -1,6 +1,7 @@
 package com.examples.client;
 
 import java.awt.Desktop;
+import java.io.File;
 import java.net.URI;
 
 import com.qiniu.api.io.IoApi;
@@ -15,10 +16,6 @@ public class PutFileDemo {
 	// 从业务服务端得到上传凭证
 	private static final String UPTOKEN = "";
 	
-	// 上传文件前，请确保该bucket存在
-	// 注：此处的bucket是文件上传空间，可以类比关系型数据库中的表
-	private static final String BUCKET_NAME = "xxxx";
-
 	// 上述bucket所绑定的域名
 	private static final String DOMAIN = "http://xxxx.qiniudn.com";
 
@@ -35,10 +32,10 @@ public class PutFileDemo {
 		// 设置上传文件的 mime type
 		extra.mimeType = "image/jpeg";
 		// 设置上传文件的目标 bucket
-		extra.bucket = BUCKET_NAME;
+		
 		
 		// 上传文件
-		PutRet ret = IoApi.putFile(UPTOKEN, key, localFile,extra);
+		PutRet ret = IoApi.putFile(UPTOKEN, key, new File(localFile), extra);
 
 		if (ret.ok()) {
 			System.out.println("Successfully upload the file.");
