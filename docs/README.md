@@ -70,6 +70,7 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://dev.qiniutek.com/account/keys) 。
 
 在获取到 Access Key 和 Secret Key 之后，您可以按照如下方式进行密钥配置：
+```{java}
 
     // 引入配置
     import com.qiniu.qbox.Config;
@@ -77,7 +78,7 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
     // 修改配置
     Config.ACCESS_KEY = "YOUR_ACCESS_KEY";
     Config.SECRET_KEY = "YOUR_SECRET_KEY";
-
+```
 可以参考: <https://github.com/qiniu/java-sdk/blob/develop/src/test/java/UpDemo.java>
 
 <a name="get-and-put-api"></a>
@@ -228,7 +229,6 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
     mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
     RSClient rs = new RSClient(mac);
     Entry ret = rs.stat(bucketName, "FILE_KEY");
-}
 ```
 参阅: `rs.Entry`, `rs.Client.Stat`
 
@@ -439,7 +439,6 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
     imageUrl = "http://domain/key";
     imgView.height = 200;
     String url = imgView.makeRequest(imageUrl);
-}
 ```
 参阅: `fop.ImageView`
 
