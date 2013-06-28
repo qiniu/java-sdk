@@ -33,13 +33,6 @@ public class PutPolicy {
 	/** 可选 */
 	public long expires;
 
-	/**
-	 * 
-	 * @param scope
-	 * @param expires
-	 * @throws IllegalArgumentException
-	 *             if expiry is non-positive.
-	 */
 	public PutPolicy(String scope) {
 		this.scope = scope;
 	}

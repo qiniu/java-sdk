@@ -71,15 +71,19 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 
 在获取到 Access Key 和 Secret Key 之后，您可以按照如下方式进行密钥配置：
 ```{java}
+import com.qiniu.api.config.Config;
 
-    // 引入配置
-    import com.qiniu.qbox.Config;
+public class Init {
 
-    // 修改配置
-    Config.ACCESS_KEY = "YOUR_ACCESS_KEY";
-    Config.SECRET_KEY = "YOUR_SECRET_KEY";
+	public static void main(String[] args) {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+	}
+}
+
+    
 ```
-可以参考: <https://github.com/qiniu/java-sdk/blob/develop/src/test/java/UpDemo.java>
+可以参考: 
 
 <a name="get-and-put-api"></a>
 
@@ -123,24 +127,55 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 uptoken是一个字符串，作为http协议Header的一部分（Authorization字段）发送到我们七牛的服务端，表示这个http请求是经过认证的。
 
 ```{java}
-    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
-    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
-    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
-    string uptoken = new PutPolicy(bucketName).token(mac);
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.rs.PutPolicy;
+
+public class Uptoken {
+
+	public static void main(String[] args) throws Exception {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		// 请确保该bucket已经存在
+		String bucketName = "Your bucket name";
+		PutPolicy putPolicy = new PutPolicy(bucketName);
+		String uptoken = putPolicy.token(mac);
+	}
+}
 
 ```
 <a name="upload-code"></a>
 ### 3.3 上传代码
-直接上传二进制流
-```{java}
-还未支持 马上就来
-```
 
 上传本地文件
 ```{java}
-    extra = new PutExtra();
-    extra.bucket = bucketName;
-    PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
+
+import java.io.File;
+
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.io.IoApi;
+import com.qiniu.api.io.PutExtra;
+import com.qiniu.api.io.PutRet;
+import com.qiniu.api.rs.PutPolicy;
+
+public class UploadFile {
+	
+	public static void main(String[] args) throws Exception {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		// 请确保该bucket已经存在
+		String bucketName = "Your bucket name";
+		PutPolicy putPolicy = new PutPolicy(bucketName);
+		String uptoken = putPolicy.token(mac);
+		PutExtra extra = new PutExtra();
+		String key = "<key>";
+		File file = new File("your local file path");
+		PutRet ret = IoApi.putFile(uptoken, key, file, extra);
+	}
+}
 
 ```
 
@@ -153,36 +188,21 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
 
 上传二进制流
 ```{java}
-
-断点续上传二进制代码演示 
-
+to do!
 ```
-参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
-
-上传本地文件
-```{java}
-
- 断点续上传本地文件演示
-
-```
-参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
-
-相比普通上传，断点上续传代码没有变复杂。基本上就只是将`io.PutExtra`改为`resumable.io.PutExtra`，`io.PutFile`改为`resumable.io.PutFile`。
-
-但实际上 `resumable.io.PutExtra` 多了不少配置项，其中最重要的是两个回调函数：`Notify` 与 `NotifyErr`，它们用来通知使用者有更多的数据被传输成功，或者有些数据传输失败。在 `Notify` 回调函数中，比较常见的做法是将传输的状态进行持久化，以便于在软件退出后下次再进来还可以继续进行断点续上传。但不传入 `Notify` 回调函数并不表示不能断点续上传，只要程序没有退出，上传失败自动进行续传和重试操作。
 
 <a name="io-put-policy"></a>
 ### 3.5 上传策略
 
 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 实际上是用 AccessKey/SecretKey 进行数字签名的上传策略(`rs.PutPolicy`)，它控制则整个上传流程的行为。让我们快速过一遍你都能够决策啥：
 
-* `Expires` 指定 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 有效期（默认1小时）。一个 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 可以被用于多次上传（只要它还没有过期）。
-* `Scope` 限定客户端的权限。如果 `scope` 是 bucket，则客户端只能新增文件到指定的 bucket，不能修改文件。如果 `scope` 为 bucket:key，则客户端可以修改指定的文件。
-* `CallbackUrl` 设定业务服务器的回调地址，这样业务服务器才能感知到上传行为的发生。可选。
-* `AsyncOps` 可指定上传完成后，需要自动执行哪些数据处理。这是因为有些数据处理操作（比如音视频转码）比较慢，如果不进行预转可能第一次访问的时候效果不理想，预转可以很大程度改善这一点。
-* `ReturnBody` 可调整返回给客户端的数据包（默认情况下七牛返回文件内容的 `hash`，也就是下载该文件时的 `etag`）。这只在没有 `CallbackUrl` 时有效。
-* `Escape` 为真（非0）时，表示客户端传入的 `CallbackParams` 中含有转义符。通过这个特性，可以很方便地把上传文件的某些元信息如 `fsize`（文件大小）、`ImageInfo.width/height`（图片宽度/高度）、`exif`（图片EXIF信息）等传给业务服务器。
-* `DetectMime` 为真（非0）时，表示服务端忽略客户端传入的 `MimeType`，自己自行检测。
+* `expires` 指定 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 有效期（默认1小时）。一个 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 可以被用于多次上传（只要它还没有过期）。
+* `scope` 限定客户端的权限。如果 `scope` 是 bucket，则客户端只能新增文件到指定的 bucket，不能修改文件。如果 `scope` 为 bucket:key，则客户端可以修改指定的文件。
+* `callbackUrl` 设定业务服务器的回调地址，这样业务服务器才能感知到上传行为的发生。可选。
+* `asyncOps` 可指定上传完成后，需要自动执行哪些数据处理。这是因为有些数据处理操作（比如音视频转码）比较慢，如果不进行预转可能第一次访问的时候效果不理想，预转可以很大程度改善这一点。
+* `returnBody` 可调整返回给客户端的数据包（默认情况下七牛返回文件内容的 `hash`，也就是下载该文件时的 `etag`）。这只在没有 `CallbackUrl` 时有效。
+* `escape` 为真（非0）时，表示客户端传入的 `callbackParams` 中含有转义符。通过这个特性，可以很方便地把上传文件的某些元信息如 `fsize`（文件大小）、`ImageInfo.width/height`（图片宽度/高度）、`exif`（图片EXIF信息）等传给业务服务器。
+* `detectMime` 为真（非0）时，表示服务端忽略客户端传入的 `mimeType`，自己自行检测。
 
 关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
 
@@ -211,60 +231,108 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
 `downloadToken` 可以使用 SDK 提供的如下方法生成：
 
 ```{java}
-还没开始，马上就来
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.rs.GetPolicy;
+import com.qiniu.api.rs.URLUtils;
+
+public class DownloadFile {
+
+	public static void main(String[] args) throws Exception {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		String baseUrl = URLUtils.makeBaseUrl("<domain>", "<key>");
+		GetPolicy getPolicy = new GetPolicy();
+		String downloadUrl = getPolicy.makeRequest(baseUrl, mac);
+	}
+}
 ```
-参阅: `rs.GetPolicy`, `rs.GetPolicy.MakeRequest`, `rs.MakeBaseUrl`
 
 <a name="rs-api"></a>
 ## 4. 资源管理接口
 
 文件管理包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
-该节调用的函数第一个参数都为 `logger`, 用于记录log, 如果无需求, 可以设置为nil. 具体接口可以查阅 `github.com/qiniu/rpc`
 
 <a name="rs-stat"></a>
 ### 4.1 查看单个文件属性信息
 ```{java}
-    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
-    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
-    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
-    RSClient rs = new RSClient(mac);
-    Entry ret = rs.stat(bucketName, "FILE_KEY");
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.rs.Entry;
+import com.qiniu.api.rs.RSClient;
+
+public class Stat {
+
+	public static void main(String[] args) {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		RSClient client = new RSClient(mac);
+		Entry statRet = client.stat("<bucketName>", "<key>");
+	}
+}
 ```
-参阅: `rs.Entry`, `rs.Client.Stat`
 
 
 <a name="rs-copy"></a>
 ### 4.2 复制单个文件
 ```{java}
-    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
-    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
-    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
-    RSClient rs = new RSClient(mac);
-    CallRet ret = rs.copy(srcBucket, key, destBucket, key);
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.rs.RSClient;
+
+public class Copy {
+
+	public static void main(String[] args) {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		RSClient client = new RSClient(mac);
+		client.copy("<bucketSrc>", "<keySrc>", "<bucketDest>", "<keyDest>");
+	}
+}
 ```
-参阅: `rs.Client.Copy`
 
 <a name="rs-move"></a>
 ### 4.3 移动单个文件
 ```{java}
-    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
-    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
-    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
-    RSClient rs = new RSClient(mac);
-    CallRet ret = rs.move(srcBucket, key, destBucket, key);
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.rs.RSClient;
+
+public class Move {
+
+	public static void main(String[] args) {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		RSClient client = new RSClient(mac);
+		client.move("<bucketSrc>", "<keySrc>", "<bucketDest>", "<keyDest>");
+	}
+}
+
 ```
-参阅: `rs.Client.Move`
 
 <a name="rs-delete"></a>
 ### 4.4 删除单个文件
 ```{java}
-    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
-    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
-    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
-    RSClient rs = new RSClient(mac);
-    CallRet ret = rs.delete(bucket, key);
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.rs.RSClient;
+
+public class Copy {
+
+	public static void main(String[] args) {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		RSClient client = new RSClient(mac);
+		client.delete("<bucketName>", "<key>");
+	}
+}
 ```
-参阅: `rs.Client.Delete`
+
 
 <a name="batch"></a>
 ### 4.5 批量操作
@@ -272,176 +340,191 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
 <a name="batch-stat"></a>
 #### 4.5.1 批量获取文件属性信息
 ```{java}
-    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
-    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
-    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
-    RSClient rs = new RSClient(mac);
-    List<EntryPath> entries = new ArrayList<EntryPath>();
 
-    EntryPath e1 = new EntryPath();
-    e1.bucket = bucketName;
-    e1.key = key1;
-    entries.add(e1);
+import java.util.ArrayList;
+import java.util.List;
 
-    EntryPath e2 = new EntryPath();
-    e2.bucket = bucketName;
-    e2.key = key2;
-    entries.add(e2);
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.rs.BatchStatRet;
+import com.qiniu.api.rs.EntryPath;
+import com.qiniu.api.rs.RSClient;
 
-    BatchStatRet bsRet = rs.batchStat(entries);
+public class BatchStat {
+
+	public static void main(String[] args) {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		
+		RSClient rs = new RSClient(mac);
+		List<EntryPath> entries = new ArrayList<EntryPath>();
+
+		EntryPath e1 = new EntryPath();
+		e1.bucket = "<bucketName>";
+		e1.key = "<key1>";
+		entries.add(e1);
+
+		EntryPath e2 = new EntryPath();
+		e2.bucket = "<bucketName>";
+		e2.key = "<key2>";
+		entries.add(e2);
+
+		BatchStatRet bsRet = rs.batchStat(entries);
+	}
+}
 ```
 
-参阅: `rs.EntryPath`, `rs.BatchStatItemRet`, `rs.Client.BatchStat`
 
 <a name="batch-copy"></a>
 #### 4.5.2 批量复制文件
 ```{java}
-    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
-    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
-    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
-    RSClient rs = new RSClient(mac);
-<<<<<<< HEAD
 
-    List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
+import java.util.ArrayList;
+import java.util.List;
 
-    EntryPathPair pair1 = new EntryPathPair();
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.rs.BatchCallRet;
+import com.qiniu.api.rs.EntryPath;
+import com.qiniu.api.rs.EntryPathPair;
+import com.qiniu.api.rs.RSClient;
 
-    EntryPath src = new EntryPath();
-    src.bucket = srcBucket;
-    src.key = key1;
+public class BatchCopy {
 
-    EntryPath dest = new EntryPath();
-    dest.bucket = destBucket;
-    dest.key = key1;
+	public static void main(String[] args) {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		RSClient rs = new RSClient(mac);
+		List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
 
-    pair1.src = src;
-    pair1.dest = dest;
+		EntryPathPair pair1 = new EntryPathPair();
 
-    EntryPathPair pair2 = new EntryPathPair();
+		EntryPath src = new EntryPath();
+		src.bucket = "<srcBucket>";
+		src.key = "<key1>";
 
-    EntryPath src2 = new EntryPath();
-    src2.bucket = srcBucket;
-    src2.key = key2;
+		EntryPath dest = new EntryPath();
+		dest.bucket = "<destBucket>";
+		dest.key = "<key1>";
 
-    EntryPath dest2 = new EntryPath();
-    dest2.bucket = destBucket;
-    dest2.key = key2;
+		pair1.src = src;
+		pair1.dest = dest;
 
-    pair2.src = src2;
-    pair2.dest = dest2;
+		EntryPathPair pair2 = new EntryPathPair();
 
-    entries.add(pair1);
-    entries.add(pair2);
+		EntryPath src2 = new EntryPath();
+		src2.bucket = "<srcBucket>";
+		src2.key = "<key2>";
 
-    BatchCallRet ret = rs.batchCopy(entries);
+		EntryPath dest2 = new EntryPath();
+		dest2.bucket = "<destBucket>";
+		dest2.key = "<key2>";
+
+		pair2.src = src2;
+		pair2.dest = dest2;
+
+		entries.add(pair1);
+		entries.add(pair2);
+
+		BatchCallRet ret = rs.batchCopy(entries);
+	}
+}
 ```
 
-参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
-
-=======
-
-    List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
-
-    EntryPathPair pair1 = new EntryPathPair();
-
-    EntryPath src = new EntryPath();
-    src.bucket = srcBucket;
-    src.key = key1;
-
-    EntryPath dest = new EntryPath();
-    dest.bucket = destBucket;
-    dest.key = key1;
-
-    pair1.src = src;
-    pair1.dest = dest;
-
-    EntryPathPair pair2 = new EntryPathPair();
-
-    EntryPath src2 = new EntryPath();
-    src2.bucket = srcBucket;
-    src2.key = key2;
-
-    EntryPath dest2 = new EntryPath();
-    dest2.bucket = destBucket;
-    dest2.key = key2;
-
-    pair2.src = src2;
-    pair2.dest = dest2;
-
-    entries.add(pair1);
-    entries.add(pair2);
-
-    BatchCallRet ret = rs.batchCopy(entries);
-```
-
-参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
-
->>>>>>> origin/wjl_v6
 <a name="batch-move"></a>
 #### 4.5.3 批量移动文件
 ```{java}
-    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
-    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
-    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
-    RSClient rs = new RSClient(mac);
 
-    List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
+import java.util.ArrayList;
+import java.util.List;
 
-    EntryPathPair pair1 = new EntryPathPair();
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.rs.BatchCallRet;
+import com.qiniu.api.rs.EntryPath;
+import com.qiniu.api.rs.EntryPathPair;
+import com.qiniu.api.rs.RSClient;
 
-    EntryPath src = new EntryPath();
-    src.bucket = srcBucket;
-    src.key = key1;
+public class BatchMove {
 
-    EntryPath dest = new EntryPath();
-    dest.bucket = destBucket;
-    dest.key = key1;
-
-    pair1.src = src;
-    pair1.dest = dest;
-
-    EntryPathPair pair2 = new EntryPathPair();
-
-    EntryPath src2 = new EntryPath();
-    src2.bucket = srcBucket;
-    src2.key = key2;
-
-    EntryPath dest2 = new EntryPath();
-    dest2.bucket = destBucket;
-    dest2.key = key2;
-
-    pair2.src = src2;
-    pair2.dest = dest2;
-
-    entries.add(pair1);
-    entries.add(pair2);
-
-    BatchCallRet ret = rs.batchMove(entries);
+	public static void main(String[] args) {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		RSClient rs = new RSClient(mac);
+		List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
+		
+		EntryPathPair pair1 = new EntryPathPair();
+		
+		EntryPath src = new EntryPath();
+		src.bucket = "<srcBucket>";
+		src.key = "<key1>";
+		
+		EntryPath dest = new EntryPath();
+		dest.bucket = "<destBucket>";
+		dest.key = "<key1>";
+		
+		pair1.src = src;
+		pair1.dest = dest;
+		
+		EntryPathPair pair2 = new EntryPathPair();
+		
+		EntryPath src2 = new EntryPath();
+		src2.bucket = "<srcBucket>";
+		src2.key =  "<key2>";
+		
+		EntryPath dest2 = new EntryPath();
+		dest2.bucket = "<destBucket>";
+		dest2.key = "<key2>";
+		
+		pair2.src = src2;
+		pair2.dest = dest2;
+		
+		entries.add(pair1);
+		entries.add(pair2);
+		
+		BatchCallRet ret = rs.batchMove(entries);
+	}
+}   
 ```
-参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
 
 <a name="batch-delete"></a>
 #### 4.5.4 批量删除文件
 ```{java}
-    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
-    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
-    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+import java.util.ArrayList;
+import java.util.List;
 
-    RSClient rs = new RSClient(mac);
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.rs.BatchCallRet;
+import com.qiniu.api.rs.EntryPath;
+import com.qiniu.api.rs.RSClient;
 
-    List<EntryPath> entries = new ArrayList<EntryPath>();
+public class BatchDelete {
 
-    EntryPath e1 = new EntryPath();
-    e1.bucket = destBucket;
-    e1.key = key1;
-    entries.add(e1);
+	public static void main(String[] args) {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		RSClient rs = new RSClient(mac);
+		List<EntryPath> entries = new ArrayList<EntryPath>();
 
-    EntryPath e2 = new EntryPath();
-    e2.bucket = destBucket;
-    e2.key = key2;
-    entries.add(e2);
+		EntryPath e1 = new EntryPath();
+		e1.bucket = "<bucketName>";
+		e1.key = "<key1>";
+		entries.add(e1);
 
-    BatchCallRet bret = rs.batchDelete(entries);
+		EntryPath e2 = new EntryPath();
+		e2.bucket = "<bucketName>";
+		e2.key = "<key2>";
+		entries.add(e2);
+
+		BatchCallRet bret = rs.batchDelete(entries);
+	}
+}
+
 ```
 参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
@@ -449,9 +532,8 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
 #### 4.5.5 高级批量操作
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
 ```{java}
-补充啊
+to do!
 ```
-参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
 
 <a name="fop-api"></a>
 ## 5. 数据处理接口
@@ -462,35 +544,75 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
 <a name="fop-image-info"></a>
 ### 5.1.1 查看图像属性
 ```{java}
-    马上就来
+import com.qiniu.api.fop.ImageInfo;
+import com.qiniu.api.fop.ImageInfoRet;
+
+public class FopImageInfo {
+
+	public static void main(String[] args) {
+		String url = "<domain>" + "/" + "<key>";
+		ImageInfoRet ret = ImageInfo.call(url);
+	}
+}
 ```
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
 <a name="fop-exif"></a>
 ### 5.1.2 查看图片EXIF信息
 ```{java}
-    马上就来
+import com.qiniu.api.fop.ExifRet;
+import com.qiniu.api.fop.ImageExif;
+
+public class FopImageExif {
+
+	public static void main(String[] args) {
+		String url = "<domain>" + "/" + "<key>";
+		ExifRet ret = ImageExif.call(url);
+	}
+}
 ```
-参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
 <a name="fop-image-view"></a>
 ### 5.1.3 生成图片预览
 ```{java}
-    imageUrl = "http://domain/key";
-    imgView.height = 200;
-    String url = imgView.makeRequest(imageUrl);
+import com.qiniu.api.fop.ImageView;
+import com.qiniu.api.net.CallRet;
+
+public class FopImageView {
+
+	public static void main(String[] args) {
+		String url = "http://domain/key";
+		ImageView iv = new ImageView();
+		iv.mode = 1 ;
+		iv.width = 100 ;
+		iv.height = 200 ;
+		iv.quality = 1 ;
+		iv.format = "jpg" ;
+		CallRet ret = iv.call(url);
+	}
+}
 ```
-参阅: `fop.ImageView`
 
 <a name="rsf-api"></a>
 ## 6. 高级资源管理接口(rsf)
 <a name="rsf-listPrefix"></a>
 批量获取文件列表
 ```{java}
-        马上就来
-```
-参阅: `rsf.ListPreFix`
+import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.config.Config;
+import com.qiniu.api.rsf.RSFClient;
 
+public class ListPrefix {
+
+	public static void main(String[] args) {
+		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
+		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
+		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		RSFClient client = new RSFClient(mac);
+		client.listPrifix("<bucketName>", "<prefix>", "<marker>", 10);
+	}
+}
+```
 
 <a name="contribution"></a>
 ## 7. 贡献代码
