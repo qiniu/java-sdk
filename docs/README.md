@@ -4,52 +4,48 @@ title: Java SDK | 七牛云存储
 
 # Java SDK 使用指南
 
-此SDK适用于Java 6及以上版本。基于 [七牛云存储官方API](/v3/api/) 构建。使用此 SDK 构建您的网络应用程序，能让您以非常便捷地方式将数据安全地存储到七牛云存储上。无论您的网络应用是一个网站程序，还是包括从云端（服务端程序）到终端（手持设备应用）的架构的服务或应用，通过七牛云存储及其 SDK，都能让您应用程序的终端用户高速上传和下载，同时也让您的服务端更加轻盈。
+此SDK适用于Java 6及以上版本。基于 [七牛云存储官方API](http://docs.qiniu.com) 构建。使用此 SDK 构建您的网络应用程序，能让您以非常便捷地方式将数据安全地存储到七牛云存储上。无论您的网络应用是一个网站程序，还是包括从云端（服务端程序）到终端（手持设备应用）的架构的服务或应用，通过七牛云存储及其 SDK，都能让您应用程序的终端用户高速上传和下载，同时也让您的服务端更加轻盈。
 
 SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qiniu/java-sdk/tags)
 
-**目录**
-
+目录
+----
 - [环境准备](#env_preparation)
-- [接入](#turn-on)
-    - [配置密钥（AccessKey / SecretKey）](#establish_connection!)
-- [使用](#Usage)
-    - [文件上传](#upload)
-        - [生成上传授权凭证（uploadToken）](#generate-upload-token)
-        - [上传文件](#upload-server-side)
-        - [断点续上传](#resumable-upload)
-    - [文件下载](#download)
-        - [公有资源下载](#download-public-files)
-        - [私有资源下载](#download-private-files)
-            - [生成下载授权凭证（downloadToken）](#download-token)
-        - [高级特性](#other-download-features)
-            - [断点续下载](#resumable-download)
-            - [自定义 404 NotFound](#upload-file-for-not-found)
-    - [文件管理](#file-management)
-        - [查看单个文件属性信息](#stat)
-        - [复制单个文件](#copy)
-        - [移动单个文件](#move)
-        - [删除单个文件](#delete)
-        - [批量操作](#batch)
-            - [批量获取文件属性信息](#batch-get)
-            - [批量复制文件](#batch-copy)
-            - [批量移动文件](#batch-move)
-            - [批量删除文件](#batch-delete)
-    - [云处理](#cloud-processing)
-        - [图像](#image-processing)
-            - [查看图片属性信息](#image-info)
-            - [查看图片EXIF信息](#image-exif)
-            - [图像在线处理（缩略、裁剪、旋转、转化）](#image-mogrify-for-preview)
-            - [图像在线处理（缩略、裁剪、旋转、转化）后并持久化存储](#image-mogrify-for-save-as)
-        - 音频(TODO)
-        - 视频(TODO)
-- [贡献代码](#Contributing)
-- [许可证](#License)
+- [初始化](#setup)
+	- [配置密钥](#setup-key)
+- [上传下载接口](#get-and-put-api)
+	- [上传流程](#io-put-flow)
+	- [生成上传授权uptoken](#make-uptoken)
+	- [上传代码](#upload-code)
+	- [断点续上传、分块并行上传](#resumable-io-put)
+	- [上传策略](#io-put-policy)
+	- [公有资源下载](#public-download)
+	- [私有资源下载](#private-download)
+- [资源管理接口](#rs-api)
+	- [查看单个文件属性信息](#rs-stat)
+	- [复制单个文件](#rs-copy)
+	- [移动单个文件](#rs-move)
+	- [删除单个文件](#rs-delete)
+	- [批量操作](#batch)
+		- [批量获取文件属性信息](#batch-stat)
+		- [批量复制文件](#batch-copy)
+		- [批量移动文件](#batch-move)
+		- [批量删除文件](#batch-delete)
+- [数据处理接口](#fop-api)
+	- [图像](#fop-image)
+		- [查看图像属性](#fop-image-info)
+		- [查看图片EXIF信息](#fop-exif)
+		- [生成图片预览](#fop-image-view)
+- [高级资源管理接口](#rsf-api)
+	- [批量获得文件列表](#rsf-listPrefix)
+- [贡献代码](#contribution)
+- [许可证](#license)
 
+----
 
 <a name="env_preparation"></a>
 
-## 环境准备
+## 1. 环境准备
 
 安装 Maven 的插件：[The Maven Integration for Eclipse](http://www.eclipse.org/m2e/)
 
@@ -62,20 +58,19 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 	</dependency>
 
 
-<a name="turn-on"></a>
+<a name="setup"></a>
+## 2.初始化
+<a name="setup-key"></a>
 
-## 接入
+### 2.1 配置密钥
 
-<a name="establish_connection!"></a>
-
-### 配置密钥（AccessKey / SecretKey）
-
-要接入七牛云存储，您需要拥有一对有效的 `Access Key` 和 `Secret Key` 用来进行签名认证。可以通过如下步骤获得：
+要接入七牛云存储，您需要拥有一对有效的 Access Key 和 Secret Key 用来进行签名认证。可以通过如下步骤获得：
 
 1. [开通七牛开发者帐号](https://dev.qiniutek.com/signup)
 2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://dev.qiniutek.com/account/keys) 。
 
-在获取到 `Access Key` 和 `Secret Key` 之后，您可以按照如下方式进行密钥配置：
+在获取到 Access Key 和 Secret Key 之后，您可以按照如下方式进行密钥配置：
+```{java}
 
     // 引入配置
     import com.qiniu.qbox.Config;
@@ -83,391 +78,382 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
     // 修改配置
     Config.ACCESS_KEY = "YOUR_ACCESS_KEY";
     Config.SECRET_KEY = "YOUR_SECRET_KEY";
-
+```
 可以参考: <https://github.com/qiniu/java-sdk/blob/develop/src/test/java/UpDemo.java>
 
-<a name="Usage"></a>
+<a name="get-and-put-api"></a>
 
-## 使用
+## 3. 上传下载接口
 
-<a name="upload"></a>
+为了尽可能地改善终端用户的上传体验，七牛云存储首创了客户端直传功能。一般云存储的上传流程是：
 
-### 文件上传
+    客户端（终端用户） => 业务服务器 => 云存储服务
 
-**注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](/v3/tools/qrsync/) 上传工具。如果是需要通过您的网站或是移动应用(App)上传文件，则可以接入使用此 SDK，详情参考如下文档说明。
+这样多了一次上传的流程，和本地存储相比，会相对慢一些。但七牛引入了客户端直传，将整个上传过程调整为：
 
-<a name="generate-upload-token"></a>
+    客户端（终端用户） => 七牛 => 业务服务器
 
-#### 生成上传授权凭证（uploadToken）
+客户端（终端用户）直接上传到七牛的服务器，通过DNS智能解析，七牛会选择到离终端用户最近的ISP服务商节点，速度会比本地存储快很多。文件上传成功以后，七牛的服务器使用回调功能，只需要将非常少的数据（比如Key）传给应用服务器，应用服务器进行保存即可。
 
-要上传一个文件，首先需要调用 SDK 提供的 `com.qiniu.qbox.auth` 包下的`PutPolicy`这个类来获取一个经过授权用于临时匿名上传的 `upload_token`——经过数字签名的一组数据信息，该 `upload_token` 作为文件上传流中 `multipart/form-data` 的一部分进行传输。
+**注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](/v3/tools/qrsync/) 上传工具。
+文件上传有两种方式，一种是以普通方式直传文件，简称普通上传，另一种方式是断点续上传，断点续上传在网络条件很一般的情况下也能有出色的上传速度，而且对大文件的传输非常友好。
 
-示例代码如下：
 
-	String bucketName = "imageBucket";
-	long expiry = 3600; // an hour
-	PutPolicy upPolicy = new PutPolicy(bucketName, expiry);
-	String upToken = upPolicy.token();
 
-更多详细信息请参见[生成上传授权](http://docs.qiniutek.com/v3/api/io/#upload-token)
+<a name="io-put-flow"></a>
+### 3.1 上传流程
 
-#### 服务端上传文件
+在七牛云存储中，整个上传流程大体分为这样几步：
 
-通过 `com.qiniu.qbox.rs` 包下 `RSClient` 类的 `putFileWithToken` 方法可在客户方的业务服务器上直接往七牛云存储上传文件。
+1. 业务服务器颁发 [uptoken（上传授权凭证）](http://docs.qiniu.com/api/put.html#uploadToken)给客户端（终端用户）
+2. 客户端凭借 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 上传文件到七牛
+3. 在七牛获得完整数据后，发起一个 HTTP 请求回调到业务服务器
+4. 业务服务器保存相关信息，并返回一些信息给七牛
+5. 七牛原封不动地将这些信息转发给客户端（终端用户）
 
-方法签名如下：
+需要注意的是，回调到业务服务器的过程是可选的，它取决于业务服务器颁发的 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。如果没有回调，七牛会返回一些标准的信息（比如文件的 hash）给客户端。如果上传发生在业务服务器，以上流程可以自然简化为：
 
-    public static PutFileRet putFileWithToken(String upToken,
-                                             String bucketName,
-                                             String key,
-                                             String localFile,
-                                             String mimeType,
-                                             String customMeta,
-                                             Object callbackParam,
-                                             String rotate) throws Exception
+1. 业务服务器生成 uptoken（不设置回调，自己回调到自己这里没有意义）
+2. 凭借 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 上传文件到七牛
+3. 善后工作，比如保存相关的一些信息
 
-**参数**
 
-    upToken:必须，字符此类型。调用PutPolicy的token()方法生成。
-    bucketName:必须，字符此类型，空间名称。
-    key:必须，字符串类型，若把 Bucket 理解为关系性数据库的某个表，那么 key 类似数据库里边某个表的主键ID，需给每一个文件一个UUID用于进行标示。
-    localFile:必须，本地文件的绝对路径。
-    mimeType:可选，文件的 mime-type 值。如若不传入，缺省使用 application/octet-stream 代替之。
-    customMeta:可选，文件备注。
-    callbackParam:可选，文件上传成功后，七牛云存储向客户方业务服务器发送的回调参数。
-    rotate:可选，可选，上传图片时专用，可针对图片上传后进行旋转。该参数值为 0 ：表示根据图像EXIF信息自动旋转；值为 1 : 右转90度；值为 2 :右转180度；值为 3 : 右转270度。
+<a name="make-uptoken"></a>
+### 3.2 生成上传授权uptoken
+uptoken是一个字符串，作为http协议Header的一部分（Authorization字段）发送到我们七牛的服务端，表示这个http请求是经过认证的。
 
-**返回值**
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    string uptoken = new PutPolicy(bucketName).token(mac);
 
-    如果上次成功，我们可以得到上次文件对应的hash值，否则会返回相应的错误信息。
+```
+<a name="upload-code"></a>
+### 3.3 上传代码
+直接上传二进制流
+```{java}
+还未支持 马上就来
+```
 
-示例代码如下：
+上传本地文件
+```{java}
+    extra = new PutExtra();
+    extra.bucket = bucketName;
+    PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 
-	String key = "upload.jpg" ;
-	String dir = System.getProperty("user.dir") ;
-	String absFilePath = dir + "/" + key ;
+```
 
-	String bucketName = "bucket" ;
-	PutPolicy policy = new PutPolicy(bucketName, 3600);
-	String uptoken = policy.token();
+<a name="resumable-io-put"></a>
+### 3.4 断点续上传、分块并行上传
 
-	PutFileRet putRet = RSClient.putFileWithToken(uptoken, bucketName, key, absFilePath, "", "", "", "2") ;
+除了基本的上传外，七牛还支持你将文件切成若干块（除最后一块外，每个块固定为4M大小），每个块可独立上传，互不干扰；每个分块块内则能够做到断点上续传。
 
+我们先看支持了断点上续传、分块并行上传的基本样例：
 
-<a name="resumable-upload"></a>
+上传二进制流
+```{java}
 
-##### 断点续上传
+断点续上传二进制代码演示 
 
-用户在上传文件的时候也可以根据需求选择断点续上传的方式，此处所说的断点上传是指用户在某次上传过程中出现故障（比如断网，断电等异常情况）导致上传失败，再重新上传的时候只需要从上次上传失败处上传即可。用户可以根据具体应用的需求通过修改配置文件改变上传块（`com.qiniu.qbox` 包下的 `Config` 文件中的 `PUT_CHUNK_SIZE` 对应的值）的大小来适应用户所处的网络环境。具体的示例代码可以参见我们在SDK中提供的 `ResumableGUIPutDemo` 以及 `ResumablePutDemo` 两个例子。
+```
+参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
-<a name="download"></a>
+上传本地文件
+```{java}
 
-### 文件下载
+ 断点续上传本地文件演示
 
+```
+参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
-#### 公有资源下载
+相比普通上传，断点上续传代码没有变复杂。基本上就只是将`io.PutExtra`改为`resumable.io.PutExtra`，`io.PutFile`改为`resumable.io.PutFile`。
 
-    [GET] http://<bucket>.qiniudn.com/<key>
+但实际上 `resumable.io.PutExtra` 多了不少配置项，其中最重要的是两个回调函数：`Notify` 与 `NotifyErr`，它们用来通知使用者有更多的数据被传输成功，或者有些数据传输失败。在 `Notify` 回调函数中，比较常见的做法是将传输的状态进行持久化，以便于在软件退出后下次再进来还可以继续进行断点续上传。但不传入 `Notify` 回调函数并不表示不能断点续上传，只要程序没有退出，上传失败自动进行续传和重试操作。
 
-或者，
+<a name="io-put-policy"></a>
+### 3.5 上传策略
 
-    [GET] http://<绑定域名>/<key>
+[uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 实际上是用 AccessKey/SecretKey 进行数字签名的上传策略(`rs.PutPolicy`)，它控制则整个上传流程的行为。让我们快速过一遍你都能够决策啥：
 
-绑定域名可以是自定义域名，可以在 [七牛云存储开发者自助网站](https://dev.qiniutek.com/buckets) 进行域名绑定操作。
-
-注意，尖括号不是必需，代表替换项。
-
-<a name="download-private-files"></a>
-
-#### 私有资源下载
-
-私有资源只能通过临时下载授权凭证(downloadToken)下载，下载链接格式如下：
-
-    [GET] http://<bucket>.qiniudn.com/<key>?token=<downloadToken>
-
-或者，
-
-    [GET] http://<绑定域名>/<key>?token=<downloadToken>
-
-<a name="download-token"></a>
-
-##### 生成下载授权凭证（downloadToken）
-
-`<downloadToken>` 可以使用 SDK 提供的 `com.qiniu.qbox.auth` 包下的 `GetPolicy` 类提供的方法生成：
-
-示例代码如下:
-
-    GetPolicy getPolicy = new GetPolicy(scope);
-    String downloadToken = getPolicy.token();
-
-关于参数的具体详解，请参见 [私有资源下载](http://docs.qiniutek.com/v3/api/io/#private-download)
-
-
-
-#### 高级特性
-
-<a name="resumable-download"></a>
-
-##### 断点续下载
-
-七牛云存储支持标准的断点续下载，参考：[云存储API之断点续下载](/v3/api/io/#download-by-range-bytes)
-
-<a name="upload-file-for-not-found"></a>
-
-##### 自定义 404 NotFound
-
-您可以上传一个应对 HTTP 404 出错处理的文件，当用户访问一个不存在的文件时，即可使用您上传的“自定义404文件”代替之。要这么做，您只须使用JAVA_SDK中的上传文件函数上传一个 `key` 为固定字符串类型的值 `errno-404` 即可。
-
-除了使用 SDK 提供的方法，同样也可以借助七牛云存储提供的命令行辅助工具 [qboxrsctl](/v3/tools/qboxrsctl/) 达到同样的目的：
-
-    qboxrsctl put <Bucket> <Key> <LocalFile>
-
-将其中的 `<Key>` 换作  `errno-404` 即可。
-
-注意，每个 `<Bucket>` 里边有且只有一个 `errno-404` 文件，上传多个，最后的那一个会覆盖前面所有的。
-
-
-<a name="file-management"></a>
-
-### 文件管理
-
-文件管理包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。
-
-<a name="stat"></a>
-
-#### 查看单个文件属性信息
-
-您可以调用资源表对象的 stat() 方法并传入一个 Key（类似ID）来获取指定文件的相关信息。
-
-示例代码如下 :
-
-	// 实例化一个资源表对象，并获得一个相应的授权认证
-	String bucketName = "bucketName";
-	DigestAuthClient conn = new DigestAuthClient();
-	RSService rs = new RSService(conn, bucketName);
-
-	// 获取资源表中特定文件信息
-	StatRet statRet = rs.stat(key);
-
-如果请求成功，得到的 statRet 数组将会包含如下几个字段：
-
-	hash: <FileETag>
-	fsize: <FileSize>
-	putTime: <PutTime>
-	mimeType: <MimeType>
-
-
-<a name="copy"></a>
-
-#### 复制单个文件
-
-要将一个文件从一个bucket复制到另一个bucket，可以通过使用 `RSService` 中 `copy` 方法来实现，其方法签名如下：
-
-    public CallRet copy(String entryUriSrc, String entryUriDest)
-
-
-**参数**
-
-    entryUriSrc : 由源bucket以及key拼接而成
-    entryUriDest : 由目标bucket和key拼接而成
-
-**返回值**
-
-    如果请求成功, callRet.ok()为true；否则为false
-
-
-<a name="move"></a>
-
-#### 移动单个文件
-
-要将一个文件从一个bucket移动到另一个bucket，可以通过使用 `RSService` 中 `move` 方法来实现，其方法签名如下：
-
-    public CallRet move(String entryUriSrc, String entryUriDest)
-
-**参数**
-
-    entryUriSrc : 由源bucket以及key拼接而成
-    entryUriDest : 由目标bucket和key拼接而成
-
-**返回值**
-
-    如果请求成功，callRet.ok()为true；否则为false。
-    需要补充说明的是，执行完 `move` 操作之后被移动的文件会从源bucket中移除。
-
-<a name="delete"></a>
-
-### 删除单个文件
-
-要删除指定的文件，只需调用资源表对象的 delete() 方法并传入 文件ID（key）作为参数即可。
-
-方法签名如下：
-
-    public DeleteRet delete(String key) throws Exception
-
-**参数**
-
-    所要删除文件对应的key。
-
-**返回值**
-
-    如果删除成功，则deleteRet.ok()为true，否则为false。
-
-
-
-如下示例代码：
-
-	// 实例化一个资源表对象，并获得一个删除资源表中特定文件的授权认证
-	String bucketName = "bucketName";
-	DigestAuthClient conn = new DigestAuthClient();
-	RSService rs = new RSService(conn, bucketName);
-
-	// 删除资源表中的某个文件
-	DeleteRet deleteRet = rs.delete(key);
-
+* `Expires` 指定 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 有效期（默认1小时）。一个 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 可以被用于多次上传（只要它还没有过期）。
+* `Scope` 限定客户端的权限。如果 `scope` 是 bucket，则客户端只能新增文件到指定的 bucket，不能修改文件。如果 `scope` 为 bucket:key，则客户端可以修改指定的文件。
+* `CallbackUrl` 设定业务服务器的回调地址，这样业务服务器才能感知到上传行为的发生。可选。
+* `AsyncOps` 可指定上传完成后，需要自动执行哪些数据处理。这是因为有些数据处理操作（比如音视频转码）比较慢，如果不进行预转可能第一次访问的时候效果不理想，预转可以很大程度改善这一点。
+* `ReturnBody` 可调整返回给客户端的数据包（默认情况下七牛返回文件内容的 `hash`，也就是下载该文件时的 `etag`）。这只在没有 `CallbackUrl` 时有效。
+* `Escape` 为真（非0）时，表示客户端传入的 `CallbackParams` 中含有转义符。通过这个特性，可以很方便地把上传文件的某些元信息如 `fsize`（文件大小）、`ImageInfo.width/height`（图片宽度/高度）、`exif`（图片EXIF信息）等传给业务服务器。
+* `DetectMime` 为真（非0）时，表示服务端忽略客户端传入的 `MimeType`，自己自行检测。
+
+关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
+
+### 3.6 文件下载
+七牛云存储上的资源下载分为 公有资源下载 和 私有资源下载 。
+
+私有（private）是 Bucket（空间）的一个属性，一个私有 Bucket 中的资源为私有资源，私有资源不可匿名下载。
+
+新创建的空间（Bucket）缺省为私有，也可以将某个 Bucket 设为公有，公有 Bucket 中的资源为公有资源，公有资源可以匿名下载。
+
+<a name="public-download"></a>
+### 3.7 公有资源下载
+如果在给bucket绑定了域名的话，可以通过以下地址访问。
+
+	[GET] http://<domain>/<key>
+
+其中<domain>可以到[七牛云存储开发者自助网站](https://dev.qiniutek.com/buckets)绑定, 域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
+
+<a name="private-download"></a>
+### 3.8 私有资源下载
+私有资源必须通过临时下载授权凭证(downloadToken)下载，如下：
+
+	[GET] http://<domain>/<key>?token=<downloadToken>
+
+注意，尖括号不是必需，代表替换项。  
+`downloadToken` 可以使用 SDK 提供的如下方法生成：
+
+```{java}
+还没开始，马上就来
+```
+参阅: `rs.GetPolicy`, `rs.GetPolicy.MakeRequest`, `rs.MakeBaseUrl`
+
+<a name="rs-api"></a>
+## 4. 资源管理接口
+
+文件管理包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
+该节调用的函数第一个参数都为 `logger`, 用于记录log, 如果无需求, 可以设置为nil. 具体接口可以查阅 `github.com/qiniu/rpc`
+
+<a name="rs-stat"></a>
+### 4.1 查看单个文件属性信息
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
+    Entry ret = rs.stat(bucketName, "FILE_KEY");
+```
+参阅: `rs.Entry`, `rs.Client.Stat`
+
+
+<a name="rs-copy"></a>
+### 4.2 复制单个文件
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
+    CallRet ret = rs.copy(srcBucket, key, destBucket, key);
+```
+参阅: `rs.Client.Copy`
+
+<a name="rs-move"></a>
+### 4.3 移动单个文件
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
+    CallRet ret = rs.move(srcBucket, key, destBucket, key);
+```
+参阅: `rs.Client.Move`
+
+<a name="rs-delete"></a>
+### 4.4 删除单个文件
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
+    CallRet ret = rs.delete(bucket, key);
+```
+参阅: `rs.Client.Delete`
 
 <a name="batch"></a>
-
-### 批量操作
-
-为了更高效的处理文件，我们还提供了批量文件处理操作，现支持的操作有 `batchStat`, `batchDelete`, `batchCopy`, `batchMove`,下面分别进行阐述：
-
+### 4.5 批量操作
+当您需要一次性进行多个操作时, 可以使用批量操作.
 <a name="batch-stat"></a>
+#### 4.5.1 批量获取文件属性信息
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
+    List<EntryPath> entries = new ArrayList<EntryPath>();
 
-#### 批量获取文件属性信息
+    EntryPath e1 = new EntryPath();
+    e1.bucket = bucketName;
+    e1.key = key1;
+    entries.add(e1);
 
-方法签名如下：
+    EntryPath e2 = new EntryPath();
+    e2.bucket = bucketName;
+    e2.key = key2;
+    entries.add(e2);
 
-    public BatchStatRet batchStat(List<String> entryUris)
+    BatchStatRet bsRet = rs.batchStat(entries);
+```
 
-**参数**
-
-    和stat方法类似，不同的是batchStat接受一个包含所有请求的entryUri的列表
-
-**返回值**
-
-    如果操作成功，BatchStatRet对象的方法ok()为true，而且该对象所包含一个含有所有请求entryUri对应的stat结果。
-
+参阅: `rs.EntryPath`, `rs.BatchStatItemRet`, `rs.Client.BatchStat`
 
 <a name="batch-copy"></a>
-#### 批量复制文件
+#### 4.5.2 批量复制文件
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
 
-方法签名如下：
+    List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
 
-    public BatchCallRet batchCopy(List<EntryUriPair> entryUriPairs)
+    EntryPathPair pair1 = new EntryPathPair();
 
-**参数**
+    EntryPath src = new EntryPath();
+    src.bucket = srcBucket;
+    src.key = key1;
 
-    每一个`EntryUriPair`对象包含一对字符串，分别是源文件对应的entryUri以及目标文件对应的entryUri。
+    EntryPath dest = new EntryPath();
+    dest.bucket = destBucket;
+    dest.key = key1;
 
-**返回值**
+    pair1.src = src;
+    pair1.dest = dest;
 
-    BatchCallRet 会包含一个 `CallRet` 对象的列表, 每个CallRet对象对应一个key经过处理后的结果。
+    EntryPathPair pair2 = new EntryPathPair();
+
+    EntryPath src2 = new EntryPath();
+    src2.bucket = srcBucket;
+    src2.key = key2;
+
+    EntryPath dest2 = new EntryPath();
+    dest2.bucket = destBucket;
+    dest2.key = key2;
+
+    pair2.src = src2;
+    pair2.dest = dest2;
+
+    entries.add(pair1);
+    entries.add(pair2);
+
+    BatchCallRet ret = rs.batchCopy(entries);
+```
+
+参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
 
 <a name="batch-move"></a>
+#### 4.5.3 批量移动文件
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
 
-#### 批量移动文件
+    List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
 
-方法签名如下：
+    EntryPathPair pair1 = new EntryPathPair();
 
-    public BatchCallRet batchMove(List<EntryUriPair> entryUriPairs)
+    EntryPath src = new EntryPath();
+    src.bucket = srcBucket;
+    src.key = key1;
 
-**参数**
+    EntryPath dest = new EntryPath();
+    dest.bucket = destBucket;
+    dest.key = key1;
 
-同 `batchCopy`
+    pair1.src = src;
+    pair1.dest = dest;
 
-**返回值**
+    EntryPathPair pair2 = new EntryPathPair();
 
-    BatchCallRet 会包含一个 `callRet` 对象的列表, 每个callRet对象对应一个key经过处理后的结果。
+    EntryPath src2 = new EntryPath();
+    src2.bucket = srcBucket;
+    src2.key = key2;
 
-    需要说明的是经过 `batchMove` 操作后所有的源文件都将被从源bucket中清除。
+    EntryPath dest2 = new EntryPath();
+    dest2.bucket = destBucket;
+    dest2.key = key2;
 
+    pair2.src = src2;
+    pair2.dest = dest2;
+
+    entries.add(pair1);
+    entries.add(pair2);
+
+    BatchCallRet ret = rs.batchMove(entries);
+```
+参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
 
 <a name="batch-delete"></a>
+#### 4.5.4 批量删除文件
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 
-#### 批量删除文件
+    RSClient rs = new RSClient(mac);
 
-方法签名如下：
+    List<EntryPath> entries = new ArrayList<EntryPath>();
 
-    public BatchCallRet batchDelete(List<String> entryUris)
+    EntryPath e1 = new EntryPath();
+    e1.bucket = destBucket;
+    e1.key = key1;
+    entries.add(e1);
 
-**参数**
+    EntryPath e2 = new EntryPath();
+    e2.bucket = destBucket;
+    e2.key = key2;
+    entries.add(e2);
 
-    一个包含所有要删除文件对应的entryUri列表
+    BatchCallRet bret = rs.batchDelete(entries);
+```
+参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
-**返回值**
+<a name="batch-advanced"></a>
+#### 4.5.5 高级批量操作
+批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
+```{java}
+补充啊
+```
+参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
 
-    BatchCallRet 会包含一个 `callRet` 对象的列表, 每个callRet对象对应一个key经过处理后的结果。
+<a name="fop-api"></a>
+## 5. 数据处理接口
+七牛支持在云端对图像, 视频, 音频等富媒体进行个性化处理
 
-关于批量处理更详细的信息，[请点击七牛云存储批量处理api](http://docs.qiniutek.com/v3/api/io/#batch)
+<a name="fop-image"></a>
+### 5.1 图像
+<a name="fop-image-info"></a>
+### 5.1.1 查看图像属性
+```{java}
+    马上就来
+```
+参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
-<a name="cloud-processing"></a>
+<a name="fop-exif"></a>
+### 5.1.2 查看图片EXIF信息
+```{java}
+    马上就来
+```
+参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
-### 云处理
+<a name="fop-image-view"></a>
+### 5.1.3 生成图片预览
+```{java}
+    imageUrl = "http://domain/key";
+    imgView.height = 200;
+    String url = imgView.makeRequest(imageUrl);
+```
+参阅: `fop.ImageView`
 
-<a name="image-processing"></a>
-
-#### 图像
-
-<a name="image-info"></a>
-
-##### 查看图片属性信息
-
-使用 SDK 提供的 `com.qiniu.qbox.fileop` 包下的 `ImageInfo` 类可以基于一张存储于七牛云存储服务器上的图片，针对其下载链接来获取该张图片的属性信息。
-首先，您要获得该图片的下载链接，请参见[查看单个文件属性信息](#stat)
-
-示例代码如下：
-
-    String imageUrl = "Your image url on the qiniu server" ;
-    ImageInfoRet imgInfoRet = ImageInfo.call(imageUrl) ;
-
-如果请求失败，返回相应的错误信息；否则，返回如下一个 Hash 类型的结构：
-
-    {
-        "format"     => "jpeg",    // 原始图片类型
-        "width"      => 640,       // 原始图片宽度，单位像素
-        "height"     => 425,       // 原始图片高度，单位像素
-        "colorModel" => "ycbcr"    // 原始图片着色模式
-    }
-
-
-<a name="image-exif"></a>
-
-##### 查看图片EXIF信息
-
-使用 SDK 提供的 `com.qiniu.qbox.fileop` 包下的 `ImageInfo` 类可以基于一张存储于七牛云存储服务器上的原始图片图片，取到该图片的 EXIF 信息。
-
-示例代码如下：
-
-    String imageUrl = "Your image url on the qiniu server" ;
-    CallRet imageExifRet = ImageExif.call(imageUrl) ;
-
-如果参数 `imageUrl` 所代表的图片没有 EXIF 信息 `imageExifRet.ok()` 为 `false`。否则，返回一个包含 EXIF 信息的 Hash 结构。
-
-
-<a name="image-mogrify-for-preview"></a>
-
-##### 图像在线处理（缩略、裁剪、旋转、转化）
-
-使用 SDK 提供的 `com.qiniu.qbox.fileop` 包下的 `ImageView` 类将一个存储在七牛云存储的图片进行缩略、裁剪、旋转和格式转化处理，该方法返回一个可以直接预览缩略图的URL。
-
-示例代码如下：
-
-    String imageUrl = "Your image url on the qiniu server" ;
-    ImageMogrify imgMogr = new ImageMogrify() ;
-    imgMogr.thumbnail = "!120x120r" ;
-    imgMogr.gravity = "center" ;
-    imgMogr.crop = "!120x120a0a0" ;
-    imgMogr.quality = 85 ;
-    imgMogr.rotate = 45 ;
-    imgMogr.format = "jpg" ;
-    imgMogr.autoOrient = true ;
-    String imgMogrRequestUrl = imgMogr.makeRequest(imageUrl) ;
-
-关于参数的具体说明请参见：[高级图像处理接口(缩略、裁剪、旋转、转化)](https://github.com/v3/api/foimg/#fo-imageMogr)
+<a name="rsf-api"></a>
+## 6. 高级资源管理接口(rsf)
+<a name="rsf-listPrefix"></a>
+批量获取文件列表
+```{java}
+        马上就来
+```
+参阅: `rsf.ListPreFix`
 
 
-<a name="Contributing"></a>
-## 贡献代码
+<a name="contribution"></a>
+## 7. 贡献代码
 
 1. Fork
 2. 创建您的特性分支 (`git checkout -b my-new-feature`)
@@ -475,12 +461,13 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 4. 将您的修改记录提交到远程 `git` 仓库 (`git push origin my-new-feature`)
 5. 然后到 github 网站的该 `git` 远程仓库的 `my-new-feature` 分支下发起 Pull Request
 
-<a name="License"></a>
-## 许可证
+<a name="license"></a>
+## 8. 许可证
 
-Copyright (c) 2013 qiniutek.com
+Copyright (c) 2013 qiniu.com
 
 基于 MIT 协议发布:
 
 * [www.opensource.org/licenses/MIT](http://www.opensource.org/licenses/MIT)
+
 
