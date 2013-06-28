@@ -121,31 +121,25 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 ### 3.2 生成上传授权uptoken
 uptoken是一个字符串，作为http协议Header的一部分（Authorization字段）发送到我们七牛的服务端，表示这个http请求是经过认证的。
 
-示例代码如下：
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    string uptoken = new PutPolicy(bucketName).token(mac);
 
-	String key = "upload.jpg" ;
-	String dir = System.getProperty("user.dir") ;
-	String absFilePath = dir + "/" + key ;
-
-	String bucketName = "bucket" ;
-	PutPolicy policy = new PutPolicy(bucketName, 3600);
-	String uptoken = policy.token();
-
-	PutFileRet putRet = RSClient.putFileWithToken(uptoken, bucketName, key, absFilePath, "", "", "", "2") ;
-
-
+```
 <a name="upload-code"></a>
 ### 3.3 上传代码
 直接上传二进制流
 ```{java}
-
- 上传代码演示
-
+还未支持 马上就来
 ```
 
 上传本地文件
 ```{java}
- 上传本地文件代码演示
+    extra = new PutExtra();
+    extra.bucket = bucketName;
+    PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 
 ```
 
@@ -161,16 +155,14 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
 
 断点续上传二进制代码演示 
 
-}
 ```
 参阅: `resumable.io.Put`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
 上传本地文件
-```{go}
+```{java}
 
  断点续上传本地文件演示
 
-}
 ```
 参阅: `resumable.io.PutFile`, `resumable.io.PutExtra`, `rs.PutPolicy`
 
@@ -209,7 +201,7 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
 其中<domain>可以到[七牛云存储开发者自助网站](https://dev.qiniutek.com/buckets)绑定, 域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
 
 <a name="private-download"></a>
-#### 3.8 私有资源下载
+### 3.8 私有资源下载
 私有资源必须通过临时下载授权凭证(downloadToken)下载，如下：
 
 	[GET] http://<domain>/<key>?token=<downloadToken>
@@ -217,17 +209,8 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
 注意，尖括号不是必需，代表替换项。  
 `downloadToken` 可以使用 SDK 提供的如下方法生成：
 
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-	baseUrl := rs.MakeBaseUrl("<domain>", "<key>")
-	policy := rs.GetPolicy{}
-	downloadUrl := policy.MakeRequest(baseUrl, nil)
-}
+```{java}
+还没开始，马上就来
 ```
 参阅: `rs.GetPolicy`, `rs.GetPolicy.MakeRequest`, `rs.MakeBaseUrl`
 
@@ -239,14 +222,12 @@ func main() {
 
 <a name="rs-stat"></a>
 ### 4.1 查看单个文件属性信息
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-	rs.New(nil).Stat(logger, bucketName, key) // 返回: rs.Entry, error
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
+    Entry ret = rs.stat(bucketName, "FILE_KEY");
 }
 ```
 参阅: `rs.Entry`, `rs.Client.Stat`
@@ -254,48 +235,34 @@ func main() {
 
 <a name="rs-copy"></a>
 ### 4.2 复制单个文件
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	// 返回值 error, 操作成功时err为nil
-	rs.New(nil).Copy(logger, bucketSrc, keySrc, bucketDest, keyDest)
-}
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
+    CallRet ret = rs.copy(srcBucket, key, destBucket, key);
 ```
 参阅: `rs.Client.Copy`
 
 <a name="rs-move"></a>
 ### 4.3 移动单个文件
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	// 返回值 error, 操作成功时err为nil
-	rs.New(nil).Move(logger, bucketSrc, keySrc, bucketDest, keyDest)
-}
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
+    CallRet ret = rs.move(srcBucket, key, destBucket, key);
 ```
 参阅: `rs.Client.Move`
 
 <a name="rs-delete"></a>
 ### 4.4 删除单个文件
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	rs.New(nil).Delete(logger, bucketName, key) // 返回值 error, 操作成功时err为nil
-}
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
+    CallRet ret = rs.delete(bucket, key);
 ```
 参阅: `rs.Client.Delete`
 
@@ -304,153 +271,145 @@ func main() {
 当您需要一次性进行多个操作时, 可以使用批量操作.
 <a name="batch-stat"></a>
 #### 4.5.1 批量获取文件属性信息
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
+    List<EntryPath> entries = new ArrayList<EntryPath>();
 
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
+    EntryPath e1 = new EntryPath();
+    e1.bucket = bucketName;
+    e1.key = key1;
+    entries.add(e1);
 
-	entryPathes := []rs.EntryPath {
-		rs.EntryPath {
-			Bucket: bucket1,
-			Key: key1,
-		},
-		rs.EntryPath {
-			Bucket: bucket2,
-			Key: key2,
-		},
-	}
-	rs.New(nil).BatchStat(logger, entryPathes) // []rs.BatchStatItemRet, error
-}
+    EntryPath e2 = new EntryPath();
+    e2.bucket = bucketName;
+    e2.key = key2;
+    entries.add(e2);
+
+    BatchStatRet bsRet = rs.batchStat(entries);
 ```
 
 参阅: `rs.EntryPath`, `rs.BatchStatItemRet`, `rs.Client.BatchStat`
 
 <a name="batch-copy"></a>
 #### 4.5.2 批量复制文件
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
 
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
+    List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
 
-	// 每个复制操作都含有源文件和目标文件
-	entryPairs := []rs.EntryPathPair {
-		rs.EntryPathPair {
-			Src: rs.EntryPath {
-				Bucket: bucket1,
-				Key: key1,
-			},
-			Dest: rs.EntryPath {
-				Bucket: bucket2,
-				Key: key2,
-			},
-		}, rs.EntryPathPair {
-			Src: rs.EntryPath {
-				Bucket: bucket3,
-				Key: key3,
-			},
-			Dest: rs.EntryPath {
-				Bucket: bucket4,
-				Key: key4,
-			},
-		},
-	}
-	rs.New(nil).BatchCopy(logger, entryPairs)
-	// []rs.BatchResult, error
-}
+    EntryPathPair pair1 = new EntryPathPair();
+
+    EntryPath src = new EntryPath();
+    src.bucket = srcBucket;
+    src.key = key1;
+
+    EntryPath dest = new EntryPath();
+    dest.bucket = destBucket;
+    dest.key = key1;
+
+    pair1.src = src;
+    pair1.dest = dest;
+
+    EntryPathPair pair2 = new EntryPathPair();
+
+    EntryPath src2 = new EntryPath();
+    src2.bucket = srcBucket;
+    src2.key = key2;
+
+    EntryPath dest2 = new EntryPath();
+    dest2.bucket = destBucket;
+    dest2.key = key2;
+
+    pair2.src = src2;
+    pair2.dest = dest2;
+
+    entries.add(pair1);
+    entries.add(pair2);
+
+    BatchCallRet ret = rs.batchCopy(entries);
 ```
 
 参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
 
 <a name="batch-move"></a>
 #### 4.5.3 批量移动文件
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+    RSClient rs = new RSClient(mac);
 
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
+    List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
 
-	// 每个复制操作都含有源文件和目标文件
-	entryPairs := []rs.EntryPathPair {
-		rs.EntryPathPair {
-			Src: rs.EntryPath {
-				Bucket: bucket1,
-				Key: key1,
-			},
-			Dest: rs.EntryPath {
-				Bucket: bucket2,
-				Key: key2,
-			},
-		}, rs.EntryPathPair {
-			Src: rs.EntryPath {
-				Bucket: bucket3,
-				Key: key3,
-			},
-			Dest: rs.EntryPath {
-				Bucket: bucket4,
-				Key: key4,
-			},
-		},
-	}
-	rs.New(nil).BatchMove(logger, entryPairs)
-	// []rs.BatchResult, error
-}
+    EntryPathPair pair1 = new EntryPathPair();
+
+    EntryPath src = new EntryPath();
+    src.bucket = srcBucket;
+    src.key = key1;
+
+    EntryPath dest = new EntryPath();
+    dest.bucket = destBucket;
+    dest.key = key1;
+
+    pair1.src = src;
+    pair1.dest = dest;
+
+    EntryPathPair pair2 = new EntryPathPair();
+
+    EntryPath src2 = new EntryPath();
+    src2.bucket = srcBucket;
+    src2.key = key2;
+
+    EntryPath dest2 = new EntryPath();
+    dest2.bucket = destBucket;
+    dest2.key = key2;
+
+    pair2.src = src2;
+    pair2.dest = dest2;
+
+    entries.add(pair1);
+    entries.add(pair2);
+
+    BatchCallRet ret = rs.batchMove(entries);
 ```
 参阅: `rs.EntryPathPair`, `rs.Client.BatchMove`
 
 <a name="batch-delete"></a>
 #### 4.5.4 批量删除文件
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
+```{java}
+    Config.ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>";
+    Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
+    mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
+    RSClient rs = new RSClient(mac);
 
-	entryPathes := []rs.EntryPath {
-		rs.EntryPath {
-			Bucket: bucket1,
-			Key: key1,
-		},
-		rs.EntryPath {
-			Bucket: bucket2,
-			Key: key2,
-		},
-	}
-	rs.New(nil).BatchDelete(logger, entryPathes)
-	// []rs.BatchResult, error
-}
+    List<EntryPath> entries = new ArrayList<EntryPath>();
+
+    EntryPath e1 = new EntryPath();
+    e1.bucket = destBucket;
+    e1.key = key1;
+    entries.add(e1);
+
+    EntryPath e2 = new EntryPath();
+    e2.bucket = destBucket;
+    e2.key = key2;
+    entries.add(e2);
+
+    BatchCallRet bret = rs.batchDelete(entries);
 ```
 参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
 <a name="batch-advanced"></a>
 #### 4.5.5 高级批量操作
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/rs"
-
-func main() {
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	ops := []string {
-		rs.URIStat(bucketName, key1),
-		rs.URICopy(bucketName, key1, bucketName, key2), // 复制key1到key2
-		rs.URIDelete(bucketName, key1), // 删除key1
-		rs.URIMove(bucketName, key2, bucketName, key1), //将key2移动到key1
-	}
-	rets := new([]rs.BatchItemRet)
-	rs.New(nil).Batch(logger, rets, ops) // 执行操作, 返回error
-}
+```{java}
+补充啊
 ```
 参阅: `rs.URIStat`, `rs.URICopy`, `rs.URIMove`, `rs.URIDelete`, `rs.Client.Batch`
 
@@ -462,46 +421,24 @@ func main() {
 ### 5.1 图像
 <a name="fop-image-info"></a>
 ### 5.1.1 查看图像属性
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/fop"
-
-func main() {
-	imageUrl := "http://domain/key"
-	ii := fop.ImageInfo{}
-	inforet := ii.MakeRequest(imageUrl) // fop.ImageInfoRet, error
-}
+```{java}
+    马上就来
 ```
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
 <a name="fop-exif"></a>
 ### 5.1.2 查看图片EXIF信息
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/fop"
-
-func main() {
-	imageUrl := "http://domain/key"
-	exif := fop.Exif{}
-	exifret, err := exif.Call(logger, imageUrl) // fop.ExifRet, error
-}
+```{java}
+    马上就来
 ```
 参阅: `fop.Exif`, `fop.ExifRet`, `fop.ExifValType`
 
 <a name="fop-image-view"></a>
 ### 5.1.3 生成图片预览
-```{go}
-import ."github.com/qiniu/api/conf"
-import "github.com/qiniu/api/fop"
-
-func main() {
-	imageUrl := "http://domain/key"
-	iv := fop.ImageView{
-		Mode: 1,
-		Width: 200,
-		Height: 200,
-	}
-	previewUrl := iv.MakeRequest(imageUrl)
+```{java}
+    imageUrl = "http://domain/key";
+    imgView.height = 200;
+    String url = imgView.makeRequest(imageUrl);
 }
 ```
 参阅: `fop.ImageView`
@@ -510,18 +447,8 @@ func main() {
 ## 6. 高级资源管理接口(rsf)
 <a name="rsf-listPrefix"></a>
 批量获取文件列表
-```{go}
-import "github.com/qiniu/api/rsf"
-import ."github.com/qiniu/api/conf"
-
-func main() {
-
-	ACCESS_KEY = "<YOUR_APP_ACCESS_KEY>"
-	SECRET_KEY = "<YOUR_APP_SECRET_KEY>"
-
-	// 返回 []ListItem, err
-	rsf.New(nil).ListPrefix(logger, bucketName, prefix, marker, limit)
-}
+```{java}
+        马上就来
 ```
 参阅: `rsf.ListPreFix`
 
