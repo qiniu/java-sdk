@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 import com.qiniu.api.net.CallRet;
 
-public class StatRet extends CallRet {
+public class Entry extends CallRet {
 	/** Etag value of the file */
 	private String hash;
 	
@@ -17,8 +17,8 @@ public class StatRet extends CallRet {
 	
 	/** The mime type of the file */
 	private String mimeType;
-
-	public StatRet(CallRet ret) {
+	
+	public Entry(CallRet ret) {
 		super(ret);
 		
 		if (ret.ok() && ret.getResponse() != null) {

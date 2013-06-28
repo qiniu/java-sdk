@@ -3,15 +3,15 @@ package com.qiniu.testing;
 import junit.framework.TestCase;
 
 import com.qiniu.api.auth.AuthException;
-import com.qiniu.api.auth.DigestAuthClient;
+import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
 import com.qiniu.api.io.IoApi;
 import com.qiniu.api.io.PutExtra;
 import com.qiniu.api.io.PutRet;
 import com.qiniu.api.net.CallRet;
+import com.qiniu.api.rs.Entry;
 import com.qiniu.api.rs.PutPolicy;
 import com.qiniu.api.rs.RSClient;
-import com.qiniu.api.rs.StatRet;
 
 public class RSStatTest extends TestCase {
 
@@ -20,15 +20,18 @@ public class RSStatTest extends TestCase {
 
 	public String bucketName;
 	public final String key = "RSTest-key";
+	
+	public Mac mac;
 
 	@Override
-	public void setUp() {
+	public void setUp() throws Exception {
 		// get the config
 		{
 			Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY");
 			Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY");
 			Config.RS_HOST = System.getenv("QINIU_RS_HOST");
 			bucketName = System.getenv("QINIU_TEST_BUCKET");
+			mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 		}
 
 		// check the config
@@ -43,7 +46,7 @@ public class RSStatTest extends TestCase {
 		{
 			String uptoken = "";
 			try {
-				uptoken = new PutPolicy(bucketName, 36000).token();
+				uptoken = new PutPolicy(bucketName).token(mac);
 			} catch (AuthException ignore) {
 			}
 			String dir = System.getProperty("user.dir");
@@ -60,18 +63,16 @@ public class RSStatTest extends TestCase {
 	public void testRsStat() throws Exception {
 		// stat an exist entry
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
-			StatRet ret = rs.stat(bucketName, key);
+			RSClient rs = new RSClient(mac);
+			Entry ret = rs.stat(bucketName, key);
 			assertTrue(ret.ok());
 			assertTrue(ret.getHash().equals(expectedHash));
 		}
 
 		// stat an entry does not exist
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
-			StatRet ret = rs.stat(bucketName, "A_KEY_DOES_NOT_EXIST");
+			RSClient rs = new RSClient(mac);
+			Entry ret = rs.stat(bucketName, "A_KEY_DOES_NOT_EXIST");
 			assertTrue(!ret.ok());
 		}
 	}
@@ -80,17 +81,15 @@ public class RSStatTest extends TestCase {
 	public void tearDown() {
 		// deletes it from rs
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			RSClient rs = new RSClient(mac);
 			CallRet cr = rs.delete(bucketName, key);
 			assertTrue(cr.ok());
 		}
 
 		// confirms that it's deleted
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
-			StatRet sr = rs.stat(bucketName, key);
+			RSClient rs = new RSClient(mac);
+			Entry sr = rs.stat(bucketName, key);
 			assertTrue(!sr.ok());
 		}
 	}

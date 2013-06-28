@@ -12,7 +12,7 @@ import com.qiniu.api.net.CallRet;
 
 public class BatchStatRet extends CallRet {
 
-	public List<StatRet> results = new ArrayList<StatRet>();
+	public List<Entry> results = new ArrayList<Entry>();
 
 	public BatchStatRet(CallRet ret) {
 		super(ret);
@@ -45,7 +45,7 @@ public class BatchStatRet extends CallRet {
 				int code = jsonObj.getInt("code");
 				JSONObject body = jsonObj.getJSONObject("data");
 				CallRet ret = new CallRet(code, body.toString());
-				StatRet statRet = new StatRet(ret);
+				Entry statRet = new Entry(ret);
 				results.add(statRet);
 			} else {
 				new JSONException("Bad BatchStat result!");

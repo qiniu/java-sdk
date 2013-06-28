@@ -1,14 +1,11 @@
 package com.qiniu.api.rs;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
 import org.json.JSONException;
 import org.json.JSONStringer;
 
 import com.qiniu.api.auth.AuthException;
-import com.qiniu.api.config.Config;
-import com.qiniu.api.net.EncodeUtils;
+import com.qiniu.api.auth.digest.DigestAuth;
+import com.qiniu.api.auth.digest.Mac;
 
 /**
  * The PutPolicy class used to generate a upload token. To upload a file, you
@@ -19,55 +16,35 @@ import com.qiniu.api.net.EncodeUtils;
  */
 
 public class PutPolicy {
-	/** Target bucket that the file will be uploaded to. */
+	/** 必选。可以是 bucketName 或者 bucketName:key */
 	public String scope;
-
-	/**
-	 * Optional, used to set the callback address after the file uploaded
-	 * successfully to the qiniu server.
-	 */
+	/** 可选 */
 	public String callbackUrl;
-
+	/** 可选 */
+	public String callbackBody;
+	/** 可选 */
 	public String returnUrl;
-
-	public String callbackBodyType;
-
-	public String custom;
-
-	public String asyncOps;
-
+	/** 可选 */
 	public String returnBody;
-
-	/** The period of validity of the uptoken, in seconds. */
-	public long expiry;
-
-	public int escape;
-
-	public int detectMime;
+	/** 可选 */
+	public String asyncOps;
+	/** 可选 */
+	public String endUser;
+	/** 可选 */
+	public long expires;
 
 	/**
 	 * 
 	 * @param scope
-	 * @param expiry
+	 * @param expires
 	 * @throws IllegalArgumentException
 	 *             if expiry is non-positive.
 	 */
-	public PutPolicy(String scope, long expiry) {
-		if (expiry <= 0) {
-			throw new IllegalArgumentException(
-					"expiry can't be negative or zero!");
-		}
-
+	public PutPolicy(String scope) {
 		this.scope = scope;
-		this.expiry = System.currentTimeMillis() / 1000 + expiry;
-	}
-
-	public void setCallbackUrl(String callbackUrl) {
-		this.callbackUrl = callbackUrl;
 	}
 
 	private String marshal() throws JSONException {
-
 		JSONStringer stringer = new JSONStringer();
 		stringer.object();
 		stringer.key("scope").value(this.scope);
@@ -81,63 +58,32 @@ public class PutPolicy {
 			stringer.key("asyncOps").value(this.asyncOps);
 		}
 
-		if (this.escape != 0) {
-			stringer.key("escape").value(this.escape);
-		}
 		if (this.returnBody != null && this.returnBody.length() > 0) {
 			stringer.key("returnBody").value(this.returnBody);
 		}
-		if (this.callbackBodyType != null && this.callbackBodyType.length() > 0) {
-			stringer.key("callbackBodyType").value(this.callbackBodyType);
-		}
 
-		stringer.key("deadline").value(this.expiry);
+		stringer.key("deadline").value(this.expires);
 		stringer.endObject();
 
 		return stringer.toString();
 	}
 
-	private byte[] makeToken() throws AuthException {
-		byte[] accessKey = Config.ACCESS_KEY.getBytes();
-		byte[] secretKey = Config.SECRET_KEY.getBytes();
-
-		try {
-			String policyJson = this.marshal();
-			byte[] policyBase64 = EncodeUtils.urlsafeEncodeBytes(policyJson
-					.getBytes());
-
-			Mac mac = Mac.getInstance("HmacSHA1");
-			SecretKeySpec keySpec = new SecretKeySpec(secretKey, "HmacSHA1");
-			mac.init(keySpec);
-
-			byte[] digest = mac.doFinal(policyBase64);
-			byte[] digestBase64 = EncodeUtils.urlsafeEncodeBytes(digest);
-			byte[] token = new byte[accessKey.length + 30 + policyBase64.length];
-
-			System.arraycopy(accessKey, 0, token, 0, accessKey.length);
-			token[accessKey.length] = ':';
-			System.arraycopy(digestBase64, 0, token, accessKey.length + 1,
-					digestBase64.length);
-			token[accessKey.length + 29] = ':';
-			System.arraycopy(policyBase64, 0, token, accessKey.length + 30,
-					policyBase64.length);
-
-			return token;
-		} catch (Exception e) {
-			throw new AuthException("Fail to get qiniu put policy!", e);
-		}
-	}
-
+	
 	/**
-	 * Makes an upload token.
-	 * 
-	 * @return an authorized uptoken.
+	 * makes an upload token.
+	 * @param mac
+	 * @return
 	 * @throws AuthException
-	 *             if any exception occurs.
+	 * @throws JSONException
 	 */
-	public String token() throws AuthException {
-		byte[] token = this.makeToken();
-		return new String(token);
+	
+	public String token(Mac mac) throws AuthException, JSONException {
+		if (this.expires == 0) {
+			this.expires = 3600; // 3600s, default.
+		}
+		this.expires = System.currentTimeMillis() / 1000 + expires;
+		byte[] data = this.marshal().getBytes();
+		return DigestAuth.signWithData(mac, data);
 	}
 
 }

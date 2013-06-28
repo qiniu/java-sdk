@@ -6,7 +6,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.qiniu.api.auth.AuthException;
-import com.qiniu.api.auth.DigestAuthClient;
+import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
 import com.qiniu.api.io.IoApi;
 import com.qiniu.api.io.PutExtra;
@@ -14,10 +14,10 @@ import com.qiniu.api.io.PutRet;
 import com.qiniu.api.net.CallRet;
 import com.qiniu.api.rs.BatchCallRet;
 import com.qiniu.api.rs.BatchStatRet;
+import com.qiniu.api.rs.Entry;
 import com.qiniu.api.rs.EntryPath;
 import com.qiniu.api.rs.PutPolicy;
 import com.qiniu.api.rs.RSClient;
-import com.qiniu.api.rs.StatRet;
 
 public class BatchStatTest extends TestCase {
 
@@ -26,15 +26,17 @@ public class BatchStatTest extends TestCase {
 	public String bucketName;
 	public final String key1 = "BatchStatTest-key1";
 	public final String key2 = "BatchStatTest-key2";
-
+	public Mac mac;
+	
 	@Override
-	public void setUp() {
+	public void setUp() throws Exception {
 		// get the config
 		{
 			Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY");
 			Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY");
 			Config.RS_HOST = System.getenv("QINIU_RS_HOST");
 			bucketName = System.getenv("QINIU_TEST_BUCKET");
+			mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 		}
 
 		// check the config
@@ -49,7 +51,7 @@ public class BatchStatTest extends TestCase {
 		{
 			String uptoken = "";
 			try {
-				uptoken = new PutPolicy(bucketName, 36000).token();
+				uptoken = new PutPolicy(bucketName).token(mac);
 			} catch (AuthException ignore) {
 			}
 			String dir = System.getProperty("user.dir");
@@ -72,8 +74,7 @@ public class BatchStatTest extends TestCase {
 
 		// test BatchStat
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			RSClient rs = new RSClient(mac);
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 
 			EntryPath e1 = new EntryPath();
@@ -90,8 +91,8 @@ public class BatchStatTest extends TestCase {
 			// check batchCall
 			assertTrue(bsRet.ok());
 
-			List<StatRet> results = bsRet.results;
-			for (StatRet r : results) {
+			List<Entry> results = bsRet.results;
+			for (Entry r : results) {
 				// check each result
 				assertTrue(r.ok());
 				assertTrue(r.getHash().equals(expectedHash));
@@ -105,8 +106,7 @@ public class BatchStatTest extends TestCase {
 	public void tearDown() {
 		// deletes files from the bucket
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			RSClient rs = new RSClient(mac);
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 
 			EntryPath e1 = new EntryPath();
@@ -130,8 +130,7 @@ public class BatchStatTest extends TestCase {
 
 		// use batchstat checks it again.
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			RSClient rs = new RSClient(mac);
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 
 			EntryPath e1 = new EntryPath();

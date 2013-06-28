@@ -6,7 +6,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.qiniu.api.auth.AuthException;
-import com.qiniu.api.auth.DigestAuthClient;
+import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
 import com.qiniu.api.io.IoApi;
 import com.qiniu.api.io.PutExtra;
@@ -14,11 +14,11 @@ import com.qiniu.api.io.PutRet;
 import com.qiniu.api.net.CallRet;
 import com.qiniu.api.rs.BatchCallRet;
 import com.qiniu.api.rs.BatchStatRet;
+import com.qiniu.api.rs.Entry;
 import com.qiniu.api.rs.EntryPath;
 import com.qiniu.api.rs.EntryPathPair;
 import com.qiniu.api.rs.PutPolicy;
 import com.qiniu.api.rs.RSClient;
-import com.qiniu.api.rs.StatRet;
 
 public class BatchCopyTest extends TestCase {
 
@@ -30,15 +30,17 @@ public class BatchCopyTest extends TestCase {
 
 	public final String srcBucket = "junit_bucket_src";
 	public final String destBucket = "junit_bucket_dest";
-
+	public Mac mac;
+	
 	@Override
-	public void setUp() {
+	public void setUp() throws Exception {
 		// get the config
 		{
 			Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY");
 			Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY");
 			Config.RS_HOST = System.getenv("QINIU_RS_HOST");
 			bucketName = System.getenv("QINIU_TEST_BUCKET");
+			mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 		}
 
 		// check the config
@@ -53,7 +55,7 @@ public class BatchCopyTest extends TestCase {
 		{
 			String uptoken = "";
 			try {
-				uptoken = new PutPolicy(srcBucket, 36000).token();
+				uptoken = new PutPolicy(srcBucket).token(mac);
 			} catch (AuthException ignore) {
 			}
 			String dir = System.getProperty("user.dir");
@@ -76,8 +78,7 @@ public class BatchCopyTest extends TestCase {
 
 		// use batchStat to make sure they're existed in src bucket.
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			RSClient rs = new RSClient(mac);
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 
 			EntryPath e1 = new EntryPath();
@@ -94,8 +95,8 @@ public class BatchCopyTest extends TestCase {
 			// check batchCall
 			assertTrue(bsRet.ok());
 
-			List<StatRet> results = bsRet.results;
-			for (StatRet r : results) {
+			List<Entry> results = bsRet.results;
+			for (Entry r : results) {
 				// check each result
 				assertTrue(r.ok());
 				assertTrue(r.getHash().equals(expectedHash));
@@ -103,8 +104,7 @@ public class BatchCopyTest extends TestCase {
 		}
 		// do batchCopy
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			RSClient rs = new RSClient(mac);
 			List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
 
 			EntryPathPair pair1 = new EntryPathPair();
@@ -148,8 +148,7 @@ public class BatchCopyTest extends TestCase {
 		}
 		// the src keys should still be available in src bucket
 		{
-			DigestAuthClient client = new DigestAuthClient();
-			RSClient rs = new RSClient(client);
+			RSClient rs = new RSClient(mac);
 
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 			EntryPath e1 = new EntryPath();
@@ -166,15 +165,15 @@ public class BatchCopyTest extends TestCase {
 			BatchStatRet ret = rs.batchStat(entries);
 			assertTrue(ret.ok());
 
-			List<StatRet> results = ret.results;
-			for (StatRet r : results) {
+			List<Entry> results = ret.results;
+			for (Entry r : results) {
 				assertTrue(r.ok());
 			}
 		}
 		// the dest bucket should have the keys
 		{
-			DigestAuthClient client = new DigestAuthClient();
-			RSClient rs = new RSClient(client);
+			
+			RSClient rs = new RSClient(mac);
 
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 			EntryPath e1 = new EntryPath();
@@ -191,8 +190,8 @@ public class BatchCopyTest extends TestCase {
 			BatchStatRet ret = rs.batchStat(entries);
 			assertTrue(ret.ok());
 
-			List<StatRet> results = ret.results;
-			for (StatRet r : results) {
+			List<Entry> results = ret.results;
+			for (Entry r : results) {
 				assertTrue(r.ok());
 			}
 		}
@@ -204,8 +203,7 @@ public class BatchCopyTest extends TestCase {
 
 		// delete keys from the src bucket
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			RSClient rs = new RSClient(mac);
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 
 			EntryPath e1 = new EntryPath();
@@ -229,8 +227,8 @@ public class BatchCopyTest extends TestCase {
 
 		// delete keys from the dest bucket
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			
+			RSClient rs = new RSClient(mac);
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 
 			EntryPath e1 = new EntryPath();
@@ -254,8 +252,8 @@ public class BatchCopyTest extends TestCase {
 		
 		// use batchStat to check src bucket
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			
+			RSClient rs = new RSClient(mac);
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 
 			EntryPath e1 = new EntryPath();
@@ -275,8 +273,7 @@ public class BatchCopyTest extends TestCase {
 		
 		// use batchstat checks dest bucket again.
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			RSClient rs = new RSClient(mac);
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 
 			EntryPath e1 = new EntryPath();

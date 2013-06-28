@@ -3,15 +3,15 @@ package com.qiniu.testing;
 import junit.framework.TestCase;
 
 import com.qiniu.api.auth.AuthException;
-import com.qiniu.api.auth.DigestAuthClient;
+import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
 import com.qiniu.api.io.IoApi;
 import com.qiniu.api.io.PutExtra;
 import com.qiniu.api.io.PutRet;
 import com.qiniu.api.net.CallRet;
+import com.qiniu.api.rs.Entry;
 import com.qiniu.api.rs.PutPolicy;
 import com.qiniu.api.rs.RSClient;
-import com.qiniu.api.rs.StatRet;
 
 public class MoveTest extends TestCase {
 
@@ -23,14 +23,17 @@ public class MoveTest extends TestCase {
 	public final String srcBucket = "junit_bucket_src";
 	public final String destBucket = "junit_bucket_dest";
 
+	public Mac mac;
+	
 	@Override
-	public void setUp() {
+	public void setUp() throws Exception {
 		// get the config
 		{
 			Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY");
 			Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY");
 			Config.RS_HOST = System.getenv("QINIU_RS_HOST");
 			bucketName = System.getenv("QINIU_TEST_BUCKET");
+			mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 		}
 
 		// check the config
@@ -45,7 +48,7 @@ public class MoveTest extends TestCase {
 		{
 			String uptoken = "";
 			try {
-				uptoken = new PutPolicy(srcBucket, 36000).token();
+				uptoken = new PutPolicy(srcBucket).token(mac);
 			} catch (AuthException ignore) {
 			}
 			String dir = System.getProperty("user.dir");
@@ -64,7 +67,7 @@ public class MoveTest extends TestCase {
 		{
 			String uptoken = "";
 			try {
-				uptoken = new PutPolicy(bucketName, 36000).token();
+				uptoken = new PutPolicy(bucketName).token(mac);
 			} catch (AuthException ignore) {
 			}
 			String dir = System.getProperty("user.dir");
@@ -78,8 +81,7 @@ public class MoveTest extends TestCase {
 		}
 		// test move
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			RSClient rs = new RSClient(mac);
 			CallRet ret = rs.move(srcBucket, key, destBucket, key);
 			System.out.println(ret);
 			assertTrue(ret.ok());
@@ -87,16 +89,14 @@ public class MoveTest extends TestCase {
 
 		// the src keys should not be availabe in src bucket any more
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
-			StatRet sr = rs.stat(srcBucket, key);
+			RSClient rs = new RSClient(mac);
+			Entry sr = rs.stat(srcBucket, key);
 			assertTrue(!sr.ok());
 		}
 		// the dest bucket should have the key
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
-			StatRet sr = rs.stat(destBucket, key);
+			RSClient rs = new RSClient(mac);
+			Entry sr = rs.stat(destBucket, key);
 			assertTrue(sr.ok());
 		}
 
@@ -106,16 +106,14 @@ public class MoveTest extends TestCase {
 	public void tearDown() {
 		// deletes file form the dest bucket
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			RSClient rs = new RSClient(mac);
 			CallRet ret = rs.delete(destBucket, key);
 			assertTrue(ret.ok());
 		}
 		// confirms that it's deleted
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
-			StatRet sr = rs.stat(destBucket, key);
+			RSClient rs = new RSClient(mac);
+			Entry sr = rs.stat(destBucket, key);
 			assertTrue(!sr.ok());
 		}
 	}

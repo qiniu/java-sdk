@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.qiniu.api.auth.DigestAuthClient;
+import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
 import com.qiniu.api.net.CallRet;
 import com.qiniu.api.net.Client;
@@ -17,9 +18,10 @@ public class RSClient {
 	
 	private Client conn;
 	
-	public RSClient(DigestAuthClient client) {
-		this.conn = client;
+	public RSClient(Mac mac) {
+		this.conn = new DigestAuthClient(mac);
 	}
+	
 	
 	/**
 	 * Gets the basic information of the file with the specified key in the
@@ -32,12 +34,12 @@ public class RSClient {
 	 * @return {@StatRet}
 	 * 
 	 */
-	public StatRet stat(String bucket, String key) {
+	public Entry stat(String bucket, String key) {
 		String entryURI = bucket + ":" + key;
 		String url = Config.RS_HOST + "/stat/"
 				+ EncodeUtils.urlsafeEncode(entryURI);
 		CallRet ret = this.conn.call(url);
-		return new StatRet(ret);
+		return new Entry(ret);
 	}
 
 	/**

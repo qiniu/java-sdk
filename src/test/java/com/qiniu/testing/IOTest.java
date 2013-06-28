@@ -2,15 +2,15 @@ package com.qiniu.testing;
 
 import junit.framework.TestCase;
 
-import com.qiniu.api.auth.DigestAuthClient;
+import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
 import com.qiniu.api.io.IoApi;
 import com.qiniu.api.io.PutExtra;
 import com.qiniu.api.io.PutRet;
 import com.qiniu.api.net.CallRet;
+import com.qiniu.api.rs.Entry;
 import com.qiniu.api.rs.PutPolicy;
 import com.qiniu.api.rs.RSClient;
-import com.qiniu.api.rs.StatRet;
 
 public class IOTest extends TestCase {
 
@@ -21,7 +21,8 @@ public class IOTest extends TestCase {
 	public final String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
 
 	public String bucketName;
-
+	
+	public Mac mac;
 	@Override
 	public void setUp() {
 		Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY");
@@ -33,11 +34,12 @@ public class IOTest extends TestCase {
 		assertNotNull(Config.SECRET_KEY);
 		assertNotNull(Config.RS_HOST);
 		assertNotNull(bucketName);
+		mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 	}
 
 	// just upload an image in testdata.
 	public void testPut() throws Exception {
-		String uptoken = new PutPolicy(bucketName, 36000).token();
+		String uptoken = new PutPolicy(bucketName).token(mac);
 		String dir = System.getProperty("user.dir");
 		String localFile = dir + "/testdata/" + "logo.png";
 
@@ -54,26 +56,23 @@ public class IOTest extends TestCase {
 		// delete the metadata from rs
 		// confirms it exists.
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
-			StatRet sr = rs.stat(bucketName, key);
+			RSClient rs = new RSClient(mac);
+			Entry sr = rs.stat(bucketName, key);
 			assertTrue(sr.ok());
 			assertTrue(expectedHash.equals(sr.getHash()));
 		}
 
 		// deletes it from rs
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
+			RSClient rs = new RSClient(mac);
 			CallRet cr = rs.delete(bucketName, key);
 			assertTrue(cr.ok());
 		}
 
 		// confirms that it's deleted
 		{
-			DigestAuthClient conn = new DigestAuthClient();
-			RSClient rs = new RSClient(conn);
-			StatRet sr = rs.stat(bucketName, key);
+			RSClient rs = new RSClient(mac);
+			Entry sr = rs.stat(bucketName, key);
 			assertTrue(!sr.ok());
 		}
 	}
