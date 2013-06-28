@@ -300,6 +300,7 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
     Config.SECRET_KEY = "<YOUR_APP_SECRET_KEY>";
     mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
     RSClient rs = new RSClient(mac);
+<<<<<<< HEAD
 
     List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
 
@@ -337,6 +338,45 @@ uptoken是一个字符串，作为http协议Header的一部分（Authorization�
 
 参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
 
+=======
+
+    List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
+
+    EntryPathPair pair1 = new EntryPathPair();
+
+    EntryPath src = new EntryPath();
+    src.bucket = srcBucket;
+    src.key = key1;
+
+    EntryPath dest = new EntryPath();
+    dest.bucket = destBucket;
+    dest.key = key1;
+
+    pair1.src = src;
+    pair1.dest = dest;
+
+    EntryPathPair pair2 = new EntryPathPair();
+
+    EntryPath src2 = new EntryPath();
+    src2.bucket = srcBucket;
+    src2.key = key2;
+
+    EntryPath dest2 = new EntryPath();
+    dest2.bucket = destBucket;
+    dest2.key = key2;
+
+    pair2.src = src2;
+    pair2.dest = dest2;
+
+    entries.add(pair1);
+    entries.add(pair2);
+
+    BatchCallRet ret = rs.batchCopy(entries);
+```
+
+参阅: `rs.BatchItemRet`, `rs.EntryPathPair`, `rs.Client.BatchCopy`
+
+>>>>>>> origin/wjl_v6
 <a name="batch-move"></a>
 #### 4.5.3 批量移动文件
 ```{java}
@@ -469,4 +509,5 @@ Copyright (c) 2013 qiniu.com
 基于 MIT 协议发布:
 
 * [www.opensource.org/licenses/MIT](http://www.opensource.org/licenses/MIT)
+
 
