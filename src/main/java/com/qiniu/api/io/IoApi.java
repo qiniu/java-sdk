@@ -9,11 +9,9 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 
-import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
 import com.qiniu.api.net.CallRet;
 import com.qiniu.api.net.Client;
-import com.qiniu.api.rs.PutPolicy;
 
 public class IoApi {
 	
@@ -89,26 +87,5 @@ public class IoApi {
 			}
 		}
 		return crc;
-	}
-	
-	public static void main(String[] args) throws Exception {
-		/*File file = new File("/home/wangjinlei/mm.jpg");
-		System.out.println(getCRC32(file));*/
-
-		Config.ACCESS_KEY = "Ilt-hivILN2qJ0npYd8rEwPBLUjcl0zMvmF6XAMS";
-		Config.SECRET_KEY = "g_HKK_hHAsatWAbqY7yCkfA_0xIAtu3xWwi8DUpH";
-		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
-		PutPolicy putPolicy = new PutPolicy("wangjinlei");
-		putPolicy.expires = 3600;
-		String uptoken = putPolicy.token(mac);
-		
-		String key="wjl.mm.jpg";
-		File file = new File("/home/wangjinlei/mm.jpg");
-		PutExtra extra = new PutExtra();
-		extra.checkCrc = 0;
-		PutRet ret = IoApi.put(uptoken, key, file, extra);
-		System.out.println(ret.ok());
-		System.out.println(ret.getHash());
-		System.out.println(ret);
 	}
 }

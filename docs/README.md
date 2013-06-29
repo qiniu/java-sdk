@@ -167,12 +167,12 @@ public class UploadFile {
 		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
 		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 		// 请确保该bucket已经存在
-		String bucketName = "Your bucket name";
+		String bucketName = "<Your bucket name>";
 		PutPolicy putPolicy = new PutPolicy(bucketName);
 		String uptoken = putPolicy.token(mac);
 		PutExtra extra = new PutExtra();
 		String key = "<key>";
-		File file = new File("your local file path");
+		File file = new File("<your local file path>");
 		PutRet ret = IoApi.putFile(uptoken, key, file, extra);
 	}
 }
@@ -182,14 +182,7 @@ public class UploadFile {
 <a name="resumable-io-put"></a>
 ### 3.4 断点续上传、分块并行上传
 
-除了基本的上传外，七牛还支持你将文件切成若干块（除最后一块外，每个块固定为4M大小），每个块可独立上传，互不干扰；每个分块块内则能够做到断点上续传。
-
-我们先看支持了断点上续传、分块并行上传的基本样例：
-
-上传二进制流
-```{java}
 to do!
-```
 
 <a name="io-put-policy"></a>
 ### 3.5 上传策略
@@ -321,7 +314,7 @@ import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
 import com.qiniu.api.rs.RSClient;
 
-public class Copy {
+public class Delete {
 
 	public static void main(String[] args) {
 		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
@@ -331,6 +324,7 @@ public class Copy {
 		client.delete("<bucketName>", "<key>");
 	}
 }
+
 ```
 
 

@@ -1,4 +1,4 @@
-package com.qiniu.testing;
+package com.code4docs;
 
 import com.qiniu.api.fop.ImageView;
 import com.qiniu.api.net.CallRet;

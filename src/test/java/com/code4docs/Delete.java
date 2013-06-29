@@ -11,6 +11,6 @@ public class Delete {
 		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
 		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 		RSClient client = new RSClient(mac);
-		client.copy("<bucketSrc>", "<keySrc>", "<bucketDest>", "<keyDest>");
+		client.delete("<bucketName>", "<key>");
 	}
 }
