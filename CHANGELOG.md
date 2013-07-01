@@ -1,8 +1,11 @@
 ## CHANGE LOG
-### v6.0.0
-2013-06-28 issuse[#62](https://github.com/qiniu/java-sdk/pull/62)
 
-- 遵循 [sdkspec v6.0.0](https://github.com/qiniu/sdkspec/tree/v6.0.0)
+### v3.0.0
+
+2013-06-05 issue [#61](https://github.com/qiniu/java-sdk/pull/61)
+
+- PutPolicy: add member - escape, asyncOps, returnBody
+
 
 ### v2.5.1
 
