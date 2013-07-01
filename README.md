@@ -1,4 +1,4 @@
-# Qiniu Resource (Cloud) Storage SDK for Java
+# Qiniu Resource Storage SDK for Java
 
 [![Build Status](https://travis-ci.org/qiniu/java-sdk.png?branch=master)](https://travis-ci.org/qiniu/java-sdk)
 
