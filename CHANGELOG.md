@@ -1,5 +1,13 @@
 ## CHANGE LOG
 
+### v6.0.0
+
+2013-07-01 issue [#64](https://github.com/qiniu/java-sdk/pull/64)
+
+- 遵循 [sdkspec v6.0.2](https://github.com/qiniu/sdkspec/tree/v6.0.2)
+    - 暂不支持断点续传
+
+
 ### v3.0.0
 
 2013-06-05 issue [#61](https://github.com/qiniu/java-sdk/pull/61)
