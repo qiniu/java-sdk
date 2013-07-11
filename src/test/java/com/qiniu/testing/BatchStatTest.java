@@ -60,12 +60,12 @@ public class BatchStatTest extends TestCase {
 
 			PutExtra extra = new PutExtra();
 			
-			PutRet ret = IoApi.putFile(uptoken, key1, new File(localFile), extra);
+			PutRet ret = IoApi.putFile(uptoken, key1, localFile, extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
 
 			// upload a second one
-			ret = IoApi.putFile(uptoken, key2, new File(localFile), extra);
+			ret = IoApi.putFile(uptoken, key2, localFile, extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
 		}

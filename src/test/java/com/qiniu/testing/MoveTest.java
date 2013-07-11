@@ -58,7 +58,7 @@ public class MoveTest extends TestCase {
 
 			PutExtra extra = new PutExtra();
 
-			PutRet ret = IoApi.putFile(uptoken, key, new File(localFile), extra);
+			PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
 		}
@@ -76,7 +76,7 @@ public class MoveTest extends TestCase {
 			String localFile = dir + "/testdata/" + "logo.png";
 
 			PutExtra extra = new PutExtra();
-			PutRet ret = IoApi.putFile(uptoken, key, new File(localFile), extra);
+			PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
 		}
