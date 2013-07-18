@@ -1,6 +1,6 @@
 package com.qiniu.testing;
 
-import java.io.File;
+import java.io.*;
 
 import junit.framework.TestCase;
 
@@ -19,8 +19,11 @@ public class IOTest extends TestCase {
 	// because all the testcase concurrently executes
 	// so the key should be different.
 	public final String key = "IOTest-key";
-
+	
+	public final String key2 = "IOTest-Stream-key";
+	
 	public final String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
+	public final String expectedHash2 = "Fp9UwOPl9G3HmZsVFkJrMtdwSMp8";
 
 	public String bucketName;
 	
@@ -47,10 +50,18 @@ public class IOTest extends TestCase {
 
 		PutExtra extra = new PutExtra();
 		
-		PutRet ret = IoApi.putFile(uptoken, key, new File(localFile), extra);
-
+		PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 		assertTrue(ret.ok());
 		assertTrue(expectedHash.equals(ret.getHash()));
+		
+		//test stream upload
+		{
+			String str="Hello,Qiniu";
+			ByteArrayInputStream stream = new ByteArrayInputStream(str.getBytes());
+			ret = IoApi.Put(uptoken, key2, stream, extra);
+			assertTrue(ret.ok());
+			assertTrue(expectedHash2.equals(ret.getHash()));
+		}
 	}
 
 	@Override
