@@ -6,7 +6,7 @@ package com.qiniu.api.config;
  */
 public class Config {
 	
-	public static String USER_AGENT;
+	public static String USER_AGENT="qiniu java-sdk v6.0.0";
 	
 	/**
 	 * You can get your accesskey from <a href="https://dev.qiniutek.com"

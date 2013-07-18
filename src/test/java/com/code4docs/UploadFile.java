@@ -21,7 +21,7 @@ public class UploadFile {
 		String uptoken = putPolicy.token(mac);
 		PutExtra extra = new PutExtra();
 		String key = "<key>";
-		File file = new File("your local file path");
-		PutRet ret = IoApi.putFile(uptoken, key, file, extra);
+		String localFile = "your local file path";
+		PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 	}
 }
