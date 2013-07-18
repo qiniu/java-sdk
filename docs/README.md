@@ -1,8 +1,7 @@
 ---
-title: Java SDK | 七牛云存储
+title: Java SDK
 ---
 
-# Java SDK 使用指南
 
 此SDK适用于Java 6及以上版本。基于 [七牛云存储官方API](http://docs.qiniu.com) 构建。使用此 SDK 构建您的网络应用程序，能让您以非常便捷地方式将数据安全地存储到七牛云存储上。无论您的网络应用是一个网站程序，还是包括从云端（服务端程序）到终端（手持设备应用）的架构的服务或应用，通过七牛云存储及其 SDK，都能让您应用程序的终端用户高速上传和下载，同时也让您的服务端更加轻盈。
 
@@ -70,6 +69,7 @@ SDK下载地址：[https://github.com/qiniu/java-sdk/tags](https://github.com/qi
 2. [登录七牛开发者自助平台，查看 Access Key 和 Secret Key](https://dev.qiniutek.com/account/keys) 。
 
 在获取到 Access Key 和 Secret Key 之后，您可以按照如下方式进行密钥配置：
+
 ```{java}
 import com.qiniu.api.config.Config;
 
@@ -80,51 +80,63 @@ public class Init {
 		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
 	}
 }
-
-    
 ```
-可以参考: 
 
 <a name="get-and-put-api"></a>
 
 ## 3. 上传下载接口
 
-为了尽可能地改善终端用户的上传体验，七牛云存储首创了客户端直传功能。一般云存储的上传流程是：
+为了尽可能地改善终端用户的上传体验，七牛云存储首创了客户端直传功能。
+
+一般云存储的上传流程是：
 
     客户端（终端用户） => 业务服务器 => 云存储服务
 
-这样多了一次上传的流程，和本地存储相比，会相对慢一些。但七牛引入了客户端直传，将整个上传过程调整为：
+这样通过用户自己的业务服务器中转上传至云存储服务端。这种方式存在一些不足：
+
+1. 多了一次中转的上传过程，同数据存放在用户的业务服务器中相比，会相对慢一些；
+1. 增加了用户业务服务器的负载，消耗了带宽，占用了磁盘，降低了服务能力；
+1. 增加了用户的流量消耗，来自终端用户的上传数据进入业务服务器，然后再次上传至云存储服务，净增一倍流量。
+
+因此，七牛云存储引入了客户端直传的模式，将整个上传过程调整为：
 
     客户端（终端用户） => 七牛 => 业务服务器
 
-客户端（终端用户）直接上传到七牛的服务器，通过DNS智能解析，七牛会选择到离终端用户最近的ISP服务商节点，速度会比本地存储快很多。文件上传成功以后，七牛的服务器使用回调功能，只需要将非常少的数据（比如Key）传给应用服务器，应用服务器进行保存即可。
+客户端（终端用户）直接上传到七牛的服务器。通过DNS智能解析，七牛会选择到离终端用户最近的ISP服务商节点，速度会相比数据存放在用户自己的业务服务器上的方式更快。而且，七牛云存储可以在用户文件上传成功以后，替用户的客户端向用户的业务服务器发送反馈信息，减少用户的客户端同业务服务器之间的交互。详情请参考[上传策略](#io-put-policy)
 
-**注意**：如果您只是想要上传已存在您电脑本地或者是服务器上的文件到七牛云存储，可以直接使用七牛提供的 [qrsync](/v3/tools/qrsync/) 上传工具。
-文件上传有两种方式，一种是以普通方式直传文件，简称普通上传，另一种方式是断点续上传，断点续上传在网络条件很一般的情况下也能有出色的上传速度，而且对大文件的传输非常友好。
+**注意**：如果您只是想要将您电脑上，或者是服务器上的文件上传到七牛云存储，可以直接使用七牛提供的 [qrsync](http://docs.qiniu.com/tools/qrsync.html) 上传工具，而无需额外开发。
 
+文件上传有两种方式：普通方式，即一次性上传整个文件；断点续上传，即将文件分割成若干小块，分别上传，然后在七牛云存储服务端重新合并成一个文件。一般情况下，用户可以采用普通上传。如果文件较大，或者网络条件不佳，那么可以使用断点续上传，提高上传的速度和成功率。
 
 
 <a name="io-put-flow"></a>
+
 ### 3.1 上传流程
 
 在七牛云存储中，整个上传流程大体分为这样几步：
 
-1. 业务服务器颁发 [uptoken（上传授权凭证）](http://docs.qiniu.com/api/put.html#uploadToken)给客户端（终端用户）
-2. 客户端凭借 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 上传文件到七牛
-3. 在七牛获得完整数据后，发起一个 HTTP 请求回调到业务服务器
-4. 业务服务器保存相关信息，并返回一些信息给七牛
-5. 七牛原封不动地将这些信息转发给客户端（终端用户）
+1. 业务服务器颁发 [uptoken（上传授权凭证）](#make-uptoken)给客户端（终端用户）
+1. 客户端凭借 [uptoken](#make-uptoken) 上传文件到七牛
+1. 在七牛获得完整数据后，根据用户请求的设定执行以下操作：
 
-需要注意的是，回调到业务服务器的过程是可选的，它取决于业务服务器颁发的 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。如果没有回调，七牛会返回一些标准的信息（比如文件的 hash）给客户端。如果上传发生在业务服务器，以上流程可以自然简化为：
+	a. 如果用户设定了[returnUrl](#io-put-policy)，七牛云存储将反馈一个指向returnUrl的HTTP 301，驱动客户端执行跳转；
+	
+	b. 如果用户设定了[callbackUrl](#io-put-policy)，七牛云存储将向callbackUrl指定的地址发起一个HTTP 请求回调业务服务器，同时向业务服务器发送数据。发送的数据内容由[callbackBody](#io-put-policy)指定。业务服务器完成回调的处理后，可以在HTTP Response中放入数据，七牛云存储会响应客户端，并将业务服务器反馈的数据发送给客户端；
+	
+	c. 如果两者都没有设置，七牛云存储根据[returnBody](#io-put-policy)的设定向客户端发送反馈信息。
+
+需要注意的是，回调到业务服务器的过程是可选的，它取决于业务服务器颁发的 [uptoken](#make-uptoken)。如果没有回调，七牛会返回一些标准的信息（比如文件的 hash）给客户端。如果上传发生在业务服务器，以上流程可以自然简化为：
 
 1. 业务服务器生成 uptoken（不设置回调，自己回调到自己这里没有意义）
-2. 凭借 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 上传文件到七牛
-3. 善后工作，比如保存相关的一些信息
+1. 凭借 [uptoken](#make-uptoken) 上传文件到七牛
+1. 善后工作，比如保存相关的一些信息
 
 
 <a name="make-uptoken"></a>
+
 ### 3.2 生成上传授权uptoken
-uptoken是一个字符串，作为http协议Header的一部分（Authorization字段）发送到我们七牛的服务端，表示这个http请求是经过认证的。
+
+uptoken是一个字符串，作为http协议Header的一部分（Authorization字段）发送到我们七牛的服务端，表示这个http请求是经过用户授权的。
 
 ```{java}
 import com.qiniu.api.auth.digest.Mac;
@@ -145,12 +157,25 @@ public class Uptoken {
 }
 
 ```
+
 <a name="upload-code"></a>
+
 ### 3.3 上传代码
 
-上传本地文件
-```{java}
+上传本地文件。如果用户从自己的计算机或服务器上传文件，可以直接使用七牛云存储提供的[qrsync](http://docs.qiniu.com/tools/qrsync.html)工具。用户也可以自行编写上传程序。
 
+上传程序大体步骤如下：
+
+1. 设置AccessKey和SecretKey；
+1. 创建Mac对象；
+1. 创建PutPolicy对象；
+1. 生成UploadToken；
+1. 创建PutExtra对象；
+1. 调用put或putFile方法上传文件；
+
+具体代码如下：
+
+```{java}
 import java.io.File;
 
 import com.qiniu.api.auth.digest.Mac;
@@ -173,18 +198,20 @@ public class UploadFile {
 		PutExtra extra = new PutExtra();
 		String key = "<key>";
 		File file = new File("<your local file path>");
-		PutRet ret = IoApi.putFile(uptoken, key, file, extra);
+		PutRet ret = IoApi.put(uptoken, key, file, extra);
 	}
 }
 
 ```
 
 <a name="resumable-io-put"></a>
+
 ### 3.4 断点续上传、分块并行上传
 
-to do!
+建设中...
 
 <a name="io-put-policy"></a>
+
 ### 3.5 上传策略
 
 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 实际上是用 AccessKey/SecretKey 进行数字签名的上传策略(`rs.PutPolicy`)，它控制则整个上传流程的行为。让我们快速过一遍你都能够决策啥：
@@ -200,6 +227,7 @@ to do!
 关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
 
 ### 3.6 文件下载
+
 七牛云存储上的资源下载分为 公有资源下载 和 私有资源下载 。
 
 私有（private）是 Bucket（空间）的一个属性，一个私有 Bucket 中的资源为私有资源，私有资源不可匿名下载。
@@ -207,7 +235,9 @@ to do!
 新创建的空间（Bucket）缺省为私有，也可以将某个 Bucket 设为公有，公有 Bucket 中的资源为公有资源，公有资源可以匿名下载。
 
 <a name="public-download"></a>
+
 ### 3.7 公有资源下载
+
 如果在给bucket绑定了域名的话，可以通过以下地址访问。
 
 	[GET] http://<domain>/<key>
@@ -215,12 +245,15 @@ to do!
 其中<domain>可以到[七牛云存储开发者自助网站](https://dev.qiniutek.com/buckets)绑定, 域名可以使用自己一级域名的或者是由七牛提供的二级域名(`<bucket>.qiniutek.com`)。注意，尖括号不是必需，代表替换项。
 
 <a name="private-download"></a>
+
 ### 3.8 私有资源下载
+
 私有资源必须通过临时下载授权凭证(downloadToken)下载，如下：
 
 	[GET] http://<domain>/<key>?token=<downloadToken>
 
 注意，尖括号不是必需，代表替换项。  
+
 `downloadToken` 可以使用 SDK 提供的如下方法生成：
 
 ```{java}
@@ -243,12 +276,15 @@ public class DownloadFile {
 ```
 
 <a name="rs-api"></a>
+
 ## 4. 资源管理接口
 
 文件管理包括对存储在七牛云存储上的文件进行查看、复制、移动和删除处理。  
 
 <a name="rs-stat"></a>
+
 ### 4.1 查看单个文件属性信息
+
 ```{java}
 import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
@@ -269,7 +305,9 @@ public class Stat {
 
 
 <a name="rs-copy"></a>
+
 ### 4.2 复制单个文件
+
 ```{java}
 import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
@@ -288,7 +326,9 @@ public class Copy {
 ```
 
 <a name="rs-move"></a>
+
 ### 4.3 移动单个文件
+
 ```{java}
 import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
@@ -308,7 +348,9 @@ public class Move {
 ```
 
 <a name="rs-delete"></a>
+
 ### 4.4 删除单个文件
+
 ```{java}
 import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
@@ -329,10 +371,15 @@ public class Delete {
 
 
 <a name="batch"></a>
+
 ### 4.5 批量操作
+
 当您需要一次性进行多个操作时, 可以使用批量操作.
+
 <a name="batch-stat"></a>
+
 #### 4.5.1 批量获取文件属性信息
+
 ```{java}
 
 import java.util.ArrayList;
@@ -371,7 +418,9 @@ public class BatchStat {
 
 
 <a name="batch-copy"></a>
+
 #### 4.5.2 批量复制文件
+
 ```{java}
 
 import java.util.ArrayList;
@@ -428,7 +477,9 @@ public class BatchCopy {
 ```
 
 <a name="batch-move"></a>
+
 #### 4.5.3 批量移动文件
+
 ```{java}
 
 import java.util.ArrayList;
@@ -485,7 +536,9 @@ public class BatchMove {
 ```
 
 <a name="batch-delete"></a>
+
 #### 4.5.4 批量删除文件
+
 ```{java}
 import java.util.ArrayList;
 import java.util.List;
@@ -520,23 +573,33 @@ public class BatchDelete {
 }
 
 ```
+
 参阅: `rs.EntryPath`, `rs.Client.BatchDelete`
 
 <a name="batch-advanced"></a>
+
 #### 4.5.5 高级批量操作
+
 批量操作不仅仅支持同时进行多个相同类型的操作, 同时也支持不同的操作.
+
 ```{java}
 to do!
 ```
 
 <a name="fop-api"></a>
+
 ## 5. 数据处理接口
+
 七牛支持在云端对图像, 视频, 音频等富媒体进行个性化处理
 
 <a name="fop-image"></a>
+
 ### 5.1 图像
+
 <a name="fop-image-info"></a>
+
 ### 5.1.1 查看图像属性
+
 ```{java}
 import com.qiniu.api.fop.ImageInfo;
 import com.qiniu.api.fop.ImageInfoRet;
@@ -549,10 +612,13 @@ public class FopImageInfo {
 	}
 }
 ```
+
 参阅: `fop.ImageInfoRet`, `fop.ImageInfo`
 
 <a name="fop-exif"></a>
+
 ### 5.1.2 查看图片EXIF信息
+
 ```{java}
 import com.qiniu.api.fop.ExifRet;
 import com.qiniu.api.fop.ImageExif;
@@ -567,7 +633,9 @@ public class FopImageExif {
 ```
 
 <a name="fop-image-view"></a>
+
 ### 5.1.3 生成图片预览
+
 ```{java}
 import com.qiniu.api.fop.ImageView;
 import com.qiniu.api.net.CallRet;
@@ -588,9 +656,13 @@ public class FopImageView {
 ```
 
 <a name="rsf-api"></a>
+
 ## 6. 高级资源管理接口(rsf)
+
 <a name="rsf-listPrefix"></a>
+
 批量获取文件列表
+
 ```{java}
 import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
@@ -625,5 +697,4 @@ Copyright (c) 2013 qiniu.com
 基于 MIT 协议发布:
 
 * [www.opensource.org/licenses/MIT](http://www.opensource.org/licenses/MIT)
-
 

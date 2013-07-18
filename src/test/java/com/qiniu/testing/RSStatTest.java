@@ -56,7 +56,7 @@ public class RSStatTest extends TestCase {
 
 			PutExtra extra = new PutExtra();
 
-			PutRet ret = IoApi.putFile(uptoken, key, new File(localFile), extra);
+			PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
 		}
