@@ -51,7 +51,7 @@ public class RSFTest extends TestCase {
 			PutExtra extra = new PutExtra();
 
 			PutRet ret = IoApi
-					.putFile(uptoken, key, new File(localFile), extra);
+					.putFile(uptoken, key, localFile, extra);
 
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
