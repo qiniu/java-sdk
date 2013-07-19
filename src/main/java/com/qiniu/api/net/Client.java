@@ -15,12 +15,15 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.util.EntityUtils;
 
 import com.qiniu.api.auth.AuthException;
+import com.qiniu.api.config.*;
 
 /**
  * The class {@code Client} is a typical wrapper of RPC. Also see
  * {@code com.qiniu.api.auth.DigestAuthClient} 
  */
 public class Client {
+	
+	private final static  String HEADER_AGENT="User-Agent";	
 
 	/**
 	 * 
@@ -41,7 +44,7 @@ public class Client {
 	public CallRet call(String url) {
 		HttpClient client = Http.getClient();
 		HttpPost postMethod = new HttpPost(url);
-		
+		postMethod.setHeader(HEADER_AGENT,Config.USER_AGENT);
 		try {
 			setAuth(postMethod);
 			HttpResponse response = client.execute(postMethod);
@@ -68,7 +71,7 @@ public class Client {
 			StringEntity entity = new UrlEncodedFormEntity(nvps, "UTF-8");
 			entity.setContentType("application/x-www-form-urlencoded");
 			postMethod.setEntity(entity);
-
+			postMethod.setHeader(HEADER_AGENT,Config.USER_AGENT);
 			setAuth(postMethod);
 			HttpResponse response = client.execute(postMethod);
 
@@ -131,6 +134,7 @@ public class Client {
 	public CallRet callWithMultiPart(String url, MultipartEntity requestEntity) {
 		HttpPost postMethod = new HttpPost(url);
 		postMethod.setEntity(requestEntity);
+		postMethod.setHeader(HEADER_AGENT,Config.USER_AGENT);
 		HttpClient client = Http.getClient();
 		
 		try {

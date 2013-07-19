@@ -57,7 +57,6 @@ public class RSFTest extends TestCase {
 				assertTrue(ret.ok());
 				assertTrue(expectedHash.equals(ret.getHash()));
 			}
-			
 		}
 		// we don't checkout the result of how may items are in the buckets.
 		// not very convient, it's better, although.

@@ -27,7 +27,7 @@ public class PutFileDemo {
 		PutExtra extra = new PutExtra();
 		
 		// 上传文件
-		PutRet ret = IoApi.putFile(uptoken, key, new File(localFile), extra);
+		PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 
 		if (ret.ok()) {
 			System.out.println("Successfully upload the file.");
