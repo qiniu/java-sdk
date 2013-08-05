@@ -44,17 +44,18 @@ public class PutPolicy {
 		if (this.callbackUrl != null && this.callbackUrl.length() > 0) {
 			stringer.key("callbackUrl").value(this.callbackUrl);
 		}
+		if (this.callbackBody != null && this.callbackBody.length() > 0) {
+			stringer.key("callbackBody").value(this.callbackBody);
+		}
 		if (this.returnUrl != null && this.returnUrl.length() > 0) {
 			stringer.key("returnUrl").value(this.returnUrl);
+		}
+		if (this.returnBody != null && this.returnBody.length() > 0) {
+			stringer.key("returnBody").value(this.returnBody);
 		}
 		if (this.asyncOps != null && this.asyncOps.length() > 0) {
 			stringer.key("asyncOps").value(this.asyncOps);
 		}
-
-		if (this.returnBody != null && this.returnBody.length() > 0) {
-			stringer.key("returnBody").value(this.returnBody);
-		}
-
 		stringer.key("deadline").value(this.expires);
 		stringer.endObject();
 
