@@ -1,5 +1,10 @@
 ## CHANGE LOG
 
+### v6.0.3
+
+2013-08-5 issue [#75](https://github.com/qiniu/java-sdk/pull/75)
+
+Bug fix，编码强制UTF-8修复
 
 ### v6.0.1
 
