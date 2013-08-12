@@ -2,7 +2,7 @@
 
 ### v6.0.3
 
-2013-08-5 issue [#75](https://github.com/qiniu/java-sdk/pull/75)
+2013-08-5 issue [#76](https://github.com/qiniu/java-sdk/pull/76)
 
 Bug fix，编码强制UTF-8修复
 
