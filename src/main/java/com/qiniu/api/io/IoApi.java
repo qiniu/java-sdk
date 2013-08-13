@@ -10,10 +10,11 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
-
 import com.qiniu.api.config.Config;
 import com.qiniu.api.net.CallRet;
 import com.qiniu.api.net.Client;
+
+import java.nio.charset.Charset;
 
 public class IoApi {
 	
@@ -32,21 +33,18 @@ public class IoApi {
 		if (key == null) {
 			key = UNDEFINED_KEY;
 		}
-		
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
 			FileBody fileBody = new FileBody(file);
-			
 			requestEntity.addPart("file", fileBody);
-			requestEntity.addPart("key", new StringBody(key));
-			
+			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
 					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
 				}
 				requestEntity.addPart("crc32", new StringBody(extra.crc32 + ""));
-			}
+			}	
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new PutRet(new CallRet(400, e));
@@ -63,8 +61,7 @@ public class IoApi {
 			requestEntity.addPart("token", new StringBody(uptoken));
 			InputStreamBody inputBody= new InputStreamBody(reader,key);
 			requestEntity.addPart("file", inputBody);
-			requestEntity.addPart("key", new StringBody(key));
-			
+			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
 					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));

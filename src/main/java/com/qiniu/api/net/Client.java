@@ -160,7 +160,7 @@ public class Client {
 
 		String responseBody;
 		try {
-			responseBody = EntityUtils.toString(response.getEntity());
+			responseBody = EntityUtils.toString(response.getEntity(),"UTF-8");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new CallRet(400, e);
