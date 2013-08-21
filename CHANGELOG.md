@@ -1,5 +1,11 @@
 ## CHANGE LOG
 
+v6.0.4
+
+2013-08-21 issue [#77](https://github.com/qiniu/java-sdk/pull/77)
+
+添加ListPrefix
+
 ### v6.0.3
 
 2013-08-5 issue [#76](https://github.com/qiniu/java-sdk/pull/76)
