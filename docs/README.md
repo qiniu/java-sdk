@@ -674,8 +674,24 @@ public class ListPrefix {
 		Config.ACCESS_KEY = "<YOUR APP ACCESS_KEY>";
 		Config.SECRET_KEY = "<YOUR APP SECRET_KEY>";
 		Mac mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		
 		RSFClient client = new RSFClient(mac);
-		client.listPrifix("<bucketName>", "<prefix>", "<marker>", 10);
+		String marker = "";
+			
+		List<ListItem> all = new ArrayList<ListItem>();
+		ListPrefixRet ret = null;
+		while (true) {
+			ret = client.listPrifix(bucketName, "<prifix>", marker, 10);
+			marker = ret.marker;
+			all.addAll(ret.results);
+			if (!ret.ok()) {
+				// no more items or error occurs
+				break;
+			}
+		}
+		if (ret.exception.getClass() != RSFEofException.class) {
+			// error handler
+		} 
 	}
 }
 ```

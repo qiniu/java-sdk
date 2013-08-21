@@ -39,4 +39,16 @@ public class ListItem {
 			this.endUser = jsonObject.getString("endUser");
 		}
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sbuf = new StringBuilder();
+		sbuf.append("key:").append(this.key);
+		sbuf.append(" hash:").append(this.hash);
+		sbuf.append(" fsize:").append(this.fsize);
+		sbuf.append(" putTime:").append(this.putTime);
+		sbuf.append(" mimeType:").append(this.mimeType);
+		sbuf.append(" endUser:").append(this.endUser);
+		return sbuf.toString();
+	}
 }
