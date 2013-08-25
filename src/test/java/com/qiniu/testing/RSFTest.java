@@ -1,6 +1,8 @@
 package com.qiniu.testing;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -9,18 +11,17 @@ import com.qiniu.api.config.Config;
 import com.qiniu.api.io.IoApi;
 import com.qiniu.api.io.PutExtra;
 import com.qiniu.api.io.PutRet;
-import com.qiniu.api.net.CallRet;
-import com.qiniu.api.rs.Entry;
 import com.qiniu.api.rs.PutPolicy;
-import com.qiniu.api.rs.RSClient;
+import com.qiniu.api.rsf.ListItem;
 import com.qiniu.api.rsf.ListPrefixRet;
 import com.qiniu.api.rsf.RSFClient;
+import com.qiniu.api.rsf.RSFEofException;
 
 public class RSFTest extends TestCase {
 
 	// because all the testcase concurrently executes
 	// so the key should be different.
-	public final String key = "RSFTest-key";
+	public final String key = "_javasdk_RSFTest-key";
 
 	public final String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
 
@@ -50,45 +51,45 @@ public class RSFTest extends TestCase {
 
 			PutExtra extra = new PutExtra();
 
-			PutRet ret = IoApi
-					.putFile(uptoken, key, localFile, extra);
-
-			assertTrue(ret.ok());
-			assertTrue(expectedHash.equals(ret.getHash()));
-
+			// upload 3 files
+			for (int i = 0; i < 3; i++) {
+				PutRet ret = IoApi.putFile(uptoken, key + "_" + i,localFile, extra);
+				assertTrue(ret.ok());
+				assertTrue(expectedHash.equals(ret.getHash()));
+			}
+			
 		}
 		// we don't checkout the result of how may items are in the buckets.
 		// not very convient, it's better, although.
 		{
 			RSFClient client = new RSFClient(mac);
-			ListPrefixRet ret = client.listPrifix(bucketName, "", "", 100);
-			assertTrue(ret.ok());
+			String marker = "";
+			
+			List<ListItem> all = new ArrayList<ListItem>();
+			ListPrefixRet ret = null;
+			while (true) {
+				ret = client.listPrifix(bucketName, "_javasdk", marker, 10);
+				marker = ret.marker;
+				all.addAll(ret.results);
+				if (!ret.ok()) {
+					// no more items or error occurs
+					break;
+				}
+			}
+			if (ret.exception.getClass() != RSFEofException.class) {
+				// error handler
+				System.out.println(ret.exception);
+			} 
+			
+			// 防止该bucket有别人在用
+			System.out.println(ret.exception);
+			System.out.println(all.size());
+			assertTrue(all.size() >= 3);
 		}
 	}
 
 	@Override
 	public void tearDown() {
-		// delete the metadata from rs
-		// confirms it exists.
-		{
-			RSClient rs = new RSClient(mac);
-			Entry sr = rs.stat(bucketName, key);
-			assertTrue(sr.ok());
-			assertTrue(expectedHash.equals(sr.getHash()));
-		}
-
-		// deletes it from rs
-		{
-			RSClient rs = new RSClient(mac);
-			CallRet cr = rs.delete(bucketName, key);
-			assertTrue(cr.ok());
-		}
-
-		// confirms that it's deleted
-		{
-			RSClient rs = new RSClient(mac);
-			Entry sr = rs.stat(bucketName, key);
-			assertTrue(!sr.ok());
-		}
+		// do nothing here.
 	}
 }

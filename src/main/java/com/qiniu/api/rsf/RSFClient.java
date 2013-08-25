@@ -19,7 +19,7 @@ public class RSFClient {
 		if (marker != null && marker.length() != 0) {
 			params.append("&marker=").append(marker);
 		}
-		if (prefix != null && marker.length() != 0) {
+		if (prefix != null && prefix.length() != 0) {
 			params.append("&prefix=").append(prefix);
 		}
 		if (limit > 0) {
@@ -28,7 +28,11 @@ public class RSFClient {
 		
 		String url = Config.RSF_HOST + "/list?" + params.toString();
 		CallRet ret = conn.call(url);
-		return new ListPrefixRet(ret);
+		ListPrefixRet listRet = new ListPrefixRet(ret);
+		if (listRet.marker == null || "".equals(listRet.marker)) {
+			listRet.exception = new RSFEofException("EOF");
+		}
+		return listRet;
 	}
 	
 }
