@@ -56,6 +56,9 @@ public class PutPolicy {
 		if (this.asyncOps != null && this.asyncOps.length() > 0) {
 			stringer.key("asyncOps").value(this.asyncOps);
 		}
+		if (this.endUser != null && this.endUser.length() > 0) {
+			stringer.key("endUser").value(this.endUser);
+		}
 		stringer.key("deadline").value(this.expires);
 		stringer.endObject();
 
