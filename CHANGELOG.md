@@ -1,5 +1,11 @@
 ## CHANGE LOG
 
+### v6.0.4
+
+2013-09-02 issue [#78](https://github.com/qiniu/java-sdk/pull/78)
+
+hot fix,增加EndUser字段至PutPolicy的JSON字符串中
+
 ### v6.0.3
 
 2013-08-5 issue [#76](https://github.com/qiniu/java-sdk/pull/76)
