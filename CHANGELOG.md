@@ -2,6 +2,12 @@
 
 v6.0.4
 
+2013-09-12 issue [#80](https://github.com/qiniu/java-sdk/pull/80)
+
+增加私有资源fop的接口，包括exif,imageInfo,ImageView
+
+v6.0.4
+
 2013-08-21 issue [#77](https://github.com/qiniu/java-sdk/pull/77)
 
 添加ListPrefix

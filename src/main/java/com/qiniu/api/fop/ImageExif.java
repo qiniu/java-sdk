@@ -27,11 +27,7 @@ public class ImageExif {
 		String pubUrl = makeRequest(url);
     	GetPolicy policy =new GetPolicy();
     	String priUrl = policy.makeRequest(pubUrl, mac);
-
 		CallRet ret = new Client().call(priUrl);
 		return new ExifRet(ret);
 	}
-
-	
-	
 }

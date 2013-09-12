@@ -24,14 +24,10 @@ public class ImageInfo {
           return new ImageInfoRet(ret);
     }
     
-    /**
-     * 
-     * */
     public static ImageInfoRet call(String url,Mac mac) throws AuthException {
     	String pubUrl = makeRequest(url);
     	GetPolicy policy =new GetPolicy();
     	String priUrl = policy.makeRequest(pubUrl, mac);
-    	
         CallRet ret = new Client().call(priUrl); 
         return new ImageInfoRet(ret);
   }

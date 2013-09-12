@@ -85,6 +85,7 @@ public class ImageView {
 		CallRet ret = new Client().call(this.makeRequest(url));
 		return ret;
 	}
+	
 	public CallRet call(String url,Mac mac) throws AuthException {
 		String pubUrl = makeRequest(url);
 		GetPolicy policy =new GetPolicy();
@@ -92,5 +93,4 @@ public class ImageView {
 		CallRet ret = new Client().call(priUrl);
 		return ret;
 	}
-	
 }
