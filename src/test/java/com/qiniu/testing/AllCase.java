@@ -21,6 +21,7 @@ public class AllCase {
 		suite.addTestSuite(BatchCopyTest.class);
 		suite.addTestSuite(BatchMoveTest.class);
 		
+		suite.addTestSuite(RSFTest.class);
 		return suite;
 	} 
 	
