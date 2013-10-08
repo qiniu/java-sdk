@@ -82,7 +82,7 @@ public class FileopTest extends TestCase {
 	}
 
 	public void testImageView() throws Exception {
-		String url = domain + "/" + key;
+		String url = "http://qiniuphotos.qiniudn.com/gogopher.jpg";
 		{
 			ImageView iv = new ImageView();
 			iv.mode = 1;

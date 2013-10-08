@@ -1,22 +1,29 @@
 ## CHANGE LOG
 
+### v6.0.5
+
+2013-10-08 issue [#82](https://github.com/qiniu/java-sdk/pull/82)
+
+- 增加私有资源fop的接口，包括exif,imageInfo,ImageView
+
 ### v6.0.4
 
 2013-09-02 issue [#78](https://github.com/qiniu/java-sdk/pull/78)
 
-hot fix,增加EndUser字段至PutPolicy的JSON字符串中
+- 添加ListPrefix
+- hot fix,增加EndUser字段至PutPolicy的JSON字符串中
 
 ### v6.0.3
 
 2013-08-5 issue [#76](https://github.com/qiniu/java-sdk/pull/76)
 
-Bug fix，编码强制UTF-8修复
+- Bug fix，编码强制UTF-8修复
 
 ### v6.0.1
 
 2013-08-5 issue [#74](https://github.com/qiniu/java-sdk/pull/74)
 
-Bug fix，增加PutPolicy类的 callbackBody字段到PutPolicy的Json格式中
+- Bug fix，增加PutPolicy类的 callbackBody字段到PutPolicy的Json格式中
 
 
 ### v6.0.0
