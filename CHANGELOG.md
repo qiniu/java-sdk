@@ -1,6 +1,6 @@
 ## CHANGE LOG
 
-v6.0.5
+### v6.0.5
 
 2013-10-08 issue [#82](https://github.com/qiniu/java-sdk/pull/82)
 
