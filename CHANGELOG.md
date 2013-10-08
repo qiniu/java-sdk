@@ -4,7 +4,7 @@ v6.0.5
 
 2013-10-08 issue [#82](https://github.com/qiniu/java-sdk/pull/82)
 
-增加私有资源fop的接口，包括exif,imageInfo,ImageView
+- 增加私有资源fop的接口，包括exif,imageInfo,ImageView
 
 ### v6.0.4
 
