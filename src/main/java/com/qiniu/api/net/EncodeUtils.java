@@ -46,8 +46,7 @@ public class EncodeUtils {
 				rawbs[i] = '+';
 			}
 		}
-		byte[] db64 = Base64.decodeBase64(rawbs);
-		return db64;
+		return Base64.decodeBase64(rawbs);
 	}
 	
 	public static String urlsafeEncodeString(byte[] src) {
