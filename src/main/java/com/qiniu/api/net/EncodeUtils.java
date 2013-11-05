@@ -38,14 +38,15 @@ public class EncodeUtils {
 	}
 	
 	public static byte[] urlsafeBase64Decode(String encoded){
-		byte[] db64 = Base64.decodeBase64(encoded);
-		for(int i=0;i<db64.length;i++){
-			if(db64[i] == '_'){
-				db64[i] = '/';
-			}else if(db64[i] == '-'){
-				db64[i] = '+';
+		byte[] rawbs = encoded.getBytes();
+		for(int i=0;i<rawbs.length;i++){
+			if(rawbs[i] == '_'){
+				rawbs[i] = '/';
+			}else if(rawbs[i] == '-'){
+				rawbs[i] = '+';
 			}
 		}
+		byte[] db64 = Base64.decodeBase64(rawbs);
 		return db64;
 	}
 	

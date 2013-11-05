@@ -32,6 +32,8 @@ public class PutPolicy {
 	public String endUser;
 	/** 可选 */
 	public long expires;
+	
+	public long deadline;
 
 	public PutPolicy(String scope) {
 		this.scope = scope;
@@ -59,7 +61,7 @@ public class PutPolicy {
 		if (this.endUser != null && this.endUser.length() > 0) {
 			stringer.key("endUser").value(this.endUser);
 		}
-		stringer.key("deadline").value(this.expires);
+		stringer.key("deadline").value(this.deadline);
 		stringer.endObject();
 
 		return stringer.toString();
@@ -78,10 +80,8 @@ public class PutPolicy {
 		if (this.expires == 0) {
 			this.expires = 3600; // 3600s, default.
 		}
-		long orign = this.expires;
-		this.expires = System.currentTimeMillis() / 1000 + expires;
+		this.deadline = System.currentTimeMillis() / 1000 + this.expires;
 		byte[] data = this.marshal().getBytes();
-		this.expires = orign;
 		return DigestAuth.signWithData(mac, data);
 	}
 
