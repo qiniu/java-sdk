@@ -78,8 +78,10 @@ public class PutPolicy {
 		if (this.expires == 0) {
 			this.expires = 3600; // 3600s, default.
 		}
+		long orign = this.expires;
 		this.expires = System.currentTimeMillis() / 1000 + expires;
 		byte[] data = this.marshal().getBytes();
+		this.expires = orign;
 		return DigestAuth.signWithData(mac, data);
 	}
 

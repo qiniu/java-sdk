@@ -36,7 +36,19 @@ public class EncodeUtils {
 		}
 		return b2;
 	}
-
+	
+	public static byte[] urlsafeBase64Decode(String encoded){
+		byte[] db64 = Base64.decodeBase64(encoded);
+		for(int i=0;i<db64.length;i++){
+			if(db64[i] == '_'){
+				db64[i] = '/';
+			}else if(db64[i] == '-'){
+				db64[i] = '+';
+			}
+		}
+		return db64;
+	}
+	
 	public static String urlsafeEncodeString(byte[] src) {
 		return new String(urlsafeEncodeBytes(src));
 	}
