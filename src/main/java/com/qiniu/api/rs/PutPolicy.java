@@ -32,6 +32,18 @@ public class PutPolicy {
 	public String endUser;
 	/** 可选 */
 	public long expires;
+	/** 可选 */
+	public String saveKey;
+	/** 可选。 若非0, 即使Scope为 Bucket:Key 的形式也是insert only*/
+	public int insertOnly;
+	/** 可选。若非0, 则服务端根据内容自动确定 MimeType */
+	public int detectMime;
+	/** 可选 */
+	public long fsizeLimit;
+	/** 可选 */
+	public String persistentNotifyUrl;
+	/** 可选 */
+	public String persistentOps;
 	
 	public long deadline;
 
@@ -58,8 +70,26 @@ public class PutPolicy {
 		if (this.asyncOps != null && this.asyncOps.length() > 0) {
 			stringer.key("asyncOps").value(this.asyncOps);
 		}
+		if (this.saveKey != null && this.saveKey.length() > 0) {
+			stringer.key("saveKey").value(this.saveKey);
+		}
+		if(this.insertOnly>0){
+			stringer.key("insertOnly").value(this.insertOnly);
+		}
+		if(this.detectMime>0){
+			stringer.key("detectMime").value(this.detectMime);
+		}
+		if(this.fsizeLimit>0){
+			stringer.key("fsizeLimit").value(this.fsizeLimit);
+		}
 		if (this.endUser != null && this.endUser.length() > 0) {
 			stringer.key("endUser").value(this.endUser);
+		}
+		if (this.persistentNotifyUrl != null && this.persistentNotifyUrl.length() > 0) {
+			stringer.key("persistentNotifyUrl").value(this.persistentNotifyUrl);
+		}
+		if (this.persistentOps != null && this.persistentOps.length() > 0) {
+			stringer.key("persistentOps").value(this.persistentOps);
 		}
 		stringer.key("deadline").value(this.deadline);
 		stringer.endObject();
