@@ -51,7 +51,7 @@ public class PutPolicy {
 		this.scope = scope;
 	}
 
-	private String marshal() throws JSONException {
+	public String marshal() throws JSONException {
 		JSONStringer stringer = new JSONStringer();
 		stringer.object();
 		stringer.key("scope").value(this.scope);
