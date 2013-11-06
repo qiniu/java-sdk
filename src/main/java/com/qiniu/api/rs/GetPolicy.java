@@ -18,14 +18,14 @@ public class GetPolicy {
 		if (this.expires == 0) {
 			this.expires = 3600;
 		}
-		this.expires = (int) (System.currentTimeMillis() / 1000 + this.expires);
+		int expires_ = (int) (System.currentTimeMillis() / 1000 + this.expires);
 		
 		if (baseUrl.contains("?")) {
 			baseUrl += "&e=";
 		} else {
 			baseUrl += "?e=";
 		}
-		baseUrl += this.expires;
+		baseUrl += expires_;
 		
 		String downloadToken = DigestAuth.sign(mac, baseUrl.getBytes());
 		return baseUrl + "&token=" + downloadToken;

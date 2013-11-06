@@ -2,8 +2,6 @@ package com.qiniu.testing;
 
 import java.io.*;
 
-import org.json.JSONException;
-
 import junit.framework.TestCase;
 
 import com.qiniu.api.auth.digest.Mac;
@@ -42,28 +40,6 @@ public class IOTest extends TestCase {
 		assertNotNull(Config.RS_HOST);
 		assertNotNull(bucketName);
 		mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
-	}
-	
-	public void testPutPolicy(){
-		PutPolicy policy = new PutPolicy("bucket");
-		policy.asyncOps="";
-		policy.callbackBody="{\"uid\":123}";
-		policy.callbackUrl="www.qiniu.com";
-		policy.detectMime = 1;
-		policy.fsizeLimit=4096;
-		policy.insertOnly = 1;
-		policy.persistentNotifyUrl="www.yourdomain.com/persistentNotifyUrl";
-		policy.persistentOps = "avthumb/m3u8/preset/video_16x9_440k";
-		policy.returnBody="a=1&b=2&c=3";
-		policy.returnUrl="www.yourdomain.com/returnUrl";
-		try {
-			String result = policy.marshal();
-			String expect = "{\"scope\":\"bucket\",\"callbackUrl\":\"www.qiniu.com\",\"callbackBody\":\"{\\\"uid\\\":123}\",\"returnUrl\":\"www.yourdomain.com/returnUrl\",\"returnBody\":\"a=1&b=2&c=3\",\"insertOnly\":1,\"detectMime\":1,\"fsizeLimit\":4096,\"persistentNotifyUrl\":\"www.yourdomain.com/persistentNotifyUrl\",\"persistentOps\":\"avthumb/m3u8/preset/video_16x9_440k\",\"deadline\":0}";
-			assertTrue(expect.equals(result));
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	// just upload an image in testdata.
