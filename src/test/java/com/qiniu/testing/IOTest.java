@@ -61,7 +61,6 @@ public class IOTest extends TestCase {
 			String expect = "{\"scope\":\"bucket\",\"callbackUrl\":\"www.qiniu.com\",\"callbackBody\":\"{\\\"uid\\\":123}\",\"returnUrl\":\"www.yourdomain.com/returnUrl\",\"returnBody\":\"a=1&b=2&c=3\",\"insertOnly\":1,\"detectMime\":1,\"fsizeLimit\":4096,\"persistentNotifyUrl\":\"www.yourdomain.com/persistentNotifyUrl\",\"persistentOps\":\"avthumb/m3u8/preset/video_16x9_440k\",\"deadline\":0}";
 			assertTrue(expect.equals(result));
 		} catch (JSONException e) {
-			assertTrue(false);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
