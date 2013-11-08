@@ -2,13 +2,13 @@
 
 ### v6.0.7 
 
-2013-11-8 [#85](https://github.com/qiniu/java-sdk/pull/85)
+2013-11-7 [#85](https://github.com/qiniu/java-sdk/pull/85)
 
 - PutPolicy增加持久化字段
 
 ### v6.0.6
 
-2013-11-8 [#84](https://github.com/qiniu/java-sdk/pull/84)
+2013-11-5 [#84](https://github.com/qiniu/java-sdk/pull/84)
 
 - 修复PutPolicy生成Token时，Expires改变的BUG
 
