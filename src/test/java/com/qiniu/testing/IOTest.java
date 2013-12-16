@@ -2,6 +2,9 @@ package com.qiniu.testing;
 
 import java.io.*;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import junit.framework.TestCase;
 
 import com.qiniu.api.auth.digest.Mac;
@@ -44,15 +47,22 @@ public class IOTest extends TestCase {
 
 	// just upload an image in testdata.
 	public void testPut() throws Exception {
-		String uptoken = new PutPolicy(bucketName).token(mac);
+		PutPolicy putPolicy = new PutPolicy(bucketName);
+		putPolicy.returnBody = "{\"key\": $(key),\"name\": $(fname),\"size\": $(fsize),\"w\": $(imageInfo.width),\"h\": $(imageInfo.height),\"hash\": $(etag),\"mimeType\":$(mimeType)}";
+		String uptoken = putPolicy.token(mac);
 		String dir = System.getProperty("user.dir");
 		String localFile = dir + "/testdata/" + "logo.png";
 
 		PutExtra extra = new PutExtra();
-		
+		String mimeType = "text/html";
+		extra.mimeType = mimeType;
 		PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 		assertTrue(ret.ok());
 		assertTrue(expectedHash.equals(ret.getHash()));
+		
+		JSONObject jo = new JSONObject(ret.getResponse());
+		String mimeType2 = jo.getString("mimeType");
+		assertEquals(mimeType, mimeType2);
 		
 		//test stream upload
 		{
