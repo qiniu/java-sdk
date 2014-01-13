@@ -20,7 +20,7 @@ import com.qiniu.api.net.Client;
 
 public class IoApi {
 	
-	public static final String UNDEFINED_KEY = "?";
+	public static final String UNDEFINED_KEY = null;
 	public static final int NO_CRC32 = 0;
 	public static final int AUTO_CRC32 = 1;
 	public static final int WITH_CRC32 = 2;
@@ -54,7 +54,7 @@ public class IoApi {
 		return new PutRet(ret);
 	}
 	
-	private static AbstractContentBody buildFileBody(File file,PutExtra extra){
+	private static FileBody buildFileBody(File file,PutExtra extra){
 		if(extra.mimeType != null){
 			return new FileBody(file, extra.mimeType);
 		}else{
@@ -63,7 +63,7 @@ public class IoApi {
 	}
 	
 	private static void setKey(MultipartEntity requestEntity, String key) throws UnsupportedEncodingException{
-		if(key != null && key.trim().length() > 0){
+		if(key != null){
 			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
 		}
 	}
@@ -91,7 +91,7 @@ public class IoApi {
 		return new PutRet(ret);
 	}
 	
-	private static AbstractContentBody buildInputStreamBody(InputStream reader,PutExtra extra, String key){
+	private static InputStreamBody buildInputStreamBody(InputStream reader,PutExtra extra, String key){
 		if(extra.mimeType != null){
 			return new InputStreamBody(reader, extra.mimeType, key);
 		}else{
