@@ -1,5 +1,12 @@
 ## CHANGE LOG
 
+### v6.1.0
+
+2014-1-13 [#93](https://github.com/qiniu/java-sdk/pull/93)
+
+- bugfix: PutExtra.mimeType 不生效问题
+- PutPolicy 补充字段
+
 ### v6.0.7 
 
 2013-11-7 [#85](https://github.com/qiniu/java-sdk/pull/85)
