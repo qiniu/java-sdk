@@ -1,20 +1,21 @@
 package com.qiniu.api.io;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.AbstractContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
+
 import com.qiniu.api.config.Config;
 import com.qiniu.api.net.CallRet;
 import com.qiniu.api.net.Client;
-
-import java.nio.charset.Charset;
 
 public class IoApi {
 	
@@ -36,7 +37,7 @@ public class IoApi {
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
-			FileBody fileBody = new FileBody(file);
+			AbstractContentBody fileBody = buildFileBody(file, extra);
 			requestEntity.addPart("file", fileBody);
 			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
 			if (extra.checkCrc != NO_CRC32) {
@@ -55,11 +56,19 @@ public class IoApi {
 		return new PutRet(ret);
 	}
 	
+	private static AbstractContentBody buildFileBody(File file,PutExtra extra){
+		if(extra.mimeType != null){
+			return new FileBody(file, extra.mimeType);
+		}else{
+			return new FileBody(file);
+		}
+	}
+	
 	private static PutRet putStream(String uptoken, String key, InputStream reader,PutExtra extra) {
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
-			InputStreamBody inputBody= new InputStreamBody(reader,key);
+			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, key);
 			requestEntity.addPart("file", inputBody);
 			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
 			if (extra.checkCrc != NO_CRC32) {
@@ -76,6 +85,14 @@ public class IoApi {
 		String url = Config.UP_HOST;
 		CallRet ret = new Client().callWithMultiPart(url, requestEntity);
 		return new PutRet(ret);
+	}
+	
+	private static AbstractContentBody buildInputStreamBody(InputStream reader,PutExtra extra, String key){
+		if(extra.mimeType != null){
+			return new InputStreamBody(reader, extra.mimeType, key);
+		}else{
+			return new InputStreamBody(reader, key);
+		}
 	}
 	
 	
