@@ -3,6 +3,7 @@ package com.qiniu.api.io;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
@@ -31,15 +32,12 @@ public class IoApi {
 			return new PutRet(new CallRet(400, new Exception(
 					"File does not exist or not readable.")));
 		}
-		if (key == null) {
-			key = UNDEFINED_KEY;
-		}
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
 			AbstractContentBody fileBody = buildFileBody(file, extra);
 			requestEntity.addPart("file", fileBody);
-			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
+			setKey(requestEntity, key);
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
 					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
@@ -64,13 +62,19 @@ public class IoApi {
 		}
 	}
 	
+	private static void setKey(MultipartEntity requestEntity, String key) throws UnsupportedEncodingException{
+		if(key != null && key.trim().length() > 0){
+			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
+		}
+	}
+	
 	private static PutRet putStream(String uptoken, String key, InputStream reader,PutExtra extra) {
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
 			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, key);
 			requestEntity.addPart("file", inputBody);
-			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
+			setKey(requestEntity, key);
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
 					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
@@ -98,9 +102,6 @@ public class IoApi {
 	
 	public static PutRet Put(String uptoken,String key,InputStream reader,PutExtra extra)
 	{		
-		if (key == null) {
-			key = UNDEFINED_KEY;
-		}
 		PutRet ret = putStream(uptoken,key,reader,extra);
 		return ret;
 	}
