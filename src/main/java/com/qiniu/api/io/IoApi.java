@@ -1,24 +1,26 @@
 package com.qiniu.api.io;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.AbstractContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
+
 import com.qiniu.api.config.Config;
 import com.qiniu.api.net.CallRet;
 import com.qiniu.api.net.Client;
 
-import java.nio.charset.Charset;
-
 public class IoApi {
 	
-	public static final String UNDEFINED_KEY = "?";
+	public static final String UNDEFINED_KEY = null;
 	public static final int NO_CRC32 = 0;
 	public static final int AUTO_CRC32 = 1;
 	public static final int WITH_CRC32 = 2;
@@ -30,15 +32,12 @@ public class IoApi {
 			return new PutRet(new CallRet(400, new Exception(
 					"File does not exist or not readable.")));
 		}
-		if (key == null) {
-			key = UNDEFINED_KEY;
-		}
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
-			FileBody fileBody = new FileBody(file);
+			AbstractContentBody fileBody = buildFileBody(file, extra);
 			requestEntity.addPart("file", fileBody);
-			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
+			setKey(requestEntity, key);
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
 					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
@@ -55,13 +54,27 @@ public class IoApi {
 		return new PutRet(ret);
 	}
 	
+	private static FileBody buildFileBody(File file,PutExtra extra){
+		if(extra.mimeType != null){
+			return new FileBody(file, extra.mimeType);
+		}else{
+			return new FileBody(file);
+		}
+	}
+	
+	private static void setKey(MultipartEntity requestEntity, String key) throws UnsupportedEncodingException{
+		if(key != null){
+			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
+		}
+	}
+	
 	private static PutRet putStream(String uptoken, String key, InputStream reader,PutExtra extra) {
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
-			InputStreamBody inputBody= new InputStreamBody(reader,key);
+			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, key);
 			requestEntity.addPart("file", inputBody);
-			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
+			setKey(requestEntity, key);
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
 					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
@@ -78,12 +91,17 @@ public class IoApi {
 		return new PutRet(ret);
 	}
 	
+	private static InputStreamBody buildInputStreamBody(InputStream reader,PutExtra extra, String key){
+		if(extra.mimeType != null){
+			return new InputStreamBody(reader, extra.mimeType, key);
+		}else{
+			return new InputStreamBody(reader, key);
+		}
+	}
+	
 	
 	public static PutRet Put(String uptoken,String key,InputStream reader,PutExtra extra)
 	{		
-		if (key == null) {
-			key = UNDEFINED_KEY;
-		}
 		PutRet ret = putStream(uptoken,key,reader,extra);
 		return ret;
 	}
