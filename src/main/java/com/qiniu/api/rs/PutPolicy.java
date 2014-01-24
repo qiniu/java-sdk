@@ -46,6 +46,21 @@ public class PutPolicy {
 	public String persistentOps;
 	
 	public long deadline;
+	
+	/** 
+	 * 单位： 秒
+	 * 文件变换操作执行的超时时间（单位：秒），这个值太小可能会导致误判（最终
+	 * 存储成功了但客户端得到超时错），但太大可能会导致服务端将其判断为低优先
+	 * 级任务。建议取一个相对准确的时间估计值*N（N不要超过5）
+	 *  */
+	public int fopTimeout;
+	
+	/**
+	 * 对文件先进行一次变换操作（比如将音频统一转为某种码率的mp3）再进行存储。
+	 * transform的值就是一个fop指令， 比如imageView/1/w/310/h/395/q/80，
+	 * 其含义是对上传的文件执行这个fop指令，然后把结果保存到七牛。
+	 */
+	public String transform;
 
 	public PutPolicy(String scope) {
 		this.scope = scope;
@@ -90,6 +105,12 @@ public class PutPolicy {
 		}
 		if (this.persistentOps != null && this.persistentOps.length() > 0) {
 			stringer.key("persistentOps").value(this.persistentOps);
+		}
+		if(transform != null && transform.trim().length() > 0){
+			stringer.key("transform").value(this.transform);
+		}
+		if(fopTimeout > 0){
+			stringer.key("fopTimeout").value(this.fopTimeout);
 		}
 		stringer.key("deadline").value(this.deadline);
 		stringer.endObject();
