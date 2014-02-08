@@ -113,11 +113,11 @@ public class PutPolicy {
 		if (this.persistentOps != null && this.persistentOps.length() > 0) {
 			stringer.key("persistentOps").value(this.persistentOps);
 		}
-	    if (this.transform != null && this.transform.length() > 0) {
-	      stringer.key("transform").value(this.transform);
+		if (this.transform != null && this.transform.length() > 0) {
+			stringer.key("transform").value(this.transform);
 	    }
 	    if (this.fopTimeout > 0) {
-	      stringer.key("fopTimeout").value(this.fopTimeout);
+	    	stringer.key("fopTimeout").value(this.fopTimeout);
 	    }
 		stringer.key("deadline").value(this.deadline);
 		stringer.endObject();

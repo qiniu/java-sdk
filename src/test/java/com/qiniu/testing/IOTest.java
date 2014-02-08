@@ -70,16 +70,16 @@ public class IOTest extends TestCase {
       * 测试的时候请将例中的 localFile 改成合法的文件路径。
   	**/
 	public void testPutTransform() throws Exception {
-	    PutPolicy putPolicy = new PutPolicy(bucketName);
-	    putPolicy.transform = "avthumb/mp3";
-	    putPolicy.fopTimeout = 60;
+		PutPolicy putPolicy = new PutPolicy(bucketName);
+		putPolicy.transform = "avthumb/mp3";
+		putPolicy.fopTimeout = 60;
 
-    	String uptoken = putPolicy.token(mac);
+		String uptoken = putPolicy.token(mac);
 		String localFile = "/Users/ikbear/7niu/music.mp4";
-    	String key = "music-ikbear.mp3";
+		String key = "music-ikbear.mp3";
 
 		PutExtra extra = new PutExtra();
-		
+
 		PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 		assertTrue(ret.ok());
 	}
