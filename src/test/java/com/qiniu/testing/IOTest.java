@@ -65,9 +65,9 @@ public class IOTest extends TestCase {
 	}
 
   	/**
-   	  * 这个案例测试上传后转码并将转码结果保存为目标文件。例中使用了 PutPolicy 中的
-      * transform 和 fopTimeout 两个参数，分别对应要进行的转码操作和转码超时时间，
-      * 测试的时候请将例中的 localFile 改成合法的文件路径。
+  	  * 这个案例测试上传后转码并将转码结果保存为目标文件。例中使用了 PutPolicy 中的
+  	  * transform 和 fopTimeout 两个参数，分别对应要进行的转码操作和转码超时时间，
+  	  * 测试的时候请将例中的 localFile 改成合法的文件路径。
   	**/
 	public void testPutTransform() throws Exception {
 		PutPolicy putPolicy = new PutPolicy(bucketName);
