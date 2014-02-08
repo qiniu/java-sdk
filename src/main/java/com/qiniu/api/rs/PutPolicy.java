@@ -115,10 +115,10 @@ public class PutPolicy {
 		}
 		if (this.transform != null && this.transform.length() > 0) {
 			stringer.key("transform").value(this.transform);
-	    }
-	    if (this.fopTimeout > 0) {
-	    	stringer.key("fopTimeout").value(this.fopTimeout);
-	    }
+		}
+		if (this.fopTimeout > 0) {
+			stringer.key("fopTimeout").value(this.fopTimeout);
+		}
 		stringer.key("deadline").value(this.deadline);
 		stringer.endObject();
 
