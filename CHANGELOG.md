@@ -1,5 +1,11 @@
 ## CHANGE LOG
 
+### v6.1.2
+
+2014-1-13 [#98](https://github.com/qiniu/java-sdk/pull/98)
+
+- Add transform and fopTimeout Put Policy
+
 ### v6.1.0
 
 2014-1-13 [#93](https://github.com/qiniu/java-sdk/pull/93)
