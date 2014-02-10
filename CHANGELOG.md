@@ -2,7 +2,7 @@
 
 ### v6.1.2
 
-2014-1-13 [#98](https://github.com/qiniu/java-sdk/pull/98)
+2014-2-10 [#98](https://github.com/qiniu/java-sdk/pull/98)
 
 - Add transform and fopTimeout Put Policy
 
