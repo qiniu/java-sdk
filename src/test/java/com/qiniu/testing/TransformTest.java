@@ -14,16 +14,13 @@ import com.qiniu.api.rs.Entry;
 import com.qiniu.api.rs.PutPolicy;
 import com.qiniu.api.rs.RSClient;
 
-public class IOTest extends TestCase {
+public class TransformTest extends TestCase {
 
 	// because all the testcase concurrently executes
 	// so the key should be different.
 	public final String key = "IOTest-key";
-	
-	public final String key2 = "IOTest-Stream-key";
-	
-	public final String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
-	public final String expectedHash2 = "Fp9UwOPl9G3HmZsVFkJrMtdwSMp8";
+		
+	public final String expectedHash = "FivxSqsM1SyWCnYeIGPUqZM5LL4b";
 
 	public String bucketName;
 	
@@ -42,26 +39,19 @@ public class IOTest extends TestCase {
 		mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 	}
 
-	// just upload an image in testdata.
-	public void testPut() throws Exception {
-		String uptoken = new PutPolicy(bucketName).token(mac);
+	public void testPutTransform() throws Exception {
+		PutPolicy putPolicy = new PutPolicy(bucketName);
+		putPolicy.transform = "imageView/2/w/100/h/100";
+		putPolicy.fopTimeout = 10;
+
+		String uptoken = putPolicy.token(mac);
 		String dir = System.getProperty("user.dir");
 		String localFile = dir + "/testdata/" + "logo.png";
 
 		PutExtra extra = new PutExtra();
-		
+
 		PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 		assertTrue(ret.ok());
-		assertTrue(expectedHash.equals(ret.getHash()));
-		
-		//test stream upload
-		{
-			String str="Hello,Qiniu";
-			ByteArrayInputStream stream = new ByteArrayInputStream(str.getBytes());
-			ret = IoApi.Put(uptoken, key2, stream, extra);
-			assertTrue(ret.ok());
-			assertTrue(expectedHash2.equals(ret.getHash()));
-		}
 	}
 
 	@Override
@@ -71,6 +61,7 @@ public class IOTest extends TestCase {
 		{
 			RSClient rs = new RSClient(mac);
 			Entry sr = rs.stat(bucketName, key);
+			System.out.println(sr.getHash());
 			assertTrue(sr.ok());
 			assertTrue(expectedHash.equals(sr.getHash()));
 		}

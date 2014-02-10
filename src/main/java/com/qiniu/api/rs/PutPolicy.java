@@ -47,6 +47,28 @@ public class PutPolicy {
 	
 	public long deadline;
 
+  	/**
+   	  *
+   	  * 对文件先进行一次变换操作（比如将音频统一转为某种码率的mp3）再进行存储。
+   	  * transform的值就是一个fop指令，比如 "avthumb/mp3"。其含义是对上传的文件
+   	  * 执行这个 fop 指令，然后把结果保存到七牛。最后保存的是经过处理过的文件，
+   	  * 而不是用户上传的原始文件。
+   	  *
+  	**/
+  	public String transform;
+
+  	/**
+   	  *
+   	  * 单位： 秒
+   	  * 文件变换操作执行的超时时间（单位：秒），上传和转码操作是同步进行的，
+   	  * 先上传后转码，这个时间只是转码所需时间，不包括上传文件所需时间。
+   	  * 这个值太小可能会导致误判（最终存储成功了但客户端得到超时的错误），
+   	  * 但太大可能会导致服务端将其判断为低优先级任务。建议取一个相对准确的
+   	  * 时间估计值*N（N不要超过5）。
+   	  *
+  	**/
+  	public long fopTimeout;
+
 	public PutPolicy(String scope) {
 		this.scope = scope;
 	}
@@ -90,6 +112,12 @@ public class PutPolicy {
 		}
 		if (this.persistentOps != null && this.persistentOps.length() > 0) {
 			stringer.key("persistentOps").value(this.persistentOps);
+		}
+		if (this.transform != null && this.transform.length() > 0) {
+			stringer.key("transform").value(this.transform);
+		}
+		if (this.fopTimeout > 0) {
+			stringer.key("fopTimeout").value(this.fopTimeout);
 		}
 		stringer.key("deadline").value(this.deadline);
 		stringer.endObject();
