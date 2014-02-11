@@ -25,5 +25,29 @@ public class Config {
 	public static String UP_HOST = "http://up.qbox.me";
 	
 	public static String RSF_HOST = "http://rsf.qbox.me";
-
+	
+	/**
+	 * HTTP连接超时的时间毫秒(ms)
+     * Determines the timeout in milliseconds until a connection is established.
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * <p>
+     * Please note this parameter can only be applied to connections that
+     * are bound to a particular local address.
+     * <p>
+     * This parameter expects a value of type {@link Integer}.
+     * </p>
+     */
+	public static int CONNECTION_TIMEOUT = 30 * 1000;
+	/**
+	 * 读取response超时的时间毫秒(ms)
+     * Defines the socket timeout (<code>SO_TIMEOUT</code>) in milliseconds,
+     * which is the timeout for waiting for data  or, put differently,
+     * a maximum period inactivity between two consecutive data packets).
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * <p>
+     * This parameter expects a value of type {@link Integer}.
+     * </p>
+     * @see java.net.SocketOptions#SO_TIMEOUT
+     */
+	public static int SO_TIMEOUT = 30 * 1000;
 }
