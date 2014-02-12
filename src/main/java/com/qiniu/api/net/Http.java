@@ -9,6 +9,11 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.HttpParams;
+
+import com.qiniu.api.config.Config;
 
 /**
  * The class Http provides a default HttpConnectionPool implementation. Anyway,
@@ -54,6 +59,16 @@ public class Http {
 		HttpHost localhost = new HttpHost("locahost", 80);
 		cm.setMaxPerRoute(new HttpRoute(localhost), 50);
 
-		return new DefaultHttpClient(cm);
+//		HttpParams httpparams = new BasicHttpParams();
+//		HttpConnectionParams.setConnectionTimeout(httpparams, Config.CONNECTION_TIMEOUT);
+//		HttpConnectionParams.setSoTimeout(httpparams, Config.SO_TIMEOUT);
+//		
+//		return new DefaultHttpClient(cm, httpparams);
+		
+		HttpClient client = new DefaultHttpClient(cm);
+		client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, Config.CONNECTION_TIMEOUT);
+		client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, Config.SO_TIMEOUT); 
+		
+		return client;
 	}
 }
