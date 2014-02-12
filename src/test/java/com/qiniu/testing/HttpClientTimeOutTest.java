@@ -20,12 +20,14 @@ public class HttpClientTimeOutTest extends TestCase{
 	public void setUp() {
 		CONNECTION_TIMEOUT = Config.CONNECTION_TIMEOUT;
 		SO_TIMEOUT = Config.SO_TIMEOUT;
+		Http.setClient(null);
 	}
 	
 	@Override
 	public void tearDown() {
 		Config.CONNECTION_TIMEOUT = CONNECTION_TIMEOUT;
 		Config.SO_TIMEOUT = SO_TIMEOUT;
+		Http.setClient(null);
 	}
 
 	public void testCONNECTION_TIMEOUT() {
@@ -34,8 +36,6 @@ public class HttpClientTimeOutTest extends TestCase{
 		try{
 			Config.CONNECTION_TIMEOUT = 5;
 			Config.SO_TIMEOUT = 20 * 1000;
-			
-			Http.setClient(null);
 			
 			HttpClient client = Http.getClient();
 			HttpGet httpget = new HttpGet("http://kyfxbl.iteye.com/blog/1616849"); 
@@ -60,8 +60,6 @@ public class HttpClientTimeOutTest extends TestCase{
 		try{
 			Config.CONNECTION_TIMEOUT = 20 * 1000;
 			Config.SO_TIMEOUT = 5;
-			
-			Http.setClient(null);
 			
 			HttpClient client = Http.getClient();
 			HttpGet httpget = new HttpGet("http://www.baidu.com");
