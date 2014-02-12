@@ -23,7 +23,7 @@ public class AllCase {
 		
 		suite.addTestSuite(RSFTest.class);
 		
-		suite.addTestSuite(HttpClientTimeOutTest.class);
+//		suite.addTestSuite(HttpClientTimeOutTest.class);
 		
 		return suite;
 	} 
