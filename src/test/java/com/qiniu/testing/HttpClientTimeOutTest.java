@@ -38,8 +38,7 @@ public class HttpClientTimeOutTest extends TestCase {
 			Config.SO_TIMEOUT = 20 * 1000;
 
 			HttpClient client = Http.getClient();
-			HttpGet httpget = new HttpGet(
-					"http://kyfxbl.iteye.com/blog/1616849");
+			HttpGet httpget = new HttpGet("http://kyfxbl.iteye.com/blog/1616849");
 
 			s = System.currentTimeMillis();
 			HttpResponse ret = client.execute(httpget);
@@ -60,7 +59,7 @@ public class HttpClientTimeOutTest extends TestCase {
 		long s = 0;
 		try {
 			Config.CONNECTION_TIMEOUT = 20 * 1000;
-			Config.SO_TIMEOUT = 5000;
+			Config.SO_TIMEOUT = 5;
 
 			HttpClient client = Http.getClient();
 			HttpGet httpget = new HttpGet("http://www.baidu.com");
