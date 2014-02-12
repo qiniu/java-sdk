@@ -1,22 +1,14 @@
 package com.qiniu.testing;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-
-import junit.framework.TestCase;
-
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.qiniu.api.config.Config;
 import com.qiniu.api.net.Http;
 
-public class HttpClientTimeOutTest extends TestCase{
+public class HttpClientTimeOutTest{
 
 	@Test(expected= org.apache.http.conn.ConnectTimeoutException.class)
 	public void testCONNECTION_TIMEOUT() throws Exception {
