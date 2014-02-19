@@ -29,7 +29,6 @@ public class Mac {
 	 * @throws AuthException
 	 */
 	public String sign(byte[] data) throws AuthException {
-		System.out.println("data : " + new String(data));
 		javax.crypto.Mac mac = null;
 		try {
 			mac = javax.crypto.Mac.getInstance("HmacSHA1");
