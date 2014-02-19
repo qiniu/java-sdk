@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
@@ -43,7 +44,13 @@ public class IoApi {
 					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
 				}
 				requestEntity.addPart("crc32", new StringBody(extra.crc32 + ""));
-			}	
+			}
+
+			if (extra.params != null) {
+				for (Map.Entry<String, String> xvar : extra.params.entrySet()) {
+					requestEntity.addPart(xvar.getKey(), new StringBody(xvar.getValue()));
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new PutRet(new CallRet(400, e));
