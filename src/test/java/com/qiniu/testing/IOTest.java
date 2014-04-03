@@ -1,6 +1,10 @@
 package com.qiniu.testing;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONObject;
 
 import junit.framework.TestCase;
 
@@ -44,15 +48,32 @@ public class IOTest extends TestCase {
 
 	// just upload an image in testdata.
 	public void testPut() throws Exception {
-		String uptoken = new PutPolicy(bucketName).token(mac);
+		// must start with "x:"
+		String xname = "x:test_name";
+		String xvalue = "test_value";
+		String name = "nonxtest_name";
+		String value = "nonxtest_value";
+		
+		PutPolicy putPolicy = new PutPolicy(bucketName);
+		putPolicy.returnBody = "{\"hash\":\"$(etag)\",\"key\":\"$(key)\",\"fsize\":\"$(fsize)\",\""+xname+"\":\"$("+xname+")\",\""+name+"\":\"$("+name+")\"}";
+		String uptoken = putPolicy.token(mac);
+		
 		String dir = System.getProperty("user.dir");
 		String localFile = dir + "/testdata/" + "logo.png";
 
 		PutExtra extra = new PutExtra();
+		Map<String, String> params = new HashMap<String,String>();
+		params.put(xname, xvalue);
+		params.put(name, value);
+		extra.params = params;
 		
 		PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 		assertTrue(ret.ok());
 		assertTrue(expectedHash.equals(ret.getHash()));
+		
+		JSONObject jsonObject = new JSONObject(ret.response);
+		assertEquals(xvalue, getJsonValue(jsonObject, xname));
+		assertEquals(null, getJsonValue(jsonObject, name));
 		
 		//test stream upload
 		{
@@ -61,6 +82,23 @@ public class IOTest extends TestCase {
 			ret = IoApi.Put(uptoken, key2, stream, extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash2.equals(ret.getHash()));
+
+			jsonObject = new JSONObject(ret.response);
+			assertEquals(xvalue, getJsonValue(jsonObject, xname));
+			assertEquals(null, getJsonValue(jsonObject, name));
+		}
+	}
+	
+	private String getJsonValue(JSONObject jsonObject, String name){
+		try{
+			String value = jsonObject.getString(name);
+			// 针对使用returnBody情况
+			if("null".equalsIgnoreCase(value)){
+				return null;
+			}
+			return value;
+		}catch(Exception e){
+			return null;
 		}
 	}
 

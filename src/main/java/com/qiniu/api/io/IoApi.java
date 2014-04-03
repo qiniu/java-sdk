@@ -39,6 +39,7 @@ public class IoApi {
 			AbstractContentBody fileBody = buildFileBody(file, extra);
 			requestEntity.addPart("file", fileBody);
 			setKey(requestEntity, key);
+			setParam(requestEntity, extra.params);
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
 					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
@@ -75,6 +76,15 @@ public class IoApi {
 		}
 	}
 	
+	private static void setParam(MultipartEntity requestEntity, Map<String, String> params) throws UnsupportedEncodingException{
+		if(params == null){
+			return;
+		}
+		for(String name : params.keySet()){
+			requestEntity.addPart(name, new StringBody(params.get(name),Charset.forName("utf-8")));
+		}
+	}
+	
 	private static PutRet putStream(String uptoken, String key, InputStream reader,PutExtra extra) {
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
@@ -82,6 +92,7 @@ public class IoApi {
 			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, key);
 			requestEntity.addPart("file", inputBody);
 			setKey(requestEntity, key);
+			setParam(requestEntity, extra.params);
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
 					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
