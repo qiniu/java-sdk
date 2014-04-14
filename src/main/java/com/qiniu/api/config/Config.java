@@ -5,8 +5,9 @@ package com.qiniu.api.config;
  * side only.
  */
 public class Config {
+	public static final String CHARSET = "utf-8";
 	
-	public static String USER_AGENT="qiniu java-sdk v6.0.0";
+	public static String USER_AGENT="qiniu java-sdk v6.1.2";
 	
 	/**
 	 * You can get your accesskey from <a href="https://dev.qiniutek.com"
@@ -20,10 +21,10 @@ public class Config {
 	 */
 	public static String SECRET_KEY = "<Apply your secret key here, and keep it secret!>";
 
-	public static String RS_HOST = "http://rs.qbox.me";
+	public static String RS_HOST = "http://rs.qiniu.com";
 
-	public static String UP_HOST = "http://up.qbox.me";
+	public static String UP_HOST = "http://up.qiniu.com";
 	
-	public static String RSF_HOST = "http://rsf.qbox.me";
+	public static String RSF_HOST = "http://rsf.qiniu.com";
 
 }
