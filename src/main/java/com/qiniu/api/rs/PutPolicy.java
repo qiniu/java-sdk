@@ -6,6 +6,7 @@ import org.json.JSONStringer;
 import com.qiniu.api.auth.AuthException;
 import com.qiniu.api.auth.digest.DigestAuth;
 import com.qiniu.api.auth.digest.Mac;
+import com.qiniu.api.net.EncodeUtils;
 
 /**
  * The PutPolicy class used to generate a upload token. To upload a file, you
@@ -139,7 +140,7 @@ public class PutPolicy {
 			this.expires = 3600; // 3600s, default.
 		}
 		this.deadline = System.currentTimeMillis() / 1000 + this.expires;
-		byte[] data = this.marshal().getBytes();
+		byte[] data = EncodeUtils.toByte(this.marshal());
 		return DigestAuth.signWithData(mac, data);
 	}
 
