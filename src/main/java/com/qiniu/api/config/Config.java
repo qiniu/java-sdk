@@ -5,6 +5,7 @@ package com.qiniu.api.config;
  * side only.
  */
 public class Config {
+	public static final String CHARSET = "utf-8";
 	
 	public static String USER_AGENT="qiniu java-sdk v6.1.2";
 	
