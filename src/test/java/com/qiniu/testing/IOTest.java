@@ -44,6 +44,9 @@ public class IOTest extends TestCase {
 		assertNotNull(Config.RS_HOST);
 		assertNotNull(bucketName);
 		mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
+		
+		RSClient rs = new RSClient(mac);
+		rs.delete(bucketName, key2);
 	}
 
 	// just upload an image in testdata.
@@ -104,10 +107,10 @@ public class IOTest extends TestCase {
 
 	@Override
 	public void tearDown() {
+		RSClient rs = new RSClient(mac);
 		// delete the metadata from rs
 		// confirms it exists.
 		{
-			RSClient rs = new RSClient(mac);
 			Entry sr = rs.stat(bucketName, key);
 			assertTrue(sr.ok());
 			assertTrue(expectedHash.equals(sr.getHash()));
@@ -115,16 +118,16 @@ public class IOTest extends TestCase {
 
 		// deletes it from rs
 		{
-			RSClient rs = new RSClient(mac);
 			CallRet cr = rs.delete(bucketName, key);
 			assertTrue(cr.ok());
 		}
 
 		// confirms that it's deleted
 		{
-			RSClient rs = new RSClient(mac);
 			Entry sr = rs.stat(bucketName, key);
 			assertTrue(!sr.ok());
 		}
+		
+		rs.delete(bucketName, key2);
 	}
 }
