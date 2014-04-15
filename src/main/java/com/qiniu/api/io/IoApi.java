@@ -89,7 +89,7 @@ public class IoApi {
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
-			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, fileName == null ? fileName : "null");
+			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, fileName != null ? fileName : "null");
 			requestEntity.addPart("file", inputBody);
 			setKey(requestEntity, key);
 			setParam(requestEntity, extra.params);
