@@ -40,6 +40,10 @@ public class PutPolicy {
 	public int detectMime;
 	/** 可选 */
 	public long fsizeLimit;
+	/**限定用户上传的文件类型 
+ 	 * 可选
+ 	 * */
+	public String mimeLimit;
 	/** 可选 */
 	public String persistentNotifyUrl;
 	/** 可选 */
@@ -103,6 +107,9 @@ public class PutPolicy {
 		}
 		if(this.fsizeLimit>0){
 			stringer.key("fsizeLimit").value(this.fsizeLimit);
+		}
+		if(this.mimeLimit != null && this.mimeLimit.length() > 0){
+			stringer.key("mimeLimit").value(this.mimeLimit);
 		}
 		if (this.endUser != null && this.endUser.length() > 0) {
 			stringer.key("endUser").value(this.endUser);
