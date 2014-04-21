@@ -85,11 +85,11 @@ public class IoApi {
 		}
 	}
 	
-	private static PutRet putStream(String uptoken, String key, InputStream reader,PutExtra extra) {
+	private static PutRet putStream(String uptoken, String key, InputStream reader,PutExtra extra, String fileName) {
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
-			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, key);
+			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, fileName != null ? fileName : "null");
 			requestEntity.addPart("file", inputBody);
 			setKey(requestEntity, key);
 			setParam(requestEntity, extra.params);
@@ -109,19 +109,26 @@ public class IoApi {
 		return new PutRet(ret);
 	}
 	
-	private static InputStreamBody buildInputStreamBody(InputStream reader,PutExtra extra, String key){
+	private static InputStreamBody buildInputStreamBody(InputStream reader,PutExtra extra, String fileName){
 		if(extra.mimeType != null){
-			return new InputStreamBody(reader, extra.mimeType, key);
+			return new InputStreamBody(reader, extra.mimeType, fileName);
 		}else{
-			return new InputStreamBody(reader, key);
+			return new InputStreamBody(reader, fileName);
 		}
+	}
+	
+	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra){
+		return putStream(uptoken,key,reader,extra, null);
+	}
+	
+	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra, String fileName){
+		return putStream(uptoken,key,reader,extra, fileName);
 	}
 	
 	
 	public static PutRet Put(String uptoken,String key,InputStream reader,PutExtra extra)
 	{		
-		PutRet ret = putStream(uptoken,key,reader,extra);
-		return ret;
+		return put(uptoken,key,reader,extra);
 	}
 	
 	

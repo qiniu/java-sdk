@@ -22,6 +22,9 @@ public class AllCase {
 		suite.addTestSuite(BatchMoveTest.class);
 		
 		suite.addTestSuite(RSFTest.class);
+		
+//		suite.addTestSuite(HttpClientTimeOutTest.class);
+		
 		return suite;
 	} 
 	
