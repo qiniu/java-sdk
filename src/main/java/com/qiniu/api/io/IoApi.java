@@ -49,7 +49,7 @@ public class IoApi {
 
 			if (extra.params != null) {
 				for (Map.Entry<String, String> xvar : extra.params.entrySet()) {
-					requestEntity.addPart(xvar.getKey(), new StringBody(xvar.getValue()));
+					requestEntity.addPart(xvar.getKey(), new StringBody(xvar.getValue(), Charset.forName(Config.CHARSET)));
 				}
 			}
 		} catch (Exception e) {
@@ -72,7 +72,7 @@ public class IoApi {
 	
 	private static void setKey(MultipartEntity requestEntity, String key) throws UnsupportedEncodingException{
 		if(key != null){
-			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
+			requestEntity.addPart("key", new StringBody(key,Charset.forName(Config.CHARSET)));
 		}
 	}
 	
@@ -81,7 +81,7 @@ public class IoApi {
 			return;
 		}
 		for(String name : params.keySet()){
-			requestEntity.addPart(name, new StringBody(params.get(name),Charset.forName("utf-8")));
+			requestEntity.addPart(name, new StringBody(params.get(name),Charset.forName(Config.CHARSET)));
 		}
 	}
 	
