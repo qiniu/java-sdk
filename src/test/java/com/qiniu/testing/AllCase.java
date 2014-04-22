@@ -22,8 +22,9 @@ public class AllCase {
 		suite.addTestSuite(BatchMoveTest.class);
 		
 		suite.addTestSuite(RSFTest.class);
-		suite.addTestSuite(ResumeableioTest.class);
 		
+		suite.addTestSuite(ResumeableioTest.class);
+
 		return suite;
 	} 
 	

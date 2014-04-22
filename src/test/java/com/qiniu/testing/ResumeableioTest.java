@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,10 +25,7 @@ public class ResumeableioTest  extends TestCase{
 	public Mac mac;
 	public String bucketName;
 	private File file = null;
-	private String key1m = "qiniu-java-sdk-resumeable-1m-file-test.legdp";
-	private String key4m = "qiniu-java-sdk-resumeable-4m-file-test.txt";
-	private String key9m = "qiniu-java-sdk-resumeable-9m-file-test.legdp";
-	
+
 	private String currentKey;
 	private String mimeType = null;
 
@@ -44,42 +42,37 @@ public class ResumeableioTest  extends TestCase{
 		assertNotNull(bucketName);
 		mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 		mimeType = null;
+		currentKey = UUID.randomUUID().toString() + ".txt";
 	}
 	
 	public void testPut1MFile() throws Exception {
-		currentKey = key1m;
 		file = createFile(1, "_1m_");
 		mimeType = "test/type1m";
 		uploadFile();
 	}
 	
 	public void testPut1MStream() throws Exception {
-		currentKey = key1m;
 		file = createFile(1, "_1m_");
 		uploadStream();
 	}
 	
 	public void testPut4MFile() throws Exception {
-		currentKey = key4m;
 		file = createFile(4, "_4m_");
 		uploadFile();
 	}
 	
 	public void testPut4MStream() throws Exception {
-		currentKey = key4m;
 		file = createFile(4, "_4m_");
 		mimeType = "test/type4m";
 		uploadStream();
 	}
 	
 	public void testPut9MFile() throws Exception {
-		currentKey = key9m;
 		file = createFile(9, "_9m_");
 		uploadFile();
 	}
 	
 	public void testPut9MStream() throws Exception {
-		currentKey = key9m;
 		file = createFile(9, "_9m_");
 		mimeType = "test/type9m";
 		uploadStream();
