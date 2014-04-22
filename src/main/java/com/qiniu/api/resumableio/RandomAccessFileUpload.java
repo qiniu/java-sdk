@@ -24,9 +24,9 @@ public class RandomAccessFileUpload extends SliceUpload {
 	private int currentBlockIdx = 0;
 	private int blockCount;
 
-	public RandomAccessFileUpload(File file, Authorizer authorizer,
+	public RandomAccessFileUpload(File file, String token,
 			String key, String mimeType) {
-		super(authorizer, key, mimeType);
+		super(token, key, mimeType);
 		try {
 			this.contentLength = file.length();
 			this.blockCount = (int) ((contentLength + BLOCK_SIZE - 1) / BLOCK_SIZE);

@@ -72,7 +72,7 @@ public abstract class UploadBlock  {
 
     private ChunkUploadCallRet upload(String url, int start,int len, int time)  {
     	try {    
-	    	HttpPost post = Util.buildUpPost(url, sliceUpload.getAuthorizer());
+	    	HttpPost post = Util.buildUpPost(url, sliceUpload.token);
             post.setEntity(buildHttpEntity(start, len));
             HttpResponse response = httpClient.execute(post);
             ChunkUploadCallRet ret = new ChunkUploadCallRet(Util.handleResult(response));

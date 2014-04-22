@@ -42,9 +42,7 @@ public class ResumeableIoApi {
 	 */
 	public static RandomAccessFileUpload upload(File file, String upToken,
 			String key, String mimeType, Class<? extends Resumable> resumeClass) {
-		Authorizer authorizer = Authorizer.getInstance();
-		authorizer.setUploadToken(upToken);
-		RandomAccessFileUpload upload = new RandomAccessFileUpload(file, authorizer, key, mimeType);
+		RandomAccessFileUpload upload = new RandomAccessFileUpload(file, upToken, key, mimeType);
 
 		upload.resumeClass = resumeClass;
 		upload.httpClient = Http.getClient();
@@ -91,9 +89,7 @@ public class ResumeableIoApi {
 	 */
 	public static StreamSliceUpload upload(InputStream is, String upToken,
 			String key, String mimeType, long streamLength) {
-		Authorizer authorizer = Authorizer.getInstance();
-		authorizer.setUploadToken(upToken);
-		StreamSliceUpload upload = new StreamSliceUpload(is, authorizer, key, mimeType, streamLength);
+		StreamSliceUpload upload = new StreamSliceUpload(is, upToken, key, mimeType, streamLength);
 
 		upload.httpClient = Http.getClient();
 

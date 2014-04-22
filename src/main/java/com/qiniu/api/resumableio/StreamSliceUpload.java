@@ -8,8 +8,8 @@ public class StreamSliceUpload extends SliceUpload{
     private int currentBlockIdx = 0;
     
     public StreamSliceUpload(InputStream is,
-			Authorizer authorizer, String key, String mimeType) {
-		this(is, authorizer, key, mimeType, -1);
+			String token, String key, String mimeType) {
+		this(is, token, key, mimeType, -1);
 	}
 
 	/**
@@ -20,8 +20,8 @@ public class StreamSliceUpload extends SliceUpload{
 	 * @param totalLength 长度未知可传 -1；
 	 */
 	public StreamSliceUpload(InputStream is,
-			Authorizer authorizer, String key, String mimeType, long totalLength) {
-		super(authorizer, key, mimeType);
+			String token, String key, String mimeType, long totalLength) {
+		super(token, key, mimeType);
 		this.contentLength = totalLength;
 		this.is = is;
 	}

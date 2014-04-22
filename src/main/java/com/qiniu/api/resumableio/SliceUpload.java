@@ -13,7 +13,6 @@ import com.qiniu.api.config.Config;
 import com.qiniu.api.io.PutRet;
 import com.qiniu.api.net.CallRet;
 import com.qiniu.api.net.EncodeUtils;
-import com.qiniu.api.resumableio.Authorizer;
 
 public abstract class SliceUpload {
 	// 七牛服务器要求固定为4M
@@ -25,7 +24,7 @@ public abstract class SliceUpload {
 	public String host = Config.UP_HOST;
 	public HttpClient httpClient;
 
-	protected Authorizer authorizer;
+	protected String token;
 
 	protected String key;
 	protected String mimeType;
@@ -34,9 +33,9 @@ public abstract class SliceUpload {
 	protected long lastUploadLength = 0;
 	protected long currentUploadLength = 0;
 
-	public SliceUpload(Authorizer authorizer, String key,
+	public SliceUpload(String token, String key,
 			String mimeType) {
-		this.authorizer = authorizer;
+		this.token = token;
 		this.key = key;
 		this.mimeType = mimeType;
 	}
@@ -91,7 +90,7 @@ public abstract class SliceUpload {
 	private CallRet mkfile(String ctx, int time) {
 		try {
 			String url = buildMkfileUrl();
-			HttpPost post = Util.buildUpPost(url, authorizer);
+			HttpPost post = Util.buildUpPost(url, token);
 			post.setEntity(new StringEntity(ctx));
 			HttpResponse response = httpClient.execute(post);
 			CallRet ret = Util.handleResult(response);
@@ -133,14 +132,6 @@ public abstract class SliceUpload {
 
 	protected void addSuccessLength(long size) {
 		currentUploadLength += size;
-	}
-
-	public Authorizer getAuthorizer() {
-		return authorizer;
-	}
-
-	public void setAuthorizer(Authorizer authorizer) {
-		this.authorizer = authorizer;
 	}
 
 	/**

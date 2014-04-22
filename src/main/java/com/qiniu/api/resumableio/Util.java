@@ -11,10 +11,10 @@ import com.qiniu.api.config.Config;
 import com.qiniu.api.net.CallRet;
 
 public class Util {
-    public static HttpPost buildUpPost(String url, Authorizer authorizer) {
+    public static HttpPost buildUpPost(String url, String token) {
         HttpPost post = new HttpPost(url);
         post.setHeader("User-Agent", Config.USER_AGENT);
-        post.setHeader("Authorization", "UpToken " + authorizer.getUploadToken());
+        post.setHeader("Authorization", "UpToken " + token);
         return post;
     }
     
