@@ -30,7 +30,7 @@ public class ChunkUploadCallRet extends CallRet {
 	
 	private void doUnmarshal() {
 		try {
-			if(this.response != null && this.response.trim().startsWith("{")){
+			if(this.exception != null || this.response != null && this.response.trim().startsWith("{")){
 				unmarshal();
 			}
 		} catch (Exception e) {
