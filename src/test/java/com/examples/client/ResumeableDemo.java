@@ -15,7 +15,6 @@ import com.qiniu.api.net.Http;
 import com.qiniu.api.resumableio.RandomAccessFileUpload;
 import com.qiniu.api.resumableio.SliceUpload;
 import com.qiniu.api.resumableio.StreamSliceUpload;
-import com.qiniu.api.resumableio.resume.FileResume;
 import com.qiniu.api.rs.PutPolicy;
 
 public class ResumeableDemo {
@@ -69,10 +68,6 @@ public class ResumeableDemo {
 
 		RandomAccessFileUpload up = new RandomAccessFileUpload(new File(file),
 				token, key, null);
-		FileResume.RESUME_DIR = "D:\\"; // 默认 用户目录下
-		FileResume.RESUME_FILENAME_TYPE = FileResume.MD5_TYPE; // 默认
-																// FileResume.BASE64_TYPE
-		up.resumeClass = FileResume.class;
 		up.httpClient = Http.getClient();
 
 		handle(up);

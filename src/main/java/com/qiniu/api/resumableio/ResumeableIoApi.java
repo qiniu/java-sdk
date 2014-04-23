@@ -5,28 +5,18 @@ import java.io.InputStream;
 
 import com.qiniu.api.io.PutRet;
 import com.qiniu.api.net.Http;
-import com.qiniu.api.resumableio.resume.Resumable;
 
 public class ResumeableIoApi {
 
 	public static RandomAccessFileUpload upload(File file, String upToken) {
-		return upload(file, upToken, null, null, null);
+		return upload(file, upToken, null, null);
 	}
 
 	public static RandomAccessFileUpload upload(File file, String upToken,
 			String key) {
-		return upload(file, upToken, key, null, null);
+		return upload(file, upToken, key, null);
 	}
 
-	public static RandomAccessFileUpload upload(File file, String upToken,
-			String key, String mimeType) {
-		return upload(file, upToken, key, mimeType, null);
-	}
-
-	public static RandomAccessFileUpload upload(File file, String upToken,
-			String key, Class<? extends Resumable> resumeClass) {
-		return upload(file, upToken, key, null, resumeClass);
-	}
 
 	/**
 	 * @param file
@@ -41,14 +31,14 @@ public class ResumeableIoApi {
 	 * 
 	 */
 	public static RandomAccessFileUpload upload(File file, String upToken,
-			String key, String mimeType, Class<? extends Resumable> resumeClass) {
+			String key, String mimeType) {
 		RandomAccessFileUpload upload = new RandomAccessFileUpload(file, upToken, key, mimeType);
 
-		upload.resumeClass = resumeClass;
 		upload.httpClient = Http.getClient();
 
 		return upload;
 	}
+	
 	
 	public static StreamSliceUpload upload(InputStream is, String upToken) {
 		return upload(is, upToken, null, null);
@@ -105,12 +95,12 @@ public class ResumeableIoApi {
 	 */
 	public static PutRet put(File file, String upToken,
 			String key, String mimeType){
-		return upload(file, upToken, key, mimeType, null).execute();
+		return upload(file, upToken, key, mimeType).execute();
 	}
 	
 	public static PutRet put(File file, String upToken,
 			String key){
-		return upload(file, upToken, key, null, null).execute();
+		return put(file, upToken, key, null);
 	}
 	
 	/**

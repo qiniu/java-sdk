@@ -12,8 +12,6 @@ public class ChunkUploadCallRet extends CallRet {
 	protected String host;
 	protected long crc32;
 	
-	private int blockIdx;
-	
 	public ChunkUploadCallRet(CallRet ret) {
 		super(ret);
 		doUnmarshal();
@@ -69,14 +67,6 @@ public class ChunkUploadCallRet extends CallRet {
 
 	public long getCrc32() {
 		return crc32;
-	}
-
-	public int getBlockIdx() {
-		return blockIdx;
-	}
-
-	public void setBlockIdx(int blockIdx) {
-		this.blockIdx = blockIdx;
 	}
 
 }

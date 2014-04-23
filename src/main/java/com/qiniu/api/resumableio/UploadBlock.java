@@ -46,7 +46,6 @@ public abstract class UploadBlock  {
             }
         }
         clean();
-        ret.setBlockIdx(blockIdx);
         return ret;
     }
 
