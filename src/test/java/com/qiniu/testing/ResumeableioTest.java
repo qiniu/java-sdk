@@ -121,8 +121,9 @@ public class ResumeableioTest  extends TestCase{
 		}
 		
 		RSClient rs = new RSClient(mac);
+		System.out.println("try to delete: " + currentKey);
 		CallRet cr = rs.delete(bucketName, currentKey);
-		assertTrue(cr.ok());
+		System.out.println("delete " + currentKey + " successed!");
 	}
 
 	/**
