@@ -27,17 +27,19 @@ public class ChunkUploadCallRet extends CallRet {
 	}
 	
 	private void doUnmarshal() {
+		if (this.exception != null || this.response == null
+				|| !this.response.trim().startsWith("{")) {
+			return;
+		}
 		try {
-			if(this.exception != null || this.response != null && this.response.trim().startsWith("{")){
-				unmarshal();
-			}
+			unmarshal();
 		} catch (Exception e) {
 			e.printStackTrace();
-			if(this.exception == null){
+			if (this.exception == null) {
 				this.exception = e;
 			}
 		}
-		
+
 	}
 
 	protected void unmarshal() throws JSONException{
