@@ -1,5 +1,15 @@
 ## CHANGE LOG
 
+### v6.1.3
+
+2014-04-28 [#109](https://github.com/qiniu/java-sdk/pull/109)
+
+- [#101] [#102] 用户自定义参数
+- [#103] 分片上传，断点续传
+- [#106] bugfix: 普通流上传，key为空对象导致错误
+- [#107] bugfix: 指明为utf8字符集
+- [#108] 限定上传文件类型
+
 ### v6.1.2
 
 2014-2-10 [#98](https://github.com/qiniu/java-sdk/pull/98)
@@ -13,7 +23,7 @@
 - bugfix: PutExtra.mimeType 不生效问题
 - PutPolicy 补充字段
 
-### v6.0.7 
+### v6.0.7
 
 2013-11-7 [#85](https://github.com/qiniu/java-sdk/pull/85)
 
