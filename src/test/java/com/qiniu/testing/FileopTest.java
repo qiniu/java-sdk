@@ -1,6 +1,6 @@
 package com.qiniu.testing;
 
-import java.io.File;
+import java.util.UUID;
 
 import junit.framework.TestCase;
 
@@ -50,6 +50,9 @@ public class FileopTest extends TestCase {
 			assertNotNull(Config.RS_HOST);
 			assertNotNull(bucketName);
 		}
+		
+		key = UUID.randomUUID().toString();
+		
 		// upload an image
 		{
 			String uptoken = "";
@@ -130,30 +133,17 @@ public class FileopTest extends TestCase {
 			assertEquals(testUrl + "?imageView/2/h/200", url);
 		}
 	}
+	
+	public void testStat(){
+		RSClient rs = new RSClient(mac);
+		Entry sr = rs.stat(bucketName, key);
+		assertTrue(sr.ok());
+		assertTrue(expectedHash.equals(sr.getHash()));
+	}
 
 	@Override
 	public void tearDown() {
-		// delete the metadata from rs
-		// confirms it exists.
-		{
-			RSClient rs = new RSClient(mac);
-			Entry sr = rs.stat(bucketName, key);
-			assertTrue(sr.ok());
-			assertTrue(expectedHash.equals(sr.getHash()));
-		}
-
-		// deletes it from rs
-		{
 			RSClient rs = new RSClient(mac);
 			CallRet cr = rs.delete(bucketName, key);
-			assertTrue(cr.ok());
-		}
-
-		// confirms that it's deleted
-		{
-			RSClient rs = new RSClient(mac);
-			Entry sr = rs.stat(bucketName, key);
-			assertTrue(!sr.ok());
-		}
 	}
 }

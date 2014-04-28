@@ -1,5 +1,6 @@
 package com.qiniu.api.net;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +10,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
+
+import com.qiniu.api.config.Config;
 
 /**
  * URLEncoding is the alternate base64 encoding defined in RFC 4648. It is
@@ -38,7 +41,7 @@ public class EncodeUtils {
 	}
 	
 	public static byte[] urlsafeBase64Decode(String encoded){
-		byte[] rawbs = encoded.getBytes();
+		byte[] rawbs = toByte(encoded);
 		for(int i=0;i<rawbs.length;i++){
 			if(rawbs[i] == '_'){
 				rawbs[i] = '/';
@@ -50,11 +53,11 @@ public class EncodeUtils {
 	}
 	
 	public static String urlsafeEncodeString(byte[] src) {
-		return new String(urlsafeEncodeBytes(src));
+		return toString(urlsafeEncodeBytes(src));
 	}
 
 	public static String urlsafeEncode(String text) {
-		return new String(urlsafeEncodeBytes(text.getBytes()));
+		return toString(urlsafeEncodeBytes(toByte(text)));
 	}
 
 	// replace '/' with '_', '+" with '-'
@@ -84,8 +87,24 @@ public class EncodeUtils {
 				list.add(new BasicNameValuePair(entry.getKey(), entry
 						.getValue()));
 			}
-			return URLEncodedUtils.format(list, "UTF-8");
+			return URLEncodedUtils.format(list, Config.CHARSET);
 		}
 		return null;
+	}
+	
+	public static byte[] toByte(String s){
+		try {
+			return s.getBytes(Config.CHARSET);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static String toString(byte[] bs){
+		try {
+			return new String(bs, Config.CHARSET);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

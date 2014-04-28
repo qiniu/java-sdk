@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
@@ -38,12 +39,19 @@ public class IoApi {
 			AbstractContentBody fileBody = buildFileBody(file, extra);
 			requestEntity.addPart("file", fileBody);
 			setKey(requestEntity, key);
+			setParam(requestEntity, extra.params);
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
 					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
 				}
 				requestEntity.addPart("crc32", new StringBody(extra.crc32 + ""));
-			}	
+			}
+
+			if (extra.params != null) {
+				for (Map.Entry<String, String> xvar : extra.params.entrySet()) {
+					requestEntity.addPart(xvar.getKey(), new StringBody(xvar.getValue(), Charset.forName(Config.CHARSET)));
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new PutRet(new CallRet(400, e));
@@ -64,17 +72,27 @@ public class IoApi {
 	
 	private static void setKey(MultipartEntity requestEntity, String key) throws UnsupportedEncodingException{
 		if(key != null){
-			requestEntity.addPart("key", new StringBody(key,Charset.forName("utf-8")));
+			requestEntity.addPart("key", new StringBody(key,Charset.forName(Config.CHARSET)));
 		}
 	}
 	
-	private static PutRet putStream(String uptoken, String key, InputStream reader,PutExtra extra) {
+	private static void setParam(MultipartEntity requestEntity, Map<String, String> params) throws UnsupportedEncodingException{
+		if(params == null){
+			return;
+		}
+		for(String name : params.keySet()){
+			requestEntity.addPart(name, new StringBody(params.get(name),Charset.forName(Config.CHARSET)));
+		}
+	}
+	
+	private static PutRet putStream(String uptoken, String key, InputStream reader,PutExtra extra, String fileName) {
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
-			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, key);
+			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, fileName != null ? fileName : "null");
 			requestEntity.addPart("file", inputBody);
 			setKey(requestEntity, key);
+			setParam(requestEntity, extra.params);
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
 					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
@@ -91,19 +109,26 @@ public class IoApi {
 		return new PutRet(ret);
 	}
 	
-	private static InputStreamBody buildInputStreamBody(InputStream reader,PutExtra extra, String key){
+	private static InputStreamBody buildInputStreamBody(InputStream reader,PutExtra extra, String fileName){
 		if(extra.mimeType != null){
-			return new InputStreamBody(reader, extra.mimeType, key);
+			return new InputStreamBody(reader, extra.mimeType, fileName);
 		}else{
-			return new InputStreamBody(reader, key);
+			return new InputStreamBody(reader, fileName);
 		}
+	}
+	
+	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra){
+		return putStream(uptoken,key,reader,extra, null);
+	}
+	
+	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra, String fileName){
+		return putStream(uptoken,key,reader,extra, fileName);
 	}
 	
 	
 	public static PutRet Put(String uptoken,String key,InputStream reader,PutExtra extra)
 	{		
-		PutRet ret = putStream(uptoken,key,reader,extra);
-		return ret;
+		return put(uptoken,key,reader,extra);
 	}
 	
 	
