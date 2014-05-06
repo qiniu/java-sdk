@@ -50,7 +50,7 @@ public class PutPolicy {
 	/** 可选 */
 	public String persistentOps;
 	
-	public long deadline;
+	private long deadline;
 
   	/**
    	  *
