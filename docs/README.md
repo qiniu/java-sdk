@@ -209,7 +209,24 @@ public class UploadFile {
 
 ### 3.4 断点续上传、分块并行上传
 
-建设中...
+于普通上传类似：
+```{java}
+	private void uploadFile() throws AuthException, JSONException{
+		PutPolicy p = new PutPolicy(bucketName);
+		p.returnBody = "{\"key\": $(key), \"hash\": $(etag),\"mimeType\": $(mimeType)}";
+		String upToken = p.token(mac);
+		PutRet ret = ResumeableIoApi.put(file, upToken, key, mimeType);
+	}
+	
+	private void uploadStream() throws AuthException, JSONException, FileNotFoundException{
+		PutPolicy p = new PutPolicy(bucketName);
+		String upToken = p.token(mac);
+		FileInputStream fis = new FileInputStream(file);
+		PutRet ret = ResumeableIoApi.put(fis, upToken, key, mimeType);
+	}
+
+```
+key，mimeType 可为null。
 
 <a name="io-put-policy"></a>
 
