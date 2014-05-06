@@ -209,7 +209,7 @@ public class UploadFile {
 
 ### 3.4 断点续上传、分块并行上传
 
-于普通上传类似：
+与普通上传类似：
 ```{java}
 	private void uploadFile() throws AuthException, JSONException{
 		PutPolicy p = new PutPolicy(bucketName);
