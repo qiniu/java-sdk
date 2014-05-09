@@ -134,6 +134,10 @@ public class IoApi {
 	
 	public static PutRet putFile(String uptoken, String key, String fileName, PutExtra extra) {
 		File file=new File(fileName);
+		return putFile(uptoken, key, file, extra);
+	}
+	
+	public static PutRet putFile(String uptoken, String key, File file, PutExtra extra) {
 		if (extra.checkCrc == AUTO_CRC32) {
 			try {
 				extra.crc32 = getCRC32(file);
