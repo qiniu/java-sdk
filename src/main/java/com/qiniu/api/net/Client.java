@@ -51,7 +51,7 @@ public class Client {
 			return handleResult(response);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new CallRet(400, e);
+			return new CallRet(Config.ERROR_CODE, e);
 		}
 	}
 
@@ -78,7 +78,7 @@ public class Client {
 			return handleResult(response);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new CallRet(400, e);
+			return new CallRet(Config.ERROR_CODE, e);
 		}
 	}
 
@@ -99,7 +99,7 @@ public class Client {
 			return handleResult(response);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new CallRet(400, e);
+			return new CallRet(Config.ERROR_CODE, e);
 		}
 	}
 
@@ -142,7 +142,7 @@ public class Client {
 			return handleResult(response);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new CallRet(400, e);
+			return new CallRet(Config.ERROR_CODE, e);
 		}
 	}
 
@@ -155,7 +155,7 @@ public class Client {
 	 */
 	private CallRet handleResult(HttpResponse response) {
 		if (response == null || response.getStatusLine() == null) {
-			return new CallRet(400, "No response");
+			return new CallRet(Config.ERROR_CODE, "No response");
 		}
 
 		String responseBody;
@@ -163,11 +163,11 @@ public class Client {
 			responseBody = EntityUtils.toString(response.getEntity(),"UTF-8");
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new CallRet(400, e);
+			return new CallRet(Config.ERROR_CODE, e);
 		}
 
 		StatusLine status = response.getStatusLine();
-		int statusCode = (status == null) ? 400 : status.getStatusCode();
+		int statusCode = (status == null) ? Config.ERROR_CODE : status.getStatusCode();
 		return new CallRet(statusCode, responseBody);
 	}
 

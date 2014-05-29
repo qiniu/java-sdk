@@ -6,6 +6,8 @@ package com.qiniu.api.config;
  */
 public class Config {
 	public static final String CHARSET = "utf-8";
+	/**本地检测不通过、程序抛异常，设置 CallRet 的 statusCode 为此错误码*/
+	public static final int ERROR_CODE = 0;
 	
 	public static String USER_AGENT="qiniu java-sdk v6.0.0";
 	
