@@ -209,7 +209,24 @@ public class UploadFile {
 
 ### 3.4 断点续上传、分块并行上传
 
-建设中...
+与普通上传类似：
+```{java}
+	private void uploadFile() throws AuthException, JSONException{
+		PutPolicy p = new PutPolicy(bucketName);
+		p.returnBody = "{\"key\": $(key), \"hash\": $(etag),\"mimeType\": $(mimeType)}";
+		String upToken = p.token(mac);
+		PutRet ret = ResumeableIoApi.put(file, upToken, key, mimeType);
+	}
+	
+	private void uploadStream() throws AuthException, JSONException, FileNotFoundException{
+		PutPolicy p = new PutPolicy(bucketName);
+		String upToken = p.token(mac);
+		FileInputStream fis = new FileInputStream(file);
+		PutRet ret = ResumeableIoApi.put(fis, upToken, key, mimeType);
+	}
+
+```
+key，mimeType 可为null。
 
 <a name="io-put-policy"></a>
 
@@ -217,13 +234,7 @@ public class UploadFile {
 
 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 实际上是用 AccessKey/SecretKey 进行数字签名的上传策略(`rs.PutPolicy`)，它控制则整个上传流程的行为。让我们快速过一遍你都能够决策啥：
 
-* `expires` 指定 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 有效期（默认1小时）。一个 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 可以被用于多次上传（只要它还没有过期）。
-* `scope` 限定客户端的权限。如果 `scope` 是 bucket，则客户端只能新增文件到指定的 bucket，不能修改文件。如果 `scope` 为 bucket:key，则客户端可以修改指定的文件。**注意： key必须采用utf8编码，如使用非utf8编码访问七牛云存储将反馈错误**
-* `callbackUrl` 设定业务服务器的回调地址，这样业务服务器才能感知到上传行为的发生。可选。
-* `asyncOps` 可指定上传完成后，需要自动执行哪些数据处理。这是因为有些数据处理操作（比如音视频转码）比较慢，如果不进行预转可能第一次访问的时候效果不理想，预转可以很大程度改善这一点。
-* `returnBody` 可调整返回给客户端的数据包（默认情况下七牛返回文件内容的 `hash`，也就是下载该文件时的 `etag`）。这只在没有 `CallbackUrl` 时有效。
-* `escape` 为真（非0）时，表示客户端传入的 `callbackParams` 中含有转义符。通过这个特性，可以很方便地把上传文件的某些元信息如 `fsize`（文件大小）、`ImageInfo.width/height`（图片宽度/高度）、`exif`（图片EXIF信息）等传给业务服务器。
-* `detectMime` 为真（非0）时，表示服务端忽略客户端传入的 `mimeType`，自己自行检测。
+* `expires` 指定 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 有效时长。单位：秒（s），默认1小时，3600秒。deadline = System.currentTimeMillis() / 1000 + this.expires，不直接指定deadline。一个 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken) 可以被用于多次上传（只要它还没有过期）。
 
 关于上传策略更完整的说明，请参考 [uptoken](http://docs.qiniu.com/api/put.html#uploadToken)。
 

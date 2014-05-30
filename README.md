@@ -24,7 +24,7 @@
 
 ## 使用
 
-参考文档：[七牛云存储 Java SDK 使用指南](http://docs.qiniutek.com/v2/sdk/java/)
+参考文档：[七牛云存储 Java SDK 使用指南](http://developer.qiniu.com/docs/v6/sdk/java-sdk.html)
 
 
 ## 贡献代码
