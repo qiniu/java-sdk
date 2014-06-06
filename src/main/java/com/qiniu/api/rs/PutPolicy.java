@@ -51,6 +51,12 @@ public class PutPolicy {
 	public String persistentOps;
 
 	private long deadline;
+	
+	/**
+	 * 转码队列名，须预先开通
+	 * 资源上传成功后，触发转码时指定独立的队列进行转码
+	 */
+	public String persistentPipeline;
 
 
 	public PutPolicy(String scope) {
@@ -100,6 +106,10 @@ public class PutPolicy {
 		if (this.persistentOps != null && this.persistentOps.length() > 0) {
 			stringer.key("persistentOps").value(this.persistentOps);
 		}
+		if(persistentPipeline != null && persistentPipeline.trim().length()  > 0){
+			stringer.key("persistentPipeline").value(this.persistentPipeline);
+		}
+		
 		stringer.key("deadline").value(this.deadline);
 		stringer.endObject();
 
