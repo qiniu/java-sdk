@@ -22,14 +22,14 @@ import com.qiniu.api.rs.RSClient;
 
 public class FileopTest extends TestCase {
 
-	public String key = "FileopTest-key";
+	public String key = "java-FileopTest-key";
 
-	public String bucketName;
+	public String bucketName = System.getenv("QINIU_TEST_BUCKET");;
 
 	public String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
 
-	public String domain = "http://junitbucket.qiniudn.com";
-	
+	public String domain = System.getenv("QINIU_TEST_DOMAIN");
+
 	public Mac mac;
 
 	@Override
@@ -40,7 +40,6 @@ public class FileopTest extends TestCase {
 			Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY");
 			Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY");
 			Config.RS_HOST = System.getenv("QINIU_RS_HOST");
-			this.bucketName = System.getenv("QINIU_TEST_BUCKET");
 			mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 		}
 		// check the config
@@ -50,9 +49,9 @@ public class FileopTest extends TestCase {
 			assertNotNull(Config.RS_HOST);
 			assertNotNull(bucketName);
 		}
-		
+
 		key = UUID.randomUUID().toString();
-		
+
 		// upload an image
 		{
 			String uptoken = "";
@@ -64,7 +63,7 @@ public class FileopTest extends TestCase {
 			String localFile = dir + "/testdata/" + "logo.png";
 
 			PutExtra extra = new PutExtra();
-			
+
 			PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
@@ -72,20 +71,20 @@ public class FileopTest extends TestCase {
 	}
 
 	public void testImageInfo() throws Exception {
-		String url = domain + "/" + key;
+		String url = "http://" + domain + "/" + key;
 		ImageInfoRet ret = ImageInfo.call(url);
 		assertTrue(ret.ok());
 	}
 
 	public void testImageExif() throws Exception {
-		String url = domain + "/" + key;
+		String url = "http://" + domain + "/" + key;
 		ExifRet ret = ImageExif.call(url);
 		// logo.png has no exif
 		assertTrue(!ret.ok());
 	}
 
 	public void testImageView() throws Exception {
-		String url = "http://qiniuphotos.qiniudn.com/gogopher.jpg";
+		String url = "http://testres.qiniudn.com/gogopher.jpg";
 		{
 			ImageView iv = new ImageView();
 			iv.mode = 1;
@@ -113,7 +112,7 @@ public class FileopTest extends TestCase {
 	}
 
 	public void testImageViewMakeRequest() {
-		String testUrl = "http://iovip.qbox.me/file/xyz==";
+		String testUrl = "http://testres.qiniudn.com/gogopher.jpg";
 		ImageView imgView = new ImageView();
 		// case 1
 		{
@@ -133,7 +132,7 @@ public class FileopTest extends TestCase {
 			assertEquals(testUrl + "?imageView/2/h/200", url);
 		}
 	}
-	
+
 	public void testStat(){
 		RSClient rs = new RSClient(mac);
 		Entry sr = rs.stat(bucketName, key);

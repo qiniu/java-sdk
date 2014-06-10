@@ -1,9 +1,11 @@
 language: java
 
 before_script:
-    - export QINIU_ACCESS_KEY=iN7NgwM31j4-BZacMjPrOQBs34UG1maYCAQmhdCV
-    - export QINIU_SECRET_KEY=6QTOr2Jg1gcZEWDQXKOGZh5PziC2MCV5KsntT70j
+    - export QINIU_ACCESS_KEY=QWYn5TFQsLLU1pL5MFEmX3s5DmHdUThav9WyOWOm
+    - export QINIU_SECRET_KEY=Bxckh6FA-Fbs9Yt3i3cbKVK22UPBmAOHJcL95pGz
     - export QINIU_UP_HOST=http://up.qbox.me
     - export QINIU_RS_HOST=http://rs.qbox.me
     - export QINIU_IO_HOST=http://iovip.qbox.me
-    - export QINIU_TEST_BUCKET=junit_bucket
+    - export QINIU_TEST_BUCKET=javasdk
+    - export QINIU_TEST_SRC_BUCKET=testsrc
+    - export QINIU_TEST_DOMAIN=javasdk.qiniudn.com
