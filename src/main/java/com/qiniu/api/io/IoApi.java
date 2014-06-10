@@ -30,7 +30,7 @@ public class IoApi {
 			PutExtra extra) {
 		
 		if (!file.exists() || !file.canRead()) {
-			return new PutRet(new CallRet(400, new Exception(
+			return new PutRet(new CallRet(Config.ERROR_CODE, new Exception(
 					"File does not exist or not readable.")));
 		}
 		MultipartEntity requestEntity = new MultipartEntity();
@@ -42,7 +42,7 @@ public class IoApi {
 			setParam(requestEntity, extra.params);
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
-					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
+					return new PutRet(new CallRet(Config.ERROR_CODE, new Exception("no crc32 specified!")));
 				}
 				requestEntity.addPart("crc32", new StringBody(extra.crc32 + ""));
 			}
@@ -54,7 +54,7 @@ public class IoApi {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new PutRet(new CallRet(400, e));
+			return new PutRet(new CallRet(Config.ERROR_CODE, e));
 		}
 
 		String url = Config.UP_HOST;
@@ -95,13 +95,13 @@ public class IoApi {
 			setParam(requestEntity, extra.params);
 			if (extra.checkCrc != NO_CRC32) {
 				if (extra.crc32 == 0) {
-					return new PutRet(new CallRet(400, new Exception("no crc32 specified!")));
+					return new PutRet(new CallRet(Config.ERROR_CODE, new Exception("no crc32 specified!")));
 				}
 				requestEntity.addPart("crc32", new StringBody(extra.crc32 + ""));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new PutRet(new CallRet(400, e));
+			return new PutRet(new CallRet(Config.ERROR_CODE, e));
 		}
 
 		String url = Config.UP_HOST;
@@ -142,7 +142,7 @@ public class IoApi {
 			try {
 				extra.crc32 = getCRC32(file);
 			} catch (Exception e) {
-				return new PutRet(new CallRet(400, e));
+				return new PutRet(new CallRet(Config.ERROR_CODE, e));
 			}
 		}
 		return put(uptoken, key, file, extra);

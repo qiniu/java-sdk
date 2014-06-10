@@ -26,7 +26,7 @@ public class Util {
                     response.getEntity(), "utf-8");
             return new CallRet(statusCode, responseBody);
         } catch (Exception e) {
-            CallRet ret = new CallRet(400, "can not load response.");
+            CallRet ret = new CallRet(Config.ERROR_CODE, "can not load response.");
             ret.exception = e;
             return ret;
         }
