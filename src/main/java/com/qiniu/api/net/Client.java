@@ -37,7 +37,6 @@ public class Client {
 	public static HttpPost newPost(String url){
 		HttpPost postMethod = new HttpPost(url);
 		postMethod.setHeader(HEADER_AGENT, getUserAgent());
-		System.out.println(getUserAgent());
 		return postMethod;
 	}
 
