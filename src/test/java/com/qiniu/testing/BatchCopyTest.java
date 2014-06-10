@@ -26,13 +26,14 @@ public class BatchCopyTest extends TestCase {
 	public final String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
 
 	public String bucketName;
-	public final String key1 = "BatchCopyTest-key1";
-	public final String key2 = "BatchCopyTest-key2";
+	public final String key1 = "java-BatchCopyTest-key1";
+	public final String key2 = "java-BatchCopyTest-key2";
 
-	public final String srcBucket = "junit_bucket_src";
-	public final String destBucket = "junit_bucket_dest";
+	public final String srcBucket = System.getenv("QINIU_TEST_SRC_BUCKET");
+	public final String destBucket = System.getenv("QINIU_TEST_BUCKET");
+
 	public Mac mac;
-	
+
 	@Override
 	public void setUp() throws Exception {
 		// get the config
@@ -40,7 +41,6 @@ public class BatchCopyTest extends TestCase {
 			Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY");
 			Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY");
 			Config.RS_HOST = System.getenv("QINIU_RS_HOST");
-			bucketName = System.getenv("QINIU_TEST_BUCKET");
 			mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 		}
 
@@ -49,7 +49,6 @@ public class BatchCopyTest extends TestCase {
 			assertNotNull(Config.ACCESS_KEY);
 			assertNotNull(Config.SECRET_KEY);
 			assertNotNull(Config.RS_HOST);
-			assertNotNull(bucketName);
 		}
 
 		// upload a file to src bucket with key1, key2
@@ -63,8 +62,9 @@ public class BatchCopyTest extends TestCase {
 			String localFile = dir + "/testdata/" + "logo.png";
 
 			PutExtra extra = new PutExtra();
-			
+
 			PutRet ret = IoApi.putFile(uptoken, key1, localFile, extra);
+
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));
 
@@ -173,7 +173,7 @@ public class BatchCopyTest extends TestCase {
 		}
 		// the dest bucket should have the keys
 		{
-			
+
 			RSClient rs = new RSClient(mac);
 
 			List<EntryPath> entries = new ArrayList<EntryPath>();
@@ -228,7 +228,7 @@ public class BatchCopyTest extends TestCase {
 
 		// delete keys from the dest bucket
 		{
-			
+
 			RSClient rs = new RSClient(mac);
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 
@@ -250,10 +250,10 @@ public class BatchCopyTest extends TestCase {
 				assertTrue(r.ok());
 			}
 		}
-		
+
 		// use batchStat to check src bucket
 		{
-			
+
 			RSClient rs = new RSClient(mac);
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 
@@ -271,7 +271,7 @@ public class BatchCopyTest extends TestCase {
 			// check batchCall
 			assertTrue(!bsRet.ok());
 		}
-		
+
 		// use batchstat checks dest bucket again.
 		{
 			RSClient rs = new RSClient(mac);

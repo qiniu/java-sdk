@@ -35,7 +35,7 @@ public class ResumeableioTest  extends TestCase{
 		Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY");
 		Config.RS_HOST = System.getenv("QINIU_RS_HOST");
 		bucketName = System.getenv("QINIU_TEST_BUCKET");
-		
+
 		assertNotNull(Config.ACCESS_KEY);
 		assertNotNull(Config.SECRET_KEY);
 		assertNotNull(Config.RS_HOST);
@@ -44,40 +44,40 @@ public class ResumeableioTest  extends TestCase{
 		mimeType = null;
 		currentKey = UUID.randomUUID().toString() + ".txt";
 	}
-	
+
 	public void testPut1MFile() throws Exception {
 		file = createFile(1, "_1m_");
 		mimeType = "test/type1m";
 		uploadFile();
 	}
-	
+
 	public void testPut1MStream() throws Exception {
 		file = createFile(1, "_1m_");
 		uploadStream();
 	}
-	
+
 	public void testPut4MFile() throws Exception {
 		file = createFile(4, "_4m_");
 		uploadFile();
 	}
-	
+
 	public void testPut4MStream() throws Exception {
 		file = createFile(4, "_4m_");
 		mimeType = "test/type4m";
 		uploadStream();
 	}
-	
-	public void testPut9MFile() throws Exception {
-		file = createFile(9, "_9m_");
+
+	public void testPut3MFile() throws Exception {
+		file = createFile(3, "_3m_");
 		uploadFile();
 	}
-	
-	public void testPut9MStream() throws Exception {
-		file = createFile(9, "_9m_");
-		mimeType = "test/type9m";
+
+	public void testPut3MStream() throws Exception {
+		file = createFile(3, "_3m_");
+		mimeType = "test/type3m";
 		uploadStream();
 	}
-	
+
 
 	private void uploadFile() throws AuthException, JSONException{
 		PutPolicy p = new PutPolicy(bucketName);
@@ -92,7 +92,7 @@ public class ResumeableioTest  extends TestCase{
 			assertEquals(mimeType, mt);
 		}
 	}
-	
+
 
 	private void uploadStream() throws AuthException, JSONException, FileNotFoundException{
 		PutPolicy p = new PutPolicy(bucketName);
@@ -108,7 +108,7 @@ public class ResumeableioTest  extends TestCase{
 			assertEquals(mimeType, mt);
 		}
 	}
-	
+
 
 	@Override
 	public void tearDown() {
@@ -119,7 +119,7 @@ public class ResumeableioTest  extends TestCase{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		
+
 		RSClient rs = new RSClient(mac);
 		System.out.println("try to delete: " + currentKey);
 		CallRet cr = rs.delete(bucketName, currentKey);
@@ -129,7 +129,7 @@ public class ResumeableioTest  extends TestCase{
 	/**
 	 * @param fileSize M
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private File createFile(int fileSize, String temp) throws IOException {
 		FileOutputStream fos = null;
@@ -155,7 +155,7 @@ public class ResumeableioTest  extends TestCase{
 			}
 		}
 	}
-	
+
 	private byte[] getByte(){
 		byte [] b = new byte[1024 * 4];
 		b[0] = 'A';

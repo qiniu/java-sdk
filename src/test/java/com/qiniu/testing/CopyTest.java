@@ -19,13 +19,12 @@ public class CopyTest extends TestCase {
 
 	public final String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
 
-	public String bucketName;
-	public final String key = "CopyTest-key";
+	public final String key = "java-CopyTest-key";
 
-	public final String srcBucket = "junit_bucket_src";
-	public final String destBucket = "junit_bucket_dest";
+	public final String srcBucket = System.getenv("QINIU_TEST_SRC_BUCKET");
+	public final String destBucket = System.getenv("QINIU_TEST_BUCKET");
 	public Mac mac;
-	
+
 	@Override
 	public void setUp() throws Exception {
 		// get the config
@@ -33,7 +32,6 @@ public class CopyTest extends TestCase {
 			Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY");
 			Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY");
 			Config.RS_HOST = System.getenv("QINIU_RS_HOST");
-			bucketName = System.getenv("QINIU_TEST_BUCKET");
 			mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 		}
 
@@ -42,7 +40,6 @@ public class CopyTest extends TestCase {
 			assertNotNull(Config.ACCESS_KEY);
 			assertNotNull(Config.SECRET_KEY);
 			assertNotNull(Config.RS_HOST);
-			assertNotNull(bucketName);
 		}
 
 		// upload a file to the bucket
@@ -62,22 +59,7 @@ public class CopyTest extends TestCase {
 		}
 	}
 
-	public void testMove() throws Exception {
-		// upload a file to the srcbucket
-		{
-			String uptoken = "";
-			try {
-				uptoken = new PutPolicy(bucketName).token(mac);
-			} catch (AuthException ignore) {
-			}
-			String dir = System.getProperty("user.dir");
-			String localFile = dir + "/testdata/" + "logo.png";
-
-			PutExtra extra = new PutExtra();
-			PutRet ret = IoApi.putFile(uptoken, key, localFile, extra);
-			assertTrue(ret.ok());
-			assertTrue(expectedHash.equals(ret.getHash()));
-		}
+	public void testCopy() throws Exception {
 		// test move
 		{
 			RSClient rs = new RSClient(mac);
