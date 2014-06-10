@@ -19,14 +19,14 @@ import com.qiniu.api.config.*;
 
 /**
  * The class {@code Client} is a typical wrapper of RPC. Also see
- * {@code com.qiniu.api.auth.DigestAuthClient} 
+ * {@code com.qiniu.api.auth.DigestAuthClient}
  */
 public class Client {
-	
-	private final static  String HEADER_AGENT="User-Agent";	
+
+	private final static  String HEADER_AGENT="User-Agent";
 
 	/**
-	 * 
+	 *
 	 * @param post
 	 * @throws AuthException
 	 */
@@ -34,31 +34,44 @@ public class Client {
 
 	}
 
+	public static HttpPost newPost(String url){
+		HttpPost postMethod = new HttpPost(url);
+		postMethod.setHeader(HEADER_AGENT, getUserAgent());
+		return postMethod;
+	}
+
+	private static String getUserAgent(){
+		String javaVersion = "Java/" + System.getProperty("java.version");
+		String os = System.getProperty("os.name") + " "
+		+  System.getProperty("os.arch") + " " + System.getProperty("os.version");
+		String sdk = "QiniuJava/" + Config.VERSION;
+		return sdk + " (" + os +") " + javaVersion;
+	}
+
 	/**
 	 * Sends a http post request to the specified url.
-	 * 
+	 *
 	 * @param url
 	 *            the request url
 	 * @return A general response
 	 */
 	public CallRet call(String url) {
 		HttpClient client = Http.getClient();
-		HttpPost postMethod = new HttpPost(url);
-		postMethod.setHeader(HEADER_AGENT,Config.USER_AGENT);
+		HttpPost postMethod = newPost(url);
 		try {
 			setAuth(postMethod);
 			HttpResponse response = client.execute(postMethod);
 			return handleResult(response);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new CallRet(400, e);
+			return new CallRet(Config.ERROR_CODE, e);
 		}
 	}
 
 	/**
 	 * Sends a http post request to the specified url with a list of
 	 * <code>NameValuePair<code>.
-	 * 
+	 *
 	 * @param url
 	 *            the request url
 	 * @param nvps
@@ -66,19 +79,18 @@ public class Client {
 	 */
 	public CallRet call(String url, List<NameValuePair> nvps) {
 		HttpClient client = Http.getClient();
-		HttpPost postMethod = new HttpPost(url);
+		HttpPost postMethod = newPost(url);
 		try {
 			StringEntity entity = new UrlEncodedFormEntity(nvps, "UTF-8");
 			entity.setContentType("application/x-www-form-urlencoded");
 			postMethod.setEntity(entity);
-			postMethod.setHeader(HEADER_AGENT,Config.USER_AGENT);
 			setAuth(postMethod);
 			HttpResponse response = client.execute(postMethod);
 
 			return handleResult(response);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new CallRet(400, e);
+			return new CallRet(Config.ERROR_CODE, e);
 		}
 	}
 
@@ -90,7 +102,7 @@ public class Client {
 	 */
 	public CallRet callWithBinary(String url, AbstractHttpEntity entity) {
 		HttpClient client = Http.getClient();
-		HttpPost postMethod = new HttpPost(url);
+		HttpPost postMethod = newPost(url);
 		postMethod.setEntity(entity);
 
 		try {
@@ -99,12 +111,12 @@ public class Client {
 			return handleResult(response);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new CallRet(400, e);
+			return new CallRet(Config.ERROR_CODE, e);
 		}
 	}
 
 	/**
-	 * 
+	 *
 	 * @param url
 	 *            the request url
 	 * @param contentType
@@ -126,36 +138,35 @@ public class Client {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param url
 	 * @param requestEntity
 	 * @return A general response format
 	 */
 	public CallRet callWithMultiPart(String url, MultipartEntity requestEntity) {
-		HttpPost postMethod = new HttpPost(url);
+		HttpPost postMethod = newPost(url);
 		postMethod.setEntity(requestEntity);
-		postMethod.setHeader(HEADER_AGENT,Config.USER_AGENT);
 		HttpClient client = Http.getClient();
-		
+
 		try {
 			HttpResponse response = client.execute(postMethod);
 			return handleResult(response);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new CallRet(400, e);
+			return new CallRet(Config.ERROR_CODE, e);
 		}
 	}
 
 	/**
 	 * Transforms a httpresponse to user expected format.
-	 * 
+	 *
 	 * @param response
 	 *            http response body
 	 * @return a formated general response structure
 	 */
 	private CallRet handleResult(HttpResponse response) {
 		if (response == null || response.getStatusLine() == null) {
-			return new CallRet(400, "No response");
+			return new CallRet(Config.ERROR_CODE, "No response");
 		}
 
 		String responseBody;
@@ -163,11 +174,11 @@ public class Client {
 			responseBody = EntityUtils.toString(response.getEntity(),"UTF-8");
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new CallRet(400, e);
+			return new CallRet(Config.ERROR_CODE, e);
 		}
 
 		StatusLine status = response.getStatusLine();
-		int statusCode = (status == null) ? 400 : status.getStatusCode();
+		int statusCode = (status == null) ? Config.ERROR_CODE : status.getStatusCode();
 		return new CallRet(statusCode, responseBody);
 	}
 

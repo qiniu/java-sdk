@@ -5,6 +5,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 
+import com.qiniu.api.config.Config;
+
 
 public abstract class UploadBlock  {
     public static int CHUNK_SIZE = 1024 * 256;
@@ -78,7 +80,7 @@ public abstract class UploadBlock  {
             
             return checkAndRetryUpload(url, start, len, time, ret);
 		} catch (Exception e) {
-			return new ChunkUploadCallRet(400, e);
+			return new ChunkUploadCallRet(Config.ERROR_CODE, e);
 		}
     }
 
