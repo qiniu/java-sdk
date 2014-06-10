@@ -26,14 +26,14 @@ public class BatchMoveTest extends TestCase {
 	public final String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
 
 	public String bucketName;
-	public final String key1 = "BatchMoveTest-key1";
-	public final String key2 = "BatchMoveTest-key2";
-	
-	public final String srcBucket = "junit_bucket_src";
-	public final String destBucket = "junit_bucket_dest";
+	public final String key1 = "java-BatchMoveTest-key1";
+	public final String key2 = "java-BatchMoveTest-key2";
+
+	public final String srcBucket = System.getenv("QINIU_TEST_SRC_BUCKET");
+	public final String destBucket = System.getenv("QINIU_TEST_BUCKET");
 
 	public Mac mac;
-	
+
 	@Override
 	public void setUp() throws Exception {
 		// get the config
@@ -41,7 +41,6 @@ public class BatchMoveTest extends TestCase {
 			Config.ACCESS_KEY = System.getenv("QINIU_ACCESS_KEY");
 			Config.SECRET_KEY = System.getenv("QINIU_SECRET_KEY");
 			Config.RS_HOST = System.getenv("QINIU_RS_HOST");
-			bucketName = System.getenv("QINIU_TEST_BUCKET");
 			mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 		}
 
@@ -50,7 +49,6 @@ public class BatchMoveTest extends TestCase {
 			assertNotNull(Config.ACCESS_KEY);
 			assertNotNull(Config.SECRET_KEY);
 			assertNotNull(Config.RS_HOST);
-			assertNotNull(bucketName);
 		}
 
 		// upload a file to the bucket with key1, key2
@@ -107,41 +105,41 @@ public class BatchMoveTest extends TestCase {
 		{
 			RSClient rs = new RSClient(mac);
 			List<EntryPathPair> entries = new ArrayList<EntryPathPair>();
-			
+
 			EntryPathPair pair1 = new EntryPathPair();
-			
+
 			EntryPath src = new EntryPath();
 			src.bucket = srcBucket;
 			src.key = key1;
-			
+
 			EntryPath dest = new EntryPath();
 			dest.bucket = destBucket;
 			dest.key = key1;
-			
+
 			pair1.src = src;
 			pair1.dest = dest;
-			
+
 			EntryPathPair pair2 = new EntryPathPair();
-			
+
 			EntryPath src2 = new EntryPath();
 			src2.bucket = srcBucket;
 			src2.key =  key2;
-			
+
 			EntryPath dest2 = new EntryPath();
 			dest2.bucket = destBucket;
 			dest2.key = key2;
-			
+
 			pair2.src = src2;
 			pair2.dest = dest2;
-			
+
 			entries.add(pair1);
 			entries.add(pair2);
-			
+
 			BatchCallRet ret = rs.batchMove(entries);
-			
+
 			// check batchMove
 			assertTrue(ret.ok());
-			
+
 			List<CallRet> results = ret.results;
 			for (CallRet r : results) {
 				assertTrue(r.ok());
@@ -150,41 +148,41 @@ public class BatchMoveTest extends TestCase {
 		// the src keys should not be available in src bucket
 		{
 			RSClient rs = new RSClient(mac);
-			
+
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 			EntryPath e1 = new EntryPath();
 			e1.bucket = srcBucket;
 			e1.key = key1;
-			
+
 			EntryPath e2 = new EntryPath();
 			e2.bucket = srcBucket;
 			e2.key = key2;
-			
+
 			entries.add(e1);
 			entries.add(e2);
-			
+
 			BatchStatRet ret = rs.batchStat(entries);
 			assertTrue(!ret.ok());
 		}
 		// the dest bucket should have the keys
 		{
 			RSClient rs = new RSClient(mac);
-			
+
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 			EntryPath e1 = new EntryPath();
 			e1.bucket = destBucket;
 			e1.key = key1;
-			
+
 			EntryPath e2 = new EntryPath();
 			e2.bucket = destBucket;
 			e2.key = key2;
-			
+
 			entries.add(e1);
 			entries.add(e2);
-			
+
 			BatchStatRet ret = rs.batchStat(entries);
 			assertTrue(ret.ok());
-			
+
 			List<Entry> results = ret.results;
 			for (Entry r : results) {
 				assertTrue(r.ok());
@@ -221,7 +219,7 @@ public class BatchMoveTest extends TestCase {
 
 		// use batchstat checks it again.
 		{
-			
+
 			RSClient rs = new RSClient(mac);
 			List<EntryPath> entries = new ArrayList<EntryPath>();
 
