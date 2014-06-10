@@ -1,5 +1,25 @@
 ## CHANGE LOG
 
+### v6.1.5
+
+2014-06-10 [#121](https://github.com/qiniu/java-sdk/pull/121)
+
+- [#120] 标准化 user agent
+- [#118] 重构单元测试
+- [#117] 整理未连接的error code
+- [#116] 增加pipeline
+- [#112] 增加一个 put 方法
+- 
+
+### v6.1.4
+
+2014-05-30 [#115](https://github.com/qiniu/java-sdk/pull/115)
+
+- [#111] 更新文档
+- [#113] 更新config, up.qbox.me -> up.qiniu.com
+- [#114] 移除 transform
+
+
 ### v6.1.3
 
 2014-04-28 [#109](https://github.com/qiniu/java-sdk/pull/109)
