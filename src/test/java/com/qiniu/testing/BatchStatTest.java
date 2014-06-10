@@ -25,10 +25,10 @@ public class BatchStatTest extends TestCase {
 	public final String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
 
 	public String bucketName;
-	public final String key1 = "BatchStatTest-key1";
-	public final String key2 = "BatchStatTest-key2";
+	public final String key1 = "java-BatchStatTest-key1";
+	public final String key2 = "java-BatchStatTest-key2";
 	public Mac mac;
-	
+
 	@Override
 	public void setUp() throws Exception {
 		// get the config
@@ -59,7 +59,7 @@ public class BatchStatTest extends TestCase {
 			String localFile = dir + "/testdata/" + "logo.png";
 
 			PutExtra extra = new PutExtra();
-			
+
 			PutRet ret = IoApi.putFile(uptoken, key1, localFile, extra);
 			assertTrue(ret.ok());
 			assertTrue(expectedHash.equals(ret.getHash()));

@@ -7,3 +7,5 @@ before_script:
     - export QINIU_RS_HOST=http://rs.qbox.me
     - export QINIU_IO_HOST=http://iovip.qbox.me
     - export QINIU_TEST_BUCKET=javasdk
+    - export QINIU_TEST_SRC_BUCKET=testsrc
+    - export QINIU_TEST_DOMAIN=javasdk.qiniudn.com
