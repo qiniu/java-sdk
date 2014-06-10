@@ -8,9 +8,9 @@ public class Config {
 	public static final String CHARSET = "utf-8";
 	/**本地检测不通过、程序抛异常，设置 CallRet 的 statusCode 为此错误码*/
 	public static final int ERROR_CODE = 0;
-	
-	public static String USER_AGENT="qiniu java-sdk v6.0.0";
-	
+
+	public static final String VERSION = "6.0.5";
+
 	/**
 	 * You can get your accesskey from <a href="https://dev.qiniutek.com"
 	 * target="blank"> https://dev.qiniutek.com </a>
@@ -26,14 +26,14 @@ public class Config {
 	public static String RS_HOST = "http://rs.qbox.me";
 
 	public static String UP_HOST = "http://up.qiniu.com";
-	
+
 	public static String RSF_HOST = "http://rsf.qbox.me";
-	
+
 	/**
 	 * HTTP连接超时的时间毫秒(ms)
      * Determines the timeout in milliseconds until a connection is established.
      * A timeout value of zero is interpreted as an infinite timeout.
-     * 
+     *
      * Please note this parameter can only be applied to connections that
      * are bound to a particular local address.
      */

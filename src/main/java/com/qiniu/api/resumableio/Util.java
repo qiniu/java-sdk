@@ -9,15 +9,15 @@ import org.apache.http.util.EntityUtils;
 
 import com.qiniu.api.config.Config;
 import com.qiniu.api.net.CallRet;
+import com.qiniu.api.net.Client;
 
 public class Util {
     public static HttpPost buildUpPost(String url, String token) {
-        HttpPost post = new HttpPost(url);
-        post.setHeader("User-Agent", Config.USER_AGENT);
+        HttpPost post = Client.newPost(url);
         post.setHeader("Authorization", "UpToken " + token);
         return post;
     }
-    
+
     public static CallRet handleResult(HttpResponse response) {
         try {
             StatusLine status = response.getStatusLine();
@@ -31,7 +31,7 @@ public class Util {
             return ret;
         }
     }
-    
+
     public static long crc32(byte[] data){
     	CRC32 crc32 = new CRC32();
     	crc32.update(data);
