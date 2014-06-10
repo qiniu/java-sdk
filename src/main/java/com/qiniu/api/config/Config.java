@@ -9,7 +9,7 @@ public class Config {
 	/**本地检测不通过、程序抛异常，设置 CallRet 的 statusCode 为此错误码*/
 	public static final int ERROR_CODE = 0;
 
-	public static final String VERSION = "6.0.5";
+	public static final String VERSION = "6.1.5";
 
 	/**
 	 * You can get your accesskey from <a href="https://dev.qiniutek.com"
