@@ -1,10 +1,11 @@
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.qiniu</groupId>
 	<artifactId>sdk</artifactId>
-	<version>6.1.5</version>
+	<version>6.1.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>java-sdk</name>
 	<url>http://www.qiniu.com/</url>
@@ -23,9 +24,9 @@
 	</parent>
 
 	<scm>
-		<connection>scm:git:git@github.com:qiniu-sdk/java-sdk.git</connection>
-		<developerConnection>scm:git:git@github.com:qiniu-sdk/java-sdk.git</developerConnection>
-		<url>git@github.com:qiniu-sdk/java-sdk.git</url>
+		<connection>scm:git:git@github.com:simon-liubin/java-sdk.git</connection>
+		<developerConnection>scm:git:git@github.com:simon-liubin/java-sdk.git</developerConnection>
+		<url>git@github.com:simon-liubin/java-sdk.git</url>
 	</scm>
 
 	<build>
