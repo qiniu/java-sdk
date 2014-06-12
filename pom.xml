@@ -4,7 +4,7 @@
 
 	<groupId>com.qiniu</groupId>
 	<artifactId>sdk</artifactId>
-	<version>6.1.5</version>
+	<version>6.1.6-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>java-sdk</name>
 	<url>http://www.qiniu.com/</url>
