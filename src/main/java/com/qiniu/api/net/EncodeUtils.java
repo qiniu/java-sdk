@@ -16,30 +16,14 @@ import com.qiniu.api.config.Config;
 /**
  * URLEncoding is the alternate base64 encoding defined in RFC 4648. It is
  * typically used in URLs and file names.
- * 
+ *
  */
 public class EncodeUtils {
 
 	public static byte[] urlsafeEncodeBytes(byte[] src) {
-		if (src.length % 3 == 0) {
-			return encodeBase64Ex(src);
-		}
-
-		byte[] b = encodeBase64Ex(src);
-		if (b.length % 4 == 0) {
-			return b;
-		}
-
-		int pad = 4 - b.length % 4;
-		byte[] b2 = new byte[b.length + pad];
-		System.arraycopy(b, 0, b2, 0, b.length);
-		b2[b.length] = '=';
-		if (pad > 1) {
-			b2[b.length + 1] = '=';
-		}
-		return b2;
+		return encodeBase64Ex(src);
 	}
-	
+
 	public static byte[] urlsafeBase64Decode(String encoded){
 		byte[] rawbs = toByte(encoded);
 		for(int i=0;i<rawbs.length;i++){
@@ -51,7 +35,7 @@ public class EncodeUtils {
 		}
 		return Base64.decodeBase64(rawbs);
 	}
-	
+
 	public static String urlsafeEncodeString(byte[] src) {
 		return toString(urlsafeEncodeBytes(src));
 	}
@@ -91,7 +75,7 @@ public class EncodeUtils {
 		}
 		return null;
 	}
-	
+
 	public static byte[] toByte(String s){
 		try {
 			return s.getBytes(Config.CHARSET);
@@ -99,7 +83,7 @@ public class EncodeUtils {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static String toString(byte[] bs){
 		try {
 			return new String(bs, Config.CHARSET);
