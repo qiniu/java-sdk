@@ -23,9 +23,9 @@
 	</parent>
 
 	<scm>
-		<connection>scm:git:git@github.com:simon-liubin/java-sdk.git</connection>
-		<developerConnection>scm:git:git@github.com:simon-liubin/java-sdk.git</developerConnection>
-		<url>git@github.com:simon-liubin/java-sdk.git</url>
+		<connection>scm:git:git@github.com:qiniu/java-sdk.git</connection>
+		<developerConnection>scm:git:git@github.com:qiniu/java-sdk.git</developerConnection>
+		<url>git@github.com:qiniu/java-sdk.git</url>
 	</scm>
 
 	<build>
