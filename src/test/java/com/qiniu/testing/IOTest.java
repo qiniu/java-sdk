@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.json.JSONObject;
 
 import junit.framework.TestCase;
@@ -14,6 +19,8 @@ import com.qiniu.api.config.Config;
 import com.qiniu.api.io.IoApi;
 import com.qiniu.api.io.PutExtra;
 import com.qiniu.api.io.PutRet;
+import com.qiniu.api.net.Http;
+import com.qiniu.api.resumableio.ResumeableIoApi;
 import com.qiniu.api.rs.PutPolicy;
 import com.qiniu.api.rs.RSClient;
 
@@ -98,6 +105,65 @@ public class IOTest extends TestCase {
 			return null;
 		}
 	}
+	
+	public void testNoLengthStream() throws Exception {
+		PutPolicy p = new PutPolicy(bucketName);
+		p.returnBody = "{\"key\": $(key), \"hash\": $(etag),\"mimeType\": $(mimeType)}";
+		String upToken = p.token(mac);
+		
+		HttpEntity en = getHttpEntity("http://qiniuphotos.qiniudn.com/gogopher.jpg");
+		
+		class MyInputStream extends InputStream{
+			InputStream in;
+			MyInputStream(InputStream is){
+				this.in = is;
+			}
+			
+			@Override
+			public int read() throws IOException {
+				// TODO Auto-generated method stub
+				return in.read();
+			}
+			
+			 public int available() throws IOException {
+				 throw new IOException();
+			 }
+			 
+			 public void close() throws IOException {
+				 in.close();
+			 }
+			
+		}
+		
+
+		
+		PutRet ret = IoApi.put(upToken, key, new MyInputStream(en.getContent()), null, en.getContentType().getValue());
+		
+		System.out.println(ret);
+		assertTrue(ret.ok());
+		System.out.println("is.available() = " + en.getContent().available());
+	}
+	
+	public void testSetLengthStream() throws Exception {
+		PutPolicy p = new PutPolicy(bucketName);
+		p.returnBody = "{\"key\": $(key), \"hash\": $(etag),\"mimeType\": $(mimeType)}";
+		String upToken = p.token(mac);
+		
+		HttpEntity en = getHttpEntity("http://qiniuphotos.qiniudn.com/gogopher.jpg");
+		PutRet ret = IoApi.put(upToken, key, en.getContent(), null, en.getContentType().getValue(), en.getContentLength());
+		
+		System.out.println(ret);
+		assertTrue(ret.ok());
+		System.out.println("is.available() = " + en.getContent().available());
+	}
+
+	private HttpEntity getHttpEntity(String url) throws ClientProtocolException, IOException{
+		HttpClient client = Http.getClient();
+		HttpGet httpget = new HttpGet(url);
+		HttpResponse res = client.execute(httpget);
+		return res.getEntity();
+	}
+
 
 	@Override
 	public void tearDown() {

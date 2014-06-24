@@ -2,6 +2,7 @@ package com.qiniu.api.io;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -27,16 +28,17 @@ public class IoApi {
 	public static final int WITH_CRC32 = 2;
 	
 	private static PutRet put(String uptoken, String key, File file,
-			PutExtra extra) {
+			PutExtra extra, String filename) {
 		
 		if (!file.exists() || !file.canRead()) {
 			return new PutRet(new CallRet(Config.ERROR_CODE, new Exception(
 					"File does not exist or not readable.")));
 		}
+		extra = extra == null ? new PutExtra() : extra;
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
-			AbstractContentBody fileBody = buildFileBody(file, extra);
+			AbstractContentBody fileBody = buildFileBody(file, extra, filename);
 			requestEntity.addPart("file", fileBody);
 			setKey(requestEntity, key);
 			setParam(requestEntity, extra.params);
@@ -62,11 +64,19 @@ public class IoApi {
 		return new PutRet(ret);
 	}
 	
-	private static FileBody buildFileBody(File file,PutExtra extra){
+	private static FileBody buildFileBody(File file,PutExtra extra, final String filename){
 		if(extra.mimeType != null){
-			return new FileBody(file, extra.mimeType);
+			return new FileBody(file, extra.mimeType){
+				public String getFilename() {
+			        return filename == null ? super.getFilename() : filename;
+			    }
+			};
 		}else{
-			return new FileBody(file);
+			return new FileBody(file){
+				public String getFilename() {
+			        return filename == null ? super.getFilename() : filename;
+			    }
+			};
 		}
 	}
 	
@@ -85,11 +95,13 @@ public class IoApi {
 		}
 	}
 	
-	private static PutRet putStream(String uptoken, String key, InputStream reader,PutExtra extra, String fileName) {
+	private static PutRet putStream(String uptoken, String key, InputStream reader,
+			PutExtra extra, String fileName, long length) {
+		extra = extra == null ? new PutExtra() : extra;
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
-			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, fileName != null ? fileName : "null");
+			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, fileName, length);
 			requestEntity.addPart("file", inputBody);
 			setKey(requestEntity, key);
 			setParam(requestEntity, extra.params);
@@ -109,22 +121,103 @@ public class IoApi {
 		return new PutRet(ret);
 	}
 	
-	private static InputStreamBody buildInputStreamBody(InputStream reader,PutExtra extra, String fileName){
+	private static AbstractContentBody buildInputStreamBody(InputStream reader,
+			PutExtra extra, String fileName, final long length){
+		fileName = fileName != null ? fileName : "null";
 		if(extra.mimeType != null){
-			return new InputStreamBody(reader, extra.mimeType, fileName);
+			return new InputStreamBody(reader, extra.mimeType, fileName){
+				public long getContentLength() {
+					return length;
+			    }
+			};
 		}else{
-			return new InputStreamBody(reader, fileName);
+			return new InputStreamBody(reader, fileName){
+				public long getContentLength() {
+			        return length;
+			    }
+			};
 		}
 	}
 	
+
+	private static  PutRet putStream0(String uptoken, String key, InputStream reader,
+			PutExtra extra, String fileName, long length){
+		length = length <= 0 ? getLength(reader) : length;
+		if(length != -1) {
+			return  putStream(uptoken,key,reader,extra, fileName, length);
+		}else{
+			return toPutFile(uptoken, key, reader, extra, fileName);
+		}
+		
+	}
+	
+	private static long getLength(InputStream is){
+		try {
+			return is.available();
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+	
+	private static PutRet toPutFile(String uptoken, String key,
+			InputStream reader, PutExtra extra, String fileName) {
+		File file = null;
+		try{
+			file = copyToTmpFile(reader);
+			return put(uptoken, key, file, extra, fileName);
+		}finally{
+			if(file != null){
+				try{file.delete();}catch(Exception e){}
+			}
+		}
+	}
+
+
+	private static File copyToTmpFile(InputStream from){
+		FileOutputStream os = null;
+		try{
+			File to = File.createTempFile("qiniu_", ".tmp");
+			os = new FileOutputStream(to);
+			byte[] b = new byte[64 * 1024];
+			int l;
+			while ((l = from.read(b)) != -1) {
+				os.write(b, 0, l);
+			}
+			os.flush();
+			return to;
+		}catch(Exception e){
+			throw new RuntimeException("create tmp file failed.", e);
+		}finally{
+			if (os != null){
+				try{os.close();}catch(Exception e){}
+			}
+			if (from != null){
+				try{from.close();}catch(Exception e){}
+			}
+		}
+	}
+
+	
 	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra){
-		return putStream(uptoken,key,reader,extra, null);
+		return putStream0(uptoken,key,reader,extra, null, -1);
 	}
 	
 	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra, String fileName){
-		return putStream(uptoken,key,reader,extra, fileName);
+		return putStream0(uptoken,key,reader,extra, fileName, -1);
 	}
 	
+	/**
+	 * @param uptoken
+	 * @param key
+	 * @param reader
+	 * @param extra
+	 * @param fileName
+	 * @param length  部分流 is.available() == 0，此时可指定内容长度 
+	 * @return
+	 */
+	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra, String fileName, long length){
+		return putStream0(uptoken,key,reader,extra, fileName, length);
+	}
 	
 	public static PutRet Put(String uptoken,String key,InputStream reader,PutExtra extra)
 	{		
@@ -145,7 +238,7 @@ public class IoApi {
 				return new PutRet(new CallRet(Config.ERROR_CODE, e));
 			}
 		}
-		return put(uptoken, key, file, extra);
+		return put(uptoken, key, file, extra, null);
 	}
 	
 	private static long getCRC32(File file) throws Exception {
@@ -171,4 +264,5 @@ public class IoApi {
 		}
 		return crc;
 	}
+
 }
