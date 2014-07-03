@@ -28,7 +28,7 @@ public class IoApi {
 	public static final int WITH_CRC32 = 2;
 	
 	private static PutRet put(String uptoken, String key, File file,
-			PutExtra extra, String filename) {
+			PutExtra extra) {
 		
 		if (!file.exists() || !file.canRead()) {
 			return new PutRet(new CallRet(Config.ERROR_CODE, new Exception(
@@ -38,7 +38,7 @@ public class IoApi {
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
-			AbstractContentBody fileBody = buildFileBody(file, extra, filename);
+			AbstractContentBody fileBody = buildFileBody(file, extra);
 			requestEntity.addPart("file", fileBody);
 			setKey(requestEntity, key);
 			setParam(requestEntity, extra.params);
@@ -64,19 +64,11 @@ public class IoApi {
 		return new PutRet(ret);
 	}
 	
-	private static FileBody buildFileBody(File file,PutExtra extra, final String filename){
+	private static FileBody buildFileBody(File file,PutExtra extra){
 		if(extra.mimeType != null){
-			return new FileBody(file, extra.mimeType){
-				public String getFilename() {
-			        return filename == null ? super.getFilename() : filename;
-			    }
-			};
+			return new FileBody(file, extra.mimeType);
 		}else{
-			return new FileBody(file){
-				public String getFilename() {
-			        return filename == null ? super.getFilename() : filename;
-			    }
-			};
+			return new FileBody(file);
 		}
 	}
 	
@@ -96,11 +88,12 @@ public class IoApi {
 	}
 	
 	private static PutRet putStream(String uptoken, String key, InputStream reader,
-			PutExtra extra, String fileName, long length) {
+			PutExtra extra, long length) {
 		extra = extra == null ? new PutExtra() : extra;
 		MultipartEntity requestEntity = new MultipartEntity();
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
+			String fileName = key != null ? key : "null";
 			AbstractContentBody inputBody = buildInputStreamBody(reader, extra, fileName, length);
 			requestEntity.addPart("file", inputBody);
 			setKey(requestEntity, key);
@@ -123,7 +116,6 @@ public class IoApi {
 	
 	private static AbstractContentBody buildInputStreamBody(InputStream reader,
 			PutExtra extra, String fileName, final long length){
-		fileName = fileName != null ? fileName : "null";
 		if(extra.mimeType != null){
 			return new InputStreamBody(reader, extra.mimeType, fileName){
 				public long getContentLength() {
@@ -141,12 +133,12 @@ public class IoApi {
 	
 
 	private static  PutRet putStream0(String uptoken, String key, InputStream reader,
-			PutExtra extra, String fileName, long length){
+			PutExtra extra, long length){
 		length = length <= 0 ? getLength(reader) : length;
 		if(length != -1) {
-			return  putStream(uptoken,key,reader,extra, fileName, length);
+			return  putStream(uptoken,key,reader,extra, length);
 		}else{
-			return toPutFile(uptoken, key, reader, extra, fileName);
+			return toPutFile(uptoken, key, reader, extra);
 		}
 		
 	}
@@ -160,11 +152,11 @@ public class IoApi {
 	}
 	
 	private static PutRet toPutFile(String uptoken, String key,
-			InputStream reader, PutExtra extra, String fileName) {
+			InputStream reader, PutExtra extra) {
 		File file = null;
 		try{
 			file = copyToTmpFile(reader);
-			return put(uptoken, key, file, extra, fileName);
+			return put(uptoken, key, file, extra);
 		}finally{
 			if(file != null){
 				try{file.delete();}catch(Exception e){}
@@ -198,12 +190,8 @@ public class IoApi {
 	}
 
 	
-	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra){
-		return putStream0(uptoken,key,reader,extra, null, -1);
-	}
-	
-	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra, String fileName){
-		return putStream0(uptoken,key,reader,extra, fileName, -1);
+	public static PutRet put(String uptoken,String key, InputStream reader, PutExtra extra){
+		return put(uptoken,key,reader,extra, -1);
 	}
 	
 	/**
@@ -211,12 +199,11 @@ public class IoApi {
 	 * @param key
 	 * @param reader
 	 * @param extra
-	 * @param fileName
 	 * @param length  部分流 is.available() == 0，此时可指定内容长度 
 	 * @return
 	 */
-	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra, String fileName, long length){
-		return putStream0(uptoken,key,reader,extra, fileName, length);
+	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra, long length){
+		return putStream0(uptoken,key,reader,extra, length);
 	}
 	
 	public static PutRet Put(String uptoken,String key,InputStream reader,PutExtra extra)
@@ -238,7 +225,7 @@ public class IoApi {
 				return new PutRet(new CallRet(Config.ERROR_CODE, e));
 			}
 		}
-		return put(uptoken, key, file, extra, null);
+		return put(uptoken, key, file, extra);
 	}
 	
 	private static long getCRC32(File file) throws Exception {
