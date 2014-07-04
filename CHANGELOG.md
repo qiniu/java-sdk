@@ -2,6 +2,13 @@
 
 ### v6.1.5
 
+2014-07-04 [#128](https://github.com/qiniu/java-sdk/pull/128)
+
+- [#127] 普通上传前计算文件大小
+
+
+### v6.1.5
+
 2014-06-10 [#121](https://github.com/qiniu/java-sdk/pull/121)
 
 - [#120] 标准化 user agent
