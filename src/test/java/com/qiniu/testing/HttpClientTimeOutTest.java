@@ -38,6 +38,8 @@ public class HttpClientTimeOutTest extends TestCase {
 			Config.SO_TIMEOUT = 20 * 1000;
 
 			HttpClient client = Http.getClient();
+			tearDown();
+			
 			HttpGet httpget = new HttpGet("http://www.qiniu.com");
 
 			s = System.currentTimeMillis();
@@ -62,6 +64,8 @@ public class HttpClientTimeOutTest extends TestCase {
 			Config.SO_TIMEOUT = 5;
 
 			HttpClient client = Http.getClient();
+			tearDown();
+			
 			HttpGet httpget = new HttpGet("http://www.qiniu.com");
 
 			s = System.currentTimeMillis();

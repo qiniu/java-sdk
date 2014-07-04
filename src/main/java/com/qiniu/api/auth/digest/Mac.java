@@ -115,7 +115,7 @@ public class Mac {
 		if (entity != null) {
 			org.apache.http.Header ct = entity.getContentType();
 			if (ct != null
-					&& ct.getValue() == "application/x-www-form-urlencoded") {
+					&& "application/x-www-form-urlencoded".equals(ct.getValue())) {
 				ByteArrayOutputStream w = new ByteArrayOutputStream();
 				try {
 					entity.writeTo(w);
