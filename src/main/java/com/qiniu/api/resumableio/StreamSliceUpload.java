@@ -30,7 +30,8 @@ public class StreamSliceUpload extends SliceUpload{
 	@Override
 	protected boolean hasNext() {
 		try {
-			return is != null && is.available() > 0;
+			// 部分流 is.available() == 0，此时通过设定的内容长度判断，
+			return is != null && (is.available() > 0 || currentBlockIdx * BLOCK_SIZE < contentLength);
 		} catch (IOException e) {
 			return false;
 		}
@@ -39,6 +40,7 @@ public class StreamSliceUpload extends SliceUpload{
 	@Override
 	protected UploadBlock buildNextBlockUpload() throws IOException {
 		long left = is.available();
+		left = left > 0 ? left : (contentLength - currentBlockIdx * BLOCK_SIZE);
 		long start = currentBlockIdx * BLOCK_SIZE;
 		int len = (int) Math.min(BLOCK_SIZE, left);
 

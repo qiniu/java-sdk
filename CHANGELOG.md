@@ -2,6 +2,13 @@
 
 ### v6.1.5
 
+2014-07-04 [#128](https://github.com/qiniu/java-sdk/pull/128)
+
+- [#127] 普通上传前计算文件大小
+
+
+### v6.1.5
+
 2014-06-10 [#121](https://github.com/qiniu/java-sdk/pull/121)
 
 - [#120] 标准化 user agent
@@ -9,7 +16,7 @@
 - [#117] 整理未连接的error code
 - [#116] 增加pipeline
 - [#112] 增加一个 put 方法
-- 
+
 
 ### v6.1.4
 

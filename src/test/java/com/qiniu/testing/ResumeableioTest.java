@@ -7,6 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,6 +22,7 @@ import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
 import com.qiniu.api.io.PutRet;
 import com.qiniu.api.net.CallRet;
+import com.qiniu.api.net.Http;
 import com.qiniu.api.resumableio.ResumeableIoApi;
 import com.qiniu.api.rs.PutPolicy;
 import com.qiniu.api.rs.RSClient;
@@ -108,7 +114,26 @@ public class ResumeableioTest  extends TestCase{
 			assertEquals(mimeType, mt);
 		}
 	}
+	
+	public void testStream() throws Exception {
+		PutPolicy p = new PutPolicy(bucketName);
+		p.returnBody = "{\"key\": $(key), \"hash\": $(etag),\"mimeType\": $(mimeType)}";
+		String upToken = p.token(mac);
+		
+		HttpEntity en = getHttpEntity("http://qiniuphotos.qiniudn.com/gogopher.jpg");
+		PutRet ret = ResumeableIoApi.put(en.getContent(), upToken, currentKey, en.getContentType().getValue(), en.getContentLength());
+		
+		System.out.println(ret);
+		assertTrue(ret.ok());
+		System.out.println("is.available() = " + en.getContent().available());
+	}
 
+	private HttpEntity getHttpEntity(String url) throws ClientProtocolException, IOException{
+		HttpClient client = Http.getClient();
+		HttpGet httpget = new HttpGet(url);
+		HttpResponse res = client.execute(httpget);
+		return res.getEntity();
+	}
 
 	@Override
 	public void tearDown() {
