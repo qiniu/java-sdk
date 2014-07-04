@@ -137,7 +137,7 @@ public class IOTest extends TestCase {
 		
 
 		
-		PutRet ret = IoApi.put(upToken, key, new MyInputStream(en.getContent()), null);
+		PutRet ret = IoApi.Put(upToken, key, new MyInputStream(en.getContent()), null);
 		
 		System.out.println(ret);
 		assertTrue(ret.ok());
@@ -152,7 +152,7 @@ public class IOTest extends TestCase {
 		HttpEntity en = getHttpEntity("http://qiniuphotos.qiniudn.com/gogopher.jpg");
 		PutExtra extra = new PutExtra();
 		extra.mimeType = en.getContentType().getValue();
-		PutRet ret = IoApi.put(upToken, key, en.getContent(), extra, en.getContentLength());
+		PutRet ret = IoApi.Put(upToken, key, en.getContent(), extra, en.getContentLength());
 		
 		System.out.println(ret);
 		assertTrue(ret.ok());

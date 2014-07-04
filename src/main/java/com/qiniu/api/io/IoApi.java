@@ -190,10 +190,6 @@ public class IoApi {
 	}
 
 	
-	public static PutRet put(String uptoken,String key, InputStream reader, PutExtra extra){
-		return put(uptoken,key,reader,extra, -1);
-	}
-	
 	/**
 	 * @param uptoken
 	 * @param key
@@ -202,13 +198,13 @@ public class IoApi {
 	 * @param length  部分流 is.available() == 0，此时可指定内容长度 
 	 * @return
 	 */
-	public static PutRet put(String uptoken,String key,InputStream reader,PutExtra extra, long length){
+	public static PutRet Put(String uptoken,String key,InputStream reader,PutExtra extra, long length){
 		return putStream0(uptoken,key,reader,extra, length);
 	}
 	
 	public static PutRet Put(String uptoken,String key,InputStream reader,PutExtra extra)
 	{		
-		return put(uptoken,key,reader,extra);
+		return Put(uptoken,key,reader,extra, -1);
 	}
 	
 	
