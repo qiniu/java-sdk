@@ -17,12 +17,12 @@ import com.qiniu.api.rs.RSClient;
 
 public class RSStatTest extends TestCase {
 
-	public final String domain = "http://junit-bucket.qiniudn.com";
+	public final String domain = System.getenv("QINIU_TEST_DOMAIN");
 	public final String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
 
 	public String bucketName;
 	public final String key = "RSTest-key";
-	
+
 	public Mac mac;
 
 	@Override
