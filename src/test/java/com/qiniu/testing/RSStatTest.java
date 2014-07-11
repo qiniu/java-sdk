@@ -1,7 +1,5 @@
 package com.qiniu.testing;
 
-import java.io.File;
-
 import junit.framework.TestCase;
 
 import com.qiniu.api.auth.AuthException;

@@ -1,7 +1,5 @@
 package com.examples.client;
 
-import java.io.File;
-
 import com.qiniu.api.io.IoApi;
 import com.qiniu.api.io.PutExtra;
 import com.qiniu.api.io.PutRet;
