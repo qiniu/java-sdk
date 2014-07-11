@@ -1,7 +1,5 @@
 package com.qiniu.testing;
 
-import java.io.File;
-
 import junit.framework.TestCase;
 
 import com.qiniu.api.auth.AuthException;
@@ -66,7 +64,6 @@ public class MoveTest extends TestCase {
 		{
 			RSClient rs = new RSClient(mac);
 			CallRet ret = rs.move(srcBucket, key, destBucket, key);
-			System.out.println(ret);
 			assertTrue(ret.ok());
 		}
 

@@ -1,6 +1,5 @@
 package com.qiniu.testing;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,12 +77,8 @@ public class RSFTest extends TestCase {
 			}
 			if (ret.exception.getClass() != RSFEofException.class) {
 				// error handler
-				System.out.println(ret.exception);
 			} 
 			
-			// 防止该bucket有别人在用
-			System.out.println(ret.exception);
-			System.out.println(all.size());
 			assertTrue(all.size() >= 3);
 		}
 	}

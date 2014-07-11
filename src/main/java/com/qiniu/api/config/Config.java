@@ -25,7 +25,7 @@ public class Config {
 
 	public static String RS_HOST = "http://rs.qbox.me";
 
-	public static String UP_HOST = "http://up.qiniu.com";
+	public static String UP_HOST = "http://upload.qiniu.com";
 
 	public static String RSF_HOST = "http://rsf.qbox.me";
 
