@@ -32,7 +32,6 @@ public class HttpClientTimeOutTest extends TestCase {
 
 	public void testCONNECTION_TIMEOUT() {
 		Throwable tx = null;
-		long s = 0;
 		try {
 			Config.CONNECTION_TIMEOUT = 5;
 			Config.SO_TIMEOUT = 20 * 1000;
@@ -42,13 +41,10 @@ public class HttpClientTimeOutTest extends TestCase {
 			
 			HttpGet httpget = new HttpGet("http://www.qiniu.com");
 
-			s = System.currentTimeMillis();
 			HttpResponse ret = client.execute(httpget);
 
 			fail("应该按预期抛出异常 ConnectTimeoutException，测试失败");
 		} catch (Exception e) {
-			long end = System.currentTimeMillis();
-			System.out.println("CONNECTION_TIMEOUT test : " + (end - s));
 			tx = e;
 		}
 
@@ -58,7 +54,6 @@ public class HttpClientTimeOutTest extends TestCase {
 
 	public void testSO_TIMEOUT() {
 		Throwable tx = null;
-		long s = 0;
 		try {
 			Config.CONNECTION_TIMEOUT = 20 * 1000;
 			Config.SO_TIMEOUT = 5;
@@ -68,12 +63,9 @@ public class HttpClientTimeOutTest extends TestCase {
 			
 			HttpGet httpget = new HttpGet("http://www.qiniu.com");
 
-			s = System.currentTimeMillis();
 			HttpResponse ret = client.execute(httpget);
 			fail("应该按预期抛出异常 SocketTimeoutException，测试失败");
 		} catch (Exception e) {
-			long end = System.currentTimeMillis();
-			System.out.println("SO_TIMEOUT test : " + (end - s));
 			tx = e;
 		}
 		assertNotNull(tx.getMessage());

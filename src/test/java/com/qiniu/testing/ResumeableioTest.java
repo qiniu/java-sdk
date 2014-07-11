@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
+import junit.framework.TestCase;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -14,8 +16,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import junit.framework.TestCase;
 
 import com.qiniu.api.auth.AuthException;
 import com.qiniu.api.auth.digest.Mac;
@@ -90,7 +90,6 @@ public class ResumeableioTest  extends TestCase{
 		p.returnBody = "{\"key\": $(key), \"hash\": $(etag),\"mimeType\": $(mimeType)}";
 		String upToken = p.token(mac);
 		PutRet ret = ResumeableIoApi.put(file, upToken, currentKey, mimeType);
-		System.out.println(ret);
 		assertTrue(ret.ok());
 		if(mimeType != null){
 			JSONObject jsonObject = new JSONObject(ret.response);
@@ -106,7 +105,6 @@ public class ResumeableioTest  extends TestCase{
 		String upToken = p.token(mac);
 		FileInputStream fis = new FileInputStream(file);
 		PutRet ret = ResumeableIoApi.put(fis, upToken, currentKey, mimeType);
-		System.out.println(ret);
 		assertTrue(ret.ok());
 		if(mimeType != null){
 			JSONObject jsonObject = new JSONObject(ret.response);
@@ -123,9 +121,7 @@ public class ResumeableioTest  extends TestCase{
 		HttpEntity en = getHttpEntity("http://qiniuphotos.qiniudn.com/gogopher.jpg");
 		PutRet ret = ResumeableIoApi.put(en.getContent(), upToken, currentKey, en.getContentType().getValue(), en.getContentLength());
 		
-		System.out.println(ret);
 		assertTrue(ret.ok());
-		System.out.println("is.available() = " + en.getContent().available());
 	}
 
 	private HttpEntity getHttpEntity(String url) throws ClientProtocolException, IOException{
@@ -146,9 +142,7 @@ public class ResumeableioTest  extends TestCase{
 		}
 
 		RSClient rs = new RSClient(mac);
-		System.out.println("try to delete: " + currentKey);
 		CallRet cr = rs.delete(bucketName, currentKey);
-		System.out.println("delete " + currentKey + " successed!");
 	}
 
 	/**

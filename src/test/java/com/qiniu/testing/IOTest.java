@@ -1,9 +1,13 @@
 package com.qiniu.testing;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import junit.framework.TestCase;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -12,15 +16,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.json.JSONObject;
 
-import junit.framework.TestCase;
-
 import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.config.Config;
 import com.qiniu.api.io.IoApi;
 import com.qiniu.api.io.PutExtra;
 import com.qiniu.api.io.PutRet;
 import com.qiniu.api.net.Http;
-import com.qiniu.api.resumableio.ResumeableIoApi;
 import com.qiniu.api.rs.PutPolicy;
 import com.qiniu.api.rs.RSClient;
 
@@ -139,9 +140,7 @@ public class IOTest extends TestCase {
 		
 		PutRet ret = IoApi.Put(upToken, key, new MyInputStream(en.getContent()), null);
 		
-		System.out.println(ret);
 		assertTrue(ret.ok());
-		System.out.println("is.available() = " + en.getContent().available());
 	}
 	
 	public void testSetLengthStream() throws Exception {
@@ -154,9 +153,7 @@ public class IOTest extends TestCase {
 		extra.mimeType = en.getContentType().getValue();
 		PutRet ret = IoApi.Put(upToken, key, en.getContent(), extra, en.getContentLength());
 		
-		System.out.println(ret);
 		assertTrue(ret.ok());
-		System.out.println("is.available() = " + en.getContent().available());
 	}
 
 	private HttpEntity getHttpEntity(String url) throws ClientProtocolException, IOException{
