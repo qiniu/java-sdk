@@ -106,53 +106,53 @@ public class IOTest extends TestCase {
 			return null;
 		}
 	}
-	
+
 	public void testNoLengthStream() throws Exception {
 		PutPolicy p = new PutPolicy(bucketName);
 		p.returnBody = "{\"key\": $(key), \"hash\": $(etag),\"mimeType\": $(mimeType)}";
 		String upToken = p.token(mac);
-		
-		HttpEntity en = getHttpEntity("http://qiniuphotos.qiniudn.com/gogopher.jpg");
-		
+
+		HttpEntity en = getHttpEntity("http://testres.qiniudn.com/gogopher.jpg");
+
 		class MyInputStream extends InputStream{
 			InputStream in;
 			MyInputStream(InputStream is){
 				this.in = is;
 			}
-			
+
 			@Override
 			public int read() throws IOException {
 				// TODO Auto-generated method stub
 				return in.read();
 			}
-			
+
 			 public int available() throws IOException {
 				 throw new IOException();
 			 }
-			 
+
 			 public void close() throws IOException {
 				 in.close();
 			 }
-			
-		}
-		
 
-		
+		}
+
+
+
 		PutRet ret = IoApi.Put(upToken, key, new MyInputStream(en.getContent()), null);
-		
+
 		assertTrue(ret.ok());
 	}
-	
+
 	public void testSetLengthStream() throws Exception {
 		PutPolicy p = new PutPolicy(bucketName);
 		p.returnBody = "{\"key\": $(key), \"hash\": $(etag),\"mimeType\": $(mimeType)}";
 		String upToken = p.token(mac);
-		
-		HttpEntity en = getHttpEntity("http://qiniuphotos.qiniudn.com/gogopher.jpg");
+
+		HttpEntity en = getHttpEntity("http://testres.qiniudn.com/gogopher.jpg");
 		PutExtra extra = new PutExtra();
 		extra.mimeType = en.getContentType().getValue();
 		PutRet ret = IoApi.Put(upToken, key, en.getContent(), extra, en.getContentLength());
-		
+
 		assertTrue(ret.ok());
 	}
 
