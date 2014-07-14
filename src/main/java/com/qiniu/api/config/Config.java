@@ -9,17 +9,17 @@ public class Config {
 	/**本地检测不通过、程序抛异常，设置 CallRet 的 statusCode 为此错误码*/
 	public static final int ERROR_CODE = 0;
 
-	public static final String VERSION = "6.1.5";
+	public static final String VERSION = "6.1.7";
 
 	/**
-	 * You can get your accesskey from <a href="https://dev.qiniutek.com"
-	 * target="blank"> https://dev.qiniutek.com </a>
+	 * You can get your accesskey from <a href="https://portal.qiniu.com/setting/key"
+	 * target="blank"> https://portal.qiniu.com/setting/key </a>
 	 */
 	public static String ACCESS_KEY = "<Please apply your access key>";
 
 	/**
-	 * You can get your accesskey from <a href="https://dev.qiniutek.com"
-	 * target="blank"> https://dev.qiniutek.com </a>
+	 * You can get your accesskey from <a href="https://portal.qiniu.com/setting/key"
+	 * target="blank"> https://portal.qiniu.com/setting/key </a>
 	 */
 	public static String SECRET_KEY = "<Apply your secret key here, and keep it secret!>";
 
