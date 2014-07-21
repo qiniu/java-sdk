@@ -21,6 +21,7 @@
 
 其中最新版本的版本号可以到 https://github.com/qiniu/java-sdk/tags 这里查看。
 
+如果想直接下载依赖的jar，可以到 这个地址进行下载 [http://javasdk.qiniudn.com/dependencies.zip](http://javasdk.qiniudn.com/dependencies.zip)
 
 ## 使用
 
