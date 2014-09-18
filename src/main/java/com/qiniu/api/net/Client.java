@@ -72,6 +72,7 @@ public class Client {
 			return new CallRet(Config.ERROR_CODE, e);
 		}
 	}
+	
 	/**
 	 * Sends a http post request to the specified url.
 	 *
