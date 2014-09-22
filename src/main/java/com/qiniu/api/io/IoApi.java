@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.AbstractContentBody;
 import org.apache.http.entity.mime.content.FileBody;
@@ -35,7 +36,7 @@ public class IoApi {
 					"File does not exist or not readable.")));
 		}
 		extra = extra == null ? new PutExtra() : extra;
-		MultipartEntity requestEntity = new MultipartEntity();
+		MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE, null, Charset.forName(Config.CHARSET));
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
 			AbstractContentBody fileBody = buildFileBody(file, extra);
@@ -90,7 +91,7 @@ public class IoApi {
 	private static PutRet putStream(String uptoken, String key, InputStream reader,
 			PutExtra extra, long length) {
 		extra = extra == null ? new PutExtra() : extra;
-		MultipartEntity requestEntity = new MultipartEntity();
+		MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE, null, Charset.forName(Config.CHARSET));
 		try {
 			requestEntity.addPart("token", new StringBody(uptoken));
 			String fileName = key != null ? key : "null";
