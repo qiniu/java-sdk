@@ -25,7 +25,7 @@ public class RSFTest extends TestCase {
 	public final String expectedHash = "FmDZwqadA4-ib_15hYfQpb7UXUYR";
 
 	public String bucketName;
-	
+
 	public Mac mac;
 	@Override
 	public void setUp() {
@@ -41,7 +41,6 @@ public class RSFTest extends TestCase {
 		mac = new Mac(Config.ACCESS_KEY, Config.SECRET_KEY);
 	}
 
-	// just upload an image in testdata.
 	public void testRSF() throws Exception {
 		{
 			String uptoken = new PutPolicy(bucketName).token(mac);
@@ -56,14 +55,14 @@ public class RSFTest extends TestCase {
 				assertTrue(ret.ok());
 				assertTrue(expectedHash.equals(ret.getHash()));
 			}
-			
+
 		}
 		// we don't checkout the result of how may items are in the buckets.
 		// not very convient, it's better, although.
 		{
 			RSFClient client = new RSFClient(mac);
 			String marker = "";
-			
+
 			List<ListItem> all = new ArrayList<ListItem>();
 			ListPrefixRet ret = null;
 			while (true) {
@@ -77,14 +76,9 @@ public class RSFTest extends TestCase {
 			}
 			if (ret.exception.getClass() != RSFEofException.class) {
 				// error handler
-			} 
-			
+			}
+
 			assertTrue(all.size() >= 3);
 		}
-	}
-
-	@Override
-	public void tearDown() {
-		// do nothing here.
 	}
 }

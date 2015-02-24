@@ -28,8 +28,6 @@ public class PutPolicy {
 	/** 可选 */
 	public String returnBody;
 	/** 可选 */
-	public String asyncOps;
-	/** 可选 */
 	public String endUser;
 	/** 可选 */
 	public long expires;
@@ -51,7 +49,7 @@ public class PutPolicy {
 	public String persistentOps;
 
 	private long deadline;
-	
+
 	/**
 	 * 转码队列名，须预先开通
 	 * 资源上传成功后，触发转码时指定独立的队列进行转码
@@ -78,9 +76,6 @@ public class PutPolicy {
 		}
 		if (this.returnBody != null && this.returnBody.length() > 0) {
 			stringer.key("returnBody").value(this.returnBody);
-		}
-		if (this.asyncOps != null && this.asyncOps.length() > 0) {
-			stringer.key("asyncOps").value(this.asyncOps);
 		}
 		if (this.saveKey != null && this.saveKey.length() > 0) {
 			stringer.key("saveKey").value(this.saveKey);
@@ -109,7 +104,7 @@ public class PutPolicy {
 		if(persistentPipeline != null && persistentPipeline.trim().length()  > 0){
 			stringer.key("persistentPipeline").value(this.persistentPipeline);
 		}
-		
+
 		stringer.key("deadline").value(this.deadline);
 		stringer.endObject();
 

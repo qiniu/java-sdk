@@ -112,15 +112,15 @@ public class ResumeableioTest  extends TestCase{
 			assertEquals(mimeType, mt);
 		}
 	}
-	
+
 	public void testStream() throws Exception {
 		PutPolicy p = new PutPolicy(bucketName);
 		p.returnBody = "{\"key\": $(key), \"hash\": $(etag),\"mimeType\": $(mimeType)}";
 		String upToken = p.token(mac);
-		
-		HttpEntity en = getHttpEntity("http://qiniuphotos.qiniudn.com/gogopher.jpg");
+
+		HttpEntity en = getHttpEntity("http://testres.qiniudn.com/gogopher.jpg");
 		PutRet ret = ResumeableIoApi.put(en.getContent(), upToken, currentKey, en.getContentType().getValue(), en.getContentLength());
-		
+
 		assertTrue(ret.ok());
 	}
 
