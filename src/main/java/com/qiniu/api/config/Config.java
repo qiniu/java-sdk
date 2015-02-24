@@ -20,6 +20,9 @@ public class Config {
 	public static String UP_HOST = "http://upload.qiniu.com";
 
 	public static String RSF_HOST = "http://rsf.qbox.me";
+	
+
+    public  static  String  IOVIP = "http://iovip.qbox.me";
 
 	/**
 	 * HTTP连接超时的时间毫秒(ms)
