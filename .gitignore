@@ -1,0 +1,27 @@
+# Ignore Play! working directory #
+bin/
+/db
+.eclipse
+/lib/
+/logs/
+/modules
+/project/project
+/project/target
+/target
+tmp/
+test-result
+server.pid
+*.iml
+*.eml
+/dist/
+.cache
+.gradle/
+build/
+
+.idea
+.gradle
+# For MacOS:
+.DS_Store
+
+# For vim:
+*.swp

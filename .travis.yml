@@ -1,0 +1,12 @@
+# using docker container
+sudo: false
+
+language: java
+
+jdk:
+  - openjdk6
+  - oraclejdk7
+  - oraclejdk8
+
+before_script:
+    - export QINIU_TEST_ENV="travis"
