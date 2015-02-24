@@ -7,6 +7,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
@@ -39,7 +40,13 @@ public class Client {
 		postMethod.setHeader(HEADER_AGENT, getUserAgent());
 		return postMethod;
 	}
-
+	
+	public static HttpGet newGet(String url){
+		HttpGet getMethod = new HttpGet(url);
+		getMethod.setHeader(HEADER_AGENT, getUserAgent());
+		return getMethod;
+	}
+	
 	private static String getUserAgent(){
 		String javaVersion = "Java/" + System.getProperty("java.version");
 		String os = System.getProperty("os.name") + " "
@@ -47,7 +54,25 @@ public class Client {
 		String sdk = "QiniuJava/" + Config.VERSION;
 		return sdk + " (" + os +") " + javaVersion;
 	}
-
+	/**
+	 * Sends a http get request to the specified url.
+	 *
+	 * @param url
+	 *            the request url
+	 * @return A general response
+	 */
+	public CallRet get(String url) {
+		HttpClient client = Http.getClient();
+		HttpGet getMethod = newGet(url);
+		try {
+			HttpResponse response = client.execute(getMethod);
+			return handleResult(response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new CallRet(Config.ERROR_CODE, e);
+		}
+	}
+	
 	/**
 	 * Sends a http post request to the specified url.
 	 *
