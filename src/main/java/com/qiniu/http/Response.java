@@ -53,7 +53,8 @@ public final class Response {
     private byte[] body;
     private com.squareup.okhttp.Response response;
 
-    Response(int statusCode, String reqId, String xlog, String xvia, String host, String ip, double duration, String error) {
+    Response(int statusCode, String reqId, String xlog, String xvia, String host,
+             String ip, double duration, String error) {
         this.statusCode = statusCode;
         this.reqId = reqId;
         this.xlog = xlog;
@@ -113,7 +114,8 @@ public final class Response {
     }
 
     public String toString() {
-        return String.format(Locale.ENGLISH, "{ResponseInfo:%s,status:%d, reqId:%s, xlog:%s, xvia:%s,  host:%s, ip:%s, duration:%f s, error:%s}",
+        return String.format(Locale.ENGLISH,
+                "{ResponseInfo:%s,status:%d, reqId:%s, xlog:%s, xvia:%s, host:%s, ip:%s, duration:%f s, error:%s}",
                 super.toString(), statusCode, reqId, xlog, xvia, host, ip, duration, error);
     }
 

@@ -2,22 +2,21 @@ package com.qiniu.common;
 
 import java.nio.charset.Charset;
 
-/**
- * Created by bailong on 14/10/8.
- */
+// CHECKSTYLE:OFF
+
 public final class Config {
+
     public static final String VERSION = "7.0.0";
     /**
      * 断点上传时的分块大小(默认的分块大小, 不建议改变)
      */
     public static final int BLOCK_SIZE = 4 * 1024 * 1024;
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
 
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
     /**
      * 默认API服务器
      */
     public static String API_HOST = "http://api.qiniu.com";
-
     /**
      * 默认文件列表服务器
      */
@@ -59,4 +58,7 @@ public final class Config {
      */
     public static int RETRY_MAX = 5;
 
+    private Config() {
+    }
 }
+// CHECKSTYLE:ON

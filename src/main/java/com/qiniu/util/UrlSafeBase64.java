@@ -5,6 +5,7 @@ import com.qiniu.common.Config;
 /**
  * URL安全的Base64编码和解码
  */
+
 public final class UrlSafeBase64 {
 
     private UrlSafeBase64() {

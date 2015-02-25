@@ -7,14 +7,14 @@ import com.qiniu.util.Auth;
 
 public final class OperationManager {
     private Auth auth;
-    private long token_expire;
+    private long tokenExpire;
     private String domain;
     private Client client;
 
-    public OperationManager(String domain, Auth auth, long token_expire) {
+    public OperationManager(String domain, Auth auth, long tokenExpire) {
         this.auth = auth;
         this.domain = domain;
-        this.token_expire = token_expire;
+        this.tokenExpire = tokenExpire;
         client = new Client();
     }
 
@@ -27,7 +27,7 @@ public final class OperationManager {
         if (auth == null) {
             return baseUrl;
         }
-        return auth.privateDownloadUrl(baseUrl, token_expire);
+        return auth.privateDownloadUrl(baseUrl, tokenExpire);
     }
 
     public Response get(String key, Operation op) throws QiniuException {

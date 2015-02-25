@@ -9,6 +9,9 @@ import java.util.Collection;
  */
 public final class StringUtils {
 
+    private StringUtils() {
+    }
+
     /**
      * 以指定的分隔符来进行字符串元素连接
      * <p>

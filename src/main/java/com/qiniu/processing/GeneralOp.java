@@ -35,9 +35,4 @@ public class GeneralOp implements Operation {
     public String build() {
         return content.toString();
     }
-
-    @Override
-    public boolean onlyPersistent() {
-        return false;
-    }
 }

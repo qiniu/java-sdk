@@ -130,7 +130,8 @@ public class BucketTest {
     @Test
     public void testFetch() {
         try {
-            bucketManager.fetch("http://developer.qiniu.com/docs/v6/sdk/java-sdk.html", TestConfig.bucket, "fetch.html");
+            bucketManager.fetch("http://developer.qiniu.com/docs/v6/sdk/java-sdk.html",
+                    TestConfig.bucket, "fetch.html");
         } catch (QiniuException e) {
             e.printStackTrace();
             fail();

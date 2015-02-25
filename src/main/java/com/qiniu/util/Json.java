@@ -8,6 +8,9 @@ import java.util.Map;
 
 
 public final class Json {
+    private Json() {
+    }
+
     public static String encode(StringMap map) {
         return new Gson().toJson(map.map());
     }
@@ -17,8 +20,10 @@ public final class Json {
     }
 
     public static StringMap decode(String json) {
+        // CHECKSTYLE:OFF
         Type t = new TypeToken<Map<String, Object>>() {
         }.getType();
+        // CHECKSTYLE:ON
         Map<String, Object> x = new Gson().fromJson(json, t);
         return new StringMap(x);
     }

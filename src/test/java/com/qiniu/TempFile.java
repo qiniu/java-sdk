@@ -8,6 +8,9 @@ import java.io.IOException;
  * Created by bailong on 14/10/11.
  */
 public final class TempFile {
+    private TempFile() {
+    }
+
     public static void remove(File f) {
         f.delete();
     }

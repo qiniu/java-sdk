@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*
  * Copyright (C) 2010 The Android Open Source Project
  *
@@ -740,3 +741,4 @@ public final class Base64 {
         }
     }
 }
+// CHECKSTYLE:ON

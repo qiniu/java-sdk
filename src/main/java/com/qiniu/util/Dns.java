@@ -8,6 +8,9 @@ import java.net.UnknownHostException;
  */
 public final class Dns {
 
+    private Dns() {
+    }
+
     /**
      * 根据域名解析出来 IP数组
      *
@@ -38,5 +41,4 @@ public final class Dns {
     public static String getAddressesString(String hostName) {
         return StringUtils.join(getAddresses(hostName), ";");
     }
-
 }

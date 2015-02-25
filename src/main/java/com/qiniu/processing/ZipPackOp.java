@@ -10,12 +10,8 @@ import com.qiniu.util.UrlSafeBase64;
 public final class ZipPackOp implements Operation {
     private StringMap args;
 
-    public ZipPackOp(StringMap args) {
-        this.args = args;
-    }
-
     public ZipPackOp() {
-        this(new StringMap());
+        args = new StringMap();
     }
 
     public ZipPackOp append(String url) {
@@ -46,10 +42,5 @@ public final class ZipPackOp implements Operation {
             }
         });
         return b.toString();
-    }
-
-    @Override
-    public boolean onlyPersistent() {
-        return true;
     }
 }

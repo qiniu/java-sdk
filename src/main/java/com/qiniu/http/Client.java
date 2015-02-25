@@ -35,7 +35,8 @@ public final class Client {
         return sdk + " (" + os + ") " + javaVersion;
     }
 
-    private static RequestBody create(final MediaType contentType, final byte[] content, final int offset, final int size) {
+    private static RequestBody create(final MediaType contentType,
+                                      final byte[] content, final int offset, final int size) {
         if (content == null) throw new NullPointerException("content == null");
 
         return new RequestBody() {
@@ -94,7 +95,8 @@ public final class Client {
         return post(url, rbody, headers);
     }
 
-    public Response post(String url, byte[] body, int offset, int size, StringMap headers, String contentType) throws QiniuException {
+    public Response post(String url, byte[] body, int offset, int size,
+                         StringMap headers, String contentType) throws QiniuException {
         RequestBody rbody = null;
         if (body != null && body.length > 0) {
             MediaType t = MediaType.parse(contentType);
