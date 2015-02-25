@@ -17,6 +17,8 @@
 ```groovy
 compile 'com.qiniu:qiniu-java-sdk:7.0.0'
 ```
+jdk 6.0 不能直接使用mvn上的okhttp, 需要另外下载，[代码][2], [okhttp.jar][3], [okio.jar][4]
+
 ## 运行环境
 
 | Qiniu SDK版本 | Java 版本 |
@@ -73,3 +75,6 @@ $ ./gradlew build
 The MIT License (MIT).详情见 [License文件](https://github.com/qiniu/java-sdk/blob/master/LICENSE).
 
 [1]: https://search.maven.org/remote_content?g=com.qiniu&a=qiniu-java-sdk&v=LATEST
+[2]: https://github.com/Nextpeer/okhttp
+[3]: https://github.com/Nextpeer/okhttp
+[4]: https://github.com/Nextpeer/okhttp
