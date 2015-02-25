@@ -6,13 +6,13 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.DefaultPutRet;
-import com.qiniu.util.StringMap;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ResumeUploadTest {
 
@@ -30,12 +30,11 @@ public class ResumeUploadTest {
             e.response.bodyString();
             fail();
         }
-
         TempFile.remove(f);
     }
 
     @Test
-    public void test1K() throws  Throwable {
+    public void test1K() throws Throwable {
         template(1);
     }
 
@@ -50,7 +49,7 @@ public class ResumeUploadTest {
     }
 
     @Test
-    public void test8M1k() throws Throwable{
-        template(1024*8+1);
+    public void test8M1k() throws Throwable {
+        template(1024 * 8 + 1);
     }
 }

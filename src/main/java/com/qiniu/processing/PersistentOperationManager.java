@@ -13,15 +13,15 @@ public final class PersistentOperationManager {
     private Auth auth;
     private String bucket;
     private String pipeline;
-    private String notify_url;
+    private String notifyUrl;
     private boolean force;
     private Client client;
 
-    public PersistentOperationManager(Auth auth, String bucket, String pipeline, String notify_url, boolean force) {
+    public PersistentOperationManager(Auth auth, String bucket, String pipeline, String notifyUrl, boolean force) {
         this.auth = auth;
         this.bucket = bucket;
         this.pipeline = pipeline;
-        this.notify_url = notify_url;
+        this.notifyUrl = notifyUrl;
         this.force = force;
         this.client = new Client();
     }
@@ -38,11 +38,8 @@ public final class PersistentOperationManager {
     public String post(String key, Pipe[] pipe) throws QiniuException {
         String fops = StringUtils.join(pipe, ";", null);
         StringMap map = new StringMap().put("bucket", bucket).put("key", key).put("fops", fops)
-                .putNoEmpty("pipeline", pipeline).putNoEmpty("notifyURL", notify_url);
+                .putNotEmpty("pipeline", pipeline).putNotEmpty("notifyURL", notifyUrl).putWhen("force", 1, force);
 
-        if (force) {
-            map.put("force", 1);
-        }
         byte[] data = StringUtils.utf8Bytes(map.formString());
         String url = Config.API_HOST + "/pfop/";
         StringMap headers = auth.authorization(url, data, Client.FormMime);
@@ -53,6 +50,7 @@ public final class PersistentOperationManager {
     }
 
     public String status(String id) throws QiniuException {
+        //id is url safe
         String url = Config.API_HOST + "/status/get/prefop?id=" + id;
         Response response = client.get(url);
         return response.bodyString();

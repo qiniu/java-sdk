@@ -1,5 +1,7 @@
 package com.qiniu.common;
 
+import java.nio.charset.Charset;
+
 /**
  * Created by bailong on 14/10/8.
  */
@@ -9,7 +11,7 @@ public final class Config {
      * 断点上传时的分块大小(默认的分块大小, 不建议改变)
      */
     public static final int BLOCK_SIZE = 4 * 1024 * 1024;
-    public static final String CHARSET = "utf-8";
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
 
     /**
      * 默认API服务器

@@ -21,11 +21,25 @@ public final class StringMap {
         return this;
     }
 
-    public StringMap putNoEmpty(String key, String value) {
-        if (StringUtils.isEmpty(value)) {
-            return this;
+    public StringMap putNotEmpty(String key, String value) {
+        if (!StringUtils.isEmpty(value)) {
+            map.put(key, value);
         }
-        map.put(key, value);
+        return this;
+    }
+
+    public StringMap putNotNull(String key, Object value) {
+        if (value != null) {
+            map.put(key, value);
+        }
+        return this;
+    }
+
+
+    public StringMap putWhen(String key, Object val, boolean when) {
+        if (when) {
+            map.put(key, val);
+        }
         return this;
     }
 

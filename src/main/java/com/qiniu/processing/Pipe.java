@@ -35,7 +35,7 @@ public final class Pipe {
             if (noStart) {
                 b.append("|");
             }
-            b.append(cmd.toString());
+            b.append(cmd.build());
             noStart = true;
         }
         return b.toString();

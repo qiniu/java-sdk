@@ -11,7 +11,7 @@ public class FopTest {
     @Test
     public void testExifPub() {
         OperationManager opm = new OperationManager("testres.qiniudn.com");
-        Operation op = OperationFactory.normal("exif");
+        Operation op = new GeneralOp("exif");
         try {
             Response r = opm.get("gogopher.jpg", op);
             assertNotNull(r.bodyString());
@@ -23,7 +23,7 @@ public class FopTest {
     @Test
     public void testExifPrivate() {
         OperationManager opm = new OperationManager("private-res.qiniudn.com", TestConfig.testAuth, 3600);
-        Operation op = OperationFactory.normal("exif");
+        Operation op = new GeneralOp("exif");
         try {
             opm.get("noexif.jpg", op);
             fail();

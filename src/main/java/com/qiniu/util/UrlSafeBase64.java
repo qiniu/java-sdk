@@ -2,8 +2,6 @@ package com.qiniu.util;
 
 import com.qiniu.common.Config;
 
-import java.io.UnsupportedEncodingException;
-
 /**
  * URL安全的Base64编码和解码
  */
@@ -19,11 +17,7 @@ public final class UrlSafeBase64 {
      * @return 结果字符串
      */
     public static String encodeToString(String data) {
-        try {
-            return encodeToString(data.getBytes(Config.CHARSET));
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError(e);
-        }
+        return encodeToString(data.getBytes(Config.UTF_8));
     }
 
     /**
