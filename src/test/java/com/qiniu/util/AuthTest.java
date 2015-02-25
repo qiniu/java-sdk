@@ -30,7 +30,8 @@ public class AuthTest {
 
     @Test
     public void testPrivateDownloadUrl() {
-        String url = TestConfig.dummyAuth.privateDownloadUrlWithDeadline("http://www.qiniu.com?go=1", 1234567890 + 3600);
+        String url = TestConfig.dummyAuth.privateDownloadUrlWithDeadline("http://www.qiniu.com?go=1",
+                1234567890 + 3600);
         String expect = "http://www.qiniu.com?go=1&e=1234571490&token=abcdefghklmnopq:8vzBeLZ9W3E4kbBLFLW0Xe0u7v4=";
         assertEquals(expect, url);
     }
@@ -50,7 +51,9 @@ public class AuthTest {
     public void testUploadToken() {
         StringMap policy = new StringMap().put("endUser", "y");
         String token = TestConfig.dummyAuth.uploadTokenWithDeadline("1", "2", 1234567890L + 3600, policy, false);
+        // CHECKSTYLE:OFF
         String exp = "abcdefghklmnopq:yyeexeUkPOROoTGvwBjJ0F0VLEo=:eyJlbmRVc2VyIjoieSIsInNjb3BlIjoiMToyIiwiZGVhZGxpbmUiOjEyMzQ1NzE0OTB9";
+        // CHECKSTYLE:ON
         assertEquals(exp, token);
     }
 }

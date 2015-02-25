@@ -5,19 +5,13 @@ import java.util.ArrayList;
 
 public final class Pipe {
     private ArrayList<Operation> commands;
-    private boolean persistent;
 
-    private Pipe(boolean persistent) {
+    private Pipe() {
         commands = new ArrayList<Operation>();
-        this.persistent = persistent;
     }
 
     public static Pipe create() {
-        return new Pipe(false);
-    }
-
-    public static Pipe createPersistent() {
-        return new Pipe(true);
+        return new Pipe();
     }
 
     public Pipe append(Operation cmd) {
@@ -29,9 +23,6 @@ public final class Pipe {
         StringBuilder b = new StringBuilder();
         boolean noStart = false;
         for (Operation cmd : commands) {
-            if (!persistent && cmd.onlyPersistent()) {
-                throw new IllegalArgumentException(cmd.toString() + " is only for persistent");
-            }
             if (noStart) {
                 b.append("|");
             }

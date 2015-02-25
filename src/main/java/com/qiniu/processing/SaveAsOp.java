@@ -15,9 +15,4 @@ public final class SaveAsOp implements Operation {
     public String build() {
         return "saveas/" + BucketManager.entry(bucket, key);
     }
-
-    @Override
-    public boolean onlyPersistent() {
-        return false;
-    }
 }

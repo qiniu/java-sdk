@@ -27,7 +27,7 @@ public final class PersistentOperationManager {
     }
 
     public String post(String key, Operation cmd) throws QiniuException {
-        return post(key, Pipe.createPersistent().append(cmd));
+        return post(key, Pipe.create().append(cmd));
     }
 
     public String post(String key, Pipe pipe) throws QiniuException {

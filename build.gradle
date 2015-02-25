@@ -15,3 +15,5 @@ dependencies {
     //okhttp jdk 6 version, only for jdk6 test
     testRuntime fileTree(dir: 'libs', include: '*.jar')
 }
+
+apply plugin: 'checkstyle'

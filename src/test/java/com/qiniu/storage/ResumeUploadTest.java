@@ -17,7 +17,7 @@ import static org.junit.Assert.fail;
 public class ResumeUploadTest {
 
     private void template(int size) throws IOException {
-        final String expectKey = "r=" + size + "k";
+        final String expectKey = "\r\n?&r=" + size + "k";
         final File f = TempFile.createFile(size);
         String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
 
@@ -45,11 +45,17 @@ public class ResumeUploadTest {
 
     @Test
     public void test4M() throws Throwable {
+        if (TestConfig.isTravis()) {
+            return;
+        }
         template(1024 * 4);
     }
 
     @Test
     public void test8M1k() throws Throwable {
+        if (TestConfig.isTravis()) {
+            return;
+        }
         template(1024 * 8 + 1);
     }
 }

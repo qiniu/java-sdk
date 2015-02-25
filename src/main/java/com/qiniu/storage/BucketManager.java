@@ -167,7 +167,8 @@ public final class BucketManager {
             return new Batch(ops);
         }
 
-        public static Batch twoKey(final String operation, final String source_bucket, StringMap key_pairs, String target_bucket) {
+        public static Batch twoKey(final String operation, final String source_bucket,
+                                   StringMap key_pairs, String target_bucket) {
 
             final String t_bucket = target_bucket == null ? source_bucket : target_bucket;
             final ArrayList<String> ops = new ArrayList<String>(key_pairs.size());

@@ -17,7 +17,7 @@ public class FormUploadTest {
 
     @Test
     public void testHello() {
-        final String expectKey = "你好\r\n";
+        final String expectKey = "你好?&=\r\n";
         StringMap params = new StringMap().put("x:foo", "foo_val");
 
         String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);

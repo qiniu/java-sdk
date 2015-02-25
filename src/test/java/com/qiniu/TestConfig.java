@@ -11,4 +11,11 @@ public final class TestConfig {
     public static final String bucket = "javasdk";
     public static final String key = "java-duke.svg";
     public static final String domain = "javasdk.qiniudn.com";
+
+    private TestConfig() {
+    }
+
+    public static boolean isTravis() {
+        return "travis".equals(System.getenv("QINIU_TEST_ENV"));
+    }
 }
