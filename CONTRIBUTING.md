@@ -2,13 +2,13 @@
 
 我们非常欢迎大家来贡献代码，我们会向贡献者致以最诚挚的敬意。
 
-一般可以通过在Github上提交[Pull Request](https://github.com/qiniu/php-sdk)来贡献代码。
+一般可以通过在Github上提交[Pull Request](https://github.com/qiniu/java-sdk)来贡献代码。
 
 ## Pull Request要求
 
-- **[PSR-2 编码风格标准](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md)** 。要通过项目中的code sniffer检查。
+- **代码风格标准** 。要通过项目中的checkstyle检查。
 
-- **代码格式** 提交前 请按 ./vendor/bin/phpcbf --standard=PSR2  进行格式化。
+- **代码格式** 提交前请按项目风格进行格式化。
 
 - **必须添加测试！** - 如果没有测试（单元测试、集成测试都可以），那么提交的补丁是不会通过的。
 
@@ -25,6 +25,6 @@
 ## 运行测试
 
 ``` bash
-./vendor/bin/phpunit tests/Qiniu/Tests/
+./gradlew build
 
 ```

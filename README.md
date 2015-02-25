@@ -76,5 +76,5 @@ The MIT License (MIT).详情见 [License文件](https://github.com/qiniu/java-sd
 
 [1]: https://search.maven.org/remote_content?g=com.qiniu&a=qiniu-java-sdk&v=LATEST
 [2]: https://github.com/Nextpeer/okhttp
-[3]: https://github.com/Nextpeer/okhttp
-[4]: https://github.com/Nextpeer/okhttp
+[3]: https://raw.githubusercontent.com/qiniu/java-sdk/master/libs/okhttp-2.3.0-SNAPSHOT.jar
+[4]: https://raw.githubusercontent.com/qiniu/java-sdk/master/libs/okio-1.3.0-SNAPSHOT.jar
