@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,12 +15,8 @@ public class EtagTest {
         String m = Etag.data(new byte[0]);
         assertEquals("Fto5o-5ea0sNMlW_75VgGJCv2AcJ", m);
 
-        try {
-            String etag = Etag.data("etag".getBytes(Config.CHARSET));
-            assertEquals("FpLiADEaVoALPkdb8tJEJyRTXoe_", etag);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        String etag = Etag.data("etag".getBytes(Config.UTF_8));
+        assertEquals("FpLiADEaVoALPkdb8tJEJyRTXoe_", etag);
     }
 
     @Test

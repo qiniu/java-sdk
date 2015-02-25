@@ -45,7 +45,7 @@ public final class ResumeUploader {
         this.f = file;
         this.size = file.length();
         this.params = params;
-        this.mime = mime == null?Client.DefaultMime : mime;
+        this.mime = mime == null ? Client.DefaultMime : mime;
         this.host = Config.UP_HOST;
         long count = (size + Config.BLOCK_SIZE - 1) / Config.BLOCK_SIZE;
         this.contexts = new String[(int) count];
@@ -126,7 +126,7 @@ public final class ResumeUploader {
             b.append("/key/");
             b.append(UrlSafeBase64.encodeToString(key));
         }
-        if (params != null){
+        if (params != null) {
             params.iterate(new StringMap.Do() {
                 @Override
                 public void deal(String key, Object value) {

@@ -2,7 +2,6 @@ package com.qiniu.util;
 
 import com.qiniu.common.Config;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 
 /**
@@ -196,6 +195,10 @@ public final class StringUtils {
         return s == null || "".equals(s);
     }
 
+    public static boolean isNotEmpty(String s) {
+        return !isEmpty(s);
+    }
+
     public static boolean inStringArray(String s, String[] array) {
         for (String x : array) {
             if (x.equals(s)) {
@@ -206,19 +209,11 @@ public final class StringUtils {
     }
 
     public static byte[] utf8Bytes(String data) {
-        try {
-            return data.getBytes(Config.CHARSET);
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError(e);
-        }
+        return data.getBytes(Config.UTF_8);
     }
 
     public static String utf8String(byte[] data) {
-        try {
-            return new String(data, Config.CHARSET);
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError(e);
-        }
+        return new String(data, Config.UTF_8);
     }
 }
 

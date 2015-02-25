@@ -1,7 +1,7 @@
 package com.qiniu.processing;
 
 public interface Operation {
-    String toString();
+    String build();
 
     boolean onlyPersistent();
 }

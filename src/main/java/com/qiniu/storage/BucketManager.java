@@ -44,11 +44,8 @@ public final class BucketManager {
 
     public FileListing listFiles(String bucket, String prefix, String marker, int limit, String delimiter)
             throws QiniuException {
-        StringMap map = new StringMap().put("bucket", bucket).putNoEmpty(marker, marker)
-                .putNoEmpty("prefix", prefix).putNoEmpty("delimiter", delimiter);
-        if (limit > 0) {
-            map.put("limit", limit);
-        }
+        StringMap map = new StringMap().put("bucket", bucket).putNotEmpty(marker, marker)
+                .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
 
         String url = Config.RSF_HOST + "/list?" + map.formString();
         Response r = get(url);

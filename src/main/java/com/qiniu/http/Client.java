@@ -35,23 +35,6 @@ public final class Client {
         return sdk + " (" + os + ") " + javaVersion;
     }
 
-    public Response get(String url) throws QiniuException {
-        return get(url, new StringMap());
-    }
-
-    public Response get(String url, StringMap headers) throws QiniuException {
-        Request.Builder requestBuilder = new Request.Builder().get().url(url);
-        return send(requestBuilder, headers);
-    }
-
-    public Response post(String url, byte[] body, StringMap headers) throws QiniuException {
-        return post(url, body, headers, DefaultMime);
-    }
-
-    public Response post(String url, String body, StringMap headers) throws QiniuException {
-        return post(url, StringUtils.utf8Bytes(body), headers, DefaultMime);
-    }
-
     private static RequestBody create(final MediaType contentType, final byte[] content, final int offset, final int size) {
         if (content == null) throw new NullPointerException("content == null");
 
@@ -71,6 +54,23 @@ public final class Client {
                 sink.write(content, offset, size);
             }
         };
+    }
+
+    public Response get(String url) throws QiniuException {
+        return get(url, new StringMap());
+    }
+
+    public Response get(String url, StringMap headers) throws QiniuException {
+        Request.Builder requestBuilder = new Request.Builder().get().url(url);
+        return send(requestBuilder, headers);
+    }
+
+    public Response post(String url, byte[] body, StringMap headers) throws QiniuException {
+        return post(url, body, headers, DefaultMime);
+    }
+
+    public Response post(String url, String body, StringMap headers) throws QiniuException {
+        return post(url, StringUtils.utf8Bytes(body), headers, DefaultMime);
     }
 
     public Response post(String url, StringMap params, StringMap headers) throws QiniuException {
@@ -155,12 +155,14 @@ public final class Client {
     }
 
     public Response send(final Request.Builder requestBuilder, StringMap headers) throws QiniuException {
-        headers.iterate(new StringMap.Do() {
-            @Override
-            public void deal(String key, Object value) {
-                requestBuilder.header(key, value.toString());
-            }
-        });
+        if (headers != null) {
+            headers.iterate(new StringMap.Do() {
+                @Override
+                public void deal(String key, Object value) {
+                    requestBuilder.header(key, value.toString());
+                }
+            });
+        }
 
         requestBuilder.header("User-Agent", userAgent());
         long start = System.currentTimeMillis();
