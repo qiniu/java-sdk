@@ -168,10 +168,6 @@ public final class Client {
         return send(requestBuilder, headers);
     }
 
-    private static class IpTag{
-        public String ip = null;
-    }
-
     public Response send(final Request.Builder requestBuilder, StringMap headers) throws QiniuException {
         if (headers != null) {
             headers.iterate(new StringMap.Do() {
@@ -200,5 +196,9 @@ public final class Client {
             throw new QiniuException(r);
         }
         return r;
+    }
+
+    private static class IpTag {
+        public String ip = null;
     }
 }
