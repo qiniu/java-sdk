@@ -35,7 +35,7 @@ public final class ZipPackOp implements Operation {
                 b.append("/url/");
                 b.append(UrlSafeBase64.encodeToString(key));
                 String val = (String) value;
-                if (!StringUtils.isEmpty(val)) {
+                if (!StringUtils.isNullOrEmpty(val)) {
                     b.append("/alias/");
                     b.append(UrlSafeBase64.encodeToString(val));
                 }

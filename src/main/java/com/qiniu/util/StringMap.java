@@ -22,7 +22,7 @@ public final class StringMap {
     }
 
     public StringMap putNotEmpty(String key, String value) {
-        if (!StringUtils.isEmpty(value)) {
+        if (!StringUtils.isNullOrEmpty(value)) {
             map.put(key, value);
         }
         return this;
