@@ -194,12 +194,8 @@ public final class StringUtils {
         return buf.toString();
     }
 
-    public static boolean isEmpty(String s) {
+    public static boolean isNullOrEmpty(String s) {
         return s == null || "".equals(s);
-    }
-
-    public static boolean isNotEmpty(String s) {
-        return !isEmpty(s);
     }
 
     public static boolean inStringArray(String s, String[] array) {
