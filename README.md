@@ -1,48 +1,80 @@
 # Qiniu Resource Storage SDK for Java
-
-[![Build Status](https://travis-ci.org/qiniu/java-sdk.png?branch=master)](https://travis-ci.org/qiniu/java-sdk)
-
-[![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
-
-此 Java SDK 适用于 Java 6 及以上版本，基于 [七牛云存储官方API](http://developer.qiniu.com/docs/v6/sdk/java-sdk.html) 构建。使用此 SDK 构建您的网络应用程序，能让您以非常便捷地方式将数据安全地存储到七牛云存储上。无论您的网络应用是一个网站程序，还是包括从云端（服务端程序）到终端（手持设备应用）的架构的服务或应用，通过七牛云存储及其 SDK，都能让您应用程序的终端用户高速上传和下载，同时也让您的服务端更加轻盈。
-
-
+[![@qiniu on weibo](http://img.shields.io/badge/weibo-%40qiniutek-blue.svg)](http://weibo.com/qiniutek)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
+[![Build Status](https://travis-ci.org/qiniu/java-sdk.svg)](https://travis-ci.org/qiniu/java-sdk)
+[![Latest Stable Version](https://img.shields.io/maven-central/v/com.qiniu/qiniu-java-sdk.svg)](http://search.maven.org/#search|ga|1|g:"com.qiniu" AND a:"qiniu-java-sdk")
 ## 安装
 
-安装 Maven 的插件：[The Maven Integration for Eclipse](http://www.eclipse.org/m2e/)
+下载 [the latest JAR][1] 或者 通过 Maven:
+```xml
+<dependency>
+  <groupId>com.qiniu</groupId>
+  <artifactId>qiniu-java-sdk</artifactId>
+  <version>7.0.0</version>
+</dependency>
+```
+或者 Gradle:
+```groovy
+compile 'com.qiniu:qiniu-java-sdk:7.0.0'
+```
+jdk 6.0 不能直接使用mvn上的okhttp, 需要另外下载，[代码][2], [okhttp.jar][3], [okio.jar][4]
 
-添加依赖
+## 运行环境
 
-	<dependency>
-		<groupId>com.qiniu</groupId>
-		<artifactId>sdk</artifactId>
-		<version>x.x.x</version>
-	</dependency>
+| Qiniu SDK版本 | Java 版本 |
+|:--------------------:|:---------------------------:|
+|          7.x         |  6+ |
+|          6.x         |  6+ |
 
-其中最新版本的版本号可以到 https://github.com/qiniu/java-sdk/tags 这里查看。
+## 使用方法
 
-如果想直接下载依赖的jar，可以到 这个地址进行下载 [http://javasdk.qiniudn.com/dependencies.zip](http://javasdk.qiniudn.com/dependencies.zip)
+### 上传
+```Java
+import com.qiniu.storage.UploadManager;
+import com.qiniu.util.Auth;
+import com.qiniu.http.Response;
+...
+    UploadManager uploadManager = new UploadManager()
+    Auth auth = Auth.create(accessKey, secretKey);
+    String token = auth.uploadToken(bucketName);
+    Response r = upManager.put("hello world".getBytes(), "yourkey", token);
+...
+```
 
-## 使用
+## 测试
 
-参考文档：[七牛云存储 Java SDK 使用指南](http://developer.qiniu.com/docs/v6/sdk/java-sdk.html)
+``` bash
+$ ./gradlew build
+```
 
+## 常见问题
 
-## 贡献代码
+- QiniuExeption保留了请求响应的信息，失败情况下会抛出此异常，可以提交给我们排查问题。
+- API 的使用 demo 可以参考 [单元测试](https://github.com/qiniu/java-sdk/blob/master/src/test)。
 
-1. Fork
-2. 创建您的特性分支 (`git checkout -b my-new-feature`)
-3. 提交您的改动 (`git commit -am 'Added some feature'`)
-4. 将您的修改记录提交到远程 `git` 仓库 (`git push origin my-new-feature`)
-5. 然后到 github 网站的该 `git` 远程仓库的 `my-new-feature` 分支下发起 Pull Request
+## 代码贡献
 
+详情参考[代码提交指南](https://github.com/qiniu/java-sdk/blob/master/CONTRIBUTING.md)。
 
-## 许可证
+## 贡献记录
 
-Copyright (c) 2012-2014 qiniu.com
+- [所有贡献者](https://github.com/qiniu/java-sdk/contributors)
 
-基于 MIT 协议发布:
+## 联系我们
 
-* [www.opensource.org/licenses/MIT](http://www.opensource.org/licenses/MIT)
+- 如果需要帮助，请提交工单（在portal右侧点击咨询和建议提交工单，或者直接向 support@qiniu.com 发送邮件）
+- 如果有什么问题，可以到问答社区提问，[问答社区](http://qiniu.segmentfault.com/)
+- 更详细的文档，见[官方文档站](http://developer.qiniu.com/)
+- 如果发现了bug， 欢迎提交 [issue](https://github.com/qiniu/java-sdk/issues)
+- 如果有功能需求，欢迎提交 [issue](https://github.com/qiniu/java-sdk/issues)
+- 如果要提交代码，欢迎提交 pull request
+- 欢迎关注我们的[微信](http://www.qiniu.com/#weixin) [微博](http://weibo.com/qiniutek)，及时获取动态信息。
 
+## 代码许可
 
+The MIT License (MIT).详情见 [License文件](https://github.com/qiniu/java-sdk/blob/master/LICENSE).
+
+[1]: https://search.maven.org/remote_content?g=com.qiniu&a=qiniu-java-sdk&v=LATEST
+[2]: https://github.com/Nextpeer/okhttp
+[3]: https://raw.githubusercontent.com/qiniu/java-sdk/master/libs/okhttp-2.3.0-SNAPSHOT.jar
+[4]: https://raw.githubusercontent.com/qiniu/java-sdk/master/libs/okio-1.3.0-SNAPSHOT.jar

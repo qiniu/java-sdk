@@ -1,0 +1,44 @@
+import java.util.regex.Matcher
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group:'com.squareup.okhttp', name:'okhttp', version:'2.2.0'
+    compile group:'com.google.code.gson', name:'gson', version:'2.3.1'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    //okhttp jdk 6 version, only for jdk6 test
+    testRuntime fileTree(dir: 'libs', include: '*.jar')
+}
+
+apply plugin: 'checkstyle'
+
+
+def versionName() {
+    String config = 'src/main/java/com/qiniu/common/Config.java'
+    String fileContents = new File(config).text
+    Matcher myMatcher = fileContents =~ /VERSION = "(.+)";/
+    String version = myMatcher[0][1]
+    println(version)
+    return version
+}
+
+def versionNameToCode(String version) {
+    String v = version.replaceAll(/\./, '')
+    return v.toLong()
+}
+
+String version = versionName()
+int code = versionNameToCode(version)
+
+setProperty('VERSION_NAME', version)
+setProperty('VERSION_CODE', code)
+
+apply from: 'mvn_push.gradle'
