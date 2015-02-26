@@ -42,40 +42,49 @@ public final class Response {
      */
     public final double duration;
     /**
-     * 服务器域名
-     */
-    public final String host;
-    /**
      * 服务器IP
      */
-    public final String ip;
+    public final String address;
 
     private byte[] body;
     private com.squareup.okhttp.Response response;
 
-    Response(int statusCode, String reqId, String xlog, String xvia, String host,
-             String ip, double duration, String error) {
+    private Response(com.squareup.okhttp.Response response, int statusCode, String reqId, String xlog, String xvia,
+             String address, double duration, String error, byte[] body) {
+        this.response = response;
         this.statusCode = statusCode;
         this.reqId = reqId;
         this.xlog = xlog;
         this.xvia = xvia;
-        this.host = host;
         this.duration = duration;
         this.error = error;
-        this.ip = ip;
+        this.address = address;
+        this.body = body;
     }
 
-    Response(com.squareup.okhttp.Response response, double duration) {
-        this.response = response;
-        this.statusCode = response.code();
-        this.reqId = response.header("X-Reqid");
-        this.xlog = response.header("X-Log");
-        this.xvia = via(response);
-        this.host = response.request().url().getHost();
-        this.duration = duration;
-        this.error = null;
-        this.ip = null;
+    static Response create(com.squareup.okhttp.Response response, String address, double duration){
+        String error = null;
+        int code = response.code();
+        String reqId = response.header("X-Reqid");
+        byte[] body = null;
+        if (ctype(response).equals(Client.JsonMime)){
+            try {
+                body = response.body().bytes();
+                if (response.code()>=400 && StringUtils.isNotEmpty(reqId) && body != null){
+                    ErrorBody errorBody = Json.decode(new String(body), ErrorBody.class);
+                    error = errorBody.error;
+                }
+            } catch (Exception e) {
+                if (response.code()<300){
+                    error = e.getMessage();
+                }
+            }
+
+        }
+        return new Response(response, code,reqId, response.header("X-Log"), via(response),
+                address, duration, error,  body);
     }
+
 
     private static String via(com.squareup.okhttp.Response response) {
         String via;
@@ -115,8 +124,8 @@ public final class Response {
 
     public String toString() {
         return String.format(Locale.ENGLISH,
-                "{ResponseInfo:%s,status:%d, reqId:%s, xlog:%s, xvia:%s, host:%s, ip:%s, duration:%f s, error:%s}",
-                super.toString(), statusCode, reqId, xlog, xvia, host, ip, duration, error);
+                "{ResponseInfo:%s,status:%d, reqId:%s, xlog:%s, xvia:%s, adress:%s, duration:%f s, error:%s}",
+                super.toString(), statusCode, reqId, xlog, xvia, address, duration, error);
     }
 
     public <T> T jsonToObject(Class<T> classOfT) throws QiniuException {
@@ -152,6 +161,10 @@ public final class Response {
     }
 
     public String contentType() {
+        return ctype(response);
+    }
+
+    private static String ctype(com.squareup.okhttp.Response response){
         return response.header(Client.ContentTypeHeader, Client.DefaultMime);
     }
 
@@ -161,5 +174,9 @@ public final class Response {
 
     public String url() {
         return response.request().urlString();
+    }
+
+    public static class ErrorBody{
+        public String error;
     }
 }

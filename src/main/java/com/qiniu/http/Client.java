@@ -23,6 +23,18 @@ public final class Client {
 
     public Client() {
         httpClient = new OkHttpClient();
+        httpClient.networkInterceptors().add(new Interceptor() {
+            @Override
+            public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
+                Request request = chain.request();
+
+                com.squareup.okhttp.Response response = chain.proceed(request);
+                IpTag tag = (IpTag) request.tag();
+                String ip = chain.connection().getSocket().getRemoteSocketAddress().toString();
+                tag.ip = ip;
+                return response;
+            }
+        });
         httpClient.setConnectTimeout(Config.CONNECT_TIMEOUT, TimeUnit.SECONDS);
         httpClient.setReadTimeout(Config.RESPONSE_TIMEOUT, TimeUnit.SECONDS);
     }
@@ -156,6 +168,10 @@ public final class Client {
         return send(requestBuilder, headers);
     }
 
+    private static class IpTag{
+        public String ip = null;
+    }
+
     public Response send(final Request.Builder requestBuilder, StringMap headers) throws QiniuException {
         if (headers != null) {
             headers.iterate(new StringMap.Do() {
@@ -171,13 +187,15 @@ public final class Client {
         com.squareup.okhttp.Response res = null;
         Response r;
         double duration = (System.currentTimeMillis() - start) / 1000.0;
+        IpTag tag = new IpTag();
         try {
-            res = httpClient.newCall(requestBuilder.build()).execute();
-            r = new Response(res, duration);
+            res = httpClient.newCall(requestBuilder.tag(tag).build()).execute();
+
         } catch (IOException e) {
             e.printStackTrace();
             throw new QiniuException(e);
         }
+        r = Response.create(res, tag.ip, duration);
         if (r.statusCode >= 300) {
             throw new QiniuException(r);
         }
