@@ -50,7 +50,7 @@ public final class Response {
     private com.squareup.okhttp.Response response;
 
     private Response(com.squareup.okhttp.Response response, int statusCode, String reqId, String xlog, String xvia,
-             String address, double duration, String error, byte[] body) {
+                     String address, double duration, String error, byte[] body) {
         this.response = response;
         this.statusCode = statusCode;
         this.reqId = reqId;
@@ -62,27 +62,27 @@ public final class Response {
         this.body = body;
     }
 
-    static Response create(com.squareup.okhttp.Response response, String address, double duration){
+    static Response create(com.squareup.okhttp.Response response, String address, double duration) {
         String error = null;
         int code = response.code();
         String reqId = response.header("X-Reqid");
         byte[] body = null;
-        if (ctype(response).equals(Client.JsonMime)){
+        if (ctype(response).equals(Client.JsonMime)) {
             try {
                 body = response.body().bytes();
-                if (response.code()>=400 && StringUtils.isNotEmpty(reqId) && body != null){
+                if (response.code() >= 400 && StringUtils.isNotEmpty(reqId) && body != null) {
                     ErrorBody errorBody = Json.decode(new String(body), ErrorBody.class);
                     error = errorBody.error;
                 }
             } catch (Exception e) {
-                if (response.code()<300){
+                if (response.code() < 300) {
                     error = e.getMessage();
                 }
             }
 
         }
-        return new Response(response, code,reqId, response.header("X-Log"), via(response),
-                address, duration, error,  body);
+        return new Response(response, code, reqId, response.header("X-Log"), via(response),
+                address, duration, error, body);
     }
 
 
@@ -100,6 +100,10 @@ public final class Response {
             return via;
         }
         return via;
+    }
+
+    private static String ctype(com.squareup.okhttp.Response response) {
+        return response.header(Client.ContentTypeHeader, Client.DefaultMime);
     }
 
     public boolean isOK() {
@@ -164,10 +168,6 @@ public final class Response {
         return ctype(response);
     }
 
-    private static String ctype(com.squareup.okhttp.Response response){
-        return response.header(Client.ContentTypeHeader, Client.DefaultMime);
-    }
-
     public boolean isJson() {
         return contentType().equals(Client.JsonMime);
     }
@@ -176,7 +176,7 @@ public final class Response {
         return response.request().urlString();
     }
 
-    public static class ErrorBody{
+    public static class ErrorBody {
         public String error;
     }
 }
