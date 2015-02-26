@@ -9,22 +9,22 @@ import static org.junit.Assert.*;
 
 public class AuthTest {
     @Test
-    public void testToken() {
-        String token = TestConfig.dummyAuth.token("test");
+    public void testSign() {
+        String token = TestConfig.dummyAuth.sign("test");
         assertEquals("abcdefghklmnopq:mSNBTR7uS2crJsyFr2Amwv1LaYg=", token);
     }
 
     @Test
-    public void testTokenWithData() {
-        String token = TestConfig.dummyAuth.tokenWithData("test");
+    public void testSignWithData() {
+        String token = TestConfig.dummyAuth.signWithData("test");
         assertEquals("abcdefghklmnopq:-jP8eEV9v48MkYiBGs81aDxl60E=:dGVzdA==", token);
     }
 
     @Test
-    public void testTokenOfRequest() {
-        String token = TestConfig.dummyAuth.tokenOfRequest("http://www.qiniu.com?go=1", "test".getBytes(), "");
+    public void testSignRequest() {
+        String token = TestConfig.dummyAuth.signRequest("http://www.qiniu.com?go=1", "test".getBytes(), "");
         assertEquals("abcdefghklmnopq:cFyRVoWrE3IugPIMP5YJFTO-O-Y=", token);
-        token = TestConfig.dummyAuth.tokenOfRequest("http://www.qiniu.com?go=1", "test".getBytes(), Client.FormMime);
+        token = TestConfig.dummyAuth.signRequest("http://www.qiniu.com?go=1", "test".getBytes(), Client.FormMime);
         assertEquals("abcdefghklmnopq:svWRNcacOE-YMsc70nuIYdaa1e4=", token);
     }
 
