@@ -186,7 +186,6 @@ public final class Client {
         IpTag tag = new IpTag();
         try {
             res = httpClient.newCall(requestBuilder.tag(tag).build()).execute();
-
         } catch (IOException e) {
             e.printStackTrace();
             throw new QiniuException(e);
@@ -195,6 +194,7 @@ public final class Client {
         if (r.statusCode >= 300) {
             throw new QiniuException(r);
         }
+
         return r;
     }
 

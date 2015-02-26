@@ -5,6 +5,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
+import com.squareup.okhttp.MediaType;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -66,6 +67,7 @@ public final class Response {
         String error = null;
         int code = response.code();
         String reqId = response.header("X-Reqid");
+
         byte[] body = null;
         if (ctype(response).equals(Client.JsonMime)) {
             try {
@@ -103,7 +105,11 @@ public final class Response {
     }
 
     private static String ctype(com.squareup.okhttp.Response response) {
-        return response.header(Client.ContentTypeHeader, Client.DefaultMime);
+        MediaType mediaType = response.body().contentType();
+        if (mediaType == null) {
+            return "";
+        }
+        return mediaType.type() + "/" + mediaType.subtype();
     }
 
     public boolean isOK() {
