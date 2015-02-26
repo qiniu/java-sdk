@@ -72,7 +72,7 @@ public final class Response {
         if (ctype(response).equals(Client.JsonMime)) {
             try {
                 body = response.body().bytes();
-                if (response.code() >= 400 && StringUtils.isNotEmpty(reqId) && body != null) {
+                if (response.code() >= 400 && !StringUtils.isNullOrEmpty(reqId) && body != null) {
                     ErrorBody errorBody = Json.decode(new String(body), ErrorBody.class);
                     error = errorBody.error;
                 }
@@ -81,7 +81,6 @@ public final class Response {
                     error = e.getMessage();
                 }
             }
-
         }
         return new Response(response, code, reqId, response.header("X-Log"), via(response),
                 address, duration, error, body);

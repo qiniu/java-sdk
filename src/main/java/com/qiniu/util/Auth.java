@@ -43,7 +43,7 @@ public final class Auth {
     }
 
     public static Auth create(String accessKey, String secretKey) {
-        if (StringUtils.isEmpty(accessKey) || StringUtils.isEmpty(secretKey)) {
+        if (StringUtils.isNullOrEmpty(accessKey) || StringUtils.isNullOrEmpty(secretKey)) {
             throw new IllegalArgumentException("empty key");
         }
         byte[] sk = StringUtils.utf8Bytes(secretKey);
@@ -80,26 +80,26 @@ public final class Auth {
         return mac;
     }
 
-    public String token(byte[] data) {
+    public String sign(byte[] data) {
         Mac mac = createMac();
         String encodedSign = UrlSafeBase64.encodeToString(mac.doFinal(data));
         return this.accessKey + ":" + encodedSign;
     }
 
-    public String token(String data) {
-        return token(StringUtils.utf8Bytes(data));
+    public String sign(String data) {
+        return sign(StringUtils.utf8Bytes(data));
     }
 
-    public String tokenWithData(byte[] data) {
+    public String signWithData(byte[] data) {
         String s = UrlSafeBase64.encodeToString(data);
-        return token(StringUtils.utf8Bytes(s)) + ":" + s;
+        return sign(StringUtils.utf8Bytes(s)) + ":" + s;
     }
 
-    public String tokenWithData(String data) {
-        return tokenWithData(StringUtils.utf8Bytes(data));
+    public String signWithData(String data) {
+        return signWithData(StringUtils.utf8Bytes(data));
     }
 
-    public String tokenOfRequest(String urlString, byte[] body, String contentType) {
+    public String signRequest(String urlString, byte[] body, String contentType) {
         URI uri = URI.create(urlString);
         String path = uri.getRawPath();
         String query = uri.getRawQuery();
@@ -113,7 +113,7 @@ public final class Auth {
             mac.update(StringUtils.utf8Bytes(query));
         }
         mac.update((byte) '\n');
-        if (body != null && body.length > 0 && !StringUtils.isEmpty(contentType)) {
+        if (body != null && body.length > 0 && !StringUtils.isNullOrEmpty(contentType)) {
             if (contentType.equals(Client.FormMime)
                     || contentType.equals(Client.JsonMime)) {
                 mac.update(body);
@@ -126,7 +126,7 @@ public final class Auth {
     }
 
     public boolean isValidCallback(String originAuthorization, String url, byte[] body, String contentType) {
-        String authorization = "QBox " + tokenOfRequest(url, body, contentType);
+        String authorization = "QBox " + signRequest(url, body, contentType);
         return authorization.equals(originAuthorization);
     }
 
@@ -149,7 +149,7 @@ public final class Auth {
             b.append("?e=");
         }
         b.append(deadline);
-        String token = token(StringUtils.utf8Bytes(b.toString()));
+        String token = sign(StringUtils.utf8Bytes(b.toString()));
         b.append("&token=");
         b.append(token);
         return b.toString();
@@ -184,11 +184,11 @@ public final class Auth {
         x.put("deadline", deadline);
 
         String s = Json.encode(x);
-        return tokenWithData(StringUtils.utf8Bytes(s));
+        return signWithData(StringUtils.utf8Bytes(s));
     }
 
     public StringMap authorization(String url, byte[] body, String contentType) {
-        String authorization = "QBox " + tokenOfRequest(url, body, contentType);
+        String authorization = "QBox " + signRequest(url, body, contentType);
         return new StringMap().put("Authorization", authorization);
     }
 

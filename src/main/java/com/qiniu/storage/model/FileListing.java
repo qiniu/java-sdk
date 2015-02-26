@@ -10,6 +10,6 @@ public class FileListing {
     public String marker;
 
     public boolean isEOF() {
-        return StringUtils.isEmpty(marker);
+        return StringUtils.isNullOrEmpty(marker);
     }
 }
