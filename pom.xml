@@ -3,8 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.qiniu</groupId>
-	<artifactId>sdk</artifactId>
-	<version>6.1.6</version>
+	<artifactId>qiniu-java-sdk</artifactId>
+	<version>6.1.9</version>
 	<packaging>jar</packaging>
 	<name>java-sdk</name>
 	<url>http://www.qiniu.com/</url>
