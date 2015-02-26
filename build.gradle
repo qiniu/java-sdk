@@ -1,3 +1,5 @@
+import java.util.regex.Matcher
+
 apply plugin: 'java'
 
 sourceCompatibility = 1.6
@@ -17,3 +19,26 @@ dependencies {
 }
 
 apply plugin: 'checkstyle'
+
+
+def versionName() {
+    String config = 'src/main/java/com/qiniu/common/Config.java'
+    String fileContents = new File(config).text
+    Matcher myMatcher = fileContents =~ /VERSION = "(.+)";/
+    String version = myMatcher[0][1]
+    println(version)
+    return version
+}
+
+def versionNameToCode(String version) {
+    String v = version.replaceAll(/\./, '')
+    return v.toLong()
+}
+
+String version = versionName()
+int code = versionNameToCode(version)
+
+setProperty('VERSION_NAME', version)
+setProperty('VERSION_CODE', code)
+
+apply from: 'mvn_push.gradle'
