@@ -26,7 +26,7 @@ public final class UploadManager {
         if (f == null && data == null) {
             message = "no input data";
         } else if (token == null || token.equals("")) {
-            message = "no sign";
+            message = "no token";
         }
         if (message != null) {
             throw new IllegalArgumentException(message);
