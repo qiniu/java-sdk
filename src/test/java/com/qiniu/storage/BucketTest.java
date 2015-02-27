@@ -47,6 +47,15 @@ public class BucketTest {
     }
 
     @Test
+    public void testListIterator() {
+        BucketManager.FileListIterator it = bucketManager.createFileListIterator(TestConfig.bucket, null, 2, null);
+        while (it.hasNext()) {
+            FileInfo[] items = it.next();
+            assertNotNull(items[0]);
+        }
+    }
+
+    @Test
     public void testStat() {
         try {
             FileInfo info = bucketManager.stat(TestConfig.bucket, TestConfig.key);
