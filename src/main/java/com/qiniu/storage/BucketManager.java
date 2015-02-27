@@ -12,6 +12,7 @@ import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public final class BucketManager {
     private final Auth auth;
@@ -38,13 +39,17 @@ public final class BucketManager {
         return r.jsonToObject(String[].class);
     }
 
-    public FileListing listFiles(String bucket, String prefix, String marker) throws QiniuException {
-        return listFiles(bucket, prefix, marker, 1000, null);
+    public FileListIterator createFileListIterator(String bucket, String prefix) {
+        return new FileListIterator(bucket, prefix, 1000, null);
+    }
+
+    public FileListIterator createFileListIterator(String bucket, String prefix, int limit, String delimiter) {
+        return new FileListIterator(bucket, prefix, limit, delimiter);
     }
 
     public FileListing listFiles(String bucket, String prefix, String marker, int limit, String delimiter)
             throws QiniuException {
-        StringMap map = new StringMap().put("bucket", bucket).putNotEmpty(marker, marker)
+        StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
                 .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
 
         String url = Config.RSF_HOST + "/list?" + map.formString();
@@ -192,6 +197,46 @@ public final class BucketManager {
         public byte[] toBody() {
             String body = StringUtils.join(ops, "&op=", "op=");
             return StringUtils.utf8Bytes(body);
+        }
+    }
+
+    public class FileListIterator implements Iterator<FileInfo[]> {
+        private String marker = null;
+        private String bucket;
+        private String delimiter;
+        private int limit;
+        private String prefix;
+        private QiniuException exception = null;
+
+        public FileListIterator(String bucket, String prefix, int limit, String delimiter) {
+            if (limit <= 0) {
+                throw new IllegalArgumentException("limit must great than 0");
+            }
+            this.bucket = bucket;
+            this.prefix = prefix;
+            this.limit = limit;
+            this.delimiter = delimiter;
+        }
+
+        public QiniuException error() {
+            return exception;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return exception == null && !"".equals(marker);
+        }
+
+        @Override
+        public FileInfo[] next() {
+            try {
+                FileListing f = listFiles(bucket, prefix, marker, limit, delimiter);
+                this.marker = f.marker == null ? "" : f.marker;
+                return f.items;
+            } catch (QiniuException e) {
+                this.exception = e;
+                return null;
+            }
         }
     }
 }
