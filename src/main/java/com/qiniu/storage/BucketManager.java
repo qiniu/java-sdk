@@ -238,5 +238,10 @@ public final class BucketManager {
                 return null;
             }
         }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("remove");
+        }
     }
 }
