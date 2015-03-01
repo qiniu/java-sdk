@@ -177,9 +177,9 @@ public final class BucketManager {
 
             final String t_bucket = target_bucket == null ? source_bucket : target_bucket;
             final ArrayList<String> ops = new ArrayList<String>(key_pairs.size());
-            key_pairs.iterate(new StringMap.Do() {
+            key_pairs.forEach(new StringMap.Consumer() {
                 @Override
-                public void deal(String key, Object value) {
+                public void accept(String key, Object value) {
                     String from = entry(source_bucket, key);
                     String to = entry(t_bucket, (String) value);
                     ops.add(operation + "/" + from + "/" + to);

@@ -127,9 +127,9 @@ public final class ResumeUploader {
             b.append(UrlSafeBase64.encodeToString(key));
         }
         if (params != null) {
-            params.iterate(new StringMap.Do() {
+            params.forEach(new StringMap.Consumer() {
                 @Override
-                public void deal(String key, Object value) {
+                public void accept(String key, Object value) {
                     b.append("/");
                     b.append(key);
                     b.append("/");
