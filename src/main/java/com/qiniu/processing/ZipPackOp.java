@@ -29,9 +29,9 @@ public final class ZipPackOp implements Operation {
             throw new IllegalStateException("zip list must have at least one part.");
         }
         final StringBuilder b = new StringBuilder("mkzip");
-        args.iterate(new StringMap.Do() {
+        args.forEach(new StringMap.Consumer() {
             @Override
-            public void deal(String key, Object value) {
+            public void accept(String key, Object value) {
                 b.append("/url/");
                 b.append(UrlSafeBase64.encodeToString(key));
                 String val = (String) value;

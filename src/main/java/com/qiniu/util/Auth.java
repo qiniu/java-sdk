@@ -55,9 +55,9 @@ public final class Auth {
         if (originPolicy == null) {
             return;
         }
-        originPolicy.iterate(new StringMap.Do() {
+        originPolicy.forEach(new StringMap.Consumer() {
             @Override
-            public void deal(String key, Object value) {
+            public void accept(String key, Object value) {
                 if (StringUtils.inStringArray(key, deprecatedPolicyFields)) {
                     throw new IllegalArgumentException(key + " is deprecated!");
                 }
