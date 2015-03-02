@@ -2,6 +2,9 @@
 bin/
 /db
 .eclipse
+.classpath
+.project
+.settings/
 /lib/
 /logs/
 /modules
@@ -17,6 +20,8 @@ server.pid
 .cache
 .gradle/
 build/
+
+#src.zip
 
 .idea
 .gradle
