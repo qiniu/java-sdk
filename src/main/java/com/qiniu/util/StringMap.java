@@ -53,9 +53,9 @@ public final class StringMap {
         return this;
     }
 
-    public void iterate(Do imp) {
+    public void forEach(Consumer imp) {
         for (Map.Entry<String, Object> i : map.entrySet()) {
-            imp.deal(i.getKey(), i.getValue());
+            imp.accept(i.getKey(), i.getValue());
         }
     }
 
@@ -73,11 +73,11 @@ public final class StringMap {
 
     public String formString() {
         final StringBuilder b = new StringBuilder();
-        iterate(new Do() {
+        forEach(new Consumer() {
             private boolean notStart = false;
 
             @Override
-            public void deal(String key, Object value) {
+            public void accept(String key, Object value) {
                 if (notStart) {
                     b.append("&");
                 }
@@ -93,7 +93,7 @@ public final class StringMap {
         return b.toString();
     }
 
-    public interface Do {
-        void deal(String key, Object value);
+    public interface Consumer {
+        void accept(String key, Object value);
     }
 }

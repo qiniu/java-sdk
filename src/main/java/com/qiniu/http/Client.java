@@ -88,9 +88,9 @@ public final class Client {
 
     public Response post(String url, StringMap params, StringMap headers) throws QiniuException {
         final FormEncodingBuilder f = new FormEncodingBuilder();
-        params.iterate(new StringMap.Do() {
+        params.forEach(new StringMap.Consumer() {
             @Override
-            public void deal(String key, Object value) {
+            public void accept(String key, Object value) {
                 f.add(key, value.toString());
             }
         });
@@ -156,9 +156,9 @@ public final class Client {
         final MultipartBuilder mb = new MultipartBuilder();
         mb.addFormDataPart(name, fileName, file);
 
-        fields.iterate(new StringMap.Do() {
+        fields.forEach(new StringMap.Consumer() {
             @Override
-            public void deal(String key, Object value) {
+            public void accept(String key, Object value) {
                 mb.addFormDataPart(key, value.toString());
             }
         });
@@ -170,9 +170,9 @@ public final class Client {
 
     public Response send(final Request.Builder requestBuilder, StringMap headers) throws QiniuException {
         if (headers != null) {
-            headers.iterate(new StringMap.Do() {
+            headers.forEach(new StringMap.Consumer() {
                 @Override
-                public void deal(String key, Object value) {
+                public void accept(String key, Object value) {
                     requestBuilder.header(key, value.toString());
                 }
             });
