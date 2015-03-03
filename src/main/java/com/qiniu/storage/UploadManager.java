@@ -45,7 +45,7 @@ public final class UploadManager {
             return ret;
         }
 
-        ret.forEach(new StringMap.Consumer() {
+        params.forEach(new StringMap.Consumer() {
             @Override
             public void accept(String key, Object value) {
                 if (value == null) {
