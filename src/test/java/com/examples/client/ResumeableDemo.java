@@ -51,10 +51,9 @@ public class ResumeableDemo {
 		long s = System.currentTimeMillis();
 		PutRet ret = up.execute();
 		long e = System.currentTimeMillis();
-		System.out
-				.println((e - s + 1)
+		System.out.println((e - s + 1)
 						+ "  "
-						+ ((up.getCurrentUploadLength() / 1024) / ((e - s + 1) / 1000)));
+						+ (up.getCurrentUploadLength() / 1024 / seconds(s, e)));
 		System.out.println(ret);
 		System.out.println(ret.response);
 		System.out.println(ret.statusCode);
@@ -75,16 +74,15 @@ public class ResumeableDemo {
 		long s = System.currentTimeMillis();
 		PutRet ret = up.execute();
 		long e = System.currentTimeMillis();
-		System.out
-				.println((e - s + 1)
+		System.out.println((e - s + 1)
 						+ "  "
-						+ ((up.getCurrentUploadLength() / 1024) / ((e - s + 1) / 1000)));
+						+ (up.getCurrentUploadLength() / 1024 / seconds(s, e)));
 
 		System.out.println(ret);
 		System.out.println(ret.response);
 		System.out.println(ret.statusCode);
 		System.out.println((e - s + 1) + "ms,  "
-				+ ((up.getCurrentUploadLength() / 1024) / ((e - s + 1) / 1000))
+				+ (up.getCurrentUploadLength() / 1024 / seconds(s, e))
 				+ "KB/s");
 	}
 
@@ -106,16 +104,15 @@ public class ResumeableDemo {
 		long s = System.currentTimeMillis();
 		PutRet ret = up.execute();
 		long e = System.currentTimeMillis();
-		System.out
-				.println((e - s + 1)
+		System.out.println((e - s + 1)
 						+ "  "
-						+ ((up.getCurrentUploadLength() / 1024) / ((e - s + 1) / 1000)));
+						+ (up.getCurrentUploadLength() / 1024 / seconds(s, e)));
 
 		System.out.println(ret);
 		System.out.println(ret.response);
 		System.out.println(ret.statusCode);
 		System.out.println((e - s + 1) + "ms,  "
-				+ ((up.getCurrentUploadLength() / 1024) / ((e - s + 1) / 1000))
+				+ (up.getCurrentUploadLength() / 1024 / seconds(s, e))
 				+ "KB/s");
 	}
 
@@ -140,8 +137,7 @@ public class ResumeableDemo {
 								+ "  "
 								+ (e - s + 1)
 								+ "ms,  "
-								+ ((up.getCurrentUploadLength() / 1024) / ((e
-										- s + 1) / 1000)) + "KB/s");
+								+ (up.getCurrentUploadLength() / 1024 / seconds(s, e)) + "KB/s");
 						Thread.sleep(1 * 1000);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -156,4 +152,8 @@ public class ResumeableDemo {
 
 	}
 
+	private long seconds(long start, long end) {
+		return Math.abs(end - start) / 1000 + 1;
+	}
+	
 }
