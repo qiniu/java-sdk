@@ -104,10 +104,14 @@ public final class StringUtils {
         if (prefix != null) {
             buf.append(prefix);
         }
+        int count = 0;
         for (String it : list) {
+            count++;
             if (it != null) {
                 buf.append(it);
-                buf.append(sep);
+                if(count < arraySize) {
+                    buf.append(sep);
+                }
             }
         }
         return buf.toString();

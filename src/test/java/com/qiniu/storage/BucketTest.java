@@ -49,9 +49,16 @@ public class BucketTest {
     @Test
     public void testListIterator() {
         BucketManager.FileListIterator it = bucketManager.createFileListIterator(TestConfig.bucket, null, 2, null);
+
+        assertTrue(it.hasNext());
+        FileInfo[] items0 = it.next();
+        assertNotNull(items0[0]);
+
         while (it.hasNext()) {
             FileInfo[] items = it.next();
-            assertNotNull(items[0]);
+            if(items.length > 1) {
+                assertNotNull(items[0]);
+            }
         }
     }
 
@@ -147,11 +154,11 @@ public class BucketTest {
         }
     }
 
+
     @Test
     public void testBatchCopy() {
         String key = "copyTo" + Math.random();
-        StringMap x = new StringMap().put(TestConfig.key, key);
-        BucketManager.Batch ops = BucketManager.Batch.copy(TestConfig.bucket, x, TestConfig.bucket);
+        BucketManager.Batch ops = BucketManager.createBatch().copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -160,8 +167,7 @@ public class BucketTest {
             e.printStackTrace();
             fail();
         }
-        String[] array = {key};
-        ops = BucketManager.Batch.delete(TestConfig.bucket, array);
+        ops = BucketManager.createBatch().delete(TestConfig.bucket, key);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -182,10 +188,8 @@ public class BucketTest {
         }
         String key2 = key + "to";
         StringMap x = new StringMap().put(key, key2);
-        BucketManager.Batch ops = BucketManager.Batch.move(TestConfig.bucket,
-                x,
-                TestConfig.bucket
-        );
+        BucketManager.Batch ops = BucketManager.createBatch().move(TestConfig.bucket,
+                key, TestConfig.bucket, key2);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -212,8 +216,7 @@ public class BucketTest {
             fail();
         }
         String key2 = key + "to";
-        StringMap x = new StringMap().put(key, key2);
-        BucketManager.Batch ops = BucketManager.Batch.rename(TestConfig.bucket, x);
+        BucketManager.Batch ops = BucketManager.createBatch().rename(TestConfig.bucket, key, key2);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -233,11 +236,48 @@ public class BucketTest {
     @Test
     public void testBatchStat() {
         String[] array = {"java-sdk.html"};
-        BucketManager.Batch ops = BucketManager.Batch.stat(TestConfig.bucket, array);
+        BucketManager.Batch ops = BucketManager.createBatch().stat(TestConfig.bucket, array);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
             assertEquals(200, bs[0].code);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    @Test
+    public void testBatch() {
+        String[] array = {"java-sdk.html"};
+        String key = "copyFrom" + Math.random();
+
+        String key1 = "moveFrom" + Math.random();
+        String key2 = "moveTo" + Math.random();
+
+        String key3 = "moveFrom" + Math.random();
+        String key4 = "moveTo" + Math.random();
+
+        try {
+            bucketManager.copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key1);
+            bucketManager.copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key3);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            fail();
+        }
+
+        BucketManager.Batch ops = BucketManager.createBatch()
+                .copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key)
+                .move(TestConfig.bucket, key1, TestConfig.bucket, key2)
+                .rename(TestConfig.bucket, key3, key4)
+                .stat(TestConfig.bucket, array)
+                .stat(TestConfig.bucket, array[0]);
+        try {
+            Response r = bucketManager.batch(ops);
+            BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
+            for(BatchStatus b : bs){
+                assertEquals(200, b.code);
+            }
         } catch (QiniuException e) {
             e.printStackTrace();
             fail();
