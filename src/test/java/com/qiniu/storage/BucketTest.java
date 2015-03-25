@@ -158,7 +158,8 @@ public class BucketTest {
     @Test
     public void testBatchCopy() {
         String key = "copyTo" + Math.random();
-        BucketManager.Batch ops = BucketManager.createBatch().copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key);
+        BucketManager.Batch ops = BucketManager.createBatch().
+                copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
