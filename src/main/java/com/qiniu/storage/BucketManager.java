@@ -40,7 +40,7 @@ public final class BucketManager {
     }
 
     public FileListIterator createFileListIterator(String bucket, String prefix) {
-        return new FileListIterator(bucket, prefix, 1000, null);
+        return new FileListIterator(bucket, prefix, 100, null);
     }
 
     public FileListIterator createFileListIterator(String bucket, String prefix, int limit, String delimiter) {
