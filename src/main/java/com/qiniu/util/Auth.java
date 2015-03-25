@@ -9,6 +9,11 @@ import java.security.GeneralSecurityException;
 
 public final class Auth {
 
+    /**
+     * 上传策略，参数规格详见
+     * <p/>
+     * http://developer.qiniu.com/docs/v6/api/reference/security/put-policy.html
+     */
     private static final String[] policyFields = new String[]{
             "callbackUrl",
             "callbackBody",
@@ -99,6 +104,14 @@ public final class Auth {
         return signWithData(StringUtils.utf8Bytes(data));
     }
 
+    /**
+     * 生成HTTP请求签名字符串
+     *
+     * @param urlString
+     * @param body
+     * @param contentType
+     * @return
+     */
     public String signRequest(String urlString, byte[] body, String contentType) {
         URI uri = URI.create(urlString);
         String path = uri.getRawPath();
@@ -125,15 +138,39 @@ public final class Auth {
         return this.accessKey + ":" + digest;
     }
 
+    /**
+     * 验证回调签名是否正确
+     *
+     * @param originAuthorization 待验证签名字符串，以 "QBox "作为起始字符
+     * @param url                 回调地址
+     * @param body                回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
+     * @param contentType         回调ContentType
+     * @return
+     */
     public boolean isValidCallback(String originAuthorization, String url, byte[] body, String contentType) {
         String authorization = "QBox " + signRequest(url, body, contentType);
         return authorization.equals(originAuthorization);
     }
 
+    /**
+     * 下载签名
+     *
+     * @param baseUrl 待签名文件url，如 http://img.domain.com/u/3.jpg 、
+     *                http://img.domain.com/u/3.jpg?imageView2/1/w/120
+     * @return
+     */
     public String privateDownloadUrl(String baseUrl) {
         return privateDownloadUrl(baseUrl, 3600);
     }
 
+    /**
+     * 下载签名
+     *
+     * @param baseUrl 待签名文件url，如 http://img.domain.com/u/3.jpg 、
+     *                http://img.domain.com/u/3.jpg?imageView2/1/w/120
+     * @param expires 有效时长，单位秒。默认3600s
+     * @return
+     */
     public String privateDownloadUrl(String baseUrl, long expires) {
         long deadline = System.currentTimeMillis() / 1000 + expires;
         return privateDownloadUrlWithDeadline(baseUrl, deadline);
@@ -155,19 +192,54 @@ public final class Auth {
         return b.toString();
     }
 
+    /**
+     * scope = bucket
+     * 一般情况下可通过此方法获取token
+     *
+     * @param bucket 空间名
+     * @return 生成的上传token
+     */
     public String uploadToken(String bucket) {
         return uploadToken(bucket, null, 3600, null, true);
     }
 
-
+    /**
+     * scope = bucket:key
+     * 同名文件覆盖操作、只能上传指定key的文件可以可通过此方法获取token
+     *
+     * @param bucket 空间名
+     * @param key    key，可为 null
+     * @return 生成的上传token
+     */
     public String uploadToken(String bucket, String key) {
         return uploadToken(bucket, key, 3600, null, true);
     }
 
+    /**
+     * 生成上传token
+     *
+     * @param bucket  空间名
+     * @param key     key，可为 null
+     * @param expires 有效时长，单位秒
+     * @param policy  上传策略的其它参数，如 new StringMap().put("endUser", "uid").putNotEmpty("returnBody", "")。
+     *                scope通过 bucket、key间接设置，deadline 通过 expires 间接设置
+     * @return 生成的上传token
+     */
     public String uploadToken(String bucket, String key, long expires, StringMap policy) {
         return uploadToken(bucket, key, expires, policy, true);
     }
 
+    /**
+     * 生成上传token
+     *
+     * @param bucket  空间名
+     * @param key     key，可为 null
+     * @param expires 有效时长，单位秒。默认3600s
+     * @param policy  上传策略的其它参数，如 new StringMap().put("endUser", "uid").putNotEmpty("returnBody", "")。
+     *                scope通过 bucket、key间接设置，deadline 通过 expires 间接设置
+     * @param strict  是否去除非限定的策略字段，默认true
+     * @return 生成的上传token
+     */
     public String uploadToken(String bucket, String key, long expires, StringMap policy, boolean strict) {
         long deadline = System.currentTimeMillis() / 1000 + expires;
         return uploadTokenWithDeadline(bucket, key, deadline, policy, strict);

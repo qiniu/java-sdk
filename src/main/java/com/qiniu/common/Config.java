@@ -8,7 +8,7 @@ public final class Config {
 
     public static final String VERSION = "7.0.0";
     /**
-     * 断点上传时的分块大小(默认的分块大小, 不建议改变)
+     * 断点上传时的分块大小(默认的分块大小, 不允许改变)
      */
     public static final int BLOCK_SIZE = 4 * 1024 * 1024;
 
@@ -38,7 +38,7 @@ public final class Config {
      */
     public static String UP_HOST_BACKUP = "http://upload.qiniu.com";
     /**
-     * 断点上传时的分片大小(可根据网络情况适当调整)
+     * 断点上传时的分片大小(可根据网络情况适当调整，小于等于 4 * 1024 * 1024 )
      */
     public static int CHUNK_SIZE = 256 * 1024;
     /**
