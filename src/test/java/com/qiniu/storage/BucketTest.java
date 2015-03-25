@@ -56,7 +56,7 @@ public class BucketTest {
 
         while (it.hasNext()) {
             FileInfo[] items = it.next();
-            if(items.length > 1) {
+            if (items.length > 1) {
                 assertNotNull(items[0]);
             }
         }
@@ -275,7 +275,7 @@ public class BucketTest {
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
-            for(BatchStatus b : bs){
+            for (BatchStatus b : bs) {
                 assertEquals(200, b.code);
             }
         } catch (QiniuException e) {
