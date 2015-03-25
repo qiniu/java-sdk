@@ -137,7 +137,7 @@ public final class BucketManager {
         return client.post(url, body, headers, Client.FormMime);
     }
 
-    public static Batch createBatch(){
+    public static Batch createBatch() {
         return new Batch();
     }
 
@@ -148,32 +148,32 @@ public final class BucketManager {
             this.ops = new ArrayList<String>();
         }
 
-        public Batch copy(String from_bucket, String from_key, String to_bucket, String to_key){
+        public Batch copy(String from_bucket, String from_key, String to_bucket, String to_key) {
             String from = entry(from_bucket, from_key);
             String to = entry(to_bucket, to_key);
             ops.add("copy" + "/" + from + "/" + to);
             return this;
         }
 
-        public Batch rename(String from_bucket, String from_key, String to_key){
+        public Batch rename(String from_bucket, String from_key, String to_key) {
             return move(from_bucket, from_key, from_bucket, to_key);
         }
 
-        public Batch move(String from_bucket, String from_key, String to_bucket, String to_key){
+        public Batch move(String from_bucket, String from_key, String to_bucket, String to_key) {
             String from = entry(from_bucket, from_key);
             String to = entry(to_bucket, to_key);
             ops.add("move" + "/" + from + "/" + to);
             return this;
         }
 
-        public Batch delete(String bucket, String... keys){
+        public Batch delete(String bucket, String... keys) {
             for (String key : keys) {
                 ops.add("delete" + "/" + entry(bucket, key));
             }
             return this;
         }
 
-        public Batch stat(String bucket, String... keys){
+        public Batch stat(String bucket, String... keys) {
             for (String key : keys) {
                 ops.add("stat" + "/" + entry(bucket, key));
             }

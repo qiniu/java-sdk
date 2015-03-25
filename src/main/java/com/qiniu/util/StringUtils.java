@@ -109,7 +109,7 @@ public final class StringUtils {
             count++;
             if (it != null) {
                 buf.append(it);
-                if(count < arraySize) {
+                if (count < arraySize) {
                     buf.append(sep);
                 }
             }
