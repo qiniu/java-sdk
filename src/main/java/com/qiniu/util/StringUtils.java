@@ -63,11 +63,11 @@ public final class StringUtils {
             return "";
         }
 
-        if(sep == null){
+        if (sep == null) {
             sep = "";
         }
 
-        if(prefix == null){
+        if (prefix == null) {
             prefix = "";
         }
 
