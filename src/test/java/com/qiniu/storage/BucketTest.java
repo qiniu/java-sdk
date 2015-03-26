@@ -158,7 +158,7 @@ public class BucketTest {
     @Test
     public void testBatchCopy() {
         String key = "copyTo" + Math.random();
-        BucketManager.Batch ops = BucketManager.createBatch().
+        BucketManager.Batch ops = new BucketManager.Batch().
                 copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key);
         try {
             Response r = bucketManager.batch(ops);
@@ -168,7 +168,7 @@ public class BucketTest {
             e.printStackTrace();
             fail();
         }
-        ops = BucketManager.createBatch().delete(TestConfig.bucket, key);
+        ops = new BucketManager.Batch().delete(TestConfig.bucket, key);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -189,7 +189,7 @@ public class BucketTest {
         }
         String key2 = key + "to";
         StringMap x = new StringMap().put(key, key2);
-        BucketManager.Batch ops = BucketManager.createBatch().move(TestConfig.bucket,
+        BucketManager.Batch ops = new BucketManager.Batch().move(TestConfig.bucket,
                 key, TestConfig.bucket, key2);
         try {
             Response r = bucketManager.batch(ops);
@@ -217,7 +217,7 @@ public class BucketTest {
             fail();
         }
         String key2 = key + "to";
-        BucketManager.Batch ops = BucketManager.createBatch().rename(TestConfig.bucket, key, key2);
+        BucketManager.Batch ops = new BucketManager.Batch().rename(TestConfig.bucket, key, key2);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -237,7 +237,7 @@ public class BucketTest {
     @Test
     public void testBatchStat() {
         String[] array = {"java-sdk.html"};
-        BucketManager.Batch ops = BucketManager.createBatch().stat(TestConfig.bucket, array);
+        BucketManager.Batch ops = new BucketManager.Batch().stat(TestConfig.bucket, array);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -267,7 +267,7 @@ public class BucketTest {
             fail();
         }
 
-        BucketManager.Batch ops = BucketManager.createBatch()
+        BucketManager.Batch ops = new BucketManager.Batch()
                 .copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key)
                 .move(TestConfig.bucket, key1, TestConfig.bucket, key2)
                 .rename(TestConfig.bucket, key3, key4)
