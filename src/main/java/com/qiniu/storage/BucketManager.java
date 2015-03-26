@@ -137,14 +137,10 @@ public final class BucketManager {
         return client.post(url, body, headers, Client.FormMime);
     }
 
-    public static Batch createBatch() {
-        return new Batch();
-    }
-
     public static class Batch {
         private ArrayList<String> ops;
 
-        private Batch() {
+        public Batch() {
             this.ops = new ArrayList<String>();
         }
 
@@ -183,6 +179,11 @@ public final class BucketManager {
         public byte[] toBody() {
             String body = StringUtils.join(ops, "&op=", "op=");
             return StringUtils.utf8Bytes(body);
+        }
+
+        public Batch merge(Batch batch) {
+            this.ops.addAll(batch.ops);
+            return this;
         }
     }
 
