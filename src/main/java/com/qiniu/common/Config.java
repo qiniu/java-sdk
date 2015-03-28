@@ -37,10 +37,7 @@ public final class Config {
      * 备用上传服务器，当默认服务器网络链接失败时使用
      */
     public static String UP_HOST_BACKUP = "http://upload.qiniu.com";
-    /**
-     * 断点上传时的分片大小(可根据网络情况适当调整，小于等于 4 * 1024 * 1024 )
-     */
-    public static int CHUNK_SIZE = 256 * 1024;
+
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */
