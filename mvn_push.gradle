@@ -91,4 +91,26 @@ afterEvaluate { project ->
         required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
         sign configurations.archives
     }
+
+
+    task javadocs(type: Javadoc) {
+        //  允许javadoc构建部分出错
+        failOnError = false
+        source = sourceSets.main.java.srcDirs
+    }
+
+    task javadocsJar(type: Jar, dependsOn: javadocs) {
+        classifier = 'javadoc'
+        from javadocs.destinationDir
+    }
+
+    task sourcesJar(type: Jar, dependsOn:classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives javadocsJar
+        archives sourcesJar
+    }
 }
