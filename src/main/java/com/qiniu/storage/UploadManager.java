@@ -16,9 +16,27 @@ import java.io.File;
  */
 public final class UploadManager {
     private final Client client;
+    private final Recorder recorder;
+    private final RecordKeyGenerator keyGen;
 
     public UploadManager() {
+        this(null, null);
+    }
+
+    public UploadManager(Recorder recorder) {
+        this(recorder, new RecordKeyGenerator(){
+
+            @Override
+            public String gen(String key, File file) {
+                return key + "_._" + file.getAbsolutePath();
+            }
+        });
+    }
+
+    public UploadManager(Recorder recorder, RecordKeyGenerator keyGen) {
         client = new Client();
+        this.recorder = recorder;
+        this.keyGen = keyGen;
     }
 
     private static void checkArgs(final String key, byte[] data, File f, String token) {
@@ -152,7 +170,12 @@ public final class UploadManager {
             return new FormUploader(client, token, key, file, params, mime, checkCrc).upload();
         }
 
-        ResumeUploader uploader = new ResumeUploader(client, token, key, file, params, mime);
+        String recorderKey = key;
+        if (keyGen != null) {
+            recorderKey = keyGen.gen(key, file);
+        }
+        ResumeUploader uploader = new ResumeUploader(client, token, key, file,
+                                        params, mime, recorder, recorderKey);
         return uploader.upload();
     }
 }
