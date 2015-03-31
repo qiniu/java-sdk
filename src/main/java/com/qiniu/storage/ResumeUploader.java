@@ -20,7 +20,7 @@ import java.io.IOException;
 /**
  * 分片上传
  * 文档：<a href="http://developer.qiniu.com/docs/v6/api/overview/up/chunked-upload.html">
- *     分片上传</a>
+ * 分片上传</a>
  * <p/>
  * 分片上传通过将一个文件分割为固定大小的块(4M)，每次上传一个块的内容（服务端只分块，没有分片）。
  * 等待所有块都上传完成之后，再将这些块拼接起来，构成一个完整的文件。
@@ -124,10 +124,10 @@ public final class ResumeUploader {
         } catch (QiniuException e) {
             try {
                 return makeFile();
-            }  catch (QiniuException e1) {
+            } catch (QiniuException e1) {
                 throw e1;
             }
-        }finally {
+        } finally {
             helper.removeRecord();
         }
     }
