@@ -6,7 +6,6 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.ResumeBlockInfo;
-import com.qiniu.util.Crc32;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
@@ -255,7 +254,9 @@ public final class ResumeUploader {
         private class Record {
             long size;
             long offset;
+            // CHECKSTYLE:OFF
             long modify_time;
+            // CHECKSTYLE:ON
             String[] contexts;
 
             Record() {
