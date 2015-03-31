@@ -120,12 +120,10 @@ public final class ResumeUploader {
         close();
 
         try {
-            Response res = makeFile();
-            return res;
+            return makeFile();
         } catch (QiniuException e) {
             try {
-                Response res = makeFile();
-                return res;
+                return makeFile();
             }  catch (QiniuException e1) {
                 throw e1;
             }
