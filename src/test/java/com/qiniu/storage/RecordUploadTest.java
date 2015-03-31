@@ -67,29 +67,25 @@ public class RecordUploadTest {
 
         final Random r = new Random();
 
+        boolean shutDown = true;
+
         for(int i = 10; i > 0; i--) {
             final int t = r.nextInt(100) + 80;
             System.out.println(i + "  :  " + t);
             final Future<Response> future = threadPool.submit(up);
-            // 中断线程
-             new Thread(){
-                public void run(){
-                    if(!new File(p).exists()) {
+
+            // 中断线程 1 次
+            if(shutDown) {
+                new Thread() {
+                    public void run() {
                         doSleep(t);// 百毫秒
-                        for (; ; ) {
-                            System.out.println(Thread.currentThread().getId() + " :  future.isDone() : " + future.isDone());
-                            if (!future.isDone()) {
-                                future.cancel(true);
-                            }
-                            System.out.println(Thread.currentThread().getId() + " : future.isCancelled : " + future.isCancelled());
-                            if (future.isCancelled() || future.isDone()) {
-                                break;
-                            }
-                            doSleep(5);
+                        if (!future.isDone()) {
+                            future.cancel(true);
                         }
                     }
-                }
-            }.start();
+                }.start();
+                shutDown = false;
+            }
 
             showRecord("new future: ", recorder, recordKey);
 

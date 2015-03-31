@@ -118,9 +118,20 @@ public final class ResumeUploader {
             helper.record(uploaded);
         }
         close();
-        Response res = makeFile();
-        helper.removeRecord();
-        return res;
+
+        try {
+            Response res = makeFile();
+            return res;
+        } catch (QiniuException e) {
+            try {
+                Response res = makeFile();
+                return res;
+            }  catch (QiniuException e1) {
+                throw e1;
+            }
+        }finally {
+            helper.removeRecord();
+        }
     }
 
     private Response makeBlock(byte[] block, int blockSize) throws QiniuException {
