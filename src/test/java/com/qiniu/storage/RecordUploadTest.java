@@ -2,13 +2,8 @@ package com.qiniu.storage;
 
 import com.qiniu.TempFile;
 import com.qiniu.TestConfig;
-import com.qiniu.common.Config;
-import com.qiniu.common.QiniuException;
-import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.storage.persistent.FileRecorder;
-import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.Test;
 
