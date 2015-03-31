@@ -77,7 +77,7 @@ public final class FileRecorder implements Recorder {
     @Override
     public byte[] get(String key) {
         File f = new File(directory, UrlSafeBase64.encodeToString(key));
-        if(!f.exists()) {
+        if (!f.exists()) {
             return null;
         }
         FileInputStream fi = null;
