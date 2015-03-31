@@ -35,7 +35,7 @@ public class RecordUploadTest {
         final File f = TempFile.createFile(size);
         final String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
         final FileRecorder recorder = new FileRecorder(f.getParentFile());
-        final RecordKeyGenerator keyGen = new RecordKeyGenerator(){
+        final RecordKeyGenerator keyGen = new RecordKeyGenerator() {
             @Override
             public String gen(String key, File file) {
                 return key + "_._" + file.getAbsolutePath();
@@ -50,9 +50,9 @@ public class RecordUploadTest {
 
 
         // 显示断点记录文件
-        Thread showRecord = new Thread(){
-            public void run(){
-                for(;;) {
+        Thread showRecord = new Thread() {
+            public void run() {
+                for (; ; ) {
                     doSleep(30);
                     showRecord("normal: ", recorder, recordKey);
                 }
@@ -69,13 +69,13 @@ public class RecordUploadTest {
 
         boolean shutDown = true;
 
-        for(int i = 10; i > 0; i--) {
+        for (int i = 10; i > 0; i--) {
             final int t = r.nextInt(100) + 80;
             System.out.println(i + "  :  " + t);
             final Future<Response> future = threadPool.submit(up);
 
             // 中断线程 1 次
-            if(shutDown) {
+            if (shutDown) {
                 new Thread() {
                     public void run() {
                         doSleep(t);// 百毫秒
@@ -99,7 +99,7 @@ public class RecordUploadTest {
                 System.out.println("Exception");
                 System.out.println(Thread.currentThread().getId() + " : future.isCancelled : " + future.isCancelled());
 //                e.printStackTrace();
-                if(isDone){
+                if (isDone) {
                     break;
                 }
             }
@@ -129,7 +129,7 @@ public class RecordUploadTest {
         }
     }
 
-    private void doSleep(int bm){
+    private void doSleep(int bm) {
         try {
             Thread.sleep(100 * bm);
         } catch (InterruptedException e) {
@@ -142,12 +142,14 @@ public class RecordUploadTest {
         private final File file;
         private final String key;
         private final String token;
-        public Up(UploadManager uploadManager, File file, String key, String token){
+
+        public Up(UploadManager uploadManager, File file, String key, String token) {
             this.uploadManager = uploadManager;
             this.file = file;
             this.key = key;
             this.token = token;
         }
+
         @Override
         public Response call() throws Exception {
             Response res = uploadManager.put(file, key, token);
