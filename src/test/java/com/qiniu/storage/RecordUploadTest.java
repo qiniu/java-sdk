@@ -69,11 +69,13 @@ public class RecordUploadTest {
             System.out.println(i + "  :  " + t);
             final Future<Response> future = threadPool.submit(up);
 
+            // CHECKSTYLE:OFF
             // 中断线程 1 次
             if (shutDown) {
                 new Thread() {
                     public void run() {
-                        doSleep(t);// 百毫秒
+                        // 百毫秒
+                        doSleep(t);
                         if (!future.isDone()) {
                             future.cancel(true);
                         }
@@ -81,7 +83,7 @@ public class RecordUploadTest {
                 }.start();
                 shutDown = false;
             }
-
+            // CHECKSTYLE:ON
             showRecord("new future: ", recorder, recordKey);
 
             try {
