@@ -6,11 +6,12 @@ import com.qiniu.util.StringUtils;
 
 /**
  * 辅助生成fops指令字符串。
- *
+ * <p/>
  * 生成的fops指令可用于上传策略中 persistentOps 或(和) 触发持久化处理 的 指令
  */
 public class FopHelper {
-    private FopHelper(){
+
+    private FopHelper() {
 
     }
 
@@ -27,6 +28,7 @@ public class FopHelper {
     /**
      * 生成一个表示完整的fop指令的pipe实例。
      * 一个pipe中包含多个cmd，每个以管道符分割。
+     *
      * @param cmds
      * @return
      */
