@@ -133,8 +133,8 @@ public class FopHelperTest {
         String alias1 = "gogopher.jpg";
         String url2 = "http://testres.qiniudn.comm/_log/aaa5/2015-03-29/part0.gz";
 
-        String cmd = "mkzip/2/url/" + UrlSafeBase64.encodeToString(url1) + "/alias/" + alias1 +
-                "url/" + UrlSafeBase64.encodeToString(url2);
+        String cmd = "mkzip/2/url/" + UrlSafeBase64.encodeToString(url1) + "/alias/" + alias1
+                        + "url/" + UrlSafeBase64.encodeToString(url2);
         GeneralOp op = new GeneralOp("mkzip", "2").put("url", UrlSafeBase64.encodeToString(url1))
                 .put("alias", UrlSafeBase64.encodeToString(alias1))
                 .put("url", UrlSafeBase64.encodeToString(url2));
@@ -153,8 +153,8 @@ public class FopHelperTest {
         String alias1 = "gogopher.jpg";
         String url2 = "http://testres.qiniudn.com/_log/aaa5/2015-03-29/part0.gz";
 
-        String cmd = "mkzip/2/url/" + UrlSafeBase64.encodeToString(url1) + "/alias/" + alias1 +
-                "url/" + UrlSafeBase64.encodeToString(url2);
+        String cmd = "mkzip/2/url/" + UrlSafeBase64.encodeToString(url1) + "/alias/" + alias1
+                        + "url/" + UrlSafeBase64.encodeToString(url2);
         GeneralOp op = new GeneralOp("mkzip", "2").put("url", UrlSafeBase64.encodeToString(url1))
                 .put("alias", UrlSafeBase64.encodeToString(alias1))
                 .put("url", UrlSafeBase64.encodeToString(url2));

@@ -95,8 +95,8 @@ public class PfopTest {
         String alias1 = "gogopher.jpg";
         String url2 = "http://testres.qiniudn.com/gogopher.jpg";
 
-        String cmd = "mkzip/2/url/" + UrlSafeBase64.encodeToString(url1) + "/alias/" + alias1 +
-                "url/" + UrlSafeBase64.encodeToString(url2);
+        String cmd = "mkzip/2/url/" + UrlSafeBase64.encodeToString(url1) + "/alias/" + alias1
+                + "url/" + UrlSafeBase64.encodeToString(url2);
         GeneralOp mkzip = new GeneralOp("mkzip", "2").put("url", UrlSafeBase64.encodeToString(url1))
                 .put("alias", UrlSafeBase64.encodeToString(alias1))
                 .put("url", UrlSafeBase64.encodeToString(url2));
