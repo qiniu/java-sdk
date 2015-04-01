@@ -19,7 +19,7 @@ public class FopHelperTest {
         String cmd = "exif";
         GeneralOp op = new GeneralOp("exif");
         String gcmd = op.build();
-        String fcmd = FopHelper.genFops(op);
+        String fcmd = FopHelper.genFop(op);
 
         assertEquals(cmd, gcmd, fcmd);
     }
@@ -29,7 +29,7 @@ public class FopHelperTest {
         String cmd = "imageView2/2/w/200/h/250";
         GeneralOp op = new GeneralOp("imageView2", 2).put("w", 200).put("h", 500);
         String gcmd = op.build();
-        String fcmd = FopHelper.genFops(op);
+        String fcmd = FopHelper.genFop(op);
 
         assertEquals(cmd, gcmd, fcmd);
     }
@@ -42,7 +42,7 @@ public class FopHelperTest {
         cmd += "|saveas/" + UrlSafeBase64.encodeToString(bucket + ":" + key);
         GeneralOp op = new GeneralOp("imageView2", 2).put("w", 200).put("h", 250);
         SaveAsOp sop = new SaveAsOp(bucket, key);
-        String fcmd = FopHelper.genFops(op, sop);
+        String fcmd = FopHelper.genFop(op, sop);
 
         String pcmd = Pipe.create().append(op).append(sop).toString();
 
@@ -54,7 +54,7 @@ public class FopHelperTest {
         String cmd = "vframe/jpg/offset/3/w/480/h/480";
         GeneralOp op = new GeneralOp("vframe", "jpg").put("offset", 3).put("w", 480).put("h", 480);
         String gcmd = op.build();
-        String fcmd = FopHelper.genFops(op);
+        String fcmd = FopHelper.genFop(op);
 
         assertEquals(cmd, gcmd, fcmd);
     }
@@ -67,7 +67,7 @@ public class FopHelperTest {
         cmd += "|saveas/" + UrlSafeBase64.encodeToString(bucket + ":" + key);
         GeneralOp op = new GeneralOp("vframe", "jpg").put("offset", 3).put("w", 480).put("h", 480);
         SaveAsOp sop = new SaveAsOp(bucket, key);
-        String fcmd = FopHelper.genFops(op, sop);
+        String fcmd = FopHelper.genFop(op, sop);
 
         String pcmd = Pipe.create().append(op).append(sop).toString();
 
@@ -80,7 +80,7 @@ public class FopHelperTest {
         GeneralOp op = new GeneralOp("avthumb", "m3u8").put("segtime", 15)
                 .put("ab", "192k").put("vb", "1.25m");
         String gcmd = op.build();
-        String fcmd = FopHelper.genFops(op);
+        String fcmd = FopHelper.genFop(op);
 
         assertEquals(cmd, gcmd, fcmd);
     }
@@ -99,7 +99,7 @@ public class FopHelperTest {
 
         String pcmd = Pipe.create().append(op).append(sop).toString();
 
-        String fcmd = FopHelper.genFops(op, sop);
+        String fcmd = FopHelper.genFop(op, sop);
 
         assertEquals(cmd, pcmd, fcmd);
     }
@@ -140,7 +140,7 @@ public class FopHelperTest {
                 .put("url", UrlSafeBase64.encodeToString(url2));
 
         String gcmd = op.build();
-        String fcmd = FopHelper.genFops(op);
+        String fcmd = FopHelper.genFop(op);
 
         assertEquals(cmd, gcmd, fcmd);
     }
@@ -163,7 +163,7 @@ public class FopHelperTest {
 
         String pcmd = Pipe.create().append(op).append(sop).toString();
 
-        String fcmd = FopHelper.genFops(op, sop);
+        String fcmd = FopHelper.genFop(op, sop);
 
         assertEquals(cmd, pcmd, fcmd);
     }

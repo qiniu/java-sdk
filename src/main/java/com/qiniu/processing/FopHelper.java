@@ -8,7 +8,7 @@ import com.qiniu.util.StringUtils;
  * Created by Simon on 2015/4/1.
  */
 public class FopHelper {
-    public static String genFops(Operation... cmds) {
+    public static String genFop(Operation... cmds) {
         return genFops(genPipe(cmds));
     }
 

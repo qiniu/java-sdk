@@ -29,7 +29,7 @@ public class PfopTest {
                 .put("vcodec", "libx264").put("s", "320x240");
 
         try {
-            String id = operater.pfop(bucket, key, FopHelper.genFops(avthumb, save));
+            String id = operater.pfop(bucket, key, FopHelper.genFop(avthumb, save));
             assertNotNull(id);
             assertNotEquals("", id);
             String purl = "http://api.qiniu.com/status/get/prefop?id=" + id;
@@ -106,7 +106,7 @@ public class PfopTest {
 
         SaveAsOp save = new SaveAsOp("javasdk", "mkzip_" + UUID.randomUUID());
         try {
-            String id = operater.pfop(bucket, key, FopHelper.genFops(mkzip, save));
+            String id = operater.pfop(bucket, key, FopHelper.genFop(mkzip, save));
             assertNotNull(id);
             assertNotEquals("", id);
             String purl = "http://api.qiniu.com/status/get/prefop?id=" + id;
