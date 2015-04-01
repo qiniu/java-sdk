@@ -9,7 +9,8 @@ import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 
 /**
- * Created by Simon on 2015/4/1.
+ * 触发持久化处理
+ * 针对七牛空间文件，触发异步文件处理。如异步视频转码等
  */
 public class OperationManager {
     private final Client client;

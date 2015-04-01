@@ -2,7 +2,9 @@ package com.qiniu.processing.util;
 
 import java.util.ArrayList;
 
-
+/**
+ * 一个Pipe实例表示一条完整的fop指令
+ */
 public final class Pipe {
     private ArrayList<Operation> commands;
 
