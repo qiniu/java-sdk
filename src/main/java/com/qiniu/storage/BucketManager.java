@@ -4,6 +4,7 @@ import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
 import com.qiniu.util.Auth;
@@ -190,8 +191,8 @@ public final class BucketManager {
      * @param bucket
      * @throws QiniuException
      */
-    public void fetch(String url, String bucket) throws QiniuException {
-        fetch(url, bucket, null);
+    public DefaultPutRet fetch(String url, String bucket) throws QiniuException {
+        return fetch(url, bucket, null);
     }
 
     /**
@@ -204,11 +205,12 @@ public final class BucketManager {
      * @param key
      * @throws QiniuException
      */
-    public void fetch(String url, String bucket, String key) throws QiniuException {
+    public DefaultPutRet fetch(String url, String bucket, String key) throws QiniuException {
         String resource = UrlSafeBase64.encodeToString(url);
         String to = entry(bucket, key);
         String path = "/fetch/" + resource + "/to/" + to;
-        ioPost(path);
+        Response r = ioPost(path);
+        return r.jsonToObject(DefaultPutRet.class);
     }
 
     /**
