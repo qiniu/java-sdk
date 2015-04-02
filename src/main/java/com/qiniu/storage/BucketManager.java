@@ -188,6 +188,19 @@ public final class BucketManager {
      *
      * @param url
      * @param bucket
+     * @throws QiniuException
+     */
+    public void fetch(String url, String bucket) throws QiniuException {
+        fetch(url, bucket, null);
+    }
+
+    /**
+     * 抓取指定地址的文件，已指定名称保存在指定空间。
+     * 要求指定url可访问。
+     * 大文件不建议使用此接口抓取。可先下载再上传。
+     *
+     * @param url
+     * @param bucket
      * @param key
      * @throws QiniuException
      */
