@@ -8,6 +8,7 @@ import com.qiniu.processing.util.Operation;
 import com.qiniu.processing.util.Pipe;
 import com.qiniu.processing.util.SaveAsOp;
 import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.Test;
 
@@ -28,8 +29,11 @@ public class PfopTest {
         Operation avthumb = new GeneralOp("avthumb", "m3u8").put("segtime", 10)
                 .put("vcodec", "libx264").put("s", "320x240");
 
+        StringMap params = new StringMap().putNotEmpty("notifyURL", "")
+                .putNotNull("force", null).putNotEmpty("pipeline", "");
+
         try {
-            String id = operater.pfop(bucket, key, FopHelper.genFop(avthumb, save));
+            String id = operater.pfop(bucket, key, FopHelper.genFop(avthumb, save), params);
             assertNotNull(id);
             assertNotEquals("", id);
             String purl = "http://api.qiniu.com/status/get/prefop?id=" + id;

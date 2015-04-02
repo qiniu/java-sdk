@@ -21,10 +21,31 @@ public class OperationManager {
         this.client = new Client();
     }
 
+    /**
+     * 触发 空间 文件 的 pfop 操作
+     *
+     * @param bucket 空间名
+     * @param key    文件名
+     * @param fops   fop指令
+     * @return persistentId
+     * @throws QiniuException 触发失败异常，包含错误响应等信息
+     * @link http://developer.qiniu.com/docs/v6/api/reference/fop/pfop/pfop.html
+     */
     public String pfop(String bucket, String key, String fops) throws QiniuException {
         return pfop(bucket, key, fops, null);
     }
 
+    /**
+     * 触发 空间 文件 的 pfop 操作
+     *
+     * @param bucket 空间名
+     * @param key    文件名
+     * @param fops   fop指令
+     * @param params notifyURL、force、pipeline 等参数
+     * @return persistentId
+     * @throws QiniuException 触发失败异常，包含错误响应等信息
+     * @link http://developer.qiniu.com/docs/v6/api/reference/fop/pfop/pfop.html
+     */
     public String pfop(String bucket, String key, String fops, StringMap params) throws QiniuException {
         params = params == null ? new StringMap() : params;
         params.put("bucket", bucket).put("key", key).put("fops", fops);
