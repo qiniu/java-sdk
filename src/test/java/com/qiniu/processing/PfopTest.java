@@ -29,8 +29,11 @@ public class PfopTest {
         Operation avthumb = new GeneralOp("avthumb", "m3u8").put("segtime", 10)
                 .put("vcodec", "libx264").put("s", "320x240");
 
-        StringMap params = new StringMap().putNotEmpty("notifyURL", "")
-                .putNotNull("force", null).putNotEmpty("pipeline", "");
+        String notifyURL = "";
+        boolean force = false;
+        String pipeline = "";
+        StringMap params = new StringMap().putNotEmpty("notifyURL", notifyURL)
+                .putWhen("force", 1, force).putNotEmpty("pipeline", pipeline);
 
         try {
             String id = operater.pfop(bucket, key, FopHelper.genFop(avthumb, save), params);
