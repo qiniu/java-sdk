@@ -4,6 +4,7 @@ import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
 import com.qiniu.util.Auth;
@@ -188,14 +189,28 @@ public final class BucketManager {
      *
      * @param url
      * @param bucket
+     * @throws QiniuException
+     */
+    public DefaultPutRet fetch(String url, String bucket) throws QiniuException {
+        return fetch(url, bucket, null);
+    }
+
+    /**
+     * 抓取指定地址的文件，已指定名称保存在指定空间。
+     * 要求指定url可访问。
+     * 大文件不建议使用此接口抓取。可先下载再上传。
+     *
+     * @param url
+     * @param bucket
      * @param key
      * @throws QiniuException
      */
-    public void fetch(String url, String bucket, String key) throws QiniuException {
+    public DefaultPutRet fetch(String url, String bucket, String key) throws QiniuException {
         String resource = UrlSafeBase64.encodeToString(url);
         String to = entry(bucket, key);
         String path = "/fetch/" + resource + "/to/" + to;
-        ioPost(path);
+        Response r = ioPost(path);
+        return r.jsonToObject(DefaultPutRet.class);
     }
 
     /**
