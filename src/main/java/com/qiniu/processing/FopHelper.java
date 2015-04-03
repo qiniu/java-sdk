@@ -46,7 +46,7 @@ public class FopHelper {
      * @param operations
      * @return
      */
-    public static Command appendPipe(Command p, Operation... operations) {
+    public static Command appendOPeration(Command p, Operation... operations) {
         p = p == null ? Command.create() : p;
         for (Operation cmd : operations) {
             p.append(cmd);
