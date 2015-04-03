@@ -1,7 +1,7 @@
 package com.qiniu.processing;
 
 import com.qiniu.processing.util.GeneralOp;
-import com.qiniu.processing.util.Pipe;
+import com.qiniu.processing.util.Command;
 import com.qiniu.processing.util.SaveAsOp;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class FopHelperTest {
         SaveAsOp sop = new SaveAsOp(bucket, key);
         String fcmd = FopHelper.genFop(op, sop);
 
-        String pcmd = Pipe.create().append(op).append(sop).toString();
+        String pcmd = Command.create().append(op).append(sop).toString();
 
         assertEquals(cmd, pcmd, fcmd);
     }
@@ -69,7 +69,7 @@ public class FopHelperTest {
         SaveAsOp sop = new SaveAsOp(bucket, key);
         String fcmd = FopHelper.genFop(op, sop);
 
-        String pcmd = Pipe.create().append(op).append(sop).toString();
+        String pcmd = Command.create().append(op).append(sop).toString();
 
         assertEquals(cmd, pcmd, fcmd);
     }
@@ -97,7 +97,7 @@ public class FopHelperTest {
 
         SaveAsOp sop = new SaveAsOp(bucket, key);
 
-        String pcmd = Pipe.create().append(op).append(sop).toString();
+        String pcmd = Command.create().append(op).append(sop).toString();
 
         String fcmd = FopHelper.genFop(op, sop);
 
@@ -119,8 +119,8 @@ public class FopHelperTest {
 
         SaveAsOp sop = new SaveAsOp(bucket, key);
 
-        Pipe p1 = FopHelper.genPipe(op1);
-        Pipe p2 = FopHelper.genPipe(op2, sop);
+        Command p1 = FopHelper.genCmd(op1);
+        Command p2 = FopHelper.genCmd(op2, sop);
 
         String fcmd = FopHelper.genFops(p1, p2);
 
@@ -161,7 +161,7 @@ public class FopHelperTest {
 
         SaveAsOp sop = new SaveAsOp(bucket, key);
 
-        String pcmd = Pipe.create().append(op).append(sop).toString();
+        String pcmd = Command.create().append(op).append(sop).toString();
 
         String fcmd = FopHelper.genFop(op, sop);
 

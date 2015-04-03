@@ -5,30 +5,30 @@ import java.util.ArrayList;
 /**
  * 一个Pipe实例表示一条完整的fop指令
  */
-public final class Pipe {
+public final class Command {
     private ArrayList<Operation> commands;
 
-    private Pipe() {
+    private Command() {
         commands = new ArrayList<Operation>();
     }
 
-    public static Pipe create() {
-        return new Pipe();
+    public static Command create() {
+        return new Command();
     }
 
-    public Pipe append(Operation cmd) {
-        commands.add(cmd);
+    public Command append(Operation operation) {
+        commands.add(operation);
         return this;
     }
 
     public String toString() {
         StringBuilder b = new StringBuilder();
         boolean noStart = false;
-        for (Operation cmd : commands) {
+        for (Operation operation : commands) {
             if (noStart) {
                 b.append("|");
             }
-            b.append(cmd.build());
+            b.append(operation.build());
             noStart = true;
         }
         return b.toString();

@@ -5,7 +5,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.processing.util.GeneralOp;
 import com.qiniu.processing.util.Operation;
-import com.qiniu.processing.util.Pipe;
+import com.qiniu.processing.util.Command;
 import com.qiniu.processing.util.SaveAsOp;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
@@ -72,10 +72,10 @@ public class PfopTest {
 
         Operation avthumb4 = new GeneralOp("avthumb", "mp4").put("vcodec", "libx264");
 
-        Pipe p1 = FopHelper.genPipe(avthumb1, save1);
-        Pipe p2 = FopHelper.genPipe(avthumb2, save2);
-        Pipe p3 = FopHelper.genPipe(avthumb3, save3);
-        Pipe p4 = FopHelper.genPipe(avthumb4);
+        Command p1 = FopHelper.genCmd(avthumb1, save1);
+        Command p2 = FopHelper.genCmd(avthumb2, save2);
+        Command p3 = FopHelper.genCmd(avthumb3, save3);
+        Command p4 = FopHelper.genCmd(avthumb4);
 
 
         try {
