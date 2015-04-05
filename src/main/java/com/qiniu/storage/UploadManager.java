@@ -16,9 +16,27 @@ import java.io.File;
  */
 public final class UploadManager {
     private final Client client;
+    private final Recorder recorder;
+    private final RecordKeyGenerator keyGen;
 
     public UploadManager() {
+        this(null, null);
+    }
+
+    public UploadManager(Recorder recorder) {
+        this(recorder, new RecordKeyGenerator() {
+
+            @Override
+            public String gen(String key, File file) {
+                return key + "_._" + file.getAbsolutePath();
+            }
+        });
+    }
+
+    public UploadManager(Recorder recorder, RecordKeyGenerator keyGen) {
         client = new Client();
+        this.recorder = recorder;
+        this.keyGen = keyGen;
     }
 
     private static void checkArgs(final String key, byte[] data, File f, String token) {
@@ -75,11 +93,11 @@ public final class UploadManager {
     /**
      * 上传数据
      *
-     * @param data 上传的数据
-     * @param key 上传数据保存的文件名
-     * @param token 上传凭证
-     * @param params 自定义参数，如 params.put("x:foo", "foo")
-     * @param mime 指定文件mimetype
+     * @param data     上传的数据
+     * @param key      上传数据保存的文件名
+     * @param token    上传凭证
+     * @param params   自定义参数，如 params.put("x:foo", "foo")
+     * @param mime     指定文件mimetype
      * @param checkCrc 是否验证crc32
      * @return
      * @throws QiniuException
@@ -111,8 +129,8 @@ public final class UploadManager {
      * @param filePath 上传的文件路径
      * @param key      上传文件保存的文件名
      * @param token    上传凭证
-     * @param params 自定义参数，如 params.put("x:foo", "foo")
-     * @param mime 指定文件mimetype
+     * @param params   自定义参数，如 params.put("x:foo", "foo")
+     * @param mime     指定文件mimetype
      * @param checkCrc 是否验证crc32
      */
     public Response put(String filePath, String key, String token, StringMap params,
@@ -134,10 +152,10 @@ public final class UploadManager {
     /**
      * 上传文件
      *
-     * @param file  上传的文件对象
-     * @param key   上传文件保存的文件名
-     * @param token 上传凭证
-     * @param mime 指定文件mimetype
+     * @param file     上传的文件对象
+     * @param key      上传文件保存的文件名
+     * @param token    上传凭证
+     * @param mime     指定文件mimetype
      * @param checkCrc 是否验证crc32
      */
     public Response put(File file, String key, String token, StringMap params,
@@ -152,7 +170,12 @@ public final class UploadManager {
             return new FormUploader(client, token, key, file, params, mime, checkCrc).upload();
         }
 
-        ResumeUploader uploader = new ResumeUploader(client, token, key, file, params, mime);
+        String recorderKey = key;
+        if (keyGen != null) {
+            recorderKey = keyGen.gen(key, file);
+        }
+        ResumeUploader uploader = new ResumeUploader(client, token, key, file,
+                params, mime, recorder, recorderKey);
         return uploader.upload();
     }
 }

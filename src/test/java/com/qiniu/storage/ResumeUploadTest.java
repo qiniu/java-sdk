@@ -22,7 +22,7 @@ public class ResumeUploadTest {
         String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
 
         try {
-            ResumeUploader up = new ResumeUploader(new Client(), token, expectKey, f, null, null);
+            ResumeUploader up = new ResumeUploader(new Client(), token, expectKey, f, null, null, null, null);
             Response r = up.upload();
             DefaultPutRet ret = r.jsonToObject(DefaultPutRet.class);
             assertEquals(expectKey, ret.key);
