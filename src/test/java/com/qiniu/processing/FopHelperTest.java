@@ -174,10 +174,10 @@ public class FopHelperTest {
         assertAllEquals(cmd, pcmd, fcmd);
     }
 
-    public static void assertAllEquals(Object... objs){
-        try{
+    public static void assertAllEquals(Object... objs) {
+        try {
             Object f = objs[0];
-            for(Object o : objs){
+            for (Object o : objs) {
                 assertEquals(f, o);
             }
         } catch (Exception e) {
