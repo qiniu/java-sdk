@@ -23,6 +23,12 @@ public final class UploadManager {
         this(null, null);
     }
 
+    /**
+     * 断点上传记录。只针对 文件分块上传。
+     * 分块上传中，将每一块上传的记录保存下来。上传中断后可在上一次断点记录基础上上传剩余部分。
+     *
+     * @param recorder 断点记录者
+     */
     public UploadManager(Recorder recorder) {
         this(recorder, new RecordKeyGenerator() {
 
@@ -33,6 +39,13 @@ public final class UploadManager {
         });
     }
 
+    /**
+     * 断点上传记录。只针对 文件分块上传。
+     * 分块上传中，将每一块上传的记录保存下来。上传中断后可在上一次断点记录基础上上传剩余部分。
+     *
+     * @param recorder 断点记录者
+     * @param keyGen   生成文件的断点记录标示，根据生成的标示，可找到断点记录的内容
+     */
     public UploadManager(Recorder recorder, RecordKeyGenerator keyGen) {
         client = new Client();
         this.recorder = recorder;
