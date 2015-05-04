@@ -49,7 +49,7 @@ $ ./gradlew build
 
 ## 生成Eclipse工程文件
 ``` bash
-$ ./gradlew gen_eclipsec
+$ ./gradlew gen_eclipse
 ```
 
 ## 常见问题
