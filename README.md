@@ -10,12 +10,12 @@
 <dependency>
   <groupId>com.qiniu</groupId>
   <artifactId>qiniu-java-sdk</artifactId>
-  <version>7.0.0</version>
+  <version>[7.0.0, 7.0.99]</version>
 </dependency>
 ```
 或者 Gradle:
 ```groovy
-compile 'com.qiniu:qiniu-java-sdk:7.0.0'
+compile 'com.qiniu:qiniu-java-sdk:7.0.+'
 ```
 jdk 6.0 不能直接使用mvn上的okhttp, 需要另外下载，[代码][2], [okhttp.jar][3], [okio.jar][4]
 
