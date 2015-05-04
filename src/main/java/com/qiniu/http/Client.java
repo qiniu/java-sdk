@@ -118,10 +118,7 @@ public final class Client {
     }
 
     private Response post(String url, RequestBody body, StringMap headers) throws QiniuException {
-        Request.Builder requestBuilder = new Request.Builder().url(url);
-        if (body != null) {
-            requestBuilder.post(body);
-        }
+        Request.Builder requestBuilder = new Request.Builder().url(url).post(body);
         return send(requestBuilder, headers);
     }
 
