@@ -47,6 +47,11 @@ import com.qiniu.http.Response;
 $ ./gradlew build
 ```
 
+## 生成Eclipse工程文件
+``` bash
+$ ./gradlew gen_eclipse
+```
+
 ## 常见问题
 
 - QiniuExeption保留了请求响应的信息，失败情况下会抛出此异常，可以提交给我们排查问题。
