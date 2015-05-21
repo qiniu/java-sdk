@@ -80,6 +80,13 @@ public class BucketTest {
         }
 
         try {
+            bucketManager.stat(TestConfig.bucket, null);
+            fail();
+        } catch (QiniuException e) {
+            assertEquals(612, e.code());
+        }
+
+        try {
             bucketManager.stat("noBucket", "noFile");
             fail();
         } catch (QiniuException e) {
@@ -94,6 +101,20 @@ public class BucketTest {
             fail();
         } catch (QiniuException e) {
             assertEquals(612, e.code());
+        }
+
+        try {
+            bucketManager.delete(TestConfig.bucket, null);
+            fail();
+        } catch (QiniuException e) {
+            assertEquals(612, e.code());
+        }
+
+        try {
+            bucketManager.delete("noBucket", null);
+            fail();
+        } catch (QiniuException e) {
+            assertEquals(631, e.code());
         }
     }
 
@@ -149,7 +170,6 @@ public class BucketTest {
             bucketManager.fetch("http://developer.qiniu.com/docs/v6/sdk/java-sdk.html",
                     TestConfig.bucket, "fetch.html");
         } catch (QiniuException e) {
-            e.printStackTrace();
             fail();
         }
     }
