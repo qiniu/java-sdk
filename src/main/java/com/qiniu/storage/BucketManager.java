@@ -53,7 +53,7 @@ public final class BucketManager {
      */
     public static String entry(String bucket, String key, boolean mustHaveKey) {
         String en = bucket + ":" + key;
-        if(!mustHaveKey && (key == null)) {
+        if (!mustHaveKey && (key == null)) {
             en = bucket;
         }
         return UrlSafeBase64.encodeToString(en);
