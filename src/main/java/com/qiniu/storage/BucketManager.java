@@ -37,9 +37,24 @@ public final class BucketManager {
      * @return urlsafe_base64_encode(Bucket:Key)
      */
     public static String entry(String bucket, String key) {
-        String en = bucket;
-        if (key != null) {
-            en = bucket + ":" + key;
+        return entry(bucket, key, true);
+    }
+
+
+    /**
+     * EncodedEntryURI格式
+     * 当 mustHaveKey 为 false， 且 key 为 null 时，返回 urlsafe_base64_encode(Bucket);
+     * 其它条件下返回  urlsafe_base64_encode(Bucket:Key)
+     *
+     * @param bucket
+     * @param key
+     * @param mustHaveKey
+     * @return urlsafe_base64_encode(entry)
+     */
+    public static String entry(String bucket, String key, boolean mustHaveKey) {
+        String en = bucket + ":" + key;
+        if (!mustHaveKey && (key == null)) {
+            en = bucket;
         }
         return UrlSafeBase64.encodeToString(en);
     }
@@ -207,7 +222,7 @@ public final class BucketManager {
      */
     public DefaultPutRet fetch(String url, String bucket, String key) throws QiniuException {
         String resource = UrlSafeBase64.encodeToString(url);
-        String to = entry(bucket, key);
+        String to = entry(bucket, key, false);
         String path = "/fetch/" + resource + "/to/" + to;
         Response r = ioPost(path);
         return r.jsonToObject(DefaultPutRet.class);
