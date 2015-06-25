@@ -19,10 +19,10 @@ public final class Zone {
     }
 
     public static Zone zone0() {
-        return new Zone("up.qiniu.com", "upload.qiniu.com");
+        return new Zone("http://up.qiniu.com", "http://upload.qiniu.com");
     }
 
     public static Zone zone1() {
-        return new Zone("up-z1.qiniu.com", "upload-z1.qiniu.com");
+        return new Zone("http://up-z1.qiniu.com", "http://upload-z1.qiniu.com");
     }
 }
