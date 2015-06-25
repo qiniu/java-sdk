@@ -30,14 +30,9 @@ public final class Config {
      */
     public static String IO_HOST = "http://iovip.qbox.me";
     /**
-     * 默认上传服务器
+     * 默认Zone
      */
-    public static String UP_HOST = "http://up.qiniu.com";
-    /**
-     * 备用上传服务器，当默认服务器网络链接失败时使用
-     */
-    public static String UP_HOST_BACKUP = "http://upload.qiniu.com";
-
+    public static Zone zone = Zone.zone0();
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */

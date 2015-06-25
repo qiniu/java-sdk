@@ -39,12 +39,12 @@ public final class ResumeUploader {
     private final String[] contexts;
     private final Client client;
     private final byte[] blockBuffer;
-    private FileInputStream file;
-    private String host;
     private final Recorder recorder;
     private final String recorderKey;
     private final long modifyTime;
     private final RecordHelper helper;
+    private FileInputStream file;
+    private String host;
 
     ResumeUploader(Client client, String upToken, String key, File file,
                    StringMap params, String mime, Recorder recorder, String recorderKey) {
@@ -55,7 +55,7 @@ public final class ResumeUploader {
         this.size = file.length();
         this.params = params;
         this.mime = mime == null ? Client.DefaultMime : mime;
-        this.host = Config.UP_HOST;
+        this.host = Config.zone.upHost;
         long count = (size + Config.BLOCK_SIZE - 1) / Config.BLOCK_SIZE;
         this.contexts = new String[(int) count];
         this.blockBuffer = new byte[Config.BLOCK_SIZE];
@@ -89,7 +89,7 @@ public final class ResumeUploader {
                 response = makeBlock(blockBuffer, blockSize);
             } catch (QiniuException e) {
                 if (e.code() < 0) {
-                    host = Config.UP_HOST_BACKUP;
+                    host = Config.zone.upHostBackup;
                 }
                 if (e.response == null || e.response.needRetry()) {
                     retry = true;
