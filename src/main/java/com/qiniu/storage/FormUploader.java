@@ -48,9 +48,9 @@ public final class FormUploader {
     Response upload() throws QiniuException {
         buildParams();
         if (data != null) {
-            return client.multipartPost(Config.UP_HOST, params, "file", fileName, data, mime, new StringMap());
+            return client.multipartPost(Config.zone.upHost, params, "file", fileName, data, mime, new StringMap());
         }
-        return client.multipartPost(Config.UP_HOST, params, "file", fileName, file, mime, new StringMap());
+        return client.multipartPost(Config.zone.upHost, params, "file", fileName, file, mime, new StringMap());
     }
 
     private void buildParams() throws QiniuException {
