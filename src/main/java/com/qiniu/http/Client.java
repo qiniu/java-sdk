@@ -98,21 +98,24 @@ public final class Client {
     }
 
     public Response post(String url, byte[] body, StringMap headers, String contentType) throws QiniuException {
-        RequestBody rbody = null;
+        RequestBody rbody;
         if (body != null && body.length > 0) {
             MediaType t = MediaType.parse(contentType);
-
             rbody = RequestBody.create(t, body);
+        } else {
+            rbody = RequestBody.create(null, new byte[0]);
         }
         return post(url, rbody, headers);
     }
 
     public Response post(String url, byte[] body, int offset, int size,
                          StringMap headers, String contentType) throws QiniuException {
-        RequestBody rbody = null;
+        RequestBody rbody;
         if (body != null && body.length > 0) {
             MediaType t = MediaType.parse(contentType);
             rbody = create(t, body, offset, size);
+        } else {
+            rbody = RequestBody.create(null, new byte[0]);
         }
         return post(url, rbody, headers);
     }
