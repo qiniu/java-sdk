@@ -102,7 +102,7 @@ public final class Client {
         if (body != null && body.length > 0) {
             MediaType t = MediaType.parse(contentType);
             rbody = RequestBody.create(t, body);
-        }else{
+        } else {
             rbody = RequestBody.create(null, new byte[0]);
         }
         return post(url, rbody, headers);
@@ -114,7 +114,7 @@ public final class Client {
         if (body != null && body.length > 0) {
             MediaType t = MediaType.parse(contentType);
             rbody = create(t, body, offset, size);
-        }else{
+        } else {
             rbody = RequestBody.create(null, new byte[0]);
         }
         return post(url, rbody, headers);
