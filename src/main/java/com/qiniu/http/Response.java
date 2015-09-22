@@ -66,10 +66,12 @@ public final class Response {
     static Response create(com.squareup.okhttp.Response response, String address, double duration) {
         String error = null;
         int code = response.code();
-        String reqId = response.header("X-Reqid");
+        String reqId = "";
 
         byte[] body = null;
         if (ctype(response).equals(Client.JsonMime)) {
+            reqId = response.header("X-Reqid");
+            reqId = (reqId == null) ? "" : reqId.trim();
             try {
                 body = response.body().bytes();
                 if (response.code() >= 400 && !StringUtils.isNullOrEmpty(reqId) && body != null) {
@@ -112,7 +114,7 @@ public final class Response {
     }
 
     public boolean isOK() {
-        return statusCode == 200 && error == null;
+        return statusCode == 200 && error == null && reqId.length() > 0;
     }
 
     public boolean isNetworkBroken() {
