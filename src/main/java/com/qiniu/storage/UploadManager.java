@@ -7,6 +7,7 @@ import com.qiniu.http.Response;
 import com.qiniu.util.StringMap;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * 七牛文件上传管理器
@@ -190,5 +191,16 @@ public final class UploadManager {
         ResumeUploader uploader = new ResumeUploader(client, token, key, file,
                 params, mime, recorder, recorderKey);
         return uploader.upload();
+    }
+
+
+    public void asyncPut(final byte[] data, final String key, final String token, StringMap params,
+                         String mime, boolean checkCrc, UpCompletionHandler handler) throws IOException {
+        checkArgs(key, data, null, token);
+        if (mime == null) {
+            mime = Client.DefaultMime;
+        }
+        params = filterParam(params);
+        new FormUploader(client, token, key, data, params, mime, checkCrc).asyncUpload(handler);
     }
 }

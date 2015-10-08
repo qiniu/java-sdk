@@ -2,6 +2,7 @@ package com.qiniu.storage;
 
 import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
+import com.qiniu.http.AsyncCallback;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.util.Crc32;
@@ -51,6 +52,27 @@ public final class FormUploader {
             return client.multipartPost(Config.zone.upHost, params, "file", fileName, data, mime, new StringMap());
         }
         return client.multipartPost(Config.zone.upHost, params, "file", fileName, file, mime, new StringMap());
+    }
+
+    void asyncUpload(final UpCompletionHandler handler) throws IOException {
+        buildParams();
+        if (data != null) {
+            client.asyncMultipartPost(Config.zone.upHost, params, "file", fileName,
+                    data, mime, new StringMap(), new AsyncCallback() {
+                        @Override
+                        public void complete(Response r) {
+                            handler.complete(key, r);
+                        }
+                    });
+            return;
+        }
+        client.asyncMultipartPost(Config.zone.upHost, params, "file", fileName,
+                file, mime, new StringMap(), new AsyncCallback() {
+                    @Override
+                    public void complete(Response r) {
+                        handler.complete(key, r);
+                    }
+                });
     }
 
     private void buildParams() throws QiniuException {
