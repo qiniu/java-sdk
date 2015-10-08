@@ -22,7 +22,13 @@ public final class Client {
     private final OkHttpClient httpClient;
 
     public Client() {
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(64);
+        dispatcher.setMaxRequestsPerHost(64);
+        ConnectionPool connectionPool = new ConnectionPool(16, 5 * 60 * 1000);
         httpClient = new OkHttpClient();
+        httpClient.setDispatcher(dispatcher);
+        httpClient.setConnectionPool(connectionPool);
         httpClient.networkInterceptors().add(new Interceptor() {
             @Override
             public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
