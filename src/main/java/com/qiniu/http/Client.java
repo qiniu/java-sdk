@@ -23,9 +23,9 @@ public final class Client {
 
     public Client() {
         Dispatcher dispatcher = new Dispatcher();
-        dispatcher.setMaxRequests(64);
-        dispatcher.setMaxRequestsPerHost(64);
-        ConnectionPool connectionPool = new ConnectionPool(16, 5 * 60 * 1000);
+        dispatcher.setMaxRequests(1024);
+        dispatcher.setMaxRequestsPerHost(1024);
+        ConnectionPool connectionPool = new ConnectionPool(32, 5 * 60 * 1000);
         httpClient = new OkHttpClient();
         httpClient.setDispatcher(dispatcher);
         httpClient.setConnectionPool(connectionPool);
