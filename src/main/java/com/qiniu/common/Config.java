@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 
 public final class Config {
 
-    public static final String VERSION = "7.0.4.1";
+    public static final String VERSION = "7.0.4.3";
     /**
      * 断点上传时的分块大小(默认的分块大小, 不允许改变)
      */
@@ -40,11 +40,11 @@ public final class Config {
     /**
      * 连接超时时间(默认10s)
      */
-    public static int CONNECT_TIMEOUT = 10 * 1000;
+    public static int CONNECT_TIMEOUT = 10;
     /**
      * 回复超时时间(默认30s)
      */
-    public static int RESPONSE_TIMEOUT = 30 * 1000;
+    public static int RESPONSE_TIMEOUT = 30;
     /**
      * 上传失败重试次数
      */
