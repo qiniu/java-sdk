@@ -88,6 +88,33 @@ public final class Response {
                 address, duration, error, body);
     }
 
+    static Response createError(com.squareup.okhttp.Response response, String address, double duration, String error) {
+        if (response == null) {
+            return new Response(null, -1, "", "", "", "", duration, error, null);
+        }
+        int code = response.code();
+        String reqId = null;
+
+        byte[] body = null;
+        if (ctype(response).equals(Client.JsonMime)) {
+            reqId = response.header("X-Reqid");
+            reqId = (reqId == null) ? null : reqId.trim();
+            try {
+                body = response.body().bytes();
+                if (response.code() >= 400 && !StringUtils.isNullOrEmpty(reqId) && body != null) {
+                    ErrorBody errorBody = Json.decode(new String(body), ErrorBody.class);
+                    error = errorBody.error;
+                }
+            } catch (Exception e) {
+                if (response.code() < 300) {
+                    error = e.getMessage();
+                }
+            }
+        }
+        return new Response(response, code, reqId, response.header("X-Log"), via(response),
+                address, duration, error, body);
+    }
+
 
     private static String via(com.squareup.okhttp.Response response) {
         String via;
