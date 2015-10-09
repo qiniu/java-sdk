@@ -22,7 +22,13 @@ public final class Client {
     private final OkHttpClient httpClient;
 
     public Client() {
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(64);
+        dispatcher.setMaxRequestsPerHost(16);
+        ConnectionPool connectionPool = new ConnectionPool(32, 5 * 60 * 1000);
         httpClient = new OkHttpClient();
+        httpClient.setDispatcher(dispatcher);
+        httpClient.setConnectionPool(connectionPool);
         httpClient.networkInterceptors().add(new Interceptor() {
             @Override
             public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
@@ -196,6 +202,95 @@ public final class Client {
         }
 
         return r;
+    }
+
+    public void asyncSend(final Request.Builder requestBuilder, StringMap headers, final AsyncCallback cb) {
+        if (headers != null) {
+            headers.forEach(new StringMap.Consumer() {
+                @Override
+                public void accept(String key, Object value) {
+                    requestBuilder.header(key, value.toString());
+                }
+            });
+        }
+
+        requestBuilder.header("User-Agent", userAgent());
+        final long start = System.currentTimeMillis();
+        IpTag tag = new IpTag();
+        httpClient.newCall(requestBuilder.tag(tag).build()).enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                e.printStackTrace();
+                long duration = (System.currentTimeMillis() - start) / 1000;
+                cb.complete(Response.createError(null, "", duration, e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(com.squareup.okhttp.Response response) throws IOException {
+                long duration = (System.currentTimeMillis() - start) / 1000;
+                cb.complete(Response.create(response, "", duration));
+            }
+        });
+    }
+
+    public void asyncPost(String url, byte[] body, int offset, int size,
+                          StringMap headers, String contentType, AsyncCallback cb) {
+        RequestBody rbody;
+        if (body != null && body.length > 0) {
+            MediaType t = MediaType.parse(contentType);
+            rbody = create(t, body, offset, size);
+        } else {
+            rbody = RequestBody.create(null, new byte[0]);
+        }
+
+        Request.Builder requestBuilder = new Request.Builder().url(url).post(rbody);
+        asyncSend(requestBuilder, headers, cb);
+    }
+
+    public void asyncMultipartPost(String url,
+                                   StringMap fields,
+                                   String name,
+                                   String fileName,
+                                   byte[] fileBody,
+                                   String mimeType,
+                                   StringMap headers,
+                                   AsyncCallback cb) {
+        RequestBody file = RequestBody.create(MediaType.parse(mimeType), fileBody);
+        asyncMultipartPost(url, fields, name, fileName, file, headers, cb);
+    }
+
+    public void asyncMultipartPost(String url,
+                                   StringMap fields,
+                                   String name,
+                                   String fileName,
+                                   File fileBody,
+                                   String mimeType,
+                                   StringMap headers,
+                                   AsyncCallback cb) throws QiniuException {
+        RequestBody file = RequestBody.create(MediaType.parse(mimeType), fileBody);
+        asyncMultipartPost(url, fields, name, fileName, file, headers, cb);
+    }
+
+    private void asyncMultipartPost(String url,
+                                    StringMap fields,
+                                    String name,
+                                    String fileName,
+                                    RequestBody file,
+                                    StringMap headers,
+                                    AsyncCallback cb) {
+        final MultipartBuilder mb = new MultipartBuilder();
+        mb.addFormDataPart(name, fileName, file);
+
+        fields.forEach(new StringMap.Consumer() {
+            @Override
+            public void accept(String key, Object value) {
+                mb.addFormDataPart(key, value.toString());
+            }
+        });
+        mb.type(MediaType.parse("multipart/form-data"));
+        RequestBody body = mb.build();
+        Request.Builder requestBuilder = new Request.Builder().url(url).post(body);
+        asyncSend(requestBuilder, headers, cb);
     }
 
     private static class IpTag {

@@ -5,7 +5,6 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
-
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.Test;
 

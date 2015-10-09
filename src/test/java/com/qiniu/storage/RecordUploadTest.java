@@ -10,10 +10,12 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Simon on 2015/3/30.
@@ -134,30 +136,6 @@ public class RecordUploadTest {
         }
     }
 
-    class Up implements Callable<Response> {
-        private final UploadManager uploadManager;
-        private final File file;
-        private final String key;
-        private final String token;
-
-        public Up(UploadManager uploadManager, File file, String key, String token) {
-            this.uploadManager = uploadManager;
-            this.file = file;
-            this.key = key;
-            this.token = token;
-        }
-
-        @Override
-        public Response call() throws Exception {
-            Response res = uploadManager.put(file, key, token);
-            System.out.println("up:  " + res);
-            System.out.println("up:  " + res.bodyString());
-            isDone = true;
-            response = res;
-            return res;
-        }
-    }
-
     @Test
     public void test1K() throws Throwable {
         template(1);
@@ -190,5 +168,29 @@ public class RecordUploadTest {
             return;
         }
         template(1024 * 25 + 1);
+    }
+
+    class Up implements Callable<Response> {
+        private final UploadManager uploadManager;
+        private final File file;
+        private final String key;
+        private final String token;
+
+        public Up(UploadManager uploadManager, File file, String key, String token) {
+            this.uploadManager = uploadManager;
+            this.file = file;
+            this.key = key;
+            this.token = token;
+        }
+
+        @Override
+        public Response call() throws Exception {
+            Response res = uploadManager.put(file, key, token);
+            System.out.println("up:  " + res);
+            System.out.println("up:  " + res.bodyString());
+            isDone = true;
+            response = res;
+            return res;
+        }
     }
 }
