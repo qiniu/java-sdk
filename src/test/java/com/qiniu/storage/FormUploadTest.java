@@ -140,7 +140,8 @@ public class FormUploadTest {
         final CountDownLatch signal = new CountDownLatch(1);
         Response r = null;
         try {
-            uploadManager.asyncPut("hello".getBytes(), expectKey, token, params, null, false, new UpCompletionHandler() {
+            uploadManager.asyncPut("hello".getBytes(), expectKey, token, params,
+                    null, false, new UpCompletionHandler() {
                 @Override
                 public void complete(String key, Response r) {
                     signal.countDown();
