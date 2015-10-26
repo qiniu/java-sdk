@@ -142,22 +142,22 @@ public class FormUploadTest {
         try {
             uploadManager.asyncPut("hello".getBytes(), expectKey, token, params,
                     null, false, new UpCompletionHandler() {
-                @Override
-                public void complete(String key, Response r) {
-                    signal.countDown();
-                    StringMap map = null;
-                    try {
-                        map = r.jsonToMap();
-                    } catch (QiniuException e) {
-                        e.printStackTrace();
-                        fail();
-                    }
-                    assertEquals(200, r.statusCode);
-                    assert map != null;
-                    assertEquals("Fqr0xh3cxeii2r7eDztILNmuqUNN", map.get("hash"));
-                    assertEquals(expectKey, map.get("key"));
-                }
-            });
+                        @Override
+                        public void complete(String key, Response r) {
+                            signal.countDown();
+                            StringMap map = null;
+                            try {
+                                map = r.jsonToMap();
+                            } catch (QiniuException e) {
+                                e.printStackTrace();
+                                fail();
+                            }
+                            assertEquals(200, r.statusCode);
+                            assert map != null;
+                            assertEquals("Fqr0xh3cxeii2r7eDztILNmuqUNN", map.get("hash"));
+                            assertEquals(expectKey, map.get("key"));
+                        }
+                    });
         } catch (IOException e) {
             fail();
         }
@@ -191,7 +191,7 @@ public class FormUploadTest {
             } catch (QiniuException e1) {
                 e1.printStackTrace();
             }
-        }finally {
+        } finally {
             TempFile.remove(f);
         }
     }
@@ -213,7 +213,7 @@ public class FormUploadTest {
             uploadManager.put(f, expectKey, token, params, null, true);
         } catch (QiniuException e) {
             fail();
-        }finally {
+        } finally {
             TempFile.remove(f);
         }
     }
