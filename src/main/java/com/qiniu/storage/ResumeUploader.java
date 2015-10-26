@@ -145,7 +145,8 @@ public final class ResumeUploader {
     }
 
     private String fileUrl() {
-        String url = host + "/mkfile/" + size + "/mimeType/" + UrlSafeBase64.encodeToString(mime);
+        String url = host + "/mkfile/" + size + "/mimeType/" + UrlSafeBase64.encodeToString(mime)
+                + "/fname/" + UrlSafeBase64.encodeToString(f.getName());
         final StringBuilder b = new StringBuilder(url);
         if (key != null) {
             b.append("/key/");
