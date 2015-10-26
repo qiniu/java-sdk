@@ -31,6 +31,7 @@ public final class Auth {
             "detectMime",
             "mimeLimit",
             "fsizeLimit",
+            "fsizeMin",
 
             "persistentOps",
             "persistentNotifyUrl",
