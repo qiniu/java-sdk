@@ -49,7 +49,7 @@ public class BucketTest {
     @Test
     public void testListIterator() {
         BucketManager.FileListIterator it = bucketManager
-                .createFileListIterator(TestConfig.bucket, "c2000/58", 2, null);
+                .createFileListIterator(TestConfig.bucket, "", 20, null);
 
         assertTrue(it.hasNext());
         FileInfo[] items0 = it.next();

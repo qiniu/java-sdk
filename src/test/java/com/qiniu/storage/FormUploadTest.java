@@ -142,22 +142,22 @@ public class FormUploadTest {
         try {
             uploadManager.asyncPut("hello".getBytes(), expectKey, token, params,
                     null, false, new UpCompletionHandler() {
-                @Override
-                public void complete(String key, Response r) {
-                    signal.countDown();
-                    StringMap map = null;
-                    try {
-                        map = r.jsonToMap();
-                    } catch (QiniuException e) {
-                        e.printStackTrace();
-                        fail();
-                    }
-                    assertEquals(200, r.statusCode);
-                    assert map != null;
-                    assertEquals("Fqr0xh3cxeii2r7eDztILNmuqUNN", map.get("hash"));
-                    assertEquals(expectKey, map.get("key"));
-                }
-            });
+                        @Override
+                        public void complete(String key, Response r) {
+                            signal.countDown();
+                            StringMap map = null;
+                            try {
+                                map = r.jsonToMap();
+                            } catch (QiniuException e) {
+                                e.printStackTrace();
+                                fail();
+                            }
+                            assertEquals(200, r.statusCode);
+                            assert map != null;
+                            assertEquals("Fqr0xh3cxeii2r7eDztILNmuqUNN", map.get("hash"));
+                            assertEquals(expectKey, map.get("key"));
+                        }
+                    });
         } catch (IOException e) {
             fail();
         }
@@ -165,6 +165,56 @@ public class FormUploadTest {
             signal.await(120, TimeUnit.SECONDS); // wait for callback
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testSizeMin() {
+        final String expectKey = "世/界";
+        File f = null;
+        try {
+            f = TempFile.createFile(1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert f != null;
+        StringMap params = new StringMap().put("x:foo", "foo_val");
+        String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey, 3600,
+                new StringMap().put("fsizeMin", 1024 * 1025));
+        try {
+            Response res = uploadManager.put(f, expectKey, token, params, null, true);
+
+        } catch (QiniuException e) {
+            Response res = e.response;
+            try {
+                assertEquals("{\"error\":\"request entity size is smaller than FsizeMin\"}", res.bodyString());
+            } catch (QiniuException e1) {
+                e1.printStackTrace();
+            }
+        } finally {
+            TempFile.remove(f);
+        }
+    }
+
+    @Test
+    public void testSizeMin2() {
+        final String expectKey = "世/界";
+        File f = null;
+        try {
+            f = TempFile.createFile(1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert f != null;
+        StringMap params = new StringMap().put("x:foo", "foo_val");
+        String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey, 3600,
+                new StringMap().put("fsizeMin", 1023));
+        try {
+            uploadManager.put(f, expectKey, token, params, null, true);
+        } catch (QiniuException e) {
+            fail();
+        } finally {
+            TempFile.remove(f);
         }
     }
 }
