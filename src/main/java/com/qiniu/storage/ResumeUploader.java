@@ -188,7 +188,7 @@ public final class ResumeUploader {
     }
 
     private int blockIdx(long offset) {
-    	return (int) (offset/Config.BLOCK_SIZE);
+        return (int) (offset / Config.BLOCK_SIZE);
     }
 
     private class RecordHelper {
