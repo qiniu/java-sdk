@@ -5,7 +5,7 @@ import com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.storage.model.DefaultPutRet;
+import com.qiniu.util.StringMap;
 import org.junit.Test;
 
 import java.io.File;
@@ -16,18 +16,30 @@ import static org.junit.Assert.fail;
 
 public class ResumeUploadTest {
 
+    class MyRet {
+        public String hash;
+        public String key;
+        public String fsize;
+        public String fname;
+        public String mimeType;
+    }
+
     private void template(int size) throws IOException {
         final String expectKey = "\r\n?&r=" + size + "k";
         final File f = TempFile.createFile(size);
-        String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
+        final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
+                + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
+        String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey, 3600,
+                new StringMap().put("returnBody", returnBody));
 
         try {
             ResumeUploader up = new ResumeUploader(new Client(), token, expectKey, f, null, null, null, null);
             Response r = up.upload();
-            DefaultPutRet ret = r.jsonToObject(DefaultPutRet.class);
+            MyRet ret = r.jsonToObject(MyRet.class);
             assertEquals(expectKey, ret.key);
+            assertEquals(f.getName(), ret.fname);
         } catch (QiniuException e) {
-            e.response.bodyString();
+            assertEquals("", e.response.bodyString());
             fail();
         }
         TempFile.remove(f);
