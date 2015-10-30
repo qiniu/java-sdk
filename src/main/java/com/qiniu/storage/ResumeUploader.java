@@ -73,7 +73,7 @@ public final class ResumeUploader {
             throw new QiniuException(e);
         }
         boolean retry = false;
-        int contextIndex = 0;
+        int contextIndex = blockIdx(uploaded);
         while (uploaded < size) {
             int blockSize = nextBlockSize(uploaded);
             try {
@@ -185,6 +185,10 @@ public final class ResumeUploader {
             return (int) (size - uploaded);
         }
         return Config.BLOCK_SIZE;
+    }
+
+    private int blockIdx(long offset) {
+        return (int) (offset / Config.BLOCK_SIZE);
     }
 
     private class RecordHelper {
