@@ -77,11 +77,11 @@ public final class FormUploader {
 
     private void buildParams() throws QiniuException {
         params.put("token", token);
-        if (key == null) {
-            fileName = "filename";
-        } else {
-            fileName = key;
+        if (key != null) {
             params.put("key", key);
+        }
+        if (file != null) {
+            fileName = file.getName();
         }
         if (checkCrc) {
             long crc32 = 0;
