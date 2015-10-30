@@ -169,6 +169,30 @@ public class FormUploadTest {
     }
 
     @Test
+    public void testFname() {
+        final String expectKey = "世/界";
+        File f = null;
+        try {
+            f = TempFile.createFile(1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert f != null;
+        final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
+                + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
+        String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey, 3600,
+                new StringMap().put("returnBody", returnBody));
+        try {
+            Response res = uploadManager.put(f, expectKey, token, null, null, true);
+            MyRet ret = res.jsonToObject(MyRet.class);
+            assertEquals(f.getName(), ret.fname);
+        } catch (QiniuException e) {
+            TempFile.remove(f);
+            fail();
+        }
+        TempFile.remove(f);
+    }
+
     public void testSizeMin() {
         final String expectKey = "世/界";
         File f = null;
@@ -217,4 +241,14 @@ public class FormUploadTest {
             TempFile.remove(f);
         }
     }
+
+    class MyRet {
+        public String hash;
+        public String key;
+        public String fsize;
+        public String fname;
+        public String mimeType;
+    }
+
+
 }
