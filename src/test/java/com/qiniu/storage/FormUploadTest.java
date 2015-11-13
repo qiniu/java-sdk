@@ -2,12 +2,14 @@ package com.qiniu.storage;
 
 import com.qiniu.TempFile;
 import com.qiniu.TestConfig;
+import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.util.StringMap;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -250,5 +252,60 @@ public class FormUploadTest {
         public String mimeType;
     }
 
+    //    @Test
+    public void testFormLargeSize() {
+        Config.PUT_THRESHOLD = 25 * 1024 * 1024;
+
+        final String expectKey = "yyyyyy";
+        File f = null;
+        try {
+            f = TempFile.createFile(Config.PUT_THRESHOLD / 1024 - 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
+        Response r = null;
+        try {
+            r = uploadManager.put(f, expectKey, token, null, null, false);
+        } catch (QiniuException e) {
+            try {
+                assertEquals("_", e.response.bodyString());
+            } catch (QiniuException e1) {
+                e1.printStackTrace();
+            }
+        }
+
+    }
+
+
+    //    @Test
+    public void testFormLargeSize2() {
+        Config.PUT_THRESHOLD = 25 * 1024 * 1024;
+
+        final String expectKey = "xxxxxxx";
+        byte[] bb = null;
+        File f = null;
+        try {
+            f = TempFile.createFile(Config.PUT_THRESHOLD / 1024 - 1);
+            bb = new byte[(int) (f.length())];
+            FileInputStream fis = new FileInputStream(f);
+            fis.read(bb, 0, (int) (f.length()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
+        Response r = null;
+        try {
+            r = uploadManager.put(bb, expectKey, token, null, null, false);
+        } catch (QiniuException e) {
+            try {
+                assertEquals("_", e.response.bodyString());
+            } catch (QiniuException e1) {
+                e1.printStackTrace();
+            }
+        }
+
+    }
 
 }
