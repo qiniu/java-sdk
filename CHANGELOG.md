@@ -1,5 +1,10 @@
 #Changelog
 
+## 7.0.7 (2015-11-13)
+
+### 修正
+* fix: invalid multipart format: multipart: message too large
+
 ## 7.0.6 (2015-10-30)
 
 ### 修正
