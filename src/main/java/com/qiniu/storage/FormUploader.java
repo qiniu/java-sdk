@@ -83,6 +83,9 @@ public final class FormUploader {
         if (file != null) {
             fileName = file.getName();
         }
+        if (fileName == null || fileName.trim().length() == 0) {
+            fileName = "fileName";
+        }
         if (checkCrc) {
             long crc32 = 0;
             if (file != null) {
