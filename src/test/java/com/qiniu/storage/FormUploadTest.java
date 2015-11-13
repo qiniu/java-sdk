@@ -254,12 +254,12 @@ public class FormUploadTest {
 
     //    @Test
     public void testFormLargeSize() {
-        Config.PUT_THRESHOLD = 21 * 1024 * 1024;
+        Config.PUT_THRESHOLD = 25 * 1024 * 1024;
 
         final String expectKey = "yyyyyy";
         File f = null;
         try {
-            f = TempFile.createFile(Config.PUT_THRESHOLD / 1024);
+            f = TempFile.createFile(Config.PUT_THRESHOLD / 1024 - 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -280,13 +280,13 @@ public class FormUploadTest {
 
     //    @Test
     public void testFormLargeSize2() {
-        Config.PUT_THRESHOLD = 21 * 1024 * 1024;
+        Config.PUT_THRESHOLD = 25 * 1024 * 1024;
 
         final String expectKey = "xxxxxxx";
         byte[] bb = null;
         File f = null;
         try {
-            f = TempFile.createFile(Config.PUT_THRESHOLD / 1024);
+            f = TempFile.createFile(Config.PUT_THRESHOLD / 1024 - 1);
             bb = new byte[(int) (f.length())];
             FileInputStream fis = new FileInputStream(f);
             fis.read(bb, 0, (int) (f.length()));
