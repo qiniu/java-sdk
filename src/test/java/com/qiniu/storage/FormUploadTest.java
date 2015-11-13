@@ -252,7 +252,7 @@ public class FormUploadTest {
         public String mimeType;
     }
 
-//    @Test
+    //    @Test
     public void testFormLargeSize() {
         Config.PUT_THRESHOLD = 21 * 1024 * 1024;
 
@@ -278,7 +278,7 @@ public class FormUploadTest {
     }
 
 
-//    @Test
+    //    @Test
     public void testFormLargeSize2() {
         Config.PUT_THRESHOLD = 21 * 1024 * 1024;
 
@@ -287,9 +287,9 @@ public class FormUploadTest {
         File f = null;
         try {
             f = TempFile.createFile(Config.PUT_THRESHOLD / 1024);
-            bb = new byte[(int)(f.length())];
+            bb = new byte[(int) (f.length())];
             FileInputStream fis = new FileInputStream(f);
-            fis.read(bb,0, (int)(f.length()));
+            fis.read(bb, 0, (int) (f.length()));
         } catch (IOException e) {
             e.printStackTrace();
         }
