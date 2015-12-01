@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * 实现分片上传时上传进度的接口方法
@@ -81,9 +82,14 @@ public final class FileRecorder implements Recorder {
             return null;
         }
         FileInputStream fi = null;
-        byte[] data = new byte[(int) f.length()];
+        byte[] data = null;
         int read = 0;
         try {
+            if (outOfDate(f)) {
+                f.delete();
+                return null;
+            }
+            data = new byte[(int) f.length()];
             fi = new FileInputStream(f);
             read = fi.read(data);
         } catch (IOException e) {
@@ -100,6 +106,10 @@ public final class FileRecorder implements Recorder {
             return null;
         }
         return data;
+    }
+
+    private boolean outOfDate(File f) {
+        return f.lastModified() + 3600 * 24 * 2 < new Date().getTime();
     }
 
     /**
