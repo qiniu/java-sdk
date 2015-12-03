@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -192,5 +193,51 @@ public class RecordUploadTest {
             response = res;
             return res;
         }
+    }
+
+    @Test
+    public void testLastModify() throws IOException {
+        File f = File.createTempFile("qiniutest", "b");
+        String folder = f.getParent();
+        FileRecorder fr = new FileRecorder(folder);
+
+        String key = "test_profile_";
+        byte[] data = new byte[3];
+        data[0] = 'a';
+        data[1] = '8';
+        data[2] = 'b';
+
+        fr.set(key, data);
+        byte[] data2 = fr.get(key);
+
+        File recoderFile = new File(folder, UrlSafeBase64.encodeToString(key));
+
+        long m1 = recoderFile.lastModified();
+
+        assertEquals(3, data2.length);
+        assertEquals('8', data2[1]);
+
+        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 48 + 2300);
+        data2 = fr.get(key);
+        assertEquals(3, data2.length);
+        assertEquals('8', data2[1]);
+
+        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 48 - 2300);
+
+        long m2 = recoderFile.lastModified();
+
+        byte[] data3 = fr.get(key);
+
+        assertNull(data3);
+        assertTrue(m1 - m2 > 1000 * 3600 * 48 && m1 - m2 < 1000 * 3600 * 48 + 5500);
+
+        try {
+            Thread.sleep(2300);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        fr.set(key, data);
+        long m4 = recoderFile.lastModified();
+        assertTrue(m4 > m1);
     }
 }
