@@ -1,9 +1,14 @@
 #Changelog
 
+## 7.0.8 (2016-01-05)
+
+### 修正
+* 添加写超时时间，避免okhttp 2.7 上传大文件失败
+
 ## 7.0.7 (2015-11-13)
 
 ### 修正
-* fix: invalid multipart format: multipart: message too large
+* invalid multipart format: multipart: message too large
 
 ## 7.0.6 (2015-10-30)
 
