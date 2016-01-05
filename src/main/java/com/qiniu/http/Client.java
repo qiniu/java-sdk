@@ -43,6 +43,7 @@ public final class Client {
         });
         httpClient.setConnectTimeout(Config.CONNECT_TIMEOUT, TimeUnit.SECONDS);
         httpClient.setReadTimeout(Config.RESPONSE_TIMEOUT, TimeUnit.SECONDS);
+        httpClient.setWriteTimeout(Config.WRITE_TIMEOUT, TimeUnit.SECONDS);
     }
 
     private static String userAgent() {
