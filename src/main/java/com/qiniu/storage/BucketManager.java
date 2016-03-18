@@ -151,7 +151,7 @@ public final class BucketManager {
     }
 
     /**
-     * 复制文件。要求空间在同一账号下。
+     * 复制文件，要求空间在同一账号下，不能强行复制文件，否则返回614
      *
      * @param from_bucket
      * @param from_key
@@ -165,9 +165,28 @@ public final class BucketManager {
         String path = "/copy/" + from + "/" + to;
         rsPost(path);
     }
-
+    
     /**
-     * 移动文件。要求空间在同一账号下。
+     * 复制文件，可以设置forcepara参数强行复制文件，要求空间在同一账号下。
+     *
+     * @param from_bucket
+     * @param from_key
+     * @param to_bucket
+     * @param to_key
+     * @param forcepara
+     * @throws QiniuException
+     */
+    
+    public void copy(String from_bucket, String from_key, String to_bucket, String to_key,Boolean forcepara) throws QiniuException {
+        String from = entry(from_bucket, from_key);
+        String to = entry(to_bucket, to_key);
+        String path = "/copy/" + from + "/" + to + "/force/" +forcepara;
+        rsPost(path);
+    }
+    
+    
+    /**
+     * 移动文件。要求空间在同一账号下，如果移动后的文件存在相同文件则返回614
      *
      * @param from_bucket
      * @param from_key
@@ -181,6 +200,24 @@ public final class BucketManager {
         String path = "/move/" + from + "/" + to;
         rsPost(path);
     }
+    
+    /**
+     * 移动文件, 可以设置forcepara参数强行移动文件，要求空间在同一账号下。
+     *
+     * @param from_bucket
+     * @param from_key
+     * @param to_bucket
+     * @param to_key
+     * @param forcepara
+     * @throws QiniuException
+     */
+    public void move(String from_bucket, String from_key, String to_bucket, String to_key,Boolean forcepara) throws QiniuException {
+        String from = entry(from_bucket, from_key);
+        String to = entry(to_bucket, to_key);
+        String path = "/move/" + from + "/" + to + "/force/" +forcepara;
+        rsPost(path);
+    }
+    
 
     /**
      * 修改完文件mimeTYpe
@@ -299,6 +336,15 @@ public final class BucketManager {
             ops.add("copy" + "/" + from + "/" + to);
             return this;
         }
+        
+        //强制进行批量复制
+        public Batch copy(String from_bucket, String from_key, String to_bucket, String to_key,Boolean forcepara) {
+            String from = entry(from_bucket, from_key);
+            String to = entry(to_bucket, to_key);
+            ops.add("copy" + "/" + from + "/" + to +"/force/" + forcepara);
+            return this;
+        }
+        
 
         public Batch rename(String from_bucket, String from_key, String to_key) {
             return move(from_bucket, from_key, from_bucket, to_key);
@@ -308,6 +354,14 @@ public final class BucketManager {
             String from = entry(from_bucket, from_key);
             String to = entry(to_bucket, to_key);
             ops.add("move" + "/" + from + "/" + to);
+            return this;
+        }
+        
+        //强行批量移动
+        public Batch move(String from_bucket, String from_key, String to_bucket, String to_key, Boolean forcepara) {
+            String from = entry(from_bucket, from_key);
+            String to = entry(to_bucket, to_key);
+            ops.add("move" + "/" + from + "/" + to + "/force/" +forcepara);
             return this;
         }
 
