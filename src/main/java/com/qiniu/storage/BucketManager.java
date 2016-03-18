@@ -17,7 +17,6 @@ import java.util.Iterator;
 
 /**
  * 主要涉及了空间资源管理及批量操作接口的实现，具体的接口规格可以参考
- * 
  * @link http://developer.qiniu.com/docs/v6/api/reference/rs/
  */
 public final class BucketManager {
@@ -31,7 +30,6 @@ public final class BucketManager {
 
     /**
      * EncodedEntryURI格式
-     * 
      * @param bucket
      * @param key
      * @return urlsafe_base64_encode(Bucket:Key)
@@ -43,7 +41,6 @@ public final class BucketManager {
     /**
      * EncodedEntryURI格式 当 mustHaveKey 为 false， 且 key 为 null 时，返回
      * urlsafe_base64_encode(Bucket); 其它条件下返回 urlsafe_base64_encode(Bucket:Key)
-     * 
      * @param bucket
      * @param key
      * @param mustHaveKey
@@ -59,7 +56,6 @@ public final class BucketManager {
 
     /**
      * 获取账号下所有空间名列表
-     * 
      * @return bucket 列表
      */
     public String[] buckets() throws QiniuException {
@@ -69,7 +65,6 @@ public final class BucketManager {
 
     /**
      * 根据前缀获取文件列表的迭代器
-     * 
      * @param bucket 空间名
      * @param prefix 文件名前缀
      * @return FileInfo迭代器
@@ -80,7 +75,6 @@ public final class BucketManager {
 
     /**
      * 根据前缀获取文件列表的迭代器
-     * 
      * @param bucket 空间名
      * @param prefix 文件名前缀
      * @param limit 每次迭代的长度限制，最大1000，推荐值 100
@@ -94,7 +88,6 @@ public final class BucketManager {
 
     /**
      * 根据前缀获取文件列表
-     * 
      * @param bucket 空间名
      * @param prefix 文件名前缀
      * @param marker 上一次获取文件列表时返回的 marker
@@ -117,7 +110,6 @@ public final class BucketManager {
 
     /**
      * 获取指定空间、文件名的状态
-     * 
      * @param bucket
      * @param key
      * @return
@@ -130,7 +122,6 @@ public final class BucketManager {
 
     /**
      * 删除指定空间、文件名的文件
-     * 
      * @param bucket
      * @param key
      * @throws QiniuException
@@ -141,7 +132,6 @@ public final class BucketManager {
 
     /**
      * 修改指定空间、文件的文件名
-     * 
      * @param bucket
      * @param oldname
      * @param newname
@@ -154,7 +144,6 @@ public final class BucketManager {
 
     /**
      * 复制文件，要求空间在同一账号下，不能强行复制文件，否则返回614
-     * 
      * @param from_bucket
      * @param from_key
      * @param to_bucket
@@ -171,7 +160,6 @@ public final class BucketManager {
 
     /**
      * 复制文件，可以设置forcepara参数强行复制文件，要求空间在同一账号下。
-     * 
      * @param from_bucket
      * @param from_key
      * @param to_bucket
@@ -190,7 +178,6 @@ public final class BucketManager {
 
     /**
      * 移动文件。要求空间在同一账号下，如果移动后的文件存在相同文件则返回614
-     * 
      * @param from_bucket
      * @param from_key
      * @param to_bucket
@@ -207,7 +194,6 @@ public final class BucketManager {
 
     /**
      * 移动文件, 可以设置forcepara参数强行移动文件，要求空间在同一账号下。
-     * 
      * @param from_bucket
      * @param from_key
      * @param to_bucket
@@ -225,7 +211,6 @@ public final class BucketManager {
 
     /**
      * 修改完文件mimeTYpe
-     * 
      * @param bucket
      * @param key
      * @param mime
@@ -252,7 +237,6 @@ public final class BucketManager {
 
     /**
      * 抓取指定地址的文件，已指定名称保存在指定空间。 要求指定url可访问。 大文件不建议使用此接口抓取。可先下载再上传。
-     * 
      * @param url
      * @param bucket
      * @param key
@@ -270,7 +254,6 @@ public final class BucketManager {
     /**
      * 对于设置了镜像存储的空间，从镜像源站抓取指定名称的资源并存储到该空间中。
      * 如果该空间中已存在该名称的资源，则会将镜像源站的资源覆盖空间中相同名称的资源
-     * 
      * @param bucket
      * @param key
      * @throws QiniuException
@@ -283,7 +266,6 @@ public final class BucketManager {
 
     /**
      * 批量执行文件管理相关操作
-     * 
      * @param operations
      * @return
      * @throws QiniuException
