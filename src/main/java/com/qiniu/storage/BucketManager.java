@@ -321,15 +321,6 @@ public final class BucketManager {
             return this;
         }
 
-        // 强制进行批量复制
-        public Batch copy(String from_bucket, String from_key,
-                String to_bucket, String to_key, Boolean forcepara) {
-            String from = entry(from_bucket, from_key);
-            String to = entry(to_bucket, to_key);
-            ops.add("copy" + "/" + from + "/" + to + "/force/" + forcepara);
-            return this;
-        }
-
         public Batch rename(String from_bucket, String from_key, String to_key) {
             return move(from_bucket, from_key, from_bucket, to_key);
         }
@@ -339,15 +330,6 @@ public final class BucketManager {
             String from = entry(from_bucket, from_key);
             String to = entry(to_bucket, to_key);
             ops.add("move" + "/" + from + "/" + to);
-            return this;
-        }
-
-        // 强行批量移动
-        public Batch move(String from_bucket, String from_key,
-                String to_bucket, String to_key, Boolean forcepara) {
-            String from = entry(from_bucket, from_key);
-            String to = entry(to_bucket, to_key);
-            ops.add("move" + "/" + from + "/" + to + "/force/" + forcepara);
             return this;
         }
 
