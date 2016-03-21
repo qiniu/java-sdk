@@ -176,7 +176,7 @@ public final class BucketManager {
      * @param force
      * @throws QiniuException
      */
-    public void copy(String from_bucket, String from_key, String to_bucket, 
+    public void copy(String from_bucket, String from_key, String to_bucket,
     	String to_key, boolean force) throws QiniuException {
         String from = entry(from_bucket, from_key);
         String to = entry(to_bucket, to_key);
@@ -211,7 +211,7 @@ public final class BucketManager {
      * @param force
      * @throws QiniuException
      */
-     public void move(String from_bucket, String from_key, String to_bucket, 
+     public void move(String from_bucket, String from_key, String to_bucket,
      	String to_key, boolean force) throws QiniuException {
         String from = entry(from_bucket, from_key);
         String to = entry(to_bucket, to_key);
