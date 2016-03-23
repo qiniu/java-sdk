@@ -167,6 +167,25 @@ public final class BucketManager {
     }
 
     /**
+     * 复制文件。要求空间在同一账号下, 可以添加force参数为true强行复制文件。
+     *
+     * @param from_bucket
+     * @param from_key
+     * @param to_bucket
+     * @param to_key
+     * @param force
+     * @throws QiniuException
+     */
+    public void copy(String from_bucket, String from_key, String to_bucket,
+        String to_key, boolean force) throws QiniuException {
+        String from = entry(from_bucket, from_key);
+        String to = entry(to_bucket, to_key);
+        String path = "/copy/" + from + "/" + to + "/force/" + force;
+        rsPost(path);
+    }
+
+
+    /**
      * 移动文件。要求空间在同一账号下。
      *
      * @param from_bucket
@@ -179,6 +198,24 @@ public final class BucketManager {
         String from = entry(from_bucket, from_key);
         String to = entry(to_bucket, to_key);
         String path = "/move/" + from + "/" + to;
+        rsPost(path);
+    }
+
+    /**
+     * 移动文件。要求空间在同一账号下, 可以添加force参数为true强行移动文件。
+     *
+     * @param from_bucket
+     * @param from_key
+     * @param to_bucket
+     * @param to_key
+     * @param force
+     * @throws QiniuException
+     */
+    public void move(String from_bucket, String from_key, String to_bucket,
+        String to_key, boolean force) throws QiniuException {
+        String from = entry(from_bucket, from_key);
+        String to = entry(to_bucket, to_key);
+        String path = "/move/" + from + "/" + to + "/force/" + force;
         rsPost(path);
     }
 
