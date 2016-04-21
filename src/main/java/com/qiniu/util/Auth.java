@@ -4,6 +4,9 @@ import com.qiniu.http.Client;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 
@@ -246,6 +249,47 @@ public final class Auth {
         return uploadTokenWithDeadline(bucket, key, deadline, policy, strict);
     }
 
+    public String uploadToken(PutPolicy policy) {
+        String bucket = policy.scope;
+        String key = null;
+        String[] ss = policy.scope.split(":");
+        if (ss.length > 1) {
+            bucket = ss[0];
+            key = ss[1];
+        }
+
+        StringMap p = new StringMap();
+        for (Field f : policy.getClass().getFields()) {
+            try {
+                Object v = f.get(policy);
+                if(v != null && StringUtils.isNullOrEmpty(v + "")) {
+                    p.put(f.getName(), v);
+                }
+            } catch (IllegalAccessException e) {
+                // ignore
+            }
+        }
+        for (Method m : policy.getClass().getDeclaredMethods()) {
+            String name = m.getName();
+            if (name.length() > 4 && name.startsWith("get")
+                    && !"getClass".equals(name)
+                    && m.getGenericParameterTypes().length == 0
+                    && !m.getReturnType().equals(Void.TYPE)) {
+                String k = name.substring(3,4).toLowerCase() + name.substring(4);
+                try {
+                    Object v = m.invoke(policy);
+                    if(v != null && StringUtils.isNullOrEmpty(v + "")) {
+                        p.put(k, v);
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+        }
+
+        return uploadToken(bucket, key, policy.expires, p, false);
+    }
+
     String uploadTokenWithDeadline(String bucket, String key, long deadline, StringMap policy, boolean strict) {
         String scope = bucket;
         if (key != null) {
@@ -267,5 +311,31 @@ public final class Auth {
 
     public StringMap authorization(String url) {
         return authorization(url, null, null);
+    }
+
+    public static class PutPolicy {
+        public String scope;
+        public int expires = 3600;
+
+        public String callbackUrl;
+        public String callbackBody;
+        public String callbackHost;
+        public String callbackBodyType;
+        public String callbackFetchKey;
+
+        public String returnUrl;
+        public String returnBody;
+
+        public String endUser;
+        public String saveKey;
+        public int insertOnly;
+
+        public String detectMime;
+        public String mimeLimit;
+        public long fsizeLimit;
+
+        public String persistentOps;
+        public String persistentNotifyUrl;
+        public String persistentPipeline;
     }
 }
