@@ -171,30 +171,6 @@ public class RecordUploadTest {
         template(1024 * 25 + 1);
     }
 
-    class Up implements Callable<Response> {
-        private final UploadManager uploadManager;
-        private final File file;
-        private final String key;
-        private final String token;
-
-        public Up(UploadManager uploadManager, File file, String key, String token) {
-            this.uploadManager = uploadManager;
-            this.file = file;
-            this.key = key;
-            this.token = token;
-        }
-
-        @Override
-        public Response call() throws Exception {
-            Response res = uploadManager.put(file, key, token);
-            System.out.println("up:  " + res);
-            System.out.println("up:  " + res.bodyString());
-            isDone = true;
-            response = res;
-            return res;
-        }
-    }
-
     @Test
     public void testLastModify() throws IOException {
         File f = File.createTempFile("qiniutest", "b");
@@ -239,5 +215,29 @@ public class RecordUploadTest {
         fr.set(key, data);
         long m4 = recoderFile.lastModified();
         assertTrue(m4 > m1);
+    }
+
+    class Up implements Callable<Response> {
+        private final UploadManager uploadManager;
+        private final File file;
+        private final String key;
+        private final String token;
+
+        public Up(UploadManager uploadManager, File file, String key, String token) {
+            this.uploadManager = uploadManager;
+            this.file = file;
+            this.key = key;
+            this.token = token;
+        }
+
+        @Override
+        public Response call() throws Exception {
+            Response res = uploadManager.put(file, key, token);
+            System.out.println("up:  " + res);
+            System.out.println("up:  " + res.bodyString());
+            isDone = true;
+            response = res;
+            return res;
+        }
     }
 }

@@ -39,7 +39,7 @@ public final class Client {
                 IpTag tag = (IpTag) request.tag();
                 try {
                     tag.ip = chain.connection().socket().getRemoteSocketAddress().toString();
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                     tag.ip = "";
                 }
