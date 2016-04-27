@@ -5,7 +5,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
-import com.squareup.okhttp.MediaType;
+import okhttp3.MediaType;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -48,9 +48,9 @@ public final class Response {
     public final String address;
 
     private byte[] body;
-    private com.squareup.okhttp.Response response;
+    private okhttp3.Response response;
 
-    private Response(com.squareup.okhttp.Response response, int statusCode, String reqId, String xlog, String xvia,
+    private Response(okhttp3.Response response, int statusCode, String reqId, String xlog, String xvia,
                      String address, double duration, String error, byte[] body) {
         this.response = response;
         this.statusCode = statusCode;
@@ -63,7 +63,7 @@ public final class Response {
         this.body = body;
     }
 
-    static Response create(com.squareup.okhttp.Response response, String address, double duration) {
+    static Response create(okhttp3.Response response, String address, double duration) {
         String error = null;
         int code = response.code();
         String reqId = null;
@@ -88,7 +88,7 @@ public final class Response {
                 address, duration, error, body);
     }
 
-    static Response createError(com.squareup.okhttp.Response response, String address, double duration, String error) {
+    static Response createError(okhttp3.Response response, String address, double duration, String error) {
         if (response == null) {
             return new Response(null, -1, "", "", "", "", duration, error, null);
         }
@@ -116,7 +116,7 @@ public final class Response {
     }
 
 
-    private static String via(com.squareup.okhttp.Response response) {
+    private static String via(okhttp3.Response response) {
         String via;
         if (!(via = response.header("X-Via", "")).equals("")) {
             return via;
@@ -132,7 +132,7 @@ public final class Response {
         return via;
     }
 
-    private static String ctype(com.squareup.okhttp.Response response) {
+    private static String ctype(okhttp3.Response response) {
         MediaType mediaType = response.body().contentType();
         if (mediaType == null) {
             return "";
@@ -207,7 +207,7 @@ public final class Response {
     }
 
     public String url() {
-        return response.request().urlString();
+        return response.request().url().toString();
     }
 
     public static class ErrorBody {
