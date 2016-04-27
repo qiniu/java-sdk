@@ -244,14 +244,6 @@ public class FormUploadTest {
         }
     }
 
-    class MyRet {
-        public String hash;
-        public String key;
-        public String fsize;
-        public String fname;
-        public String mimeType;
-    }
-
     //    @Test
     public void testFormLargeSize() {
         Config.PUT_THRESHOLD = 25 * 1024 * 1024;
@@ -276,7 +268,6 @@ public class FormUploadTest {
         }
 
     }
-
 
     //    @Test
     public void testFormLargeSize2() {
@@ -306,6 +297,14 @@ public class FormUploadTest {
             }
         }
 
+    }
+
+    class MyRet {
+        public String hash;
+        public String key;
+        public String fsize;
+        public String fname;
+        public String mimeType;
     }
 
 }

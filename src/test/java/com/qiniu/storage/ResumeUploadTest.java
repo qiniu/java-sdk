@@ -16,14 +16,6 @@ import static org.junit.Assert.fail;
 
 public class ResumeUploadTest {
 
-    class MyRet {
-        public String hash;
-        public String key;
-        public String fsize;
-        public String fname;
-        public String mimeType;
-    }
-
     private void template(int size) throws IOException {
         final String expectKey = "\r\n?&r=" + size + "k";
         final File f = TempFile.createFile(size);
@@ -69,5 +61,13 @@ public class ResumeUploadTest {
             return;
         }
         template(1024 * 8 + 1);
+    }
+
+    class MyRet {
+        public String hash;
+        public String key;
+        public String fsize;
+        public String fname;
+        public String mimeType;
     }
 }
