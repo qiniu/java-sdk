@@ -4,7 +4,7 @@ import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
-import com.squareup.okhttp.*;
+import okhttp3.*;
 import okio.BufferedSink;
 
 import java.io.File;
@@ -25,25 +25,31 @@ public final class Client {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequests(64);
         dispatcher.setMaxRequestsPerHost(16);
-        ConnectionPool connectionPool = new ConnectionPool(32, 5 * 60 * 1000);
-        httpClient = new OkHttpClient();
-        httpClient.setDispatcher(dispatcher);
-        httpClient.setConnectionPool(connectionPool);
-        httpClient.networkInterceptors().add(new Interceptor() {
+        ConnectionPool connectionPool = new ConnectionPool(32, 5, TimeUnit.MINUTES);
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
+        builder.dispatcher(dispatcher);
+        builder.connectionPool(connectionPool);
+        builder.addNetworkInterceptor(new Interceptor() {
             @Override
-            public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
+            public okhttp3.Response intercept(Chain chain) throws IOException {
                 Request request = chain.request();
 
-                com.squareup.okhttp.Response response = chain.proceed(request);
+                okhttp3.Response response = chain.proceed(request);
                 IpTag tag = (IpTag) request.tag();
-                String ip = chain.connection().getSocket().getRemoteSocketAddress().toString();
-                tag.ip = ip;
+                try {
+                    tag.ip = chain.connection().socket().getRemoteSocketAddress().toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    tag.ip = "";
+                }
                 return response;
             }
         });
-        httpClient.setConnectTimeout(Config.CONNECT_TIMEOUT, TimeUnit.SECONDS);
-        httpClient.setReadTimeout(Config.RESPONSE_TIMEOUT, TimeUnit.SECONDS);
-        httpClient.setWriteTimeout(Config.WRITE_TIMEOUT, TimeUnit.SECONDS);
+        builder.connectTimeout(Config.CONNECT_TIMEOUT, TimeUnit.SECONDS);
+        builder.readTimeout(Config.RESPONSE_TIMEOUT, TimeUnit.SECONDS);
+        builder.writeTimeout(Config.WRITE_TIMEOUT, TimeUnit.SECONDS);
+        httpClient = builder.build();
     }
 
     private static String userAgent() {
@@ -94,7 +100,7 @@ public final class Client {
     }
 
     public Response post(String url, StringMap params, StringMap headers) throws QiniuException {
-        final FormEncodingBuilder f = new FormEncodingBuilder();
+        final FormBody.Builder f = new FormBody.Builder();
         params.forEach(new StringMap.Consumer() {
             @Override
             public void accept(String key, Object value) {
@@ -160,7 +166,7 @@ public final class Client {
                                    String fileName,
                                    RequestBody file,
                                    StringMap headers) throws QiniuException {
-        final MultipartBuilder mb = new MultipartBuilder();
+        final MultipartBody.Builder mb = new MultipartBody.Builder();
         mb.addFormDataPart(name, fileName, file);
 
         fields.forEach(new StringMap.Consumer() {
@@ -169,7 +175,7 @@ public final class Client {
                 mb.addFormDataPart(key, value.toString());
             }
         });
-        mb.type(MediaType.parse("multipart/form-data"));
+        mb.setType(MediaType.parse("multipart/form-data"));
         RequestBody body = mb.build();
         Request.Builder requestBuilder = new Request.Builder().url(url).post(body);
         return send(requestBuilder, headers);
@@ -187,7 +193,7 @@ public final class Client {
 
         requestBuilder.header("User-Agent", userAgent());
         long start = System.currentTimeMillis();
-        com.squareup.okhttp.Response res = null;
+        okhttp3.Response res = null;
         Response r;
         double duration = (System.currentTimeMillis() - start) / 1000.0;
         IpTag tag = new IpTag();
@@ -220,14 +226,14 @@ public final class Client {
         IpTag tag = new IpTag();
         httpClient.newCall(requestBuilder.tag(tag).build()).enqueue(new Callback() {
             @Override
-            public void onFailure(Request request, IOException e) {
+            public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
                 long duration = (System.currentTimeMillis() - start) / 1000;
                 cb.complete(Response.createError(null, "", duration, e.getMessage()));
             }
 
             @Override
-            public void onResponse(com.squareup.okhttp.Response response) throws IOException {
+            public void onResponse(Call call, okhttp3.Response response) throws IOException {
                 long duration = (System.currentTimeMillis() - start) / 1000;
                 cb.complete(Response.create(response, "", duration));
             }
@@ -279,7 +285,7 @@ public final class Client {
                                     RequestBody file,
                                     StringMap headers,
                                     AsyncCallback cb) {
-        final MultipartBuilder mb = new MultipartBuilder();
+        final MultipartBody.Builder mb = new MultipartBody.Builder();
         mb.addFormDataPart(name, fileName, file);
 
         fields.forEach(new StringMap.Consumer() {
@@ -288,7 +294,7 @@ public final class Client {
                 mb.addFormDataPart(key, value.toString());
             }
         });
-        mb.type(MediaType.parse("multipart/form-data"));
+        mb.setType(MediaType.parse("multipart/form-data"));
         RequestBody body = mb.build();
         Request.Builder requestBuilder = new Request.Builder().url(url).post(body);
         asyncSend(requestBuilder, headers, cb);
