@@ -1,9 +1,5 @@
 package com.qiniu.common;
 
-import com.qiniu.util.Json;
-import com.qiniu.util.UC;
-import com.qiniu.util.UrlSafeBase64;
-
 import java.nio.charset.Charset;
 
 // CHECKSTYLE:OFF
@@ -36,7 +32,7 @@ public final class Config {
 
     /**
      * 获取上传地址服务器
-     * */
+     */
     public static String UC_HOST = "https://uc.qbox.me";
 
     /**
@@ -46,7 +42,7 @@ public final class Config {
 
     /**
      * 上传是否使用 https , 默认否
-     * */
+     */
     public static boolean UPLOAD_BY_HTTPS = false;
 
     /**
