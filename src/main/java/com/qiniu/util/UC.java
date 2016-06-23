@@ -3,7 +3,8 @@ package com.qiniu.util;
 import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
-import okhttp3.*;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 
 import java.util.List;
@@ -66,7 +67,8 @@ public class UC {
     /**
      * 返回 java-sdk 中需要的 zone 对象
      */
-    private Zone getZone(final Zone userSetZone, final String ak, final String bkt, boolean isHttps) throws QiniuException {
+    private Zone getZone(final Zone userSetZone, final String ak, final String bkt, boolean isHttps)
+            throws QiniuException {
         if (userSetZone != null) {
             return userSetZone;
         }
@@ -219,9 +221,9 @@ public class UC {
     }
 
     private class ZoneInfo {
-        final public long deadline;
-        final public String ucjson;
-        final public Zone zone;
+        public final long deadline;
+        public final String ucjson;
+        public final Zone zone;
 
         ZoneInfo(long deadline, Zone zone, String ucjson) {
             this.deadline = deadline;
