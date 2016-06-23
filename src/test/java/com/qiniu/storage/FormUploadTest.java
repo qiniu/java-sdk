@@ -20,7 +20,29 @@ public class FormUploadTest {
     private UploadManager uploadManager = new UploadManager();
 
     @Test
-    public void testHello() {
+    public void testHello1() {
+        boolean h = Config.UPLOAD_BY_HTTPS;
+        try {
+            Config.UPLOAD_BY_HTTPS = false;
+            hello();
+        } finally {
+            Config.UPLOAD_BY_HTTPS = h;
+        }
+    }
+
+    @Test
+    public void testHello2() {
+        boolean h = Config.UPLOAD_BY_HTTPS;
+        try {
+            Config.UPLOAD_BY_HTTPS = true;
+            hello();
+        } finally {
+            Config.UPLOAD_BY_HTTPS = h;
+        }
+    }
+
+
+    public void hello() {
         final String expectKey = "你好?&=\r\n";
         StringMap params = new StringMap().put("x:foo", "foo_val");
 
@@ -71,11 +93,15 @@ public class FormUploadTest {
         final String expectKey = "你好";
 
         try {
-            uploadManager.put("hello".getBytes(), expectKey, "invalid");
+            uploadManager.put("hello".getBytes(), expectKey, "ak:s:invalid");
             fail();
         } catch (QiniuException e) {
-            assertEquals(401, e.code());
-            assertNotNull(e.response.reqId);
+            if (e.code() != -1) {
+                assertEquals(401, e.code());
+                assertNotNull(e.response.reqId);
+            } else {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -63,7 +63,7 @@ public final class Response {
         this.body = body;
     }
 
-    static Response create(okhttp3.Response response, String address, double duration) {
+    public static Response create(okhttp3.Response response, String address, double duration) {
         String error = null;
         int code = response.code();
         String reqId = null;
