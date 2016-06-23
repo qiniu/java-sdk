@@ -88,13 +88,12 @@ public class UC {
     ZoneInfo getZoneInfo(final String ak, final String bkt, boolean isHttps) throws QiniuException {
         final AKBKT akbkt = new AKBKT(ak, bkt, isHttps);
         ZoneInfo zoneInfo = zones.get(akbkt);
-        Zone tmp_zone = zoneInfo == null ? null : zoneInfo.zone;
 
-        if (tmp_zone != null && zoneInfo.deadline > System.currentTimeMillis() / 1000) {
+        if (zoneInfo != null && zoneInfo.deadline > System.currentTimeMillis() / 1000) {
             return zoneInfo;
         }
 
-        if (tmp_zone != null) {
+        if (zoneInfo != null) {
             if (!isSyncLocked) {
                 try {
                     lock.lock();
@@ -121,8 +120,7 @@ public class UC {
             try {
                 lock.lock();
                 zoneInfo = zones.get(akbkt);
-                tmp_zone = zoneInfo == null ? null : zoneInfo.zone;
-                if (tmp_zone == null) {
+                if (zoneInfo == null) {
                     build(akbkt);
                     zoneInfo = zones.get(akbkt);
                     return zoneInfo;
@@ -179,7 +177,14 @@ public class UC {
 
             Zone new_zone = new Zone(zoneArgs[0], zoneArgs[1]);
 
+            if (ret.ttl < 0 || zoneArgs[0] == null || zoneArgs[0].trim().length() == 0
+                    || new_zone == null || ucVal == null) {
+                throw new QiniuException(qnRes);
+            }
+
             zones.put(akbkt, new ZoneInfo(deadline, new_zone, ucVal));
+        } catch (QiniuException e) {
+            throw e;
         } catch (Exception e) {
             throw new QiniuException(e);
         }
