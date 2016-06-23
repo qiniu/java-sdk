@@ -35,7 +35,7 @@ public class UCTest {
     }
 
     @Test
-    public void testHttps() throws QiniuException {
+    public void testHttps() {
         boolean h = Config.UPLOAD_BY_HTTPS;
         try {
             Config.UPLOAD_BY_HTTPS = true;
