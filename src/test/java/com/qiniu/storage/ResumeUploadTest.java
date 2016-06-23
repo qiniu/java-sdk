@@ -2,6 +2,7 @@ package com.qiniu.storage;
 
 import com.qiniu.TempFile;
 import com.qiniu.TestConfig;
+import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
@@ -44,7 +45,24 @@ public class ResumeUploadTest {
 
     @Test
     public void test600k() throws Throwable {
-        template(600);
+        boolean h = Config.UPLOAD_BY_HTTPS;
+        try {
+            Config.UPLOAD_BY_HTTPS = true;
+            template(600);
+        } finally {
+            Config.UPLOAD_BY_HTTPS = h;
+        }
+    }
+
+    @Test
+    public void test600k2() throws IOException {
+        boolean h = Config.UPLOAD_BY_HTTPS;
+        try {
+            Config.UPLOAD_BY_HTTPS = false;
+            template(600);
+        } finally {
+            Config.UPLOAD_BY_HTTPS = h;
+        }
     }
 
     @Test
@@ -57,10 +75,30 @@ public class ResumeUploadTest {
 
     @Test
     public void test8M1k() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
+        boolean h = Config.UPLOAD_BY_HTTPS;
+        try {
+            Config.UPLOAD_BY_HTTPS = false;
+            if (TestConfig.isTravis()) {
+                return;
+            }
+            template(1024 * 8 + 1);
+        } finally {
+            Config.UPLOAD_BY_HTTPS = h;
         }
-        template(1024 * 8 + 1);
+    }
+
+    @Test
+    public void test8M1k2() throws Throwable {
+        boolean h = Config.UPLOAD_BY_HTTPS;
+        try {
+            Config.UPLOAD_BY_HTTPS = true;
+            if (TestConfig.isTravis()) {
+                return;
+            }
+            template(1024 * 8 + 1);
+        } finally {
+            Config.UPLOAD_BY_HTTPS = h;
+        }
     }
 
     class MyRet {

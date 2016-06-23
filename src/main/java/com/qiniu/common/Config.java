@@ -1,5 +1,9 @@
 package com.qiniu.common;
 
+import com.qiniu.util.Json;
+import com.qiniu.util.UC;
+import com.qiniu.util.UrlSafeBase64;
+
 import java.nio.charset.Charset;
 
 // CHECKSTYLE:OFF
@@ -29,10 +33,22 @@ public final class Config {
      * 默认文件服务器
      */
     public static String IO_HOST = "http://iovip.qbox.me";
+
     /**
-     * 默认Zone
+     * 获取上传地址服务器
+     * */
+    public static String UC_HOST = "https://uc.qbox.me";
+
+    /**
+     * 使用的Zone, 若不指定,通过七牛服务自动判断
      */
-    public static Zone zone = Zone.zone0();
+    public static Zone zone = null;
+
+    /**
+     * 上传是否使用 https , 默认否
+     * */
+    public static boolean UPLOAD_BY_HTTPS = false;
+
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */
@@ -56,5 +72,6 @@ public final class Config {
 
     private Config() {
     }
+
 }
 // CHECKSTYLE:ON
