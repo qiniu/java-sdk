@@ -31,7 +31,7 @@ public final class TempFile {
                 int l = (int) Math.min(b.length, size - s);
                 fos.write(b, 0, l);
                 s += l;
-                // 随机生成的文件的每一段(4M)都不一样
+                // 随机生成的文件的每一段(<4M)都不一样
                 b = getByte((byte) r.nextInt());
             }
             fos.flush();
@@ -48,9 +48,10 @@ public final class TempFile {
     }
 
     private static byte[] getByte(byte b) {
-        byte[] bs = new byte[1024 * 4];
+        int len = 498 * 4;
+        byte[] bs = new byte[len];
 
-        for (int i = 1; i < 1024 * 4; i++) {
+        for (int i = 1; i < len; i++) {
             bs[i] = b;
         }
 
@@ -66,8 +67,8 @@ public final class TempFile {
         bs[1] = (byte) r.nextInt();
         bs[0] = (byte) r.nextInt();
 
-        bs[1024 * 4 - 2] = '\r';
-        bs[1024 * 4 - 1] = '\n';
+        bs[len - 2] = '\r';
+        bs[len - 1] = '\n';
         return bs;
     }
 
