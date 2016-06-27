@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 
 public final class Config {
 
-    public static final String VERSION = "7.0.9";
+    public static final String VERSION = "7.0.10";
     /**
      * 断点上传时的分块大小(默认的分块大小, 不允许改变)
      */
