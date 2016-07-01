@@ -47,6 +47,23 @@ public class BucketTest {
     }
 
     @Test
+    public void testListUseDelimiter() {
+        try {
+            bucketManager.copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, "test/", true);
+            bucketManager.copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, "test/1", true);
+            bucketManager.copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, "test/2", true);
+            bucketManager.copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, "test/3/", true);
+            FileListing l = bucketManager.listFiles(TestConfig.bucket, "test/", null, 10, "/");
+            assertEquals(3, l.items.length);
+            assertEquals(1, l.commonPrefixes.length);
+
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    @Test
     public void testListIterator() {
         BucketManager.FileListIterator it = bucketManager
                 .createFileListIterator(TestConfig.bucket, "", 20, null);
