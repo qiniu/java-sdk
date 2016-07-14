@@ -1,6 +1,6 @@
 package com.qiniu.storage.model;
 
-public class FileInfo {
+public final class FileInfo {
     public String key;
     public String hash;
     public long fsize;

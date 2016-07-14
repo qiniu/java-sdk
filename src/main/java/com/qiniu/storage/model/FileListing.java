@@ -5,7 +5,7 @@ import com.qiniu.util.StringUtils;
 /**
  * Created by bailong on 15/2/20.
  */
-public class FileListing {
+public final class FileListing {
     public FileInfo[] items;
     public String marker;
     public String[] commonPrefixes;
