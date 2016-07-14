@@ -334,7 +334,15 @@ public final class BucketManager {
             String to = entry(to_bucket, to_key);
             ops.add("copy" + "/" + from + "/" + to);
             return this;
-        }
+	}
+
+	public Batch copy(String from_bucket, String from_key, String to_bucket, String to_key, boolean force) {
+	    String from = entry(from_bucket, from_key);
+	    String to = entry(to_bucket, to_key);
+	    ops.add("copy" + "/" + from + "/" + to + "/force/" + force);
+	    return this;
+	}
+	
 
         public Batch rename(String from_bucket, String from_key, String to_key) {
             return move(from_bucket, from_key, from_bucket, to_key);
@@ -346,6 +354,13 @@ public final class BucketManager {
             ops.add("move" + "/" + from + "/" + to);
             return this;
         }
+
+	public Batch move(String from_bucket, String from_key, String to_bucket, String to_key, boolean force) {
+	    String from = entry(from_bucket, from_key);
+	    String to = entry(to_bucket, to_key);
+	    ops.add("move" + "/" + from + "/" + to + "/force/" + force);
+	    return this;
+	}
 
         public Batch delete(String bucket, String... keys) {
             for (String key : keys) {
