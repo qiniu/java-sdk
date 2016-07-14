@@ -1,5 +1,6 @@
 package com.qiniu.common;
 
+import com.qiniu.http.ProxyConfiguration;
 import qiniu.happydns.DnsClient;
 
 import java.nio.charset.Charset;
@@ -55,11 +56,14 @@ public final class Config {
      * 上传失败重试次数
      */
     public static int RETRY_MAX = 5;
-
     /**
      * 外部dns
      */
     public static DnsClient dns = null;
+    /**
+     * proxy
+     */
+    public static ProxyConfiguration proxy = null;
 
     private Config() {
     }

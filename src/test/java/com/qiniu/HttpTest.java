@@ -3,6 +3,7 @@ package com.qiniu;
 import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.ProxyConfiguration;
 import com.qiniu.http.Response;
 import org.junit.Assert;
 import org.junit.Test;
@@ -59,7 +60,9 @@ public class HttpTest {
             Assert.fail();
         } catch (QiniuException e) {
             Assert.assertNotNull(e.response.reqId);
+            Assert.assertEquals(e.response.statusCode, 400);
         }
+        Config.dns = null;
     }
 
     @Test
@@ -93,5 +96,19 @@ public class HttpTest {
         } catch (QiniuException e) {
             Assert.fail();
         }
+    }
+
+    @Test
+    public void testProxy() {
+        Config.proxy = new ProxyConfiguration("115.231.183.168", 80);
+        Response r = null;
+        try {
+            r = new Client().post("http://upproxy1.qiniu.com", "hello", null);
+            Assert.fail();
+        } catch (QiniuException e) {
+            Assert.assertNotNull(e.response.reqId);
+            Assert.assertEquals(e.response.statusCode, 400);
+        }
+        Config.proxy = null;
     }
 }
