@@ -74,6 +74,13 @@ public final class Client {
                 }
             });
         }
+        final ProxyConfiguration p = Config.proxy;
+        if (p != null) {
+            builder.proxy(p.proxy());
+            if (p.user != null && p.password != null) {
+                builder.proxyAuthenticator(p.authenticator());
+            }
+        }
         builder.connectTimeout(Config.CONNECT_TIMEOUT, TimeUnit.SECONDS);
         builder.readTimeout(Config.RESPONSE_TIMEOUT, TimeUnit.SECONDS);
         builder.writeTimeout(Config.WRITE_TIMEOUT, TimeUnit.SECONDS);
