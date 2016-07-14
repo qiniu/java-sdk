@@ -1,12 +1,14 @@
 package com.qiniu.common;
 
+import qiniu.happydns.DnsClient;
+
 import java.nio.charset.Charset;
 
 // CHECKSTYLE:OFF
 
 public final class Config {
 
-    public static final String VERSION = "7.1.1";
+    public static final String VERSION = "7.1.2";
     /**
      * 断点上传时的分块大小(默认的分块大小, 不允许改变)
      */
@@ -53,6 +55,11 @@ public final class Config {
      * 上传失败重试次数
      */
     public static int RETRY_MAX = 5;
+
+    /**
+     * 外部dns
+     */
+    public static DnsClient dns = null;
 
     private Config() {
     }

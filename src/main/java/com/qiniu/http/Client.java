@@ -6,9 +6,16 @@ import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.*;
 import okio.BufferedSink;
+import qiniu.happydns.DnsClient;
+import qiniu.happydns.Domain;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,10 +53,32 @@ public final class Client {
                 return response;
             }
         });
+        if (Config.dns != null) {
+            final DnsClient d = Config.dns;
+            builder.dns(new Dns() {
+                @Override
+                public List<InetAddress> lookup(String hostname) throws UnknownHostException {
+                    InetAddress[] ips;
+                    try {
+                        ips = d.queryInetAddress(new Domain(hostname));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        throw new UnknownHostException(e.getMessage());
+                    }
+                    if (ips == null) {
+                        throw new UnknownHostException(hostname + " resolve failed");
+                    }
+                    List<InetAddress> l = new ArrayList<>();
+                    Collections.addAll(l, ips);
+                    return l;
+                }
+            });
+        }
         builder.connectTimeout(Config.CONNECT_TIMEOUT, TimeUnit.SECONDS);
         builder.readTimeout(Config.RESPONSE_TIMEOUT, TimeUnit.SECONDS);
         builder.writeTimeout(Config.WRITE_TIMEOUT, TimeUnit.SECONDS);
         httpClient = builder.build();
+
     }
 
     private static String userAgent() {
