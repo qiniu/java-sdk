@@ -9,10 +9,10 @@ import java.util.Random;
  * Created by bailong on 14/10/11.
  */
 public final class TempFile {
+    static final Random r = new Random();
+
     private TempFile() {
     }
-
-    static final Random r = new Random();
 
     public static void remove(File f) {
         f.delete();
