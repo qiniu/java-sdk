@@ -4,6 +4,7 @@
 ### 增加
 * 内部dns 解析支持
 * proxy 支持
+* add String[] commonPrefixes in FileListing 
 
 ## 7.1.1 (2016-06-27)
 ### 修正
