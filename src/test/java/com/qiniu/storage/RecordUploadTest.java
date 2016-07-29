@@ -2,19 +2,20 @@ package com.qiniu.storage;
 
 import com.qiniu.TempFile;
 import com.qiniu.TestConfig;
+import com.qiniu.common.Config;
+import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.persistent.FileRecorder;
+import com.qiniu.util.Etag;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static org.junit.Assert.*;
 
@@ -22,98 +23,100 @@ import static org.junit.Assert.*;
  * Created by Simon on 2015/3/30.
  */
 public class RecordUploadTest {
-
-    private boolean isDone = false;
+    final Random r = new Random();
+    final RecordKeyGenerator keyGen = new RecordKeyGenerator() {
+        @Override
+        public String gen(String key, File file) {
+            return key + "_._" + file.getAbsolutePath();
+        }
+    };
+    final Client client = new Client();
+    FileRecorder recorder = null;
     private Response response = null;
 
-    private void template(int size) throws IOException {
-        isDone = false;
-        ExecutorService threadPool = Executors.newSingleThreadExecutor();
+    private void template(final int size) throws IOException {
+        response = null;
         final String expectKey = "\r\n?&r=" + size + "k";
         final File f = TempFile.createFile(size);
-        final String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
-        final FileRecorder recorder = new FileRecorder(f.getParentFile());
-        final RecordKeyGenerator keyGen = new RecordKeyGenerator() {
-            @Override
-            public String gen(String key, File file) {
-                return key + "_._" + file.getAbsolutePath();
-            }
-        };
-        final String recordKey = keyGen.gen(expectKey, f);
+        recorder = new FileRecorder(f.getParentFile());
+        try {
+            final String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
+            final String recordKey = keyGen.gen(expectKey, f);
 
-        UploadManager uploadManager = new UploadManager(recorder, keyGen);
-//        Response res = uploadManager.put(f, expectKey, token);
-
-        Up up = new Up(uploadManager, f, expectKey, token);
-
-
-        // 显示断点记录文件
-        Thread showRecord = new Thread() {
-            public void run() {
-                for (; ; ) {
-                    doSleep(30);
-                    showRecord("normal: ", recorder, recordKey);
-                }
-            }
-        };
-        showRecord.setDaemon(true);
-        showRecord.start();
-
-        final String p = f.getParentFile().getAbsolutePath() + "\\" + UrlSafeBase64.encodeToString(recordKey);
-        System.out.println(p);
-        System.out.println(new File(p).exists());
-
-        final Random r = new Random();
-
-        boolean shutDown = true;
-
-        for (int i = 10; i > 0; i--) {
-            final int t = r.nextInt(100) + 80;
-            System.out.println(i + "  :  " + t);
-            final Future<Response> future = threadPool.submit(up);
-
-            // CHECKSTYLE:OFF
-            // 中断线程 1 次
-            if (shutDown) {
-                new Thread() {
-                    public void run() {
-                        // 百毫秒
-                        doSleep(t);
-                        if (!future.isDone()) {
-                            future.cancel(true);
-                        }
+            // 开始第一部分上传
+            final Up up = new Up(f, expectKey, token);
+            new Thread() {
+                @Override
+                public void run() {
+                    int i = r.nextInt(10000);
+                    try {
+                        System.out.println("UP: " + i + ",  enter run");
+                        response = up.up();
+                        System.out.println("UP:  " + i + ", left run");
+                    } catch (Exception e) {
+                        System.out.println("UP:  " + i + ", exception run");
+                        e.printStackTrace();
                     }
-                }.start();
-                shutDown = false;
-            }
-            // CHECKSTYLE:ON
-            showRecord("new future: ", recorder, recordKey);
+                }
+            }.start();
 
-            try {
-                Response res = future.get();
-                response = res;
-                showRecord("done: ", recorder, recordKey);
-                System.out.println("break");
-                break;
-            } catch (Exception e) {
-                System.out.println("Exception");
-                System.out.println(Thread.currentThread().getId() + " : future.isCancelled : " + future.isCancelled());
-//                e.printStackTrace();
-                if (isDone) {
-                    break;
+            final boolean[] ch = new boolean[]{true};
+            // 显示断点记录文件
+            Thread showRecord = new Thread() {
+                public void run() {
+                    for (; ch[0]; ) {
+                        doSleep(1000);
+                        showRecord("normal: " + size + " :", recorder, recordKey);
+                    }
+                }
+            };
+            showRecord.setDaemon(true);
+            showRecord.start();
+
+            if (f.length() > Config.BLOCK_SIZE) {
+                // 终止第一部分上传,期望其部分成功
+                for (int i = 150; i > 0; --i) {
+                    byte[] data = getRecord(recorder, recordKey);
+                    if (data != null) {
+                        up.close();
+                        doSleep(100);
+                        break;
+                    }
+                    doSleep(200);
+                }
+                up.close();
+                doSleep(500);
+            }
+
+            System.out.println("response is " + response);
+
+            // 若第一部分上传部分未全部成功,再次上传
+            if (response == null) {
+                try {
+                    response = new Up(f, expectKey, token).up();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-            doSleep(30);
-            System.out.println(p);
-            System.out.println(new File(p).exists());
+
+            showRecord("done: " + size + " :", recorder, recordKey);
+
+            ch[0] = false;
+
+            String etag = Etag.file(f);
+            System.out.println("etag: " + etag);
+            String hash = response.jsonToMap().get("hash").toString();
+            System.out.println("hash: " + hash);
+
+            assertNotNull(response);
+            assertTrue(response.isOK());
+            assertEquals(etag, hash);
+            doSleep(100);
+            showRecord("nodata: " + size + " :", recorder, recordKey);
+            assertNull(recorder.get(recordKey));
+        } finally {
+            TempFile.remove(f);
         }
-
-        TempFile.remove(f);
-        assertFalse(new File(p).exists());
-        assertNotNull(response);
-        assertTrue(response.isOK());
-
-        showRecord("nodata: ", recorder, recordKey);
     }
 
     private void showRecord(String pre, FileRecorder recorder, String recordKey) {
@@ -129,9 +132,17 @@ public class RecordUploadTest {
         }
     }
 
-    private void doSleep(int bm) {
+    private byte[] getRecord(FileRecorder recorder, String recordKey) {
+        byte[] data = recorder.get(recordKey);
+        if (data != null && data.length < 100) {
+            return null;
+        }
+        return data;
+    }
+
+    private void doSleep(int m) {
         try {
-            Thread.sleep(100 * bm);
+            Thread.sleep(m);
         } catch (InterruptedException e) {
             //e.printStackTrace();
         }
@@ -153,6 +164,14 @@ public class RecordUploadTest {
             return;
         }
         template(1024 * 4);
+    }
+
+    @Test
+    public void test4M1K() throws Throwable {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+        template(1024 * 4 + 1);
     }
 
     @Test
@@ -217,27 +236,58 @@ public class RecordUploadTest {
         assertTrue(m4 > m1);
     }
 
-    class Up implements Callable<Response> {
-        private final UploadManager uploadManager;
+    class Up {
         private final File file;
         private final String key;
         private final String token;
+        ResumeUploader uploader = null;
 
-        public Up(UploadManager uploadManager, File file, String key, String token) {
-            this.uploadManager = uploadManager;
+        public Up(File file, String key, String token) {
             this.file = file;
             this.key = key;
             this.token = token;
         }
 
-        @Override
-        public Response call() throws Exception {
-            Response res = uploadManager.put(file, key, token);
-            System.out.println("up:  " + res);
-            System.out.println("up:  " + res.bodyString());
-            isDone = true;
-            response = res;
-            return res;
+        public void close() {
+            System.out.println("UP going to close");
+            // 调用 uploader 私有方法 close()
+            try {
+                Method m_close = ResumeUploader.class.getDeclaredMethod("close", new Class[]{});
+                m_close.setAccessible(true);
+                m_close.invoke(uploader, new Object[]{});
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            System.out.println("UP closed");
+        }
+
+
+        public Response up() throws Exception {
+            int i = r.nextInt(10000);
+            try {
+                System.out.println("UP: " + i + ",  enter up");
+
+                String recorderKey = key;
+                if (keyGen != null) {
+                    recorderKey = keyGen.gen(key, file);
+                }
+
+                if (recorder == null) {
+                    recorder = new FileRecorder(file.getParentFile());
+                }
+                uploader = new ResumeUploader(client, token, key, file,
+                        null, Client.DefaultMime, recorder, recorderKey);
+                Response res = uploader.upload();
+                System.out.println("UP:  " + i + ", left up");
+                return res;
+            } catch (Exception e) {
+                System.out.println("UP:  " + i + ", exception up");
+                throw e;
+            }
         }
     }
 }
