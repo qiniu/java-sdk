@@ -1,5 +1,15 @@
 #Changelog
 
+## 7.1.2 (2016-07-14)
+### 增加
+* 内部dns 解析支持
+* proxy 支持
+* add String[] commonPrefixes in FileListing 
+
+## 7.1.1 (2016-06-27)
+### 修正
+* 断点上传,skip 已上传部分
+
 ## 7.1.0 (2016-04-27)
 ### 增加
 * 升级到okhttp3, 升级次版本号。

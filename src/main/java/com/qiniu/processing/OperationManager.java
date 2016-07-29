@@ -12,7 +12,7 @@ import com.qiniu.util.StringUtils;
  * 触发持久化处理
  * 针对七牛空间文件，触发异步文件处理。如异步视频转码等
  */
-public class OperationManager {
+public final class OperationManager {
     private final Client client;
     private final Auth auth;
 

@@ -77,6 +77,12 @@ public final class ResumeUploader {
         }
         boolean retry = false;
         int contextIndex = blockIdx(uploaded);
+        try {
+            file.skip(uploaded);
+        } catch (IOException e) {
+            close();
+            throw new QiniuException(e);
+        }
         while (uploaded < size) {
             int blockSize = nextBlockSize(uploaded);
             try {
