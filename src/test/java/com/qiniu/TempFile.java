@@ -25,14 +25,14 @@ public final class TempFile {
             File f = File.createTempFile("qiniu_" + kiloSize + "k", "tmp");
             f.createNewFile();
             fos = new FileOutputStream(f);
-            byte[] b = getByte((byte) r.nextInt());
+            byte[] b = getByte();
             long s = 0;
             while (s < size) {
                 int l = (int) Math.min(b.length, size - s);
                 fos.write(b, 0, l);
                 s += l;
                 // 随机生成的文件的每一段(<4M)都不一样
-                b = getByte((byte) r.nextInt());
+                b = getByte();
             }
             fos.flush();
             return f;
@@ -47,7 +47,8 @@ public final class TempFile {
         }
     }
 
-    private static byte[] getByte(byte b) {
+    private static byte[] getByte() {
+        byte b = (byte) r.nextInt();
         int len = 498 * 4;
         byte[] bs = new byte[len];
 

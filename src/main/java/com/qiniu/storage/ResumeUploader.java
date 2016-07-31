@@ -8,6 +8,7 @@ import com.qiniu.http.Response;
 import com.qiniu.storage.model.ResumeBlockInfo;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
+import com.qiniu.util.UC;
 import com.qiniu.util.UrlSafeBase64;
 
 import java.io.File;
@@ -55,7 +56,6 @@ public final class ResumeUploader {
         this.size = file.length();
         this.params = params;
         this.mime = mime == null ? Client.DefaultMime : mime;
-        this.host = Config.zone.upHost;
         long count = (size + Config.BLOCK_SIZE - 1) / Config.BLOCK_SIZE;
         this.contexts = new String[(int) count];
         this.blockBuffer = new byte[Config.BLOCK_SIZE];
@@ -66,6 +66,9 @@ public final class ResumeUploader {
     }
 
     public Response upload() throws QiniuException {
+        if (host == null) {
+            this.host = UC.zone(upToken).upHost;
+        }
         long uploaded = helper.recoveryFromRecord();
         try {
             this.file = new FileInputStream(f);
@@ -95,7 +98,7 @@ public final class ResumeUploader {
                 response = makeBlock(blockBuffer, blockSize);
             } catch (QiniuException e) {
                 if (e.code() < 0) {
-                    host = Config.zone.upHostBackup;
+                    host = UC.zone(upToken).upHostBackup;
                 }
                 if (e.response == null || e.response.needRetry()) {
                     retry = true;
