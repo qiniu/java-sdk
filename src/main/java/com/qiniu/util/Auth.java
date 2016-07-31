@@ -248,7 +248,8 @@ public final class Auth {
         return uploadTokenWithDeadline(bucket, key, deadline, policy, strict);
     }
 
-    String uploadTokenWithDeadline(String bucket, String key, long deadline, StringMap policy, boolean strict) {
+    public String uploadTokenWithDeadline(String bucket, String key, long deadline, StringMap policy, boolean strict) {
+        // TODO   UpHosts Global
         String scope = bucket;
         if (key != null) {
             scope = bucket + ":" + key;

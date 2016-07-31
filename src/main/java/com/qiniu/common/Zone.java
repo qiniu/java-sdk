@@ -14,8 +14,27 @@ public final class Zone {
     public final String upHostBackup;
 
     public Zone(String upHost, String upHostBackup) {
-        this.upHost = upHost;
-        this.upHostBackup = upHostBackup;
+        this.upHost = upHost.trim();
+        this.upHostBackup = upHostBackup.trim();
+    }
+
+    @Override
+    public int hashCode() {
+        return upHost.hashCode() * upHostBackup.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Zone) {
+            Zone that = (Zone) obj;
+            return that.upHost.equals(this.upHost) && that.upHostBackup.equals(this.upHostBackup);
+        }
+        return super.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + ", upHost: " + this.upHost + ", upHostBackup: " + this.upHostBackup;
     }
 
     public static Zone zone0() {

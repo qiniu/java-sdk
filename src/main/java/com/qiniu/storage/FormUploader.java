@@ -1,12 +1,12 @@
 package com.qiniu.storage;
 
-import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.AsyncCallback;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.util.Crc32;
 import com.qiniu.util.StringMap;
+import com.qiniu.util.UC;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,15 +49,15 @@ public final class FormUploader {
     Response upload() throws QiniuException {
         buildParams();
         if (data != null) {
-            return client.multipartPost(Config.zone.upHost, params, "file", fileName, data, mime, new StringMap());
+            return client.multipartPost(UC.zone(token).upHost, params, "file", fileName, data, mime, new StringMap());
         }
-        return client.multipartPost(Config.zone.upHost, params, "file", fileName, file, mime, new StringMap());
+        return client.multipartPost(UC.zone(token).upHost, params, "file", fileName, file, mime, new StringMap());
     }
 
     void asyncUpload(final UpCompletionHandler handler) throws IOException {
         buildParams();
         if (data != null) {
-            client.asyncMultipartPost(Config.zone.upHost, params, "file", fileName,
+            client.asyncMultipartPost(UC.zone(token).upHost, params, "file", fileName,
                     data, mime, new StringMap(), new AsyncCallback() {
                         @Override
                         public void complete(Response r) {
@@ -66,7 +66,7 @@ public final class FormUploader {
                     });
             return;
         }
-        client.asyncMultipartPost(Config.zone.upHost, params, "file", fileName,
+        client.asyncMultipartPost(UC.zone(token).upHost, params, "file", fileName,
                 file, mime, new StringMap(), new AsyncCallback() {
                     @Override
                     public void complete(Response r) {
