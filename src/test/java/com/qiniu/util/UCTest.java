@@ -70,10 +70,8 @@ public class UCTest {
     }
 
     @Test
-    public void testNotE() {
-        String upHost = "upHost";
-        String upHostBackup = "upHostBackup";
-        Assert.assertNotEquals(new Zone(upHost, upHostBackup), new Zone(upHost, upHostBackup));
+    public void testE() {
+        Assert.assertEquals(new Zone("upHost", "upHostBackup"), new Zone("upH" + "ost", "upHost" + "Backup"));
     }
 
     @Test
@@ -214,6 +212,12 @@ public class UCTest {
             }
         }.start();
 
+        try {
+            Thread.sleep(600);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         new Thread() {
             public void run() {
                 boolean h = Config.UPLOAD_BY_HTTPS;
@@ -267,7 +271,7 @@ public class UCTest {
         }
 
         try {
-            Thread.sleep(20);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -277,4 +281,5 @@ public class UCTest {
         }
         UC.clear();
     }
+
 }

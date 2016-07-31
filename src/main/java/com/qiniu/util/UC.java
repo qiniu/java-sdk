@@ -11,17 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Simon on 6/22/16.
  */
 public class UC {
-    private Map<AKBKT, ZoneInfo> zones = new MConcurrentHashMap();
-
-    private boolean isSyncLocked = false;
-    private Lock lock = new ReentrantLock();
+    private Map<AKBKT, ZoneInfo> zones = new ConcurrentHashMap();
 
     private OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(10000, TimeUnit.SECONDS)
@@ -60,6 +55,9 @@ public class UC {
         return uc.getUCVal(ak, bkt, Config.UPLOAD_BY_HTTPS);
     }
 
+    /**
+     * 清除缓存。比如空间迁移到不同机房后调用此方法
+     */
     public static void clear() {
         uc.zones.clear();
     }
@@ -89,47 +87,12 @@ public class UC {
         final AKBKT akbkt = new AKBKT(ak, bkt, isHttps);
         ZoneInfo zoneInfo = zones.get(akbkt);
 
-        if (zoneInfo != null && zoneInfo.deadline > System.currentTimeMillis() / 1000) {
-            return zoneInfo;
-        }
-
         if (zoneInfo != null) {
-            if (!isSyncLocked) {
-                try {
-                    lock.lock();
-                    if (!isSyncLocked) {
-                        isSyncLocked = true;
-                        new Thread() {
-                            public void run() {
-                                try {
-                                    build(akbkt);
-                                } catch (QiniuException e) {
-                                    e.printStackTrace();
-                                } finally {
-                                    isSyncLocked = false;
-                                }
-                            }
-                        }.start();
-                    }
-                } finally {
-                    lock.unlock();
-                }
-            }
             return zoneInfo;
         } else {
-            try {
-                lock.lock();
-                zoneInfo = zones.get(akbkt);
-                if (zoneInfo == null) {
-                    build(akbkt);
-                    zoneInfo = zones.get(akbkt);
-                    return zoneInfo;
-                } else {
-                    return zoneInfo;
-                }
-            } finally {
-                lock.unlock();
-            }
+            build(akbkt);
+            zoneInfo = zones.get(akbkt);
+            return zoneInfo;
         }
     }
 
@@ -157,7 +120,6 @@ public class UC {
         try {
             String ucVal = qnRes.bodyString();
             UCRet ret = qnRes.jsonToObject(UCRet.class);
-            long deadline = System.currentTimeMillis() / 1000 + ret.ttl;
 
             List<String> args = null;
             if (akbkt.isHttps) {
@@ -177,12 +139,12 @@ public class UC {
 
             Zone new_zone = new Zone(zoneArgs[0], zoneArgs[1]);
 
-            if (ret.ttl < 0 || zoneArgs[0] == null || zoneArgs[0].trim().length() == 0
+            if (zoneArgs[0] == null || zoneArgs[0].trim().length() == 0
                     || new_zone == null || ucVal == null) {
                 throw new QiniuException(qnRes);
             }
 
-            zones.put(akbkt, new ZoneInfo(deadline, new_zone, ucVal));
+            zones.put(akbkt, new ZoneInfo(new_zone, ucVal));
         } catch (QiniuException e) {
             throw e;
         } catch (Exception e) {
@@ -226,42 +188,18 @@ public class UC {
     }
 
     private class ZoneInfo {
-        public final long deadline;
         public final String ucjson;
         public final Zone zone;
 
-        ZoneInfo(long deadline, Zone zone, String ucjson) {
-            this.deadline = deadline;
+        ZoneInfo(Zone zone, String ucjson) {
             this.zone = zone;
             this.ucjson = ucjson;
         }
     }
 
     private class UCRet {
-        int ttl = 86400;
-        boolean global = false;
         Map<String, List<String>> http;
         Map<String, List<String>> https;
     }
 
-
-    private class MConcurrentHashMap extends ConcurrentHashMap<AKBKT, ZoneInfo> {
-        @Override
-        public ZoneInfo put(AKBKT key, ZoneInfo value) {
-            ZoneInfo e = super.put(key, value);
-            if (this.size() % 5 == 0) {
-                removeOverTimeV();
-            }
-            return e;
-        }
-
-        private void removeOverTimeV() {
-            long now = System.currentTimeMillis() / 1000;
-            for (Map.Entry<AKBKT, ZoneInfo> entry : this.entrySet()) {
-                if (entry.getValue().deadline < now) {
-                    this.remove(entry);
-                }
-            }
-        }
-    }
 }
