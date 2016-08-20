@@ -8,6 +8,7 @@ import com.qiniu.util.StringUtils;
 import okhttp3.MediaType;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 
 /**
@@ -196,6 +197,13 @@ public final class Response {
 
     public String bodyString() throws QiniuException {
         return StringUtils.utf8String(body());
+    }
+
+    public synchronized InputStream bodyStream() throws QiniuException {
+        if (this.response == null) {
+            return null;
+        }
+        return this.response.body().byteStream();
     }
 
     public String contentType() {
