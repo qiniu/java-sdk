@@ -55,7 +55,7 @@ public class BucketTest {
             bucketManager.copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, "test/3/", true);
             FileListing l = bucketManager.listFiles(TestConfig.bucket, "test/", null, 10, "/");
             assertEquals(3, l.items.length);
-            assertEquals(1, l.commonPrefixes.length);
+            assertEquals(2, l.commonPrefixes.length);
 
         } catch (QiniuException e) {
             e.printStackTrace();
