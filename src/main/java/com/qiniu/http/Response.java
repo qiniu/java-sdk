@@ -68,11 +68,11 @@ public final class Response {
         String error = null;
         int code = response.code();
         String reqId = null;
+        reqId = response.header("X-Reqid");
+        reqId = (reqId == null) ? null : reqId.trim();
 
         byte[] body = null;
         if (ctype(response).equals(Client.JsonMime)) {
-            reqId = response.header("X-Reqid");
-            reqId = (reqId == null) ? null : reqId.trim();
             try {
                 body = response.body().bytes();
                 if (response.code() >= 400 && !StringUtils.isNullOrEmpty(reqId) && body != null) {
@@ -95,11 +95,11 @@ public final class Response {
         }
         int code = response.code();
         String reqId = null;
+        reqId = response.header("X-Reqid");
+        reqId = (reqId == null) ? null : reqId.trim();
 
         byte[] body = null;
         if (ctype(response).equals(Client.JsonMime)) {
-            reqId = response.header("X-Reqid");
-            reqId = (reqId == null) ? null : reqId.trim();
             try {
                 body = response.body().bytes();
                 if (response.code() >= 400 && !StringUtils.isNullOrEmpty(reqId) && body != null) {
