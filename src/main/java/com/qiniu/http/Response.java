@@ -8,6 +8,7 @@ import com.qiniu.util.StringUtils;
 import okhttp3.MediaType;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 
 /**
@@ -67,11 +68,11 @@ public final class Response {
         String error = null;
         int code = response.code();
         String reqId = null;
+        reqId = response.header("X-Reqid");
+        reqId = (reqId == null) ? null : reqId.trim();
 
         byte[] body = null;
         if (ctype(response).equals(Client.JsonMime)) {
-            reqId = response.header("X-Reqid");
-            reqId = (reqId == null) ? null : reqId.trim();
             try {
                 body = response.body().bytes();
                 if (response.code() >= 400 && !StringUtils.isNullOrEmpty(reqId) && body != null) {
@@ -94,11 +95,11 @@ public final class Response {
         }
         int code = response.code();
         String reqId = null;
+        reqId = response.header("X-Reqid");
+        reqId = (reqId == null) ? null : reqId.trim();
 
         byte[] body = null;
         if (ctype(response).equals(Client.JsonMime)) {
-            reqId = response.header("X-Reqid");
-            reqId = (reqId == null) ? null : reqId.trim();
             try {
                 body = response.body().bytes();
                 if (response.code() >= 400 && !StringUtils.isNullOrEmpty(reqId) && body != null) {
@@ -196,6 +197,13 @@ public final class Response {
 
     public String bodyString() throws QiniuException {
         return StringUtils.utf8String(body());
+    }
+
+    public synchronized InputStream bodyStream() throws QiniuException {
+        if (this.response == null) {
+            return null;
+        }
+        return this.response.body().byteStream();
     }
 
     public String contentType() {
