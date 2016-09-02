@@ -58,7 +58,7 @@ public class RecordUploadTest {
                         e.printStackTrace();
                     }
                 }
-            }.start();
+            } .start();
 
             final boolean[] ch = new boolean[]{true};
             // 显示断点记录文件
