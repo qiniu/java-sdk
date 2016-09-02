@@ -60,7 +60,6 @@ public final class Client {
                 public List<InetAddress> lookup(String hostname) throws UnknownHostException {
                     InetAddress[] ips;
                     Domain domain = new Domain(hostname, false, Config.dnsHostFirst);
-                    ;
                     try {
                         ips = d.queryInetAddress(domain);
                     } catch (IOException e) {
