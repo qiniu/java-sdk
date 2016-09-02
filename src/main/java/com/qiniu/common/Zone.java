@@ -18,6 +18,14 @@ public final class Zone {
         this.upHostBackup = upHostBackup.trim();
     }
 
+    public static Zone zone0() {
+        return new Zone("http://up.qiniu.com", "http://upload.qiniu.com");
+    }
+
+    public static Zone zone1() {
+        return new Zone("http://up-z1.qiniu.com", "http://upload-z1.qiniu.com");
+    }
+
     @Override
     public int hashCode() {
         return upHost.hashCode() * upHostBackup.hashCode();
@@ -35,13 +43,5 @@ public final class Zone {
     @Override
     public String toString() {
         return super.toString() + ", upHost: " + this.upHost + ", upHostBackup: " + this.upHostBackup;
-    }
-
-    public static Zone zone0() {
-        return new Zone("http://up.qiniu.com", "http://upload.qiniu.com");
-    }
-
-    public static Zone zone1() {
-        return new Zone("http://up-z1.qiniu.com", "http://upload-z1.qiniu.com");
     }
 }
