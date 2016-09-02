@@ -72,6 +72,10 @@ public final class Config {
      * 外部dns
      */
     public static DnsClient dns = null;
+    /*
+     * 解析域名时,优先使用host配置,主要针对内部局域网配置
+     */
+    public static boolean dnsHostFirst = false;
     /**
      * proxy
      */
