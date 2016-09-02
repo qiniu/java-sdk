@@ -16,12 +16,33 @@ import static org.junit.Assert.fail;
 
 public class ResumeUploadTest {
 
-    class MyRet {
-        public String hash;
-        public String key;
-        public String fsize;
-        public String fname;
-        public String mimeType;
+    @Test
+    public void testXVar() throws IOException {
+        final String expectKey = "世/界";
+        File f = null;
+        try {
+            f = TempFile.createFile(1024 * 4 + 2341);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert f != null;
+        StringMap params = new StringMap().put("x:foo", "foo_val");
+        final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
+                + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\",\"foo\":\"$(x:foo)\"}";
+        String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey, 3600,
+                new StringMap().put("returnBody", returnBody));
+
+        try {
+            UploadManager uploadManager = new UploadManager();
+            Response res = uploadManager.put(f, expectKey, token, params, null, true);
+            StringMap m = res.jsonToMap();
+            assertEquals("foo_val", m.get("foo"));
+        } catch (QiniuException e) {
+            assertEquals("", e.response.bodyString());
+            fail();
+        } finally {
+            TempFile.remove(f);
+        }
     }
 
     private void template(int size) throws IOException {
@@ -69,5 +90,13 @@ public class ResumeUploadTest {
             return;
         }
         template(1024 * 8 + 1);
+    }
+
+    class MyRet {
+        public String hash;
+        public String key;
+        public String fsize;
+        public String fname;
+        public String mimeType;
     }
 }

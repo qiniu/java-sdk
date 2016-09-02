@@ -22,13 +22,13 @@ public class HttpTest {
     }
 
     @Test
-    public void testPost2() {
+    public void testPost2() throws Exception {
         Response r = null;
         try {
             r = httpManager.post("http://up.qiniu.com", "hello", null);
             Assert.fail();
         } catch (QiniuException e) {
-            Assert.assertNotNull(e.response.reqId);
+            Assert.assertEquals(false, e.response.isOK());
         }
     }
 
