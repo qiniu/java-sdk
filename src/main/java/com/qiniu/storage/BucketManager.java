@@ -40,11 +40,9 @@ public final class BucketManager {
         return entry(bucket, key, true);
     }
 
-
     /**
-     * EncodedEntryURI格式
-     * 当 mustHaveKey 为 false， 且 key 为 null 时，返回 urlsafe_base64_encode(Bucket);
-     * 其它条件下返回  urlsafe_base64_encode(Bucket:Key)
+     * EncodedEntryURI格式 当 mustHaveKey 为 false， 且 key 为 null 时，返回
+     * urlsafe_base64_encode(Bucket); 其它条件下返回 urlsafe_base64_encode(Bucket:Key)
      *
      * @param bucket
      * @param key
@@ -176,8 +174,8 @@ public final class BucketManager {
      * @param force
      * @throws QiniuException
      */
-    public void copy(String from_bucket, String from_key, String to_bucket,
-                     String to_key, boolean force) throws QiniuException {
+    public void copy(String from_bucket, String from_key, String to_bucket, String to_key, boolean force)
+            throws QiniuException {
         String from = entry(from_bucket, from_key);
         String to = entry(to_bucket, to_key);
         String path = "/copy/" + from + "/" + to + "/force/" + force;
@@ -210,8 +208,8 @@ public final class BucketManager {
      * @param force
      * @throws QiniuException
      */
-    public void move(String from_bucket, String from_key, String to_bucket,
-                     String to_key, boolean force) throws QiniuException {
+    public void move(String from_bucket, String from_key, String to_bucket, String to_key, boolean force)
+            throws QiniuException {
         String from = entry(from_bucket, from_key);
         String to = entry(to_bucket, to_key);
         String path = "/move/" + from + "/" + to + "/force/" + force;
@@ -234,9 +232,7 @@ public final class BucketManager {
     }
 
     /**
-     * 抓取指定地址的文件，已指定名称保存在指定空间。
-     * 要求指定url可访问。
-     * 大文件不建议使用此接口抓取。可先下载再上传。
+     * 抓取指定地址的文件，已指定名称保存在指定空间。 要求指定url可访问。 大文件不建议使用此接口抓取。可先下载再上传。
      *
      * @param url
      * @param bucket
@@ -247,9 +243,7 @@ public final class BucketManager {
     }
 
     /**
-     * 抓取指定地址的文件，已指定名称保存在指定空间。
-     * 要求指定url可访问。
-     * 大文件不建议使用此接口抓取。可先下载再上传。
+     * 抓取指定地址的文件，已指定名称保存在指定空间。 要求指定url可访问。 大文件不建议使用此接口抓取。可先下载再上传。
      *
      * @param url
      * @param bucket
@@ -336,6 +330,13 @@ public final class BucketManager {
             return this;
         }
 
+        public Batch copy(String from_bucket, String from_key, String to_bucket, String to_key, boolean force) {
+            String from = entry(from_bucket, from_key);
+            String to = entry(to_bucket, to_key);
+            ops.add("copy" + "/" + from + "/" + to + "/force/" + force);
+            return this;
+        }
+
         public Batch rename(String from_bucket, String from_key, String to_key) {
             return move(from_bucket, from_key, from_bucket, to_key);
         }
@@ -344,6 +345,13 @@ public final class BucketManager {
             String from = entry(from_bucket, from_key);
             String to = entry(to_bucket, to_key);
             ops.add("move" + "/" + from + "/" + to);
+            return this;
+        }
+
+        public Batch move(String from_bucket, String from_key, String to_bucket, String to_key, boolean force) {
+            String from = entry(from_bucket, from_key);
+            String to = entry(to_bucket, to_key);
+            ops.add("move" + "/" + from + "/" + to + "/force/" + force);
             return this;
         }
 
