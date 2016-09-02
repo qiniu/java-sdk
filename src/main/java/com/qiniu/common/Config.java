@@ -9,7 +9,7 @@ import java.nio.charset.Charset;
 
 public final class Config {
 
-    public static final String VERSION = "7.1.2";
+    public static final String VERSION = "7.1.3";
     /**
      * 断点上传时的分块大小(默认的分块大小, 不允许改变)
      */
@@ -72,6 +72,10 @@ public final class Config {
      * 外部dns
      */
     public static DnsClient dns = null;
+    /*
+     * 解析域名时,优先使用host配置,主要针对内部局域网配置
+     */
+    public static boolean dnsHostFirst = false;
     /**
      * proxy
      */

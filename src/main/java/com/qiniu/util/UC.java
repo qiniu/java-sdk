@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit;
  * Created by Simon on 6/22/16.
  */
 public class UC {
+    private static UC uc = new UC();
     private Map<AKBKT, ZoneInfo> zones = new ConcurrentHashMap();
-
     private OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(10000, TimeUnit.SECONDS)
             .readTimeout(10000, TimeUnit.SECONDS)
@@ -26,8 +26,6 @@ public class UC {
     private UC() {
 
     }
-
-    private static UC uc = new UC();
 
     public static Zone zone(String ak, String bkt) throws QiniuException {
         return uc.getZone(Config.zone, ak, bkt, Config.UPLOAD_BY_HTTPS);

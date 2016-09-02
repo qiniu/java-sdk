@@ -59,8 +59,9 @@ public final class Client {
                 @Override
                 public List<InetAddress> lookup(String hostname) throws UnknownHostException {
                     InetAddress[] ips;
+                    Domain domain = new Domain(hostname, false, Config.dnsHostFirst);
                     try {
-                        ips = d.queryInetAddress(new Domain(hostname));
+                        ips = d.queryInetAddress(domain);
                     } catch (IOException e) {
                         e.printStackTrace();
                         throw new UnknownHostException(e.getMessage());
