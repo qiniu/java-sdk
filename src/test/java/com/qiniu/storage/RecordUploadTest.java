@@ -24,15 +24,15 @@ import static org.junit.Assert.*;
  */
 public class RecordUploadTest {
     final Random r = new Random();
-    private Response response = null;
     final RecordKeyGenerator keyGen = new RecordKeyGenerator() {
         @Override
         public String gen(String key, File file) {
             return key + "_._" + file.getAbsolutePath();
         }
     };
-    FileRecorder recorder = null;
     final Client client = new Client();
+    FileRecorder recorder = null;
+    private Response response = null;
 
     private void template(final int size) throws IOException {
         response = null;
@@ -58,7 +58,7 @@ public class RecordUploadTest {
                         e.printStackTrace();
                     }
                 }
-            } .start();
+            }.start();
 
             final boolean[] ch = new boolean[]{true};
             // 显示断点记录文件
