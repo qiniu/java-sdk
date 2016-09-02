@@ -16,14 +16,6 @@ import static org.junit.Assert.fail;
 
 public class ResumeUploadTest {
 
-    class MyRet {
-        public String hash;
-        public String key;
-        public String fsize;
-        public String fname;
-        public String mimeType;
-    }
-
     @Test
     public void testXVar() throws IOException {
         final String expectKey = "世/界";
@@ -98,5 +90,13 @@ public class ResumeUploadTest {
             return;
         }
         template(1024 * 8 + 1);
+    }
+
+    class MyRet {
+        public String hash;
+        public String key;
+        public String fsize;
+        public String fname;
+        public String mimeType;
     }
 }

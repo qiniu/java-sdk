@@ -22,7 +22,7 @@ public class HttpTest {
     }
 
     @Test
-    public void testPost2() throws Exception{
+    public void testPost2() throws Exception {
         Response r = null;
         try {
             r = httpManager.post("http://up.qiniu.com", "hello", null);
