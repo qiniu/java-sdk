@@ -342,7 +342,6 @@ public final class BucketManager {
 	    ops.add("copy" + "/" + from + "/" + to + "/force/" + force);
 	    return this;
 	}
-	
 
         public Batch rename(String from_bucket, String from_key, String to_key) {
             return move(from_bucket, from_key, from_bucket, to_key);
