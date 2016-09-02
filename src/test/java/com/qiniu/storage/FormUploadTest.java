@@ -197,6 +197,33 @@ public class FormUploadTest {
     }
 
     @Test
+    public void testXVar() {
+        final String expectKey = "世/界";
+        File f = null;
+        try {
+            f = TempFile.createFile(1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert f != null;
+        StringMap params = new StringMap().put("x:foo", "foo_val");
+        final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
+                + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\",\"foo\":\"$(x:foo)\"}";
+        String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey, 3600,
+                new StringMap().put("returnBody", returnBody));
+
+        try {
+            Response res = uploadManager.put(f, expectKey, token, params, null, true);
+            StringMap m = res.jsonToMap();
+            assertEquals("foo_val", m.get("foo"));
+        } catch (QiniuException e) {
+            fail();
+        } finally {
+            TempFile.remove(f);
+        }
+    }
+
+    @Test
     public void testFname() {
         final String expectKey = "世/界";
         File f = null;
