@@ -168,7 +168,7 @@ public final class ResumeUploader {
                     b.append("/");
                     b.append(key);
                     b.append("/");
-                    b.append(value);
+                    b.append(UrlSafeBase64.encodeToString("" + value));
                 }
             });
         }
