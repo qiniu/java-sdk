@@ -25,12 +25,7 @@ import static org.junit.Assert.*;
  */
 public class RecordUploadTest {
     final Random r = new Random();
-    final RecordKeyGenerator keyGen = new RecordKeyGenerator() {
-        @Override
-        public String gen(String key, File file) {
-            return key + "_._" + file.getAbsolutePath();
-        }
-    };
+
     final Client client = new Client();
     FileRecorder recorder = null;
     private Response response = null;
@@ -42,7 +37,7 @@ public class RecordUploadTest {
         recorder = new FileRecorder(f.getParentFile());
         try {
             final String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
-            final String recordKey = keyGen.gen(expectKey, f);
+            final String recordKey = recorder.recorderKeyGenerate(expectKey, f);
 
             // 开始第一部分上传
             final Up up = new Up(f, expectKey, token);
@@ -273,13 +268,11 @@ public class RecordUploadTest {
                 System.out.println("UP: " + i + ",  enter up");
 
                 String recorderKey = key;
-                if (keyGen != null) {
-                    recorderKey = keyGen.gen(key, file);
-                }
 
                 if (recorder == null) {
                     recorder = new FileRecorder(file.getParentFile());
                 }
+                recorderKey = recorder.recorderKeyGenerate(key, file);
                 uploader = new ResumeUploader(client, token, key, file,
                         null, Client.DefaultMime, recorder, new Configuration(Zone.zone0()));
                 Response res = uploader.upload();
