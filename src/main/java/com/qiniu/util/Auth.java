@@ -42,7 +42,7 @@ public final class Auth {
     private static final String[] deprecatedPolicyFields = new String[]{
             "asyncOps",
     };
-    private final String accessKey;
+    public final String accessKey;
     private final SecretKeySpec secretKey;
 
     private Auth(String accessKey, SecretKeySpec secretKeySpec) {

@@ -1,6 +1,6 @@
 package com.qiniu;
 
-import com.qiniu.common.Config;
+import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.ProxyConfiguration;
@@ -53,16 +53,17 @@ public class HttpTest {
         }
         Hosts h = new Hosts();
         h.put("upnonodns.qiniu.com", "115.231.183.168");
-        Config.dns = new DnsClient(new IResolver[]{r1, r2}, h);
+        DnsClient dns = new DnsClient(new IResolver[]{r1, r2}, h);
+        Client c = new Client(dns, false, null,
+                Constants.CONNECT_TIMEOUT, Constants.RESPONSE_TIMEOUT, Constants.WRITE_TIMEOUT);
         Response r = null;
         try {
-            r = new Client().post("http://upnonodns.qiniu.com", "hello", null);
+            r = c.post("http://upnonodns.qiniu.com", "hello", null);
             Assert.fail();
         } catch (QiniuException e) {
             Assert.assertNotNull(e.response.reqId);
             Assert.assertEquals(e.response.statusCode, 400);
         }
-        Config.dns = null;
     }
 
     @Test
@@ -112,15 +113,16 @@ public class HttpTest {
 
     @Test
     public void testProxy() {
-        Config.proxy = new ProxyConfiguration("115.231.183.168", 80);
+        ProxyConfiguration proxy = new ProxyConfiguration("115.231.183.168", 80);
+        Client c = new Client(null, false, proxy,
+                Constants.CONNECT_TIMEOUT, Constants.RESPONSE_TIMEOUT, Constants.WRITE_TIMEOUT);
         Response r = null;
         try {
-            r = new Client().post("http://upproxy1.qiniu.com", "hello", null);
+            r = c.post("http://upproxy1.qiniu.com", "hello", null);
             Assert.fail();
         } catch (QiniuException e) {
             Assert.assertNotNull(e.response.reqId);
             Assert.assertEquals(e.response.statusCode, 400);
         }
-        Config.proxy = null;
     }
 }
