@@ -17,6 +17,12 @@ public abstract class Zone {
                 "https://up-z1.qbox.me", "http://api-z1.qiniu.com");
     }
 
+    public static Zone zone2() {
+        return new FixedZone("http://up-z2.qiniu.com", "http://upload-z2.qiniu.com",
+                "", "http://rs-z2.qbox.me", "http://rsf-z2.qbox.me", "http://iovip-z2.qbox.me",
+                "https://up-z2.qbox.me", "http://api-z2.qiniu.com");
+    }
+
     public static Zone autoZone() {
         return AutoZone.instance;
     }
