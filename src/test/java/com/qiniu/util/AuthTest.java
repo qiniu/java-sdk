@@ -2,6 +2,7 @@ package com.qiniu.util;
 
 import com.qiniu.TestConfig;
 import com.qiniu.http.Client;
+import com.qiniu.storage.model.UploadPolicy;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -53,6 +54,25 @@ public class AuthTest {
         String token = TestConfig.dummyAuth.uploadTokenWithDeadline("1", "2", 1234567890L + 3600, policy, false);
         // CHECKSTYLE:OFF
         String exp = "abcdefghklmnopq:yyeexeUkPOROoTGvwBjJ0F0VLEo=:eyJlbmRVc2VyIjoieSIsInNjb3BlIjoiMToyIiwiZGVhZGxpbmUiOjEyMzQ1NzE0OTB9";
+        // CHECKSTYLE:ON
+        assertEquals(exp, token);
+    }
+
+    static class Policy{
+        String scope;
+        long deadline;
+        String endUser;
+    }
+
+    @Test
+    public void testUploadToken2() {
+        Policy p = new Policy();
+        p.endUser = "y";
+        p.scope = "1:2";
+        p.deadline = 1234567890L + 3600;
+        String token = TestConfig.dummyAuth.uploadTokenWithPolicy(p);
+        // CHECKSTYLE:OFF
+        String exp = "abcdefghklmnopq:zx3NdMGffQ0JhUlgGSU5oeTx9Nk=:eyJzY29wZSI6IjE6MiIsImRlYWRsaW5lIjoxMjM0NTcxNDkwLCJlbmRVc2VyIjoieSJ9";
         // CHECKSTYLE:ON
         assertEquals(exp, token);
     }

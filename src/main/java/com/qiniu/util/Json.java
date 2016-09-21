@@ -1,6 +1,9 @@
 package com.qiniu.util;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -13,6 +16,10 @@ public final class Json {
 
     public static String encode(StringMap map) {
         return new Gson().toJson(map.map());
+    }
+
+    public static String encode(Object obj) {
+        return new GsonBuilder().serializeNulls().create().toJson(obj);
     }
 
     public static <T> T decode(String json, Class<T> classOfT) {
