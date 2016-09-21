@@ -1,5 +1,7 @@
 package com.qiniu.storage;
 
+import java.io.File;
+
 /**
  * 定义分片上传时纪录上传进度的接口
  */
@@ -27,4 +29,6 @@ public interface Recorder {
      * @param key 持久化的键
      */
     void del(String key);
+
+    String recorderKeyGenerate(String key, File file);
 }

@@ -2,7 +2,9 @@ package com.qiniu.processing;
 
 import com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
+import com.qiniu.storage.Configuration;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
@@ -14,7 +16,7 @@ import static org.junit.Assert.*;
 
 public class PfopTest {
     private Auth auth = TestConfig.testAuth;
-    private OperationManager operater = new OperationManager(auth);
+    private OperationManager operater = new OperationManager(auth, new Configuration(Zone.zone0()));
 
     @Test
     public void testAvthumb() {

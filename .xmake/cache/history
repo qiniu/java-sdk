@@ -1,0 +1,9 @@
+
+{
+    ["__version"] = "XMake v2.0.5"
+,   ["cmdlines"] = 
+    {
+        "xmake"
+    }
+
+}
