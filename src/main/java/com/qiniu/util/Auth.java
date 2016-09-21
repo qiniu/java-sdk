@@ -263,6 +263,11 @@ public final class Auth {
         return signWithData(StringUtils.utf8Bytes(s));
     }
 
+    public String uploadTokenWithPolicy(Object obj) {
+        String s = Json.encode(obj);
+        return signWithData(StringUtils.utf8Bytes(s));
+    }
+
     public StringMap authorization(String url, byte[] body, String contentType) {
         String authorization = "QBox " + signRequest(url, body, contentType);
         return new StringMap().put("Authorization", authorization);
