@@ -37,7 +37,7 @@ public final class Configuration implements Cloneable {
     /**
      * 上传失败重试次数
      */
-    public int RETRY_MAX = 5;
+    public int retryMax = 5;
     /**
      * 外部dns
      */

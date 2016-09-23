@@ -50,9 +50,11 @@ public final class FormUploader {
     Response upload() throws QiniuException {
         buildParams();
         if (data != null) {
-            return client.multipartPost(configuration.zone.upHost(token), params, "file", fileName, data, mime, new StringMap());
+            return client.multipartPost(configuration.zone.upHost(token), params, "file", fileName, data,
+                    mime, new StringMap());
         }
-        return client.multipartPost(configuration.zone.upHost(token), params, "file", fileName, file, mime, new StringMap());
+        return client.multipartPost(configuration.zone.upHost(token), params, "file", fileName, file,
+                mime, new StringMap());
     }
 
     void asyncUpload(final UpCompletionHandler handler) throws IOException {
