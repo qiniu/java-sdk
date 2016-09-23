@@ -31,8 +31,10 @@ public class StreamingTest {
         }
     }
 
+    // CHECKSTYLE:OFF
     @Test
     public void testStreamOperation() throws QiniuException {
+        // CHECKSTYLE:ON
         String streamKey = streamKeyPrefix + "-a";
 
         manager.create(streamKey);
