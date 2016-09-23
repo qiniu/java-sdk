@@ -8,7 +8,7 @@ import qiniu.happydns.DnsClient;
 /**
  * Created by bailong on 16/9/21.
  */
-public final class Configuration {
+public final class Configuration implements Cloneable {
 
     /**
      * 使用的Zone
@@ -56,7 +56,12 @@ public final class Configuration {
     }
 
     public Configuration clone() {
-        return this;
+        try {
+            return (Configuration) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

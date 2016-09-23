@@ -2,7 +2,6 @@ package com.qiniu.util;
 
 import com.qiniu.TestConfig;
 import com.qiniu.http.Client;
-import com.qiniu.storage.model.UploadPolicy;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -58,12 +57,6 @@ public class AuthTest {
         assertEquals(exp, token);
     }
 
-    static class Policy{
-        String scope;
-        long deadline;
-        String endUser;
-    }
-
     @Test
     public void testUploadToken2() {
         Policy p = new Policy();
@@ -75,5 +68,11 @@ public class AuthTest {
         String exp = "abcdefghklmnopq:zx3NdMGffQ0JhUlgGSU5oeTx9Nk=:eyJzY29wZSI6IjE6MiIsImRlYWRsaW5lIjoxMjM0NTcxNDkwLCJlbmRVc2VyIjoieSJ9";
         // CHECKSTYLE:ON
         assertEquals(exp, token);
+    }
+
+    static class Policy {
+        String scope;
+        long deadline;
+        String endUser;
     }
 }
