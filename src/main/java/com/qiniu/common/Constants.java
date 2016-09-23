@@ -31,7 +31,7 @@ public final class Constants {
      */
     public static final int RESPONSE_TIMEOUT = 30;
 
-    private Constants(){
+    private Constants() {
     }
 }
 
