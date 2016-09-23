@@ -30,5 +30,8 @@ public final class Constants {
      * 回复超时时间 单位秒(默认30s)
      */
     public static final int RESPONSE_TIMEOUT = 30;
+
+    private Constants(){
+    }
 }
 
