@@ -6,7 +6,6 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.util.Crc32;
 import com.qiniu.util.StringMap;
-import com.qiniu.util.UC;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,22 +18,23 @@ public final class FormUploader {
     private final byte[] data;
     private final String mime;
     private final boolean checkCrc;
+    private final Configuration configuration;
     private StringMap params;
     private Client client;
     private String fileName;
 
     FormUploader(Client client, String upToken, String key, byte[] data, StringMap params,
-                 String mime, boolean checkCrc) {
-        this(client, upToken, key, data, null, params, mime, checkCrc);
+                 String mime, boolean checkCrc, Configuration configuration) {
+        this(client, upToken, key, data, null, params, mime, checkCrc, configuration);
     }
 
     FormUploader(Client client, String upToken, String key, File file, StringMap params,
-                 String mime, boolean checkCrc) {
-        this(client, upToken, key, null, file, params, mime, checkCrc);
+                 String mime, boolean checkCrc, Configuration configuration) {
+        this(client, upToken, key, null, file, params, mime, checkCrc, configuration);
     }
 
     private FormUploader(Client client, String upToken, String key, byte[] data, File file, StringMap params,
-                         String mime, boolean checkCrc) {
+                         String mime, boolean checkCrc, Configuration configuration) {
         this.client = client;
         token = upToken;
         this.key = key;
@@ -43,21 +43,24 @@ public final class FormUploader {
         this.params = params;
         this.mime = mime;
         this.checkCrc = checkCrc;
+        this.configuration = configuration;
     }
 
 
     Response upload() throws QiniuException {
         buildParams();
         if (data != null) {
-            return client.multipartPost(UC.zone(token).upHost, params, "file", fileName, data, mime, new StringMap());
+            return client.multipartPost(configuration.zone.upHost(token), params, "file", fileName, data,
+                    mime, new StringMap());
         }
-        return client.multipartPost(UC.zone(token).upHost, params, "file", fileName, file, mime, new StringMap());
+        return client.multipartPost(configuration.zone.upHost(token), params, "file", fileName, file,
+                mime, new StringMap());
     }
 
     void asyncUpload(final UpCompletionHandler handler) throws IOException {
         buildParams();
         if (data != null) {
-            client.asyncMultipartPost(UC.zone(token).upHost, params, "file", fileName,
+            client.asyncMultipartPost(configuration.zone.upHost(token), params, "file", fileName,
                     data, mime, new StringMap(), new AsyncCallback() {
                         @Override
                         public void complete(Response r) {
@@ -66,7 +69,7 @@ public final class FormUploader {
                     });
             return;
         }
-        client.asyncMultipartPost(UC.zone(token).upHost, params, "file", fileName,
+        client.asyncMultipartPost(configuration.zone.upHost(token), params, "file", fileName,
                 file, mime, new StringMap(), new AsyncCallback() {
                     @Override
                     public void complete(Response r) {

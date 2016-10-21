@@ -1,7 +1,7 @@
 package com.qiniu.util;
 
 import com.qiniu.TempFile;
-import com.qiniu.common.Config;
+import com.qiniu.common.Constants;
 import org.junit.Test;
 
 import java.io.File;
@@ -15,7 +15,7 @@ public class EtagTest {
         String m = Etag.data(new byte[0]);
         assertEquals("Fto5o-5ea0sNMlW_75VgGJCv2AcJ", m);
 
-        String etag = Etag.data("etag".getBytes(Config.UTF_8));
+        String etag = Etag.data("etag".getBytes(Constants.UTF_8));
         assertEquals("FpLiADEaVoALPkdb8tJEJyRTXoe_", etag);
     }
 

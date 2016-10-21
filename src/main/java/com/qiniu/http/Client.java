@@ -1,6 +1,6 @@
 package com.qiniu.http;
 
-import com.qiniu.common.Config;
+import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
@@ -29,6 +29,12 @@ public final class Client {
     private final OkHttpClient httpClient;
 
     public Client() {
+        this(null, false, null,
+                Constants.CONNECT_TIMEOUT, Constants.RESPONSE_TIMEOUT, Constants.WRITE_TIMEOUT);
+    }
+
+    public Client(final DnsClient dns, final boolean hostFirst, final ProxyConfiguration proxy,
+                  int connTimeout, int readTimeout, int writeTimeout) {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequests(64);
         dispatcher.setMaxRequestsPerHost(16);
@@ -53,15 +59,14 @@ public final class Client {
                 return response;
             }
         });
-        if (Config.dns != null) {
-            final DnsClient d = Config.dns;
+        if (dns != null) {
             builder.dns(new Dns() {
                 @Override
                 public List<InetAddress> lookup(String hostname) throws UnknownHostException {
                     InetAddress[] ips;
-                    Domain domain = new Domain(hostname, false, Config.dnsHostFirst);
+                    Domain domain = new Domain(hostname, false, hostFirst);
                     try {
-                        ips = d.queryInetAddress(domain);
+                        ips = dns.queryInetAddress(domain);
                     } catch (IOException e) {
                         e.printStackTrace();
                         throw new UnknownHostException(e.getMessage());
@@ -75,16 +80,15 @@ public final class Client {
                 }
             });
         }
-        final ProxyConfiguration p = Config.proxy;
-        if (p != null) {
-            builder.proxy(p.proxy());
-            if (p.user != null && p.password != null) {
-                builder.proxyAuthenticator(p.authenticator());
+        if (proxy != null) {
+            builder.proxy(proxy.proxy());
+            if (proxy.user != null && proxy.password != null) {
+                builder.proxyAuthenticator(proxy.authenticator());
             }
         }
-        builder.connectTimeout(Config.CONNECT_TIMEOUT, TimeUnit.SECONDS);
-        builder.readTimeout(Config.RESPONSE_TIMEOUT, TimeUnit.SECONDS);
-        builder.writeTimeout(Config.WRITE_TIMEOUT, TimeUnit.SECONDS);
+        builder.connectTimeout(connTimeout, TimeUnit.SECONDS);
+        builder.readTimeout(readTimeout, TimeUnit.SECONDS);
+        builder.writeTimeout(writeTimeout, TimeUnit.SECONDS);
         httpClient = builder.build();
 
     }
@@ -93,7 +97,7 @@ public final class Client {
         String javaVersion = "Java/" + System.getProperty("java.version");
         String os = System.getProperty("os.name") + " "
                 + System.getProperty("os.arch") + " " + System.getProperty("os.version");
-        String sdk = "QiniuJava/" + Config.VERSION;
+        String sdk = "QiniuJava/" + Constants.VERSION;
         return sdk + " (" + os + ") " + javaVersion;
     }
 

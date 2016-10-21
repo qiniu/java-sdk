@@ -1,6 +1,5 @@
 package com.qiniu.storage;
 
-import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
@@ -22,11 +21,13 @@ import java.util.Iterator;
  */
 public final class BucketManager {
     private final Auth auth;
+    private final Configuration configuration;
     private final Client client;
 
-    public BucketManager(Auth auth) {
+    public BucketManager(Auth auth, Configuration c) {
         this.auth = auth;
-        client = new Client();
+        this.configuration = c.clone();
+        client = new Client(c.dns, c.dnsHostFirst, c.proxy, c.connectTimeout, c.responseTimeout, c.writeTimeout);
     }
 
     /**
@@ -109,7 +110,7 @@ public final class BucketManager {
         StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
                 .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
 
-        String url = Config.RSF_HOST + "/list?" + map.formString();
+        String url = configuration.zone.rsfHost(auth.accessKey, bucket) + "/list?" + map.formString();
         Response r = get(url);
         return r.jsonToObject(FileListing.class);
     }
@@ -291,7 +292,7 @@ public final class BucketManager {
     }
 
     private Response rsPost(String path, byte[] body) throws QiniuException {
-        String url = Config.RS_HOST + path;
+        String url = configuration.zone.rsHost() + path;
         return post(url, body);
     }
 
@@ -300,12 +301,12 @@ public final class BucketManager {
     }
 
     private Response rsGet(String path) throws QiniuException {
-        String url = Config.RS_HOST + path;
+        String url = configuration.zone.rsHost() + path;
         return get(url);
     }
 
     private Response ioPost(String path) throws QiniuException {
-        String url = Config.IO_HOST + path;
+        String url = configuration.zone.ioHost() + path;
         return post(url, null);
     }
 
