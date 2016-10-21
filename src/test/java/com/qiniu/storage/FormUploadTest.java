@@ -2,8 +2,8 @@ package com.qiniu.storage;
 
 import com.qiniu.TempFile;
 import com.qiniu.TestConfig;
-import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.util.StringMap;
 import org.junit.Test;
@@ -17,39 +17,30 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 
 public class FormUploadTest {
-    private UploadManager uploadManager = new UploadManager();
+    UploadManager uploadManager = new UploadManager(new Configuration(Zone.zone0()));
 
     @Test
     public void testHello1() {
-        boolean h = Config.UPLOAD_BY_HTTPS;
-        try {
-            Config.UPLOAD_BY_HTTPS = false;
-            hello();
-        } finally {
-            Config.UPLOAD_BY_HTTPS = h;
-        }
+        hello(uploadManager);
     }
 
     @Test
     public void testHello2() {
-        boolean h = Config.UPLOAD_BY_HTTPS;
-        try {
-            Config.UPLOAD_BY_HTTPS = true;
-            hello();
-        } finally {
-            Config.UPLOAD_BY_HTTPS = h;
-        }
+        Configuration c = new Configuration(Zone.zone0());
+        c.uploadByHttps = true;
+        UploadManager uploadManager = new UploadManager(c);
+        hello(uploadManager);
     }
 
 
-    public void hello() {
+    public void hello(UploadManager up) {
         final String expectKey = "你好?&=\r\n";
         StringMap params = new StringMap().put("x:foo", "foo_val");
 
         String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
         Response r = null;
         try {
-            r = uploadManager.put("hello".getBytes(), expectKey, token, params, null, false);
+            r = up.put("hello".getBytes(), expectKey, token, params, null, false);
         } catch (QiniuException e) {
             fail();
         }
@@ -299,12 +290,14 @@ public class FormUploadTest {
 
     //    @Test
     public void testFormLargeSize() {
-        Config.PUT_THRESHOLD = 25 * 1024 * 1024;
+        Configuration c = new Configuration(Zone.zone0());
+        c.putThreshold = 25 * 1024 * 1024;
+        UploadManager uploadManager = new UploadManager(new Configuration(Zone.zone0()));
 
         final String expectKey = "yyyyyy";
         File f = null;
         try {
-            f = TempFile.createFile(Config.PUT_THRESHOLD / 1024 - 1);
+            f = TempFile.createFile(c.putThreshold / 1024 - 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -324,13 +317,15 @@ public class FormUploadTest {
 
     //    @Test
     public void testFormLargeSize2() {
-        Config.PUT_THRESHOLD = 25 * 1024 * 1024;
+        Configuration c = new Configuration(Zone.zone0());
+        c.putThreshold = 25 * 1024 * 1024;
+        UploadManager uploadManager = new UploadManager(new Configuration(Zone.zone0()));
 
         final String expectKey = "xxxxxxx";
         byte[] bb = null;
         File f = null;
         try {
-            f = TempFile.createFile(Config.PUT_THRESHOLD / 1024 - 1);
+            f = TempFile.createFile(c.putThreshold / 1024 - 1);
             bb = new byte[(int) (f.length())];
             FileInputStream fis = new FileInputStream(f);
             fis.read(bb, 0, (int) (f.length()));

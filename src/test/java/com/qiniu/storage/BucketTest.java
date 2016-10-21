@@ -2,6 +2,7 @@ package com.qiniu.storage;
 
 import com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.BatchStatus;
 import com.qiniu.storage.model.FileInfo;
@@ -14,8 +15,8 @@ import static org.junit.Assert.*;
 
 @SuppressWarnings("ConstantConditions")
 public class BucketTest {
-    private BucketManager bucketManager = new BucketManager(TestConfig.testAuth);
-    private BucketManager dummyBucketManager = new BucketManager(TestConfig.dummyAuth);
+    private BucketManager bucketManager = new BucketManager(TestConfig.testAuth, new Configuration(Zone.zone0()));
+    private BucketManager dummyBucketManager = new BucketManager(TestConfig.dummyAuth, new Configuration(Zone.zone0()));
 
     @Test
     public void testBuckets() {
