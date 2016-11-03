@@ -1,14 +1,21 @@
 package com.qiniu.http;
 
-import com.qiniu.common.Config;
+import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.*;
 import okio.BufferedSink;
+import qiniu.happydns.DnsClient;
+import qiniu.happydns.Domain;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,6 +29,12 @@ public final class Client {
     private final OkHttpClient httpClient;
 
     public Client() {
+        this(null, false, null,
+                Constants.CONNECT_TIMEOUT, Constants.RESPONSE_TIMEOUT, Constants.WRITE_TIMEOUT);
+    }
+
+    public Client(final DnsClient dns, final boolean hostFirst, final ProxyConfiguration proxy,
+                  int connTimeout, int readTimeout, int writeTimeout) {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequests(64);
         dispatcher.setMaxRequestsPerHost(16);
@@ -46,17 +59,45 @@ public final class Client {
                 return response;
             }
         });
-        builder.connectTimeout(Config.CONNECT_TIMEOUT, TimeUnit.SECONDS);
-        builder.readTimeout(Config.RESPONSE_TIMEOUT, TimeUnit.SECONDS);
-        builder.writeTimeout(Config.WRITE_TIMEOUT, TimeUnit.SECONDS);
+        if (dns != null) {
+            builder.dns(new Dns() {
+                @Override
+                public List<InetAddress> lookup(String hostname) throws UnknownHostException {
+                    InetAddress[] ips;
+                    Domain domain = new Domain(hostname, false, hostFirst);
+                    try {
+                        ips = dns.queryInetAddress(domain);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        throw new UnknownHostException(e.getMessage());
+                    }
+                    if (ips == null) {
+                        throw new UnknownHostException(hostname + " resolve failed");
+                    }
+                    List<InetAddress> l = new ArrayList<>();
+                    Collections.addAll(l, ips);
+                    return l;
+                }
+            });
+        }
+        if (proxy != null) {
+            builder.proxy(proxy.proxy());
+            if (proxy.user != null && proxy.password != null) {
+                builder.proxyAuthenticator(proxy.authenticator());
+            }
+        }
+        builder.connectTimeout(connTimeout, TimeUnit.SECONDS);
+        builder.readTimeout(readTimeout, TimeUnit.SECONDS);
+        builder.writeTimeout(writeTimeout, TimeUnit.SECONDS);
         httpClient = builder.build();
+
     }
 
     private static String userAgent() {
         String javaVersion = "Java/" + System.getProperty("java.version");
         String os = System.getProperty("os.name") + " "
                 + System.getProperty("os.arch") + " " + System.getProperty("os.version");
-        String sdk = "QiniuJava/" + Config.VERSION;
+        String sdk = "QiniuJava/" + Constants.VERSION;
         return sdk + " (" + os + ") " + javaVersion;
     }
 

@@ -31,6 +31,6 @@ public class BucketManagerDemo {
       //捕获异常信息
       Response r = e.response;
       System.out.println(r.toString());
+
     }
-  }
 }

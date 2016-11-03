@@ -1,7 +1,6 @@
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
-import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Auth;
 import com.qiniu.common.Zone;
 import com.qiniu.storage.Configuration;
@@ -32,5 +31,4 @@ public class BucketManagerDemo {
       Response r = e.response;
       System.out.println(r.toString());
     }
-  }
 }

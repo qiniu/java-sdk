@@ -1,14 +1,13 @@
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
-import com.qiniu.storage.model.FileInfo;
-import com.qiniu.storage.model.FileListing;
 import com.qiniu.util.Auth;
 import com.qiniu.common.Zone;
 import com.qiniu.storage.Configuration;
 
 
 public class BatchDemo {
+
 	public static void main(String args[]){
 	    //设置需要操作的账号的AK和SK
 	    String ACCESS_KEY = "Access_Key";

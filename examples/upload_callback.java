@@ -1,8 +1,9 @@
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
+import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
-
 import java.io.IOException;
-
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.storage.UploadManager;

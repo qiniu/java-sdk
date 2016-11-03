@@ -36,11 +36,13 @@ public final class Auth {
             "persistentOps",
             "persistentNotifyUrl",
             "persistentPipeline",
+
+            "deleteAfterDays",
     };
     private static final String[] deprecatedPolicyFields = new String[]{
             "asyncOps",
     };
-    private final String accessKey;
+    public final String accessKey;
     private final SecretKeySpec secretKey;
 
     private Auth(String accessKey, SecretKeySpec secretKeySpec) {
@@ -246,7 +248,8 @@ public final class Auth {
         return uploadTokenWithDeadline(bucket, key, deadline, policy, strict);
     }
 
-    String uploadTokenWithDeadline(String bucket, String key, long deadline, StringMap policy, boolean strict) {
+    public String uploadTokenWithDeadline(String bucket, String key, long deadline, StringMap policy, boolean strict) {
+        // TODO   UpHosts Global
         String scope = bucket;
         if (key != null) {
             scope = bucket + ":" + key;
@@ -260,6 +263,11 @@ public final class Auth {
         return signWithData(StringUtils.utf8Bytes(s));
     }
 
+    public String uploadTokenWithPolicy(Object obj) {
+        String s = Json.encode(obj);
+        return signWithData(StringUtils.utf8Bytes(s));
+    }
+
     public StringMap authorization(String url, byte[] body, String contentType) {
         String authorization = "QBox " + signRequest(url, body, contentType);
         return new StringMap().put("Authorization", authorization);
@@ -267,5 +275,60 @@ public final class Auth {
 
     public StringMap authorization(String url) {
         return authorization(url, null, null);
+    }
+
+    /**
+     * 生成HTTP请求签名字符串
+     *
+     * @param urlString
+     * @param body
+     * @param contentType
+     * @return
+     */
+    public String signRequestV2(String urlString, String method, byte[] body, String contentType) {
+        URI uri = URI.create(urlString);
+
+        Mac mac = createMac();
+
+
+        //
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(String.format("%s %s", method, uri.getPath()));
+        if (uri.getQuery() != null) {
+            sb.append(String.format("?%s", uri.getQuery()));
+        }
+
+        sb.append(String.format("\nHost: %s", uri.getHost()));
+        if (uri.getPort() > 0) {
+            sb.append(String.format(":%d", uri.getPort()));
+        }
+
+        if (contentType != null) {
+            sb.append(String.format("\nContent-Type: %s", contentType));
+        }
+
+        // body
+        sb.append("\n\n");
+        if (body != null && body.length > 0 && !StringUtils.isNullOrEmpty(contentType)) {
+            if (contentType.equals(Client.FormMime)
+                    || contentType.equals(Client.JsonMime)) {
+                sb.append(new String(body));
+            }
+        }
+        mac.update(StringUtils.utf8Bytes(sb.toString()));
+
+        String digest = UrlSafeBase64.encodeToString(mac.doFinal());
+
+        return this.accessKey + ":" + digest;
+    }
+
+    public StringMap authorizationV2(String url, String method, byte[] body, String contentType) {
+        String authorization = "Qiniu " + signRequestV2(url, method, body, contentType);
+        return new StringMap().put("Authorization", authorization);
+    }
+
+    public StringMap authorizationV2(String url) {
+        return authorizationV2(url, "GET", null, null);
     }
 }
