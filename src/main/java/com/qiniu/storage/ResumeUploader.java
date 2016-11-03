@@ -1,7 +1,7 @@
 package com.qiniu.storage;
 
 import com.google.gson.Gson;
-import com.qiniu.common.Config;
+import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
@@ -37,17 +37,18 @@ public final class ResumeUploader {
     private final StringMap params;
     private final String mime;
     private final String[] contexts;
+    private final Configuration configuration;
     private final Client client;
     private final byte[] blockBuffer;
     private final Recorder recorder;
-    private final String recorderKey;
     private final long modifyTime;
     private final RecordHelper helper;
     private FileInputStream file;
     private String host;
 
     ResumeUploader(Client client, String upToken, String key, File file,
-                   StringMap params, String mime, Recorder recorder, String recorderKey) {
+                   StringMap params, String mime, Recorder recorder, Configuration configuration) {
+        this.configuration = configuration;
         this.client = client;
         this.upToken = upToken;
         this.key = key;
@@ -55,17 +56,18 @@ public final class ResumeUploader {
         this.size = file.length();
         this.params = params;
         this.mime = mime == null ? Client.DefaultMime : mime;
-        this.host = Config.zone.upHost;
-        long count = (size + Config.BLOCK_SIZE - 1) / Config.BLOCK_SIZE;
+        long count = (size + Constants.BLOCK_SIZE - 1) / Constants.BLOCK_SIZE;
         this.contexts = new String[(int) count];
-        this.blockBuffer = new byte[Config.BLOCK_SIZE];
+        this.blockBuffer = new byte[Constants.BLOCK_SIZE];
         this.recorder = recorder;
-        this.recorderKey = recorderKey;
         this.modifyTime = f.lastModified();
         helper = new RecordHelper();
     }
 
     public Response upload() throws QiniuException {
+        if (host == null) {
+            this.host = configuration.zone.upHost(upToken);
+        }
         long uploaded = helper.recoveryFromRecord();
         try {
             this.file = new FileInputStream(f);
@@ -74,6 +76,12 @@ public final class ResumeUploader {
         }
         boolean retry = false;
         int contextIndex = blockIdx(uploaded);
+        try {
+            file.skip(uploaded);
+        } catch (IOException e) {
+            close();
+            throw new QiniuException(e);
+        }
         while (uploaded < size) {
             int blockSize = nextBlockSize(uploaded);
             try {
@@ -89,7 +97,7 @@ public final class ResumeUploader {
                 response = makeBlock(blockBuffer, blockSize);
             } catch (QiniuException e) {
                 if (e.code() < 0) {
-                    host = Config.zone.upHostBackup;
+                    host = configuration.zone.upHostBackup(upToken);
                 }
                 if (e.response == null || e.response.needRetry()) {
                     retry = true;
@@ -159,7 +167,7 @@ public final class ResumeUploader {
                     b.append("/");
                     b.append(key);
                     b.append("/");
-                    b.append(value);
+                    b.append(UrlSafeBase64.encodeToString("" + value));
                 }
             });
         }
@@ -182,17 +190,18 @@ public final class ResumeUploader {
     }
 
     private int nextBlockSize(long uploaded) {
-        if (size < uploaded + Config.BLOCK_SIZE) {
+        if (size < uploaded + Constants.BLOCK_SIZE) {
             return (int) (size - uploaded);
         }
-        return Config.BLOCK_SIZE;
+        return Constants.BLOCK_SIZE;
     }
 
     private int blockIdx(long offset) {
-        return (int) (offset / Config.BLOCK_SIZE);
+        return (int) (offset / Constants.BLOCK_SIZE);
     }
 
     private class RecordHelper {
+
         long recoveryFromRecord() {
             try {
                 return recoveryFromRecord0();
@@ -208,6 +217,9 @@ public final class ResumeUploader {
             if (recorder == null) {
                 return 0;
             }
+
+            String recorderKey = recorder.recorderKeyGenerate(key, f);
+
             byte[] data = recorder.get(recorderKey);
             if (data == null) {
                 return 0;
@@ -228,6 +240,7 @@ public final class ResumeUploader {
         void removeRecord() {
             try {
                 if (recorder != null) {
+                    String recorderKey = recorder.recorderKeyGenerate(key, f);
                     recorder.del(recorderKey);
                 }
             } catch (Exception e) {
@@ -248,6 +261,7 @@ public final class ResumeUploader {
                 if (recorder == null || offset == 0) {
                     return;
                 }
+                String recorderKey = recorder.recorderKeyGenerate(key, f);
                 String data = new Gson().toJson(new Record(size, offset, modifyTime, contexts));
                 recorder.set(recorderKey, data.getBytes());
             } catch (Exception e) {

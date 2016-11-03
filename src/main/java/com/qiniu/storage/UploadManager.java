@@ -1,6 +1,5 @@
 package com.qiniu.storage;
 
-import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
@@ -13,15 +12,15 @@ import java.io.IOException;
  * 七牛文件上传管理器
  * <p/>
  * 一般默认可以使用这个类的方法来上传数据和文件。这个类自动检测文件的大小，
- * 只要超过了{@link com.qiniu.common.Config#PUT_THRESHOLD}
+ * 只要超过了{@link Configuration#putThreshold}
  */
 public final class UploadManager {
     private final Client client;
     private final Recorder recorder;
-    private final RecordKeyGenerator keyGen;
+    private final Configuration configuration;
 
-    public UploadManager() {
-        this(null, null);
+    public UploadManager(Configuration c) {
+        this(c, null);
     }
 
     /**
@@ -30,27 +29,12 @@ public final class UploadManager {
      *
      * @param recorder 断点记录者
      */
-    public UploadManager(Recorder recorder) {
-        this(recorder, new RecordKeyGenerator() {
-
-            @Override
-            public String gen(String key, File file) {
-                return key + "_._" + file.getAbsolutePath();
-            }
-        });
-    }
-
-    /**
-     * 断点上传记录。只针对 文件分块上传。
-     * 分块上传中，将每一块上传的记录保存下来。上传中断后可在上一次断点记录基础上上传剩余部分。
-     *
-     * @param recorder 断点记录者
-     * @param keyGen   生成文件的断点记录标示，根据生成的标示，可找到断点记录的内容
-     */
-    public UploadManager(Recorder recorder, RecordKeyGenerator keyGen) {
-        client = new Client();
+    public UploadManager(Configuration c, Recorder recorder) {
+        configuration = c.clone();
+        client = new Client(configuration.dns, configuration.dnsHostFirst, configuration.proxy,
+                configuration.connectTimeout, configuration.responseTimeout, configuration.writeTimeout);
         this.recorder = recorder;
-        this.keyGen = keyGen;
+
     }
 
     private static void checkArgs(final String key, byte[] data, File f, String token) {
@@ -123,7 +107,7 @@ public final class UploadManager {
             mime = Client.DefaultMime;
         }
         params = filterParam(params);
-        return new FormUploader(client, token, key, data, params, mime, checkCrc).upload();
+        return new FormUploader(client, token, key, data, params, mime, checkCrc, configuration).upload();
     }
 
     /**
@@ -180,16 +164,12 @@ public final class UploadManager {
         }
         params = filterParam(params);
         long size = file.length();
-        if (size <= Config.PUT_THRESHOLD) {
-            return new FormUploader(client, token, key, file, params, mime, checkCrc).upload();
+        if (size <= configuration.putThreshold) {
+            return new FormUploader(client, token, key, file, params, mime, checkCrc, configuration).upload();
         }
 
-        String recorderKey = key;
-        if (keyGen != null) {
-            recorderKey = keyGen.gen(key, file);
-        }
         ResumeUploader uploader = new ResumeUploader(client, token, key, file,
-                params, mime, recorder, recorderKey);
+                params, mime, recorder, configuration);
         return uploader.upload();
     }
 
@@ -201,6 +181,6 @@ public final class UploadManager {
             mime = Client.DefaultMime;
         }
         params = filterParam(params);
-        new FormUploader(client, token, key, data, params, mime, checkCrc).asyncUpload(handler);
+        new FormUploader(client, token, key, data, params, mime, checkCrc, configuration).asyncUpload(handler);
     }
 }

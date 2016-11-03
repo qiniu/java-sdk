@@ -1,9 +1,9 @@
 package com.qiniu.processing;
 
-import com.qiniu.common.Config;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.storage.Configuration;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
@@ -12,13 +12,16 @@ import com.qiniu.util.StringUtils;
  * 触发持久化处理
  * 针对七牛空间文件，触发异步文件处理。如异步视频转码等
  */
-public class OperationManager {
+public final class OperationManager {
     private final Client client;
     private final Auth auth;
+    private final Configuration configuration;
 
-    public OperationManager(Auth auth) {
+    public OperationManager(Auth auth, Configuration c) {
         this.auth = auth;
-        this.client = new Client();
+        configuration = c.clone();
+        this.client = new Client(configuration.dns, configuration.dnsHostFirst, configuration.proxy,
+                configuration.connectTimeout, configuration.responseTimeout, configuration.writeTimeout);
     }
 
     /**
@@ -50,11 +53,14 @@ public class OperationManager {
         params = params == null ? new StringMap() : params;
         params.put("bucket", bucket).put("key", key).put("fops", fops);
         byte[] data = StringUtils.utf8Bytes(params.formString());
-        String url = Config.API_HOST + "/pfop/";
+        String url = configuration.zone.apiHost(auth.accessKey, bucket) + "/pfop/";
         StringMap headers = auth.authorization(url, data, Client.FormMime);
         Response response = client.post(url, data, headers, Client.FormMime);
         PfopStatus status = response.jsonToObject(PfopStatus.class);
-        return status.persistentId;
+        if (status != null) {
+            return status.persistentId;
+        }
+        return null;
     }
 
     private class PfopStatus {

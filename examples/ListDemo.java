@@ -9,17 +9,18 @@ import com.qiniu.storage.Configuration;
 
 
 public class ListDemo {
+
 	public static void main(String args[]){
 	    //设置需要操作的账号的AK和SK
 	    String ACCESS_KEY = "Access_Key";
 	    String SECRET_KEY = "Secret_Key";
 	    Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
 	    
-		  Zone z = Zone.zone0();
+		Zone z = Zone.zone0();
     	Configuration c = new Configuration(z);
 
-     //实例化一个BucketManager对象
-     BucketManager bucketManager = new BucketManager(auth,c);
+        //实例化一个BucketManager对象
+        BucketManager bucketManager = new BucketManager(auth,c);
 	    
 	    //要列举文件的空间名
 	    String bucket = "yourbucket";

@@ -1,5 +1,32 @@
 #Changelog
 
+## 7.2.1 (2016-11-03)
+### 修正
+* streaming publish url 过期时间单位问题
+
+## 7.2.0 (2016-11-02)
+### 增加
+* 为多存储区 增加 autozone, zone2
+* 整合 cdn 刷新
+* 整合 streaming 服务端SDK
+
+## 7.1.3 (2016-09-02)
+### 增加
+* 下载方法
+* 支持x:foo变量
+* batch 增加force
+* host first
+
+## 7.1.2 (2016-07-14)
+### 增加
+* 内部dns 解析支持
+* proxy 支持
+* add String[] commonPrefixes in FileListing 
+
+## 7.1.1 (2016-06-27)
+### 修正
+* 断点上传,skip 已上传部分
+
 ## 7.1.0 (2016-04-27)
 ### 增加
 * 升级到okhttp3, 升级次版本号。
