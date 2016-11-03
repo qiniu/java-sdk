@@ -1,5 +1,9 @@
 #Changelog
 
+## 7.2.1 (2016-11-03)
+### 修正
+* streaming publish url 过期时间单位问题
+
 ## 7.2.0 (2016-11-02)
 ### 增加
 * 为多存储区 增加 autozone, zone2
