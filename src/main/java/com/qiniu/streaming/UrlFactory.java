@@ -2,8 +2,6 @@ package com.qiniu.streaming;
 
 import com.qiniu.util.Auth;
 
-import java.util.Date;
-
 /**
  * Created by bailong on 16/9/22.
  */
@@ -37,7 +35,7 @@ public final class UrlFactory {
     }
 
     public String rtmpPublishUrl(String streamKey, int expireAfterSeconds) {
-        long expire = new Date().getTime() + expireAfterSeconds;
+        long expire = System.currentTimeMillis() / 1000 + expireAfterSeconds;
         String path = String.format("/%s/%s?e=%d", hub, streamKey, expire);
         String token;
         try {
