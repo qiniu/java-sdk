@@ -27,7 +27,7 @@ public abstract class Zone {
     }
 
     //    北美
-    public static Zone zone_na0() {
+    public static Zone zoneNa0() {
         return new FixedZone("http://up-na0.qiniu.com", "http://upload-na0.qiniu.com",
                 "", "http://rs-na0.qbox.me", "http://rsf-na0.qbox.me", "http://iovip-na0.qbox.me",
                 "https://up-na0.qbox.me", "http://api-na0.qiniu.com");
