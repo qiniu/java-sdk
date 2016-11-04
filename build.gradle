@@ -42,7 +42,7 @@ def versionName() {
     return version
 }
 
-def versionNameToCode(String version) {
+static def versionNameToCode(String version) {
     String v = version.replaceAll(/\./, '')
     return v.toLong()
 }
