@@ -10,7 +10,7 @@
 <dependency>
   <groupId>com.qiniu</groupId>
   <artifactId>qiniu-java-sdk</artifactId>
-  <version>[7.0.0, 7.1.99]</version>
+  <version>[7.0.0, 7.2.99]</version>
 </dependency>
 ```
 或者 Gradle:
@@ -18,12 +18,13 @@
 compile 'com.qiniu:qiniu-java-sdk:7.1.+'
 ```
 7.0.x 版本的jdk 6.0 不能直接使用mvn上的okhttp, 需要另外下载，[代码][2], [okhttp.jar][3], [okio.jar][4]
-7.1.x 版本 jdk6.0 支持 后面会做处理，暂时只支持7及以上。
+7.1.x, 7.2.x 版本 jdk6.0 支持 后面会做处理，暂时只支持7及以上, 原因同前。
 
 ## 运行环境
 
 | Qiniu SDK版本 | Java 版本 |
 |:--------------------:|:---------------------------:|
+|          7.2.x         |  7+ |
 |          7.1.x         |  7+ |
 |          7.0.x         |  6+ |
 |          6.x         |  6+ |
