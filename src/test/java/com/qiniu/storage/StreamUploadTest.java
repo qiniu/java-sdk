@@ -57,6 +57,7 @@ public class StreamUploadTest {
         UploadManager uploadManager = new UploadManager(c);
         final String expectKey = "\r\n?&r=" + size + "k";
         final File f = TempFile.createFile(size);
+        final String mime = "app/test";
         final String etag = Etag.file(f);
         final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
@@ -65,10 +66,12 @@ public class StreamUploadTest {
 
         try {
             StreamUploader up = new StreamUploader(new Client(), token, expectKey,
-                    new FileInputStream(f), null, null, new Configuration(Zone.zone0()));
+                    new FileInputStream(f), null, mime, new Configuration(Zone.zone0()));
             Response r = up.upload();
             StreamUploadTest.MyRet ret = r.jsonToObject(StreamUploadTest.MyRet.class);
             assertEquals(expectKey, ret.key);
+            assertEquals(String.valueOf(f.length()), ret.fsize);
+            assertEquals(mime, ret.mimeType);
             assertEquals(etag, ret.hash);
         } catch (QiniuException e) {
             assertEquals("", e.response.bodyString());

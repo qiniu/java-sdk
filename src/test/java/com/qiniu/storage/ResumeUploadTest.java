@@ -66,6 +66,7 @@ public class ResumeUploadTest {
             MyRet ret = r.jsonToObject(MyRet.class);
             assertEquals(expectKey, ret.key);
             assertEquals(f.getName(), ret.fname);
+            assertEquals(String.valueOf(f.length()), ret.fsize);
             assertEquals(etag, ret.hash);
         } catch (QiniuException e) {
             assertEquals("", e.response.bodyString());
