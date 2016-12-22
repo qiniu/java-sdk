@@ -50,17 +50,17 @@ public final class FormUploader {
     Response upload() throws QiniuException {
         buildParams();
         if (data != null) {
-            return client.multipartPost(configuration.zone.upHost(token), params, "file", fileName, data,
+            return client.multipartPost(configuration.upHost(token), params, "file", fileName, data,
                     mime, new StringMap());
         }
-        return client.multipartPost(configuration.zone.upHost(token), params, "file", fileName, file,
+        return client.multipartPost(configuration.upHost(token), params, "file", fileName, file,
                 mime, new StringMap());
     }
 
     void asyncUpload(final UpCompletionHandler handler) throws IOException {
         buildParams();
         if (data != null) {
-            client.asyncMultipartPost(configuration.zone.upHost(token), params, "file", fileName,
+            client.asyncMultipartPost(configuration.upHost(token), params, "file", fileName,
                     data, mime, new StringMap(), new AsyncCallback() {
                         @Override
                         public void complete(Response r) {
@@ -69,7 +69,7 @@ public final class FormUploader {
                     });
             return;
         }
-        client.asyncMultipartPost(configuration.zone.upHost(token), params, "file", fileName,
+        client.asyncMultipartPost(configuration.upHost(token), params, "file", fileName,
                 file, mime, new StringMap(), new AsyncCallback() {
                     @Override
                     public void complete(Response r) {
