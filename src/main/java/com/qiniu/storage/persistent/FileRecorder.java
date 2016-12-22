@@ -1,12 +1,12 @@
 package com.qiniu.storage.persistent;
 
 import com.qiniu.storage.Recorder;
-import com.qiniu.util.UrlSafeBase64;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.Date;
 
 /**
@@ -53,7 +53,7 @@ public final class FileRecorder implements Recorder {
      */
     @Override
     public void set(String key, byte[] data) {
-        File f = new File(directory, UrlSafeBase64.encodeToString(key));
+        File f = new File(directory, hash(key));
         FileOutputStream fo = null;
         try {
             fo = new FileOutputStream(f);
@@ -77,7 +77,7 @@ public final class FileRecorder implements Recorder {
      */
     @Override
     public byte[] get(String key) {
-        File f = new File(directory, UrlSafeBase64.encodeToString(key));
+        File f = new File(directory, hash(key));
         if (!f.exists()) {
             return null;
         }
@@ -119,12 +119,28 @@ public final class FileRecorder implements Recorder {
      */
     @Override
     public void del(String key) {
-        File f = new File(directory, UrlSafeBase64.encodeToString(key));
+        File f = new File(directory, hash(key));
         f.delete();
     }
 
     @Override
     public String recorderKeyGenerate(String key, File file) {
-        return key + "_._" + file.getName();
+        return key + "_._" + file.getAbsolutePath();
+    }
+
+    private static String hash(String base) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            byte[] hash = digest.digest(base.getBytes());
+            StringBuffer hexString = new StringBuffer();
+
+            for (int i = 0; i < hash.length; i++) {
+                hexString.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            return hexString.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 }
