@@ -13,7 +13,7 @@ public final class Configuration implements Cloneable {
     /**
      * 使用的Zone
      */
-    public final Zone zone;
+    private final Zone zone;
     /**
      * 上传是否使用 https , 默认否
      */
@@ -64,4 +64,19 @@ public final class Configuration implements Cloneable {
         return null;
     }
 
+    public String upHost(String upToken) {
+        if (uploadByHttps) {
+            return zone.upHostHttps(upToken);
+        } else {
+            return zone.upHost(upToken);
+        }
+    }
+
+    public String upHostBackup(String upToken) {
+        if (uploadByHttps) {
+            return zone.upHostHttps(upToken); // no  upHostBackupHttps
+        } else {
+            return zone.upHostBackup(upToken);
+        }
+    }
 }
