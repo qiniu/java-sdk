@@ -43,6 +43,8 @@ public class BucketTest {
             assertNotNull(l.marker);
         } catch (QiniuException e) {
             e.printStackTrace();
+            assertEquals("", e.error());
+            assertEquals("", e.getMessage());
             fail();
         }
     }
@@ -60,6 +62,8 @@ public class BucketTest {
 
         } catch (QiniuException e) {
             e.printStackTrace();
+            assertEquals("", e.error());
+            assertEquals("", e.getMessage());
             fail();
         }
     }

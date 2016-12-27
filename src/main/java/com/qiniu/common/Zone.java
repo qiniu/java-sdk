@@ -7,15 +7,15 @@ public class Zone {
     // 地址:  https://cf.qiniu.io/pages/viewpage.action?pageId=16092953
 
     private String upHttp = "http://up.qiniu.com";
-    private String upBackupHttp = "http://upload.qiniu.com";
     private String upHttps = "https://up.qbox.me";
+    private String upBackupHttp = "http://upload.qiniu.com";
     private String upBackupHttps = "https://upload.qbox.me";
     private String upIpHttp = "";
     private String upIpHttps = "";
     private String iovipHttp = "http://iovip.qbox.me";
     private String iovipHttps = "https://iovip.qbox.me";
 
-    // 下方地址,会经中间转发
+
     private String rsHttp = "http://rs.qiniu.com";
     private String rsHttps = "https://rs.qbox.me";
     private String rsfHttp = "http://rsf.qiniu.com";
@@ -28,8 +28,8 @@ public class Zone {
      * 华东
      */
     public static Zone zone0() {
-        return new Builder().up("http://up.qiniu.com").upBackup("http://upload.qiniu.com").
-                upHttps("https://up.qbox.me").upBackupHttps("https://upload.qbox.me").
+        return new Builder().up("http://up.qiniu.com").upHttps("https://up.qbox.me").
+                upBackup("http://upload.qiniu.com").upBackupHttps("https://upload.qbox.me").
                 iovip("http://iovip.qbox.me").iovipHttps("https://iovip.qbox.me").
                 rs("http://rs-z0.qiniu.com").rsHttps("https://rs-z0.qbox.me").
                 rsf("http://rsf-z0.qiniu.com").rsfHttps("https://rsf-z0.qbox.me").
@@ -40,8 +40,8 @@ public class Zone {
      * 华北
      */
     public static Zone zone1() {
-        return new Builder().up("http://up-z1.qiniu.com").upBackup("http://upload-z1.qiniu.com").
-                upHttps("https://up-z1.qbox.me").upBackupHttps("https://upload-z1.qbox.me").
+        return new Builder().up("http://up-z1.qiniu.com").upHttps("https://up-z1.qbox.me").
+                upBackup("http://upload-z1.qiniu.com").upBackupHttps("https://upload-z1.qbox.me").
                 iovip("http://iovip-z1.qbox.me").iovipHttps("https://iovip-z1.qbox.me").
                 rs("http://rs-z1.qiniu.com").rsHttps("https://rs-z1.qbox.me").
                 rsf("http://rsf-z1.qiniu.com").rsfHttps("https://rsf-z1.qbox.me").
@@ -52,8 +52,8 @@ public class Zone {
      * 华南
      */
     public static Zone zone2() {
-        return new Builder().up("http://up-z2.qiniu.com").upBackup("http://upload-z2.qiniu.com").
-                upHttps("https://up-z2.qbox.me").upBackupHttps("https://upload-z2.qbox.me").
+        return new Builder().up("http://up-z2.qiniu.com").upHttps("https://up-z2.qbox.me").
+                upBackup("http://upload-z2.qiniu.com").upBackupHttps("https://upload-z2.qbox.me").
                 iovip("http://iovip-z2.qbox.me").iovipHttps("https://iovip-z2.qbox.me").
                 rs("http://rs-z2.qiniu.com").rsHttps("https://rs-z2.qbox.me").
                 rsf("http://rsf-z2.qiniu.com").rsfHttps("https://rsf-z2.qbox.me").
@@ -64,8 +64,8 @@ public class Zone {
      * 北美
      */
     public static Zone zoneNa0() {
-        return new Builder().up("http://up-na0.qiniu.com").upBackup("http://upload-na0.qiniu.com").
-                upHttps("https://up-na0.qbox.me").upBackupHttps("https://upload-na0.qbox.me").
+        return new Builder().up("http://up-na0.qiniu.com").upHttps("https://up-na0.qbox.me").
+                upBackup("http://upload-na0.qiniu.com").upBackupHttps("https://upload-na0.qbox.me").
                 iovip("http://iovip-na0.qbox.me").iovipHttps("https://iovip-na0.qbox.me").
                 rs("http://rs-na0.qiniu.com").rsHttps("https://rs-na0.qbox.me").
                 rsf("http://rsf-na0.qiniu.com").rsfHttps("https://rsf-na0.qbox.me").
@@ -73,7 +73,7 @@ public class Zone {
     }
 
     /**
-     * 自动判断区域,用于快速测试、接入。实际中推荐使用固定 zone 。
+     * 自动判断区域,用于快速接入。实际中推荐使用固定 zone 。
      * 空间所属区域,可到 portal 查询。
      */
     public static Zone autoZone() {
