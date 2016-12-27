@@ -1,5 +1,6 @@
 package com.qiniu.storage;
 
+import com.qiniu.common.QiniuException;
 import com.qiniu.common.ZoneReqInfo;
 import com.qiniu.common.Constants;
 import com.qiniu.common.Zone;
@@ -65,7 +66,7 @@ public final class Configuration implements Cloneable {
         return null;
     }
 
-    public String upHost(String upToken) {
+    public String upHost(String upToken) throws QiniuException {
         if (uploadByHttps) {
             return zone.getUpHttps(new ZoneReqInfo(upToken));
         } else {
@@ -73,7 +74,7 @@ public final class Configuration implements Cloneable {
         }
     }
 
-    public String upHostBackup(String upToken) {
+    public String upHostBackup(String upToken) throws QiniuException {
         if (uploadByHttps) {
             return zone.getUpBackupHttps(new ZoneReqInfo(upToken));
         } else {

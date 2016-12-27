@@ -107,9 +107,9 @@ public class RecordUploadTest {
             assertNotNull(response);
             assertTrue(response.isOK());
             assertEquals(etag, hash);
-            doSleep(100);
+            doSleep(500);
             showRecord("nodata: " + size + " :", recorder, recordKey);
-            assertNull(recorder.get(recordKey));
+            assertNull("文件上传成功,但断点记录文件为清理", recorder.get(recordKey));
         } finally {
             TempFile.remove(f);
         }
