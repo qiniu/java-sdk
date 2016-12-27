@@ -2,8 +2,6 @@ package com.qiniu.common;
 
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.util.Json;
-import com.qiniu.util.UrlSafeBase64;
 
 import java.util.List;
 import java.util.Map;
@@ -54,77 +52,143 @@ final class AutoZone extends Zone {
     }
 
     // only for test public
-    ZoneInfo queryByToken(String token) {
+    ZoneInfo queryByToken(ZoneReqInfo ab) {
         try {
-            // http://developer.qiniu.com/article/developer/security/upload-token.html
-            // http://developer.qiniu.com/article/developer/security/put-policy.html
-            String[] strings = token.split(":");
-            String ak = strings[0];
-            String policy = new String(UrlSafeBase64.decode(strings[2]), Constants.UTF_8);
-            String bkt = Json.decode(policy).get("scope").toString().split(":")[0];
-            return zoneInfo(ak, bkt);
+            return zoneInfo(ab.ak, ab.bucket);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public String upHost(String token) {
-        ZoneInfo info = queryByToken(token);
+    @Override
+    public String getUpHttp(ZoneReqInfo ab) {
+        ZoneInfo info = queryByToken(ab);
         if (info == null) {
             return "";
         }
-        return info.upHost;
+        return info.upHttp;
     }
 
-    public String upHostBackup(String token) {
-        ZoneInfo info = queryByToken(token);
+    @Override
+    public String getUpBackupHttp(ZoneReqInfo ab) {
+        ZoneInfo info = queryByToken(ab);
         if (info == null) {
             return "";
         }
-        return info.upBackup;
+        return info.upBackupHttp;
     }
 
-    public String upIpBackup(String token) {
-        ZoneInfo info = queryByToken(token);
+    @Override
+    public String getUpIpHttp(ZoneReqInfo ab) {
+        ZoneInfo info = queryByToken(ab);
         if (info == null) {
             return "";
         }
-        return info.upIp;
+        return info.upIpHttp;
     }
 
-    public String upHostHttps(String token) {
-        ZoneInfo info = queryByToken(token);
+    @Override
+    public String getIovipHttp(ZoneReqInfo ab) {
+        ZoneInfo info = queryByToken(ab);
+        if (info == null) {
+            return "";
+        }
+        return info.iovipHttp;
+    }
+
+
+    @Override
+    public String getUpHttps(ZoneReqInfo ab) {
+        ZoneInfo info = queryByToken(ab);
         if (info == null) {
             return "";
         }
         return info.upHttps;
     }
 
-    static class ZoneInfo {
-        final String ioHost;
-        final String upHost;
-        final String upIp;
-        final String upBackup;
-        final String upHttps;
+    @Override
+    public String getUpBackupHttps(ZoneReqInfo ab) {
+        ZoneInfo info = queryByToken(ab);
+        if (info == null) {
+            return "";
+        }
+        return info.upBackupHttps;
+    }
 
-        private ZoneInfo(String ioHost, String upHost, String upIp, String upBackup, String upHttps) {
-            this.ioHost = ioHost;
-            this.upHost = upHost;
-            this.upIp = upIp;
-            this.upBackup = upBackup;
+    @Override
+    public String getUpIpHttps(ZoneReqInfo ab) {
+        ZoneInfo info = queryByToken(ab);
+        if (info == null) {
+            return "";
+        }
+        return info.upIpHttps;
+    }
+
+    @Override
+    public String getIovipHttps(ZoneReqInfo ab) {
+        ZoneInfo info = queryByToken(ab);
+        if (info == null) {
+            return "";
+        }
+        return info.iovipHttps;
+    }
+
+
+
+    static class ZoneInfo {
+        final String upHttp;
+        final String upBackupHttp;
+        final String upIpHttp;
+        final String iovipHttp;
+
+        final String upHttps;
+        final String upBackupHttps;
+        final String upIpHttps;
+        final String iovipHttps;
+
+        private ZoneInfo(String upHttp, String upBackupHttp, String upIpHttp, String iovipHttp,
+                         String upHttps, String upBackupHttps, String upIpHttps, String iovipHttps) {
+            this.upHttp = upHttp;
+            this.upBackupHttp = upBackupHttp;
+            this.upIpHttp = upIpHttp;
+            this.iovipHttp = iovipHttp;
             this.upHttps = upHttps;
+            this.upBackupHttps = upBackupHttps;
+            this.upIpHttps = upIpHttps;
+            this.iovipHttps = iovipHttps;
         }
 
+        /*
+         * {"ttl":86400,
+         *  "http":
+         *    {
+         *      "io":["http://iovip.qbox.me"],
+         *      "up":["http://up.qiniu.com","http://upload.qiniu.com",
+         *        "-H up.qiniu.com http://183.136.139.16"]
+         *    },
+         *  "https":{"io":["https://iovip.qbox.me"],"up":["https://up.qbox.me"]}}
+         * */
         static ZoneInfo buildFromUcRet(UCRet ret) {
-            String ioHost = ret.http.get("io").get(0);
-            List<String> up = ret.http.get("up");
-            String upHost = up.get(0);
-            String upBackup = up.get(1);
-            String upIp = up.get(2).split(" ")[2].split("//")[1];
-            String upHttps = ret.https.get("up").get(0);
+            List<String> upsHttp = ret.http.get("up");
+            String upHttp = upsHttp.get(0);
+            String upBackupHttp = upsHttp.get(1);
+            String upIpHttp = upsHttp.get(2).split(" ")[2].split("//")[1];
+            String ioHttp = ret.http.get("io").get(0);
 
-            return new ZoneInfo(ioHost, upHost, upIp, upBackup, upHttps);
+            List<String> upsHttps = ret.https.get("up");
+            String upHttps = upsHttps.get(0);
+            String upBackupHttps = upHttps;
+            String upIpHttps = "";
+            if (upsHttps.size() > 1) {
+                upBackupHttps = upsHttps.get(1);
+            }
+            if (upsHttps.size() > 2) {
+                upIpHttps = upsHttps.get(2).split(" ")[2].split("//")[1];
+            }
+            String ioHttps = ret.https.get("io").get(0);
+
+            return new ZoneInfo(upHttp, upBackupHttp, upIpHttp, ioHttp, upHttps, upBackupHttps, upIpHttps, ioHttps);
         }
     }
 
