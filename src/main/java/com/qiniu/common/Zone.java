@@ -73,7 +73,7 @@ public class Zone {
     }
 
     /**
-     * 自动判断区域,用于快速接入。实际中推荐使用固定 zone 。
+     * 自动判断区域,用于快速测试、接入。实际中推荐使用固定 zone 。
      * 空间所属区域,可到 portal 查询。
      */
     public static Zone autoZone() {
