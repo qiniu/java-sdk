@@ -7,6 +7,7 @@ import com.qiniu.http.Response;
 import com.qiniu.util.Auth;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
+import com.qiniu.util.StringUtils;
 
 import java.util.HashMap;
 
@@ -50,4 +51,43 @@ public final class CdnManager {
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
         return client.post(url, body, headers, Client.JsonMime);
     }
+
+    public Response prefetchUrls(String[] urls) throws QiniuException {
+        HashMap<String, String[]> req = new HashMap<>();
+        req.put("urls", urls);
+        byte[] body = Json.encode(req).getBytes(Constants.UTF_8);
+        String url = server + "/v2/tune/prefetch";
+        StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
+        return client.post(url, body, headers, Client.JsonMime);
+    }
+
+    public Response getBandwidthData(String[] domains, String startDate, String endDate,
+                                     String granularity) throws QiniuException {
+        HashMap<String, String> req = new HashMap<>();
+        req.put("domains", StringUtils.join(domains, ";"));
+        req.put("startDate", startDate);
+        req.put("endDate", endDate);
+        req.put("granularity", granularity);
+
+        byte[] body = Json.encode(req).getBytes(Constants.UTF_8);
+        String url = server + "/v2/tune/bandwidth";
+        StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
+        return client.post(url, body, headers, Client.JsonMime);
+    }
+
+    public Response getFluxData(String[] domains, String startDate, String endDate,
+                                String granularity) throws QiniuException {
+        HashMap<String, String> req = new HashMap<>();
+        req.put("domains", StringUtils.join(domains, ";"));
+        req.put("startDate", startDate);
+        req.put("endDate", endDate);
+        req.put("granularity", granularity);
+
+        byte[] body = Json.encode(req).getBytes(Constants.UTF_8);
+        String url = server + "/v2/tune/flux";
+        StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
+        return client.post(url, body, headers, Client.JsonMime);
+    }
+
+
 }
