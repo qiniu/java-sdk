@@ -11,12 +11,16 @@ import com.qiniu.util.StringMap;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class ResumeUploadTest {
+/**
+ * Created by long on 2016/11/4.
+ */
+public class StreamUploadTest {
 
     @Test
     public void testXVar() throws IOException {
@@ -36,7 +40,7 @@ public class ResumeUploadTest {
 
         try {
             UploadManager uploadManager = new UploadManager(new Configuration(Zone.zone0()));
-            Response res = uploadManager.put(f, expectKey, token, params, null, true);
+            Response res = uploadManager.put(new FileInputStream(f), expectKey, token, params, null);
             StringMap m = res.jsonToMap();
             assertEquals("foo_val", m.get("foo"));
         } catch (QiniuException e) {
@@ -53,6 +57,7 @@ public class ResumeUploadTest {
         UploadManager uploadManager = new UploadManager(c);
         final String expectKey = "\r\n?&r=" + size + "k";
         final File f = TempFile.createFile(size);
+        final String mime = "app/test";
         final String etag = Etag.file(f);
         final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
@@ -60,13 +65,13 @@ public class ResumeUploadTest {
                 new StringMap().put("returnBody", returnBody));
 
         try {
-            ResumeUploader up = new ResumeUploader(new Client(), token, expectKey, f, null, null, null,
-                    new Configuration(Zone.zone0()));
+            StreamUploader up = new StreamUploader(new Client(), token, expectKey,
+                    new FileInputStream(f), null, mime, new Configuration(Zone.zone0()));
             Response r = up.upload();
-            MyRet ret = r.jsonToObject(MyRet.class);
+            StreamUploadTest.MyRet ret = r.jsonToObject(StreamUploadTest.MyRet.class);
             assertEquals(expectKey, ret.key);
-            assertEquals(f.getName(), ret.fname);
             assertEquals(String.valueOf(f.length()), ret.fsize);
+            assertEquals(mime, ret.mimeType);
             assertEquals(etag, ret.hash);
         } catch (QiniuException e) {
             assertEquals("", e.response.bodyString());

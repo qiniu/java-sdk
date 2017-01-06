@@ -34,7 +34,7 @@ apply plugin: 'checkstyle'
 
 
 def versionName() {
-    String config = 'src/main/java/com/qiniu/common/Config.java'
+    String config = 'src/main/java/com/qiniu/common/Constants.java'
     String fileContents = new File(config).text
     Matcher myMatcher = fileContents =~ /VERSION = "(.+)";/
     String version = myMatcher[0][1]
@@ -42,7 +42,7 @@ def versionName() {
     return version
 }
 
-def versionNameToCode(String version) {
+static def versionNameToCode(String version) {
     String v = version.replaceAll(/\./, '')
     return v.toLong()
 }

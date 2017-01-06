@@ -122,4 +122,9 @@ public final class FileRecorder implements Recorder {
         File f = new File(directory, UrlSafeBase64.encodeToString(key));
         f.delete();
     }
+
+    @Override
+    public String recorderKeyGenerate(String key, File file) {
+        return key + "_._" + file.getName();
+    }
 }

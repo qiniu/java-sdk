@@ -2,7 +2,8 @@ package com.qiniu.storage;
 
 import com.qiniu.TempFile;
 import com.qiniu.TestConfig;
-import com.qiniu.common.Config;
+import com.qiniu.common.Constants;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.persistent.FileRecorder;
@@ -24,12 +25,7 @@ import static org.junit.Assert.*;
  */
 public class RecordUploadTest {
     final Random r = new Random();
-    final RecordKeyGenerator keyGen = new RecordKeyGenerator() {
-        @Override
-        public String gen(String key, File file) {
-            return key + "_._" + file.getAbsolutePath();
-        }
-    };
+
     final Client client = new Client();
     FileRecorder recorder = null;
     private Response response = null;
@@ -41,7 +37,7 @@ public class RecordUploadTest {
         recorder = new FileRecorder(f.getParentFile());
         try {
             final String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
-            final String recordKey = keyGen.gen(expectKey, f);
+            final String recordKey = recorder.recorderKeyGenerate(expectKey, f);
 
             // 开始第一部分上传
             final Up up = new Up(f, expectKey, token);
@@ -73,7 +69,7 @@ public class RecordUploadTest {
             showRecord.setDaemon(true);
             showRecord.start();
 
-            if (f.length() > Config.BLOCK_SIZE) {
+            if (f.length() > Constants.BLOCK_SIZE) {
                 // 终止第一部分上传,期望其部分成功
                 for (int i = 150; i > 0; --i) {
                     byte[] data = getRecord(recorder, recordKey);
@@ -272,15 +268,13 @@ public class RecordUploadTest {
                 System.out.println("UP: " + i + ",  enter up");
 
                 String recorderKey = key;
-                if (keyGen != null) {
-                    recorderKey = keyGen.gen(key, file);
-                }
 
                 if (recorder == null) {
                     recorder = new FileRecorder(file.getParentFile());
                 }
+                recorderKey = recorder.recorderKeyGenerate(key, file);
                 uploader = new ResumeUploader(client, token, key, file,
-                        null, Client.DefaultMime, recorder, recorderKey);
+                        null, Client.DefaultMime, recorder, new Configuration(Zone.zone0()));
                 Response res = uploader.upload();
                 System.out.println("UP:  " + i + ", left up");
                 return res;
