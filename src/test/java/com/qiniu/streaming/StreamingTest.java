@@ -1,5 +1,6 @@
 package com.qiniu.streaming;
 
+import com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.streaming.model.ActivityRecords;
 import com.qiniu.streaming.model.StreamAttribute;
@@ -14,7 +15,7 @@ import static org.junit.Assert.*;
  * Created by bailong on 16/9/22.
  */
 public class StreamingTest {
-    private Auth auth = Auth.create(System.getenv("ak"), System.getenv("sk"));
+    private Auth auth = TestConfig.testAuth;
     private String hub = "pilisdktest";
     private String streamKeyPrefix = "pilijava" + System.currentTimeMillis();
     private StreamingManager manager = new StreamingManager(auth, hub);
