@@ -95,7 +95,7 @@ public class CdnTest {
         String encryptKey = "";
         String signedUrl;
         try {
-            signedUrl = CdnManager.createStandardAntileechUrlBasedOnTimestamp(host, fileName,
+            signedUrl = CdnManager.ceateTimestampAntiLeechUrl(host, fileName,
                     queryString, encryptKey, deadline);
             System.out.println(signedUrl);
         } catch (Exception ex) {
@@ -113,7 +113,7 @@ public class CdnTest {
         String encryptKey = "";
         String signedUrl;
         try {
-            signedUrl = CdnManager.createStandardAntileechUrlBasedOnTimestamp(host, fileName,
+            signedUrl = CdnManager.ceateTimestampAntiLeechUrl(host, fileName,
                     queryString, encryptKey, deadline);
             System.out.println(signedUrl);
         } catch (Exception ex) {

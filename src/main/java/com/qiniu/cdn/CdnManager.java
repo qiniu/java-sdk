@@ -146,7 +146,7 @@ public final class CdnManager {
      * @param deadline    链接的有效期时间戳，是以秒为单位的Unix时间戳
      * @return signedUrl   最终的带时间戳防盗链的url
      */
-    public static String createStandardAntileechUrlBasedOnTimestamp(
+    public static String ceateTimestampAntiLeechUrl(
             String host, String fileName, String queryString, String encryptKey, long deadline)
             throws UnsupportedEncodingException, MalformedURLException, NoSuchAlgorithmException {
         String urlToSign;
