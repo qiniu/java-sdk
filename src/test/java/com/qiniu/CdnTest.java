@@ -87,7 +87,7 @@ public class CdnTest {
     }
 
     @Test
-    public void testCreateAntileechUrlBasedOnTimestampSimple() {
+    public void testCreateTimestampAntiLeechUrlSimple() {
         String host = "http://img.abc.com";
         String fileName = "2017/01/07/测试.png";
         String queryString = "";
@@ -105,7 +105,7 @@ public class CdnTest {
     }
 
     @Test
-    public void testCreateAntileechUrlBasedOnTimestampWithQueryString() {
+    public void testCreateTimestampAntiLeechUrlWithQueryString() {
         String host = "http://video.abc.com";
         String fileName = "测试.mp4";
         String queryString = "name=七牛&year=2017";
