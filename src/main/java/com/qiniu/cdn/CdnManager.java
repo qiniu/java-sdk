@@ -14,7 +14,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by bailong on 16/9/21.
@@ -139,20 +142,28 @@ public final class CdnManager {
     /**
      * 构建标准的基于时间戳的防盗链
      *
-     * @param host        自定义域名，例如 http://img.abc.com
-     * @param fileName    待访问的原始文件名，必须是utf8编码，不需要进行urlencode
-     * @param queryString 业务自身的查询参数，必须是utf8编码，不需要进行urlencode
-     * @param encryptKey  时间戳防盗链的签名密钥，从七牛后台获取
-     * @param deadline    链接的有效期时间戳，是以秒为单位的Unix时间戳
-     * @return signedUrl   最终的带时间戳防盗链的url
+     * @param host           自定义域名，例如 http://img.abc.com
+     * @param fileName       待访问的原始文件名，必须是utf8编码，不需要进行urlencode
+     * @param queryStringMap 业务自身的查询参数，必须是utf8编码，不需要进行urlencode
+     * @param encryptKey     时间戳防盗链的签名密钥，从七牛后台获取
+     * @param deadline       链接的有效期时间戳，是以秒为单位的Unix时间戳
+     * @return signedUrl     最终的带时间戳防盗链的url
      */
-    public static String createStandardAntileechUrlBasedOnTimestamp(
-            String host, String fileName, String queryString, String encryptKey, long deadline)
+    public static String createTimestampAntiLeechUrl(
+            String host, String fileName, final StringMap queryStringMap, String encryptKey, long deadline)
             throws UnsupportedEncodingException, MalformedURLException, NoSuchAlgorithmException {
         String urlToSign;
-        if (queryString.trim().length() != 0) {
+        if (queryStringMap != null && queryStringMap.size() > 0) {
+            List<String> queryStrings = new ArrayList<String>();
+            for (Map.Entry<String, Object> entry : queryStringMap.map().entrySet()) {
+                StringBuilder queryStringBuilder = new StringBuilder();
+                queryStringBuilder.append(URLEncoder.encode(entry.getKey(), "utf-8"));
+                queryStringBuilder.append("=");
+                queryStringBuilder.append(URLEncoder.encode(entry.getValue().toString(), "utf-8"));
+                queryStrings.add(queryStringBuilder.toString());
+            }
             urlToSign = String.format("%s/%s?%s", host, URLEncoder.encode(fileName, "utf-8"),
-                    URLEncoder.encode(queryString, "utf-8"));
+                    StringUtils.join(queryStrings, "&"));
         } else {
             urlToSign = String.format("%s/%s", host, URLEncoder.encode(fileName, "utf-8"));
         }
