@@ -69,7 +69,7 @@ public final class ResumeUploader {
 
     public Response upload() throws QiniuException {
         if (host == null) {
-            this.host = configuration.zone.upHost(upToken);
+            this.host = configuration.upHost(upToken);
         }
         long uploaded = helper.recoveryFromRecord();
         try {
@@ -101,7 +101,7 @@ public final class ResumeUploader {
                 response = makeBlock(blockBuffer, blockSize);
             } catch (QiniuException e) {
                 if (e.code() < 0) {
-                    host = configuration.zone.upHostBackup(upToken);
+                    host = configuration.upHostBackup(upToken);
                 }
                 if (e.response == null || e.response.needRetry()) {
                     retry = true;

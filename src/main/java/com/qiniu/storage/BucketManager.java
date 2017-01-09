@@ -66,7 +66,9 @@ public final class BucketManager {
      * @return bucket 列表
      */
     public String[] buckets() throws QiniuException {
-        Response r = rsGet("/buckets");
+        // 获取 bucket 列表 写死用rs.qiniu.com or rs.qbox.me @冯立元
+        String url = configuration.rsBucketsHost() + "/buckets";
+        Response r = get(url);
         return r.jsonToObject(String[].class);
     }
 
@@ -110,7 +112,7 @@ public final class BucketManager {
         StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
                 .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
 
-        String url = configuration.zone.rsfHost(auth.accessKey, bucket) + "/list?" + map.formString();
+        String url = configuration.rsfHost(auth.accessKey, bucket) + "/list?" + map.formString();
         Response r = get(url);
         return r.jsonToObject(FileListing.class);
     }
@@ -124,7 +126,7 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public FileInfo stat(String bucket, String key) throws QiniuException {
-        Response r = rsGet("/stat/" + entry(bucket, key));
+        Response r = rsGet(bucket, "/stat/" + entry(bucket, key));
         return r.jsonToObject(FileInfo.class);
     }
 
@@ -136,11 +138,13 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public void delete(String bucket, String key) throws QiniuException {
-        rsPost("/delete/" + entry(bucket, key));
+        rsPost(bucket, "/delete/" + entry(bucket, key));
     }
 
     /**
      * 修改指定空间、文件的文件名
+     * <p>
+     * 不能跨区域操作。以文件原空间对应的区域为基准。
      *
      * @param bucket
      * @param oldname
@@ -152,7 +156,9 @@ public final class BucketManager {
     }
 
     /**
-     * 复制文件。要求空间在同一账号下。
+     * 复制文件。要求空间在同一区域下。
+     * <p>
+     * 不能跨区域操作。以文件原空间对应的区域为基准。
      *
      * @param from_bucket
      * @param from_key
@@ -164,11 +170,13 @@ public final class BucketManager {
         String from = entry(from_bucket, from_key);
         String to = entry(to_bucket, to_key);
         String path = "/copy/" + from + "/" + to;
-        rsPost(path);
+        rsPost(from_bucket, path);
     }
 
     /**
-     * 复制文件。要求空间在同一账号下, 可以添加force参数为true强行复制文件。
+     * 复制文件。要求空间在同一区域下, 可以添加force参数为true强行复制文件。
+     * <p>
+     * 不能跨区域操作。以文件原空间对应的区域为基准。
      *
      * @param from_bucket
      * @param from_key
@@ -182,11 +190,13 @@ public final class BucketManager {
         String from = entry(from_bucket, from_key);
         String to = entry(to_bucket, to_key);
         String path = "/copy/" + from + "/" + to + "/force/" + force;
-        rsPost(path);
+        rsPost(from_bucket, path);
     }
 
     /**
-     * 移动文件。要求空间在同一账号下。
+     * 移动文件。要求空间在同一区域下。
+     * <p>
+     * 不能跨区域操作。以文件原空间对应的区域为基准。
      *
      * @param from_bucket
      * @param from_key
@@ -198,11 +208,13 @@ public final class BucketManager {
         String from = entry(from_bucket, from_key);
         String to = entry(to_bucket, to_key);
         String path = "/move/" + from + "/" + to;
-        rsPost(path);
+        rsPost(from_bucket, path);
     }
 
     /**
-     * 移动文件。要求空间在同一账号下, 可以添加force参数为true强行移动文件。
+     * 移动文件。要求空间在同一区域内下, 可以添加force参数为true强行移动文件。
+     * <p>
+     * 不能跨区域操作。以文件原空间对应的区域为基准。
      *
      * @param from_bucket
      * @param from_key
@@ -216,7 +228,7 @@ public final class BucketManager {
         String from = entry(from_bucket, from_key);
         String to = entry(to_bucket, to_key);
         String path = "/move/" + from + "/" + to + "/force/" + force;
-        rsPost(path);
+        rsPost(from_bucket, path);
     }
 
     /**
@@ -231,7 +243,7 @@ public final class BucketManager {
         String resource = entry(bucket, key);
         String encode_mime = UrlSafeBase64.encodeToString(mime);
         String path = "/chgm/" + resource + "/mime/" + encode_mime;
-        rsPost(path);
+        rsPost(bucket, path);
     }
 
     /**
@@ -261,7 +273,7 @@ public final class BucketManager {
         String resource = UrlSafeBase64.encodeToString(url);
         String to = entry(bucket, key, false);
         String path = "/fetch/" + resource + "/to/" + to;
-        Response r = ioPost(path);
+        Response r = ioPost(bucket, path);
         return r.jsonToObject(DefaultPutRet.class);
     }
 
@@ -276,7 +288,7 @@ public final class BucketManager {
     public void prefetch(String bucket, String key) throws QiniuException {
         String resource = entry(bucket, key);
         String path = "/prefetch/" + resource;
-        ioPost(path);
+        ioPost(bucket, path);
     }
 
     /**
@@ -288,25 +300,28 @@ public final class BucketManager {
      * @see Batch
      */
     public Response batch(Batch operations) throws QiniuException {
-        return rsPost("/batch", operations.toBody());
+        return rsPost(operations.execBucket(), "/batch", operations.toBody());
     }
 
-    private Response rsPost(String path, byte[] body) throws QiniuException {
-        String url = configuration.zone.rsHost() + path;
+    private Response rsPost(String bucket, String path) throws QiniuException {
+        return rsPost(bucket, path, null);
+    }
+
+    private Response rsPost(String bucket, String path, byte[] body) throws QiniuException {
+        check(bucket);
+        String url = configuration.rsHost(auth.accessKey, bucket) + path;
         return post(url, body);
     }
 
-    private Response rsPost(String path) throws QiniuException {
-        return rsPost(path, null);
-    }
-
-    private Response rsGet(String path) throws QiniuException {
-        String url = configuration.zone.rsHost() + path;
+    private Response rsGet(String bucket, String path) throws QiniuException {
+        check(bucket);
+        String url = configuration.rsHost(auth.accessKey, bucket) + path;
         return get(url);
     }
 
-    private Response ioPost(String path) throws QiniuException {
-        String url = configuration.zone.ioHost() + path;
+    private Response ioPost(String bucket, String path) throws QiniuException {
+        check(bucket);
+        String url = configuration.ioHost(auth.accessKey, bucket) + path;
         return post(url, null);
     }
 
@@ -320,31 +335,51 @@ public final class BucketManager {
         return client.post(url, body, headers, Client.FormMime);
     }
 
+    private void check(String bucket) throws QiniuException {
+        if (StringUtils.isNullOrEmpty(bucket)) {
+            throw new QiniuException(Response.createError(null, null, 0, "未指定操作的空间或操作体为空"));
+        }
+    }
+
     /**
      * 文件管理操作指令
+     * <p>
+     * 不能跨区域操作。以第一个操作指令所在空间对应的区域为基准。
      */
     public static class Batch {
         private ArrayList<String> ops;
+        private String execBucket = null;
 
         public Batch() {
             this.ops = new ArrayList<String>();
         }
 
+        /**
+         * 不能跨区域操作。以文件原空间对应的区域为基准。
+         */
         public Batch copy(String from_bucket, String from_key, String to_bucket, String to_key) {
             String from = entry(from_bucket, from_key);
             String to = entry(to_bucket, to_key);
             ops.add("copy" + "/" + from + "/" + to);
+            setExecBucket(from_bucket);
             return this;
         }
 
+        /**
+         * 不能跨区域操作。以文件原空间对应的区域为基准。
+         */
         public Batch rename(String from_bucket, String from_key, String to_key) {
             return move(from_bucket, from_key, from_bucket, to_key);
         }
 
+        /**
+         * 不能跨区域操作。以文件原空间对应的区域为基准。
+         */
         public Batch move(String from_bucket, String from_key, String to_bucket, String to_key) {
             String from = entry(from_bucket, from_key);
             String to = entry(to_bucket, to_key);
             ops.add("move" + "/" + from + "/" + to);
+            setExecBucket(from_bucket);
             return this;
         }
 
@@ -352,6 +387,7 @@ public final class BucketManager {
             for (String key : keys) {
                 ops.add("delete" + "/" + entry(bucket, key));
             }
+            setExecBucket(bucket);
             return this;
         }
 
@@ -359,6 +395,7 @@ public final class BucketManager {
             for (String key : keys) {
                 ops.add("stat" + "/" + entry(bucket, key));
             }
+            setExecBucket(bucket);
             return this;
         }
 
@@ -369,7 +406,18 @@ public final class BucketManager {
 
         public Batch merge(Batch batch) {
             this.ops.addAll(batch.ops);
+            setExecBucket(batch.execBucket());
             return this;
+        }
+
+        private void setExecBucket(String bucket) {
+            if (execBucket == null) {
+                execBucket = bucket;
+            }
+        }
+
+        public String execBucket() {
+            return execBucket;
         }
     }
 

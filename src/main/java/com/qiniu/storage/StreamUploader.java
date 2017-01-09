@@ -47,7 +47,7 @@ public final class StreamUploader {
 
     public Response upload() throws QiniuException {
         if (host == null) {
-            this.host = configuration.zone.upHost(upToken);
+            this.host = configuration.upHost(upToken);
         }
 
         long uploaded = 0;
@@ -87,7 +87,7 @@ public final class StreamUploader {
                 response = makeBlock(blockBuffer, bufferIndex);
             } catch (QiniuException e) {
                 if (e.code() < 0) {
-                    host = configuration.zone.upHostBackup(upToken);
+                    host = configuration.upHostBackup(upToken);
                 }
                 if (e.response == null || e.response.needRetry()) {
                     retry = true;

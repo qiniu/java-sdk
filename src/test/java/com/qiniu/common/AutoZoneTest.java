@@ -18,8 +18,8 @@ public class AutoZoneTest {
         try {
             AutoZone zone = AutoZone.instance;
             AutoZone.ZoneInfo zoneInfo = zone.zoneInfo(ak, bkt);
-            assertEquals(zoneInfo.upHost, "http://up.qiniu.com");
-            assertEquals(zoneInfo.upBackup, "http://upload.qiniu.com");
+            assertEquals(zoneInfo.upHttp, "http://up.qiniu.com");
+            assertEquals(zoneInfo.upBackupHttp, "http://upload.qiniu.com");
             assertEquals(zoneInfo.upHttps, "https://up.qbox.me");
         } catch (QiniuException e) {
             e.printStackTrace();
