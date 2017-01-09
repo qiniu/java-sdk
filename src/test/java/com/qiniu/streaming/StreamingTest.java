@@ -12,7 +12,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by bailong on 16/9/22.
+ * Created by bailong on 16/9/22
  */
 public class StreamingTest {
     private Auth auth = null;
