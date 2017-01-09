@@ -6,6 +6,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.ResumeBlockInfo;
+import com.qiniu.util.Crc32;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
@@ -45,6 +46,7 @@ public final class ResumeUploader {
     private final RecordHelper helper;
     private FileInputStream file;
     private String host;
+    private int retryMax;
 
     ResumeUploader(Client client, String upToken, String key, File file,
                    StringMap params, String mime, Recorder recorder, Configuration configuration) {
@@ -62,11 +64,12 @@ public final class ResumeUploader {
         this.recorder = recorder;
         this.modifyTime = f.lastModified();
         helper = new RecordHelper();
+        retryMax = configuration.retryMax;
     }
 
     public Response upload() throws QiniuException {
         if (host == null) {
-            this.host = configuration.zone.upHost(upToken);
+            this.host = configuration.upHost(upToken);
         }
         long uploaded = helper.recoveryFromRecord();
         try {
@@ -91,35 +94,49 @@ public final class ResumeUploader {
                 throw new QiniuException(e);
             }
 
-//            long crc = Crc32.bytes(blockBuffer, 0, blockSize);
+            long crc = Crc32.bytes(blockBuffer, 0, blockSize);
             Response response = null;
+            QiniuException temp = null;
             try {
                 response = makeBlock(blockBuffer, blockSize);
             } catch (QiniuException e) {
                 if (e.code() < 0) {
-                    host = configuration.zone.upHostBackup(upToken);
+                    host = configuration.upHostBackup(upToken);
                 }
                 if (e.response == null || e.response.needRetry()) {
                     retry = true;
+                    temp = e;
                 } else {
                     close();
                     throw e;
                 }
             }
-            if (retry) {
-                try {
-                    response = makeBlock(blockBuffer, blockSize);
-                    retry = false;
-                } catch (QiniuException e) {
-                    close();
-                    throw e;
+
+            if (!retry) {
+                ResumeBlockInfo blockInfo0 = response.jsonToObject(ResumeBlockInfo.class);
+                if (blockInfo0.crc32 != crc) {
+                    retry = true;
+                    temp = new QiniuException(new Exception("block's crc32 is not match"));
                 }
-
             }
-            ResumeBlockInfo blockInfo = response.jsonToObject(ResumeBlockInfo.class);
-            //TODO check return crc32
-            // if blockInfo.crc32 != crc{}
 
+            if (retry) {
+                if (retryMax > 0) {
+                    retryMax--;
+                    try {
+                        response = makeBlock(blockBuffer, blockSize);
+                        retry = false;
+                    } catch (QiniuException e) {
+                        close();
+                        throw e;
+                    }
+                } else {
+                    close();
+                    throw temp;
+                }
+            }
+
+            ResumeBlockInfo blockInfo = response.jsonToObject(ResumeBlockInfo.class);
             contexts[contextIndex++] = blockInfo.ctx;
             uploaded += blockSize;
             helper.record(uploaded);
@@ -147,7 +164,7 @@ public final class ResumeUploader {
     private void close() {
         try {
             file.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -53,7 +53,7 @@ public final class OperationManager {
         params = params == null ? new StringMap() : params;
         params.put("bucket", bucket).put("key", key).put("fops", fops);
         byte[] data = StringUtils.utf8Bytes(params.formString());
-        String url = configuration.zone.apiHost(auth.accessKey, bucket) + "/pfop/";
+        String url = configuration.apiHost(auth.accessKey, bucket) + "/pfop/";
         StringMap headers = auth.authorization(url, data, Client.FormMime);
         Response response = client.post(url, data, headers, Client.FormMime);
         PfopStatus status = response.jsonToObject(PfopStatus.class);

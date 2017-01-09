@@ -18,8 +18,13 @@ public final class QiniuException extends IOException {
     }
 
     public QiniuException(Exception e) {
+        this(e, null);
+    }
+
+    public QiniuException(Exception e, String msg) {
         super(e);
         this.response = null;
+        this.error = msg;
     }
 
     public String url() {
