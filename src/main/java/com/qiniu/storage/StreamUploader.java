@@ -46,6 +46,14 @@ public final class StreamUploader {
     }
 
     public Response upload() throws QiniuException {
+        try {
+            return upload0();
+        } finally {
+            close();
+        }
+    }
+
+    private Response upload0() throws QiniuException {
         if (host == null) {
             this.host = configuration.upHost(upToken);
         }
