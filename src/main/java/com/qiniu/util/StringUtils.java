@@ -1,7 +1,11 @@
 package com.qiniu.util;
 
 import com.qiniu.common.Constants;
+import qiniu.happydns.util.Hex;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
 /**
@@ -132,6 +136,13 @@ public final class StringUtils {
 
     public static String utf8String(byte[] data) {
         return new String(data, Constants.UTF_8);
+    }
+
+    public static String md5Lower(String src) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("MD5");
+        digest.update(src.getBytes("utf-8"));
+        byte[] md5Bytes = digest.digest();
+        return Hex.encodeHexString(md5Bytes);
     }
 }
 

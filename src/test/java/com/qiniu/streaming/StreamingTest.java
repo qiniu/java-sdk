@@ -12,7 +12,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by bailong on 16/9/22.
+ * Created by bailong on 16/9/22
  */
 public class StreamingTest {
     private Auth auth = null;
@@ -24,6 +24,7 @@ public class StreamingTest {
             auth = TestConfig.testAuth;
         }
     }
+
     private String hub = "pilisdktest";
     private String streamKeyPrefix = "pilijava" + System.currentTimeMillis();
     private StreamingManager manager = new StreamingManager(auth, hub);
