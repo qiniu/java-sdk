@@ -44,7 +44,7 @@ public class StreamUploadTest {
             StringMap m = res.jsonToMap();
             assertEquals("foo_val", m.get("foo"));
         } catch (QiniuException e) {
-            assertEquals("", e.response.bodyString());
+            assertEquals("", e.response == null ? "e.response is null" : e.response.bodyString());
             fail();
         } finally {
             TempFile.remove(f);
@@ -74,7 +74,7 @@ public class StreamUploadTest {
             assertEquals(mime, ret.mimeType);
             assertEquals(etag, ret.hash);
         } catch (QiniuException e) {
-            assertEquals("", e.response.bodyString());
+            assertEquals("", e.response == null ? "e.response is null" : e.response.bodyString());
             fail();
         }
         TempFile.remove(f);
