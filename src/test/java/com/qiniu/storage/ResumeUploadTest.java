@@ -40,7 +40,7 @@ public class ResumeUploadTest {
             StringMap m = res.jsonToMap();
             assertEquals("foo_val", m.get("foo"));
         } catch (QiniuException e) {
-            assertEquals("", e.response.bodyString());
+            assertEquals("", e.response == null ? "e.response is null" : e.response.bodyString());
             fail();
         } finally {
             TempFile.remove(f);
@@ -69,7 +69,7 @@ public class ResumeUploadTest {
             assertEquals(String.valueOf(f.length()), ret.fsize);
             assertEquals(etag, ret.hash);
         } catch (QiniuException e) {
-            assertEquals("", e.response.bodyString());
+            assertEquals("", e.response == null ? "e.response is null" : e.response.bodyString());
             fail();
         }
         TempFile.remove(f);
