@@ -20,13 +20,18 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by bailong on 16/9/21.
+ * 该类主要提供CDN相关功能的接口实现，包括文件和目录的刷新，文件的预取，获取CDN访问日志链接，生成七牛时间戳防盗链等功能。
  */
 public final class CdnManager {
     private final Auth auth;
     private final String server;
     private final Client client;
 
+    /*
+    * CdnManager 使用七牛标准的管理鉴权方式
+    *
+    * @param auth - Auth 对象
+    * */
     public CdnManager(Auth auth) {
         this(auth, "http://fusion.qiniuapi.com");
     }
@@ -41,6 +46,7 @@ public final class CdnManager {
     /**
      * 刷新链接列表，每次最多不可以超过100条链接
      *
+     * @return 刷新请求的回复
      * @link http://developer.qiniu.com/article/fusion/api/refresh.html
      */
     public Response refreshUrls(String[] urls) throws QiniuException {
@@ -51,6 +57,7 @@ public final class CdnManager {
      * 刷新目录列表，每次最多不可以超过10个目录
      * 刷新目录需要额外开通权限，可以联系七牛技术支持处理
      *
+     * @return 刷新请求的回复
      * @link http://developer.qiniu.com/article/fusion/api/refresh.html
      */
     public Response refreshDirs(String[] dirs) throws QiniuException {
@@ -74,6 +81,7 @@ public final class CdnManager {
     /**
      * 预取文件链接，每次最多不可以超过100条
      *
+     * @return 预取请求的回复
      * @link http://developer.qiniu.com/article/fusion/api/prefetch.html
      */
     public Response prefetchUrls(String[] urls) throws QiniuException {
@@ -88,6 +96,7 @@ public final class CdnManager {
     /**
      * 获取域名访问带宽数据
      *
+     * @return 获取带宽请求的回复
      * @link http://developer.qiniu.com/article/fusion/api/traffic-bandwidth.html
      */
     public Response getBandwidthData(String[] domains, String startDate, String endDate,
@@ -107,6 +116,7 @@ public final class CdnManager {
     /**
      * 获取域名访问流量数据
      *
+     * @return 获取流量请求的回复
      * @link http://developer.qiniu.com/article/fusion/api/traffic-bandwidth.html
      */
     public Response getFluxData(String[] domains, String startDate, String endDate,
@@ -126,6 +136,7 @@ public final class CdnManager {
     /**
      * 获取CDN域名访问日志的下载链接
      *
+     * @return 获取日志下载链接的回复
      * @link http://developer.qiniu.com/article/fusion/api/log.html
      */
     public Response getCdnLogList(String[] domains, String logDate) throws QiniuException {
@@ -153,6 +164,7 @@ public final class CdnManager {
             String host, String fileName, final StringMap queryStringMap, String encryptKey, long deadline)
             throws UnsupportedEncodingException, MalformedURLException, NoSuchAlgorithmException {
         String urlToSign;
+        String encodedFileName = URLEncoder.encode(fileName, "utf-8").replaceAll("\\+", "%20");
         if (queryStringMap != null && queryStringMap.size() > 0) {
             List<String> queryStrings = new ArrayList<String>();
             for (Map.Entry<String, Object> entry : queryStringMap.map().entrySet()) {
@@ -162,15 +174,13 @@ public final class CdnManager {
                 queryStringBuilder.append(URLEncoder.encode(entry.getValue().toString(), "utf-8"));
                 queryStrings.add(queryStringBuilder.toString());
             }
-            urlToSign = String.format("%s/%s?%s", host, URLEncoder.encode(fileName, "utf-8"),
-                    StringUtils.join(queryStrings, "&"));
+            urlToSign = String.format("%s/%s?%s", host, encodedFileName, StringUtils.join(queryStrings, "&"));
         } else {
-            urlToSign = String.format("%s/%s", host, URLEncoder.encode(fileName, "utf-8"));
+            urlToSign = String.format("%s/%s", host, encodedFileName);
         }
 
         URL urlObj = new URL(urlToSign);
         String path = urlObj.getPath();
-
         String expireHex = Long.toHexString(deadline);
 
         String toSignStr = String.format("%s%s%s", encryptKey, path, expireHex);
