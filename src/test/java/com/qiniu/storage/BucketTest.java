@@ -64,8 +64,23 @@ public class BucketTest {
 
     @Test
     public void testListIterator() {
-        BucketManager.FileListIterator it = bucketManager
-                .createFileListIterator(TestConfig.bucket, "", 20, null);
+        BucketManager.FileListIterator it = bucketManager.createFileListIterator(TestConfig.bucket, "", 20, null);
+
+        assertTrue(it.hasNext());
+        FileInfo[] items0 = it.next();
+        assertNotNull(items0[0]);
+
+        while (it.hasNext()) {
+            FileInfo[] items = it.next();
+            if (items.length > 1) {
+                assertNotNull(items[0]);
+            }
+        }
+    }
+
+    @Test
+    public void testListIteratorWithDefaultLimit() {
+        BucketManager.FileListIterator it = bucketManager.createFileListIterator(TestConfig.bucket, "");
 
         assertTrue(it.hasNext());
         FileInfo[] items0 = it.next();
