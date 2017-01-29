@@ -17,53 +17,73 @@ import java.util.Iterator;
 /**
  * 主要涉及了空间资源管理及批量操作接口的实现，具体的接口规格可以参考
  *
- * @link http://developer.qiniu.com/docs/v6/api/reference/rs/
+ * @link http://developer.qiniu.com/kodo/api/rs
  */
 public final class BucketManager {
+    /**
+     * Auth 对象
+     * 该类需要使用QBox鉴权，所以需要指定Auth对象
+     */
     private final Auth auth;
+
+    /**
+     * Configuration 对象
+     * 该类相关的域名配置，解析配置，HTTP请求超时时间设置等
+     */
+
     private final Configuration configuration;
+
+    /**
+     * HTTP Client 对象
+     * 该类需要通过该对象来发送HTTP请求
+     */
     private final Client client;
 
-    public BucketManager(Auth auth, Configuration c) {
+    /**
+     * 构建一个新的 BucketManager 对象
+     *
+     * @param auth Auth对象
+     * @param cfg  Configuration对象
+     */
+    public BucketManager(Auth auth, Configuration cfg) {
         this.auth = auth;
-        this.configuration = c.clone();
-        client = new Client(c.dns, c.dnsHostFirst, c.proxy, c.connectTimeout, c.responseTimeout, c.writeTimeout);
+        this.configuration = cfg.clone();
+        client = new Client(cfg.dns, cfg.dnsHostFirst, cfg.proxy,
+                cfg.connectTimeout, cfg.responseTimeout, cfg.writeTimeout);
     }
 
     /**
-     * EncodedEntryURI格式
+     * EncodedEntryURI格式，其中 bucket+":"+key 称之为 entry
      *
      * @param bucket
      * @param key
-     * @return urlsafe_base64_encode(Bucket:Key)
+     * @return UrlSafeBase64.encodeToString(entry)
      */
-    public static String entry(String bucket, String key) {
-        return entry(bucket, key, true);
-    }
-
-
-    /**
-     * EncodedEntryURI格式
-     * 当 mustHaveKey 为 false， 且 key 为 null 时，返回 urlsafe_base64_encode(Bucket);
-     * 其它条件下返回  urlsafe_base64_encode(Bucket:Key)
-     *
-     * @param bucket
-     * @param key
-     * @param mustHaveKey
-     * @return urlsafe_base64_encode(entry)
-     */
-    public static String entry(String bucket, String key, boolean mustHaveKey) {
-        String en = bucket + ":" + key;
-        if (!mustHaveKey && (key == null)) {
-            en = bucket;
+    public static String encodedEntry(String bucket, String key) {
+        String encodedEntry;
+        if (key != null) {
+            encodedEntry = UrlSafeBase64.encodeToString(bucket + ":" + key);
+        } else {
+            encodedEntry = UrlSafeBase64.encodeToString(bucket);
         }
-        return UrlSafeBase64.encodeToString(en);
+        return encodedEntry;
     }
 
     /**
-     * 获取账号下所有空间名列表
+     * EncodedEntryURI格式，用在不指定key值的情况下
      *
-     * @return bucket 列表
+     * @param bucket 空间名称
+     * @return UrlSafeBase64.encodeToString(bucket)
+     */
+    public static String encodedEntry(String bucket) {
+        return encodedEntry(bucket, null);
+    }
+
+
+    /**
+     * 获取账号下所有空间名称列表
+     *
+     * @return 空间名称列表
      */
     public String[] buckets() throws QiniuException {
         Response r = rsGet("/buckets");
@@ -78,7 +98,7 @@ public final class BucketManager {
      * @return FileInfo迭代器
      */
     public FileListIterator createFileListIterator(String bucket, String prefix) {
-        return new FileListIterator(bucket, prefix, 100, null);
+        return new FileListIterator(bucket, prefix, 1000, null);
     }
 
     /**
@@ -116,15 +136,15 @@ public final class BucketManager {
     }
 
     /**
-     * 获取指定空间、文件名的状态
+     * 获取空间中文件的属性
      *
-     * @param bucket
-     * @param key
-     * @return
+     * @param bucket  空间名称
+     * @param fileKey 文件名称
+     * @return 文件属性
      * @throws QiniuException
      */
-    public FileInfo stat(String bucket, String key) throws QiniuException {
-        Response r = rsGet("/stat/" + entry(bucket, key));
+    public FileInfo stat(String bucket, String fileKey) throws QiniuException {
+        Response r = rsGet(String.format("/stat/%s", encodedEntry(bucket, fileKey)));
         return r.jsonToObject(FileInfo.class);
     }
 
@@ -136,87 +156,7 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public void delete(String bucket, String key) throws QiniuException {
-        rsPost("/delete/" + entry(bucket, key));
-    }
-
-    /**
-     * 修改指定空间、文件的文件名
-     *
-     * @param bucket
-     * @param oldname
-     * @param newname
-     * @throws QiniuException
-     */
-    public void rename(String bucket, String oldname, String newname) throws QiniuException {
-        move(bucket, oldname, bucket, newname);
-    }
-
-    /**
-     * 复制文件。要求空间在同一账号下。
-     *
-     * @param from_bucket
-     * @param from_key
-     * @param to_bucket
-     * @param to_key
-     * @throws QiniuException
-     */
-    public void copy(String from_bucket, String from_key, String to_bucket, String to_key) throws QiniuException {
-        String from = entry(from_bucket, from_key);
-        String to = entry(to_bucket, to_key);
-        String path = "/copy/" + from + "/" + to;
-        rsPost(path);
-    }
-
-    /**
-     * 复制文件。要求空间在同一账号下, 可以添加force参数为true强行复制文件。
-     *
-     * @param from_bucket
-     * @param from_key
-     * @param to_bucket
-     * @param to_key
-     * @param force
-     * @throws QiniuException
-     */
-    public void copy(String from_bucket, String from_key, String to_bucket,
-                     String to_key, boolean force) throws QiniuException {
-        String from = entry(from_bucket, from_key);
-        String to = entry(to_bucket, to_key);
-        String path = "/copy/" + from + "/" + to + "/force/" + force;
-        rsPost(path);
-    }
-
-    /**
-     * 移动文件。要求空间在同一账号下。
-     *
-     * @param from_bucket
-     * @param from_key
-     * @param to_bucket
-     * @param to_key
-     * @throws QiniuException
-     */
-    public void move(String from_bucket, String from_key, String to_bucket, String to_key) throws QiniuException {
-        String from = entry(from_bucket, from_key);
-        String to = entry(to_bucket, to_key);
-        String path = "/move/" + from + "/" + to;
-        rsPost(path);
-    }
-
-    /**
-     * 移动文件。要求空间在同一账号下, 可以添加force参数为true强行移动文件。
-     *
-     * @param from_bucket
-     * @param from_key
-     * @param to_bucket
-     * @param to_key
-     * @param force
-     * @throws QiniuException
-     */
-    public void move(String from_bucket, String from_key, String to_bucket,
-                     String to_key, boolean force) throws QiniuException {
-        String from = entry(from_bucket, from_key);
-        String to = entry(to_bucket, to_key);
-        String path = "/move/" + from + "/" + to + "/force/" + force;
-        rsPost(path);
+        rsPost(String.format("/delete/%s", encodedEntry(bucket, key)));
     }
 
     /**
@@ -227,12 +167,104 @@ public final class BucketManager {
      * @param mime
      * @throws QiniuException
      */
-    public void changeMime(String bucket, String key, String mime) throws QiniuException {
-        String resource = entry(bucket, key);
+    public void changeMime(String bucket, String key, String mime)
+            throws QiniuException {
+        String resource = encodedEntry(bucket, key);
         String encode_mime = UrlSafeBase64.encodeToString(mime);
         String path = "/chgm/" + resource + "/mime/" + encode_mime;
         rsPost(path);
     }
+
+    /**
+     * 重命名空间中的文件
+     *
+     * @param bucket
+     * @param oldFileKey
+     * @param newFileKey
+     * @throws QiniuException
+     */
+    public void rename(String bucket, String oldFileKey, String newFileKey)
+            throws QiniuException {
+        move(bucket, oldFileKey, bucket, newFileKey);
+    }
+
+
+    /**
+     * 重命名空间中的文件
+     *
+     * @param bucket
+     * @param oldFileKey
+     * @param newFileKey
+     * @throws QiniuException
+     */
+    public void rename(String bucket, String oldFileKey, String newFileKey, boolean force)
+            throws QiniuException {
+        move(bucket, oldFileKey, bucket, newFileKey, force);
+    }
+
+    /**
+     * 复制文件。要求空间在同一账号下。
+     *
+     * @param fromBucket
+     * @param fromFileKey
+     * @param toBucket
+     * @param toFileKey
+     * @throws QiniuException
+     */
+    public void copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
+            throws QiniuException {
+        copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
+    }
+
+    /**
+     * 复制文件。要求空间在同一账号下, 可以添加force参数为true强行复制文件。
+     *
+     * @param fromBucket
+     * @param fromFileKey
+     * @param toBucket
+     * @param toFileKey
+     * @param force
+     * @throws QiniuException
+     */
+    public void copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey, boolean force)
+            throws QiniuException {
+        String from = encodedEntry(fromBucket, fromFileKey);
+        String to = encodedEntry(toBucket, toFileKey);
+        String path = String.format("/copy/%s/%s/force/%s", from, to, force);
+        rsPost(path);
+    }
+
+    /**
+     * 移动文件。要求空间在同一账号下。
+     *
+     * @param fromBucket
+     * @param fromFileKey
+     * @param toBucket
+     * @param toFileKey
+     * @param force
+     * @throws QiniuException
+     */
+    public void move(String fromBucket, String fromFileKey, String toBucket,
+                     String toFileKey, boolean force) throws QiniuException {
+        String from = encodedEntry(fromBucket, fromFileKey);
+        String to = encodedEntry(toBucket, toFileKey);
+        String path = String.format("/move/%s/%s/force/%s", from, to, force);
+        rsPost(path);
+    }
+
+    /**
+     * 移动文件。要求空间在同一账号下, 可以添加force参数为true强行移动文件。
+     *
+     * @param fromBucket
+     * @param fromFileKey
+     * @param toBucket
+     * @param toFileKey
+     * @throws QiniuException
+     */
+    public void move(String fromBucket, String fromFileKey, String toBucket, String toFileKey) throws QiniuException {
+        move(fromBucket, fromFileKey, toBucket, toFileKey, false);
+    }
+
 
     /**
      * 抓取指定地址的文件，已指定名称保存在指定空间。
@@ -259,8 +291,8 @@ public final class BucketManager {
      */
     public DefaultPutRet fetch(String url, String bucket, String key) throws QiniuException {
         String resource = UrlSafeBase64.encodeToString(url);
-        String to = entry(bucket, key, false);
-        String path = "/fetch/" + resource + "/to/" + to;
+        String to = encodedEntry(bucket, key);
+        String path = String.format("/fetch/%s/to/%s", resource, to);
         Response r = ioPost(path);
         return r.jsonToObject(DefaultPutRet.class);
     }
@@ -274,8 +306,8 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public void prefetch(String bucket, String key) throws QiniuException {
-        String resource = entry(bucket, key);
-        String path = "/prefetch/" + resource;
+        String resource = encodedEntry(bucket, key);
+        String path = String.format("/prefetch/%s", resource);
         ioPost(path);
     }
 
@@ -285,9 +317,9 @@ public final class BucketManager {
      * @param operations
      * @return
      * @throws QiniuException
-     * @see Batch
+     * @see BatchOperations
      */
-    public Response batch(Batch operations) throws QiniuException {
+    public Response batch(BatchOperations operations) throws QiniuException {
         return rsPost("/batch", operations.toBody());
     }
 
@@ -323,41 +355,42 @@ public final class BucketManager {
     /**
      * 文件管理操作指令
      */
-    public static class Batch {
+    public static class BatchOperations {
         private ArrayList<String> ops;
 
-        public Batch() {
+        public BatchOperations() {
             this.ops = new ArrayList<String>();
         }
 
-        public Batch copy(String from_bucket, String from_key, String to_bucket, String to_key) {
-            String from = entry(from_bucket, from_key);
-            String to = entry(to_bucket, to_key);
-            ops.add("copy" + "/" + from + "/" + to);
+        public BatchOperations addCopyOp(String fromBucket, String fromFileKey, String toBucket, String toFileKey) {
+            String from = encodedEntry(fromBucket, fromFileKey);
+            String to = encodedEntry(toBucket, toFileKey);
+            ops.add(String.format("copy/%s/%s", from, to));
             return this;
         }
 
-        public Batch rename(String from_bucket, String from_key, String to_key) {
-            return move(from_bucket, from_key, from_bucket, to_key);
+
+        public BatchOperations addRenameOp(String fromBucket, String fromFileKey, String toFileKey) {
+            return addMoveOp(fromBucket, fromFileKey, fromBucket, toFileKey);
         }
 
-        public Batch move(String from_bucket, String from_key, String to_bucket, String to_key) {
-            String from = entry(from_bucket, from_key);
-            String to = entry(to_bucket, to_key);
-            ops.add("move" + "/" + from + "/" + to);
+        public BatchOperations addMoveOp(String fromBucket, String fromKey, String toBucket, String toKey) {
+            String from = encodedEntry(fromBucket, fromKey);
+            String to = encodedEntry(toBucket, toKey);
+            ops.add(String.format("move/%s/%s", from, to));
             return this;
         }
 
-        public Batch delete(String bucket, String... keys) {
+        public BatchOperations addDeleteOp(String bucket, String... keys) {
             for (String key : keys) {
-                ops.add("delete" + "/" + entry(bucket, key));
+                ops.add(String.format("delete/%s", encodedEntry(bucket, key)));
             }
             return this;
         }
 
-        public Batch stat(String bucket, String... keys) {
+        public BatchOperations addStatOps(String bucket, String... keys) {
             for (String key : keys) {
-                ops.add("stat" + "/" + entry(bucket, key));
+                ops.add(String.format("stat/%s", encodedEntry(bucket, key)));
             }
             return this;
         }
@@ -367,7 +400,7 @@ public final class BucketManager {
             return StringUtils.utf8Bytes(body);
         }
 
-        public Batch merge(Batch batch) {
+        public BatchOperations merge(BatchOperations batch) {
             this.ops.addAll(batch.ops);
             return this;
         }
@@ -386,7 +419,10 @@ public final class BucketManager {
 
         public FileListIterator(String bucket, String prefix, int limit, String delimiter) {
             if (limit <= 0) {
-                throw new IllegalArgumentException("limit must great than 0");
+                throw new IllegalArgumentException("limit must greater than 0");
+            }
+            if (limit > 1000) {
+                throw new IllegalArgumentException("limit must not greater than 1000");
             }
             this.bucket = bucket;
             this.prefix = prefix;
