@@ -47,7 +47,7 @@ public final class CdnManager {
      * 刷新链接列表，每次最多不可以超过100条链接
      *
      * @return 刷新请求的回复
-     * @link http://developer.qiniu.com/article/fusion/api/refresh.html
+     * @link http://developer.qiniu.com/fusion/api/cache-refresh
      */
     public Response refreshUrls(String[] urls) throws QiniuException {
         return refreshUrlsAndDirs(urls, null);
@@ -58,7 +58,7 @@ public final class CdnManager {
      * 刷新目录需要额外开通权限，可以联系七牛技术支持处理
      *
      * @return 刷新请求的回复
-     * @link http://developer.qiniu.com/article/fusion/api/refresh.html
+     * @link http://developer.qiniu.com/fusion/api/cache-refresh
      */
     public Response refreshDirs(String[] dirs) throws QiniuException {
         return refreshUrlsAndDirs(null, dirs);
@@ -82,7 +82,7 @@ public final class CdnManager {
      * 预取文件链接，每次最多不可以超过100条
      *
      * @return 预取请求的回复
-     * @link http://developer.qiniu.com/article/fusion/api/prefetch.html
+     * @link http://developer.qiniu.com/fusion/api/file-prefetching
      */
     public Response prefetchUrls(String[] urls) throws QiniuException {
         HashMap<String, String[]> req = new HashMap<>();
@@ -97,7 +97,7 @@ public final class CdnManager {
      * 获取域名访问带宽数据
      *
      * @return 获取带宽请求的回复
-     * @link http://developer.qiniu.com/article/fusion/api/traffic-bandwidth.html
+     * @link http://developer.qiniu.com/fusion/api/traffic-bandwidth
      */
     public Response getBandwidthData(String[] domains, String startDate, String endDate,
                                      String granularity) throws QiniuException {
@@ -117,7 +117,7 @@ public final class CdnManager {
      * 获取域名访问流量数据
      *
      * @return 获取流量请求的回复
-     * @link http://developer.qiniu.com/article/fusion/api/traffic-bandwidth.html
+     * @link http://developer.qiniu.com/fusion/api/traffic-bandwidth
      */
     public Response getFluxData(String[] domains, String startDate, String endDate,
                                 String granularity) throws QiniuException {
@@ -137,7 +137,7 @@ public final class CdnManager {
      * 获取CDN域名访问日志的下载链接
      *
      * @return 获取日志下载链接的回复
-     * @link http://developer.qiniu.com/article/fusion/api/log.html
+     * @link http://developer.qiniu.com/fusion/api/download-the-log
      */
     public Response getCdnLogList(String[] domains, String logDate) throws QiniuException {
         HashMap<String, String> req = new HashMap<>();
@@ -159,6 +159,7 @@ public final class CdnManager {
      * @param encryptKey     时间戳防盗链的签名密钥，从七牛后台获取
      * @param deadline       链接的有效期时间戳，是以秒为单位的Unix时间戳
      * @return signedUrl     最终的带时间戳防盗链的url
+     * @link https://support.qiniu.com/question/195128
      */
     public static String createTimestampAntiLeechUrl(
             String host, String fileName, final StringMap queryStringMap, String encryptKey, long deadline)
