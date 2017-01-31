@@ -9,45 +9,69 @@ import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 
 /**
- * 触发持久化处理
- * 针对七牛空间文件，触发异步文件处理。如异步视频转码等
+ * 对七牛空间中的文件进行持久化处理，适用于官方的fop指令和客户开发的ufop指令
+ * 例如图片处理指令，视频转码指令等
+ *
+ * @link http://developer.qiniu.com/dora
  */
 public final class OperationManager {
+    /**
+     * HTTP Client 对象
+     * 该类需要通过该对象来发送HTTP请求
+     */
     private final Client client;
+
+    /**
+     * Auth 对象
+     * 该类需要使用QBox鉴权，所以需要指定Auth对象
+     */
     private final Auth auth;
+
+    /**
+     * Configuration 对象
+     * 该类相关的域名配置，解析配置，HTTP请求超时时间设置等
+     */
+
     private final Configuration configuration;
 
-    public OperationManager(Auth auth, Configuration c) {
+    /**
+     * 构建一个新的 OperationManager 对象
+     *
+     * @param auth Auth对象
+     * @param cfg  Configuration对象
+     */
+    public OperationManager(Auth auth, Configuration cfg) {
         this.auth = auth;
-        configuration = c.clone();
+        configuration = cfg.clone();
         this.client = new Client(configuration.dns, configuration.dnsHostFirst, configuration.proxy,
                 configuration.connectTimeout, configuration.responseTimeout, configuration.writeTimeout);
     }
 
     /**
-     * 触发 空间 文件 的 pfop 操作
+     * 发送请求对空间中的文件进行持久化处理
      *
      * @param bucket 空间名
      * @param key    文件名
-     * @param fops   fop指令
-     * @return persistentId
+     * @param fops   fops指令，如果有多个指令，需要使用分号(;)进行拼接，例如 avthumb/mp4/xxx|saveas/xxx;vframe/jpg/xxx|saveas/xxx
+     * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
      * @throws QiniuException 触发失败异常，包含错误响应等信息
-     * @link http://developer.qiniu.com/docs/v6/api/reference/fop/pfop/pfop.html
+     * @link http://developer.qiniu.com/dora/api/persistent-data-processing-pfop
+     * @deprecated 数据持久化处理时，请指定 pipeline 参数以保障处理效率
      */
     public String pfop(String bucket, String key, String fops) throws QiniuException {
         return pfop(bucket, key, fops, null);
     }
 
     /**
-     * 触发 空间 文件 的 pfop 操作
+     * 发送请求对空间中的文件进行持久化处理
      *
      * @param bucket 空间名
      * @param key    文件名
-     * @param fops   fop指令
+     * @param fops   fops指令，如果有多个指令，需要使用分号(;)进行拼接，例如 avthumb/mp4/xxx|saveas/xxx;vframe/jpg/xxx|saveas/xxx
      * @param params notifyURL、force、pipeline 等参数
-     * @return persistentId
+     * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
      * @throws QiniuException 触发失败异常，包含错误响应等信息
-     * @link http://developer.qiniu.com/docs/v6/api/reference/fop/pfop/pfop.html
+     * @link http://developer.qiniu.com/dora/api/persistent-data-processing-pfop
      */
     public String pfop(String bucket, String key, String fops, StringMap params) throws QiniuException {
         params = params == null ? new StringMap() : params;
@@ -61,6 +85,62 @@ public final class OperationManager {
             return status.persistentId;
         }
         return null;
+    }
+
+    /**
+     * 发送请求对空间中的文件进行持久化处理
+     *
+     * @param bucket    空间名
+     * @param key       文件名
+     * @param fops      fop指令
+     * @param pipeline  持久化数据处理队列名称
+     * @param notifyURL 处理结果通知地址，任务完成后自动以POST方式将处理结果提交到指定的地址
+     * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
+     * @throws QiniuException 触发失败异常，包含错误响应等信息
+     * @link http://developer.qiniu.com/dora/api/persistent-data-processing-pfop
+     */
+    public String pfop(String bucket, String key, String fops, String pipeline, String notifyURL)
+            throws QiniuException {
+        StringMap params = new StringMap().put("pipeline", pipeline).putNotEmpty("notifyURL", notifyURL);
+        return pfop(bucket, key, fops, params);
+    }
+
+    /**
+     * 发送请求对空间中的文件进行持久化处理
+     *
+     * @param bucket   空间名
+     * @param key      文件名
+     * @param fops     fop指令
+     * @param pipeline 持久化数据处理队列名称
+     * @param force    用于对同一个指令进行强制处理时指定，一般用于覆盖空间已有文件或者重试失败的指令
+     * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
+     * @throws QiniuException 触发失败异常，包含错误响应等信息
+     * @link http://developer.qiniu.com/dora/api/persistent-data-processing-pfop
+     */
+    public String pfop(String bucket, String key, String fops, String pipeline, boolean force)
+            throws QiniuException {
+        StringMap params = new StringMap().put("pipeline", pipeline).putWhen("force", 1, force);
+        return pfop(bucket, key, fops, params);
+    }
+
+    /**
+     * 发送请求对空间中的文件进行持久化处理
+     *
+     * @param bucket    空间名
+     * @param key       文件名
+     * @param fops      fop指令
+     * @param pipeline  持久化数据处理队列名称
+     * @param notifyURL 处理结果通知地址，任务完成后自动以POST方式将处理结果提交到指定的地址
+     * @param force     用于对同一个指令进行强制处理时指定，一般用于覆盖空间已有文件或者重试失败的指令
+     * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
+     * @throws QiniuException 触发失败异常，包含错误响应等信息
+     * @link http://developer.qiniu.com/dora/api/persistent-data-processing-pfop
+     */
+    public String pfop(String bucket, String key, String fops, String pipeline, String notifyURL, boolean force)
+            throws QiniuException {
+        StringMap params = new StringMap().put("pipeline", pipeline).
+                put("notifyURL", notifyURL).putWhen("force", 1, force);
+        return pfop(bucket, key, fops, params);
     }
 
     private class PfopStatus {
