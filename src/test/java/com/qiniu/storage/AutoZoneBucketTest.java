@@ -90,7 +90,7 @@ public class AutoZoneBucketTest {
     public void testStat() {
         try {
             FileInfo info = bucketManager.stat(TestConfig.bucket, TestConfig.key);
-            assertEquals("FmYW4RYti94tr4ncaKzcTJz9M4Y9", info.hash);
+            assertEquals("FmYW4RYti94tr4ncaKzcTJz9M4Y9", info.getHash());
         } catch (QiniuException e) {
             e.printStackTrace();
             fail();
@@ -107,7 +107,7 @@ public class AutoZoneBucketTest {
             bucketManager.stat(TestConfig.bucket, null);
             fail();
         } catch (QiniuException e) {
-            assertEquals(612, e.code());
+            assertEquals(631, e.code());
         }
 
         try {
@@ -131,7 +131,7 @@ public class AutoZoneBucketTest {
             bucketManager.delete(TestConfig.bucket, null);
             fail();
         } catch (QiniuException e) {
-            assertEquals(612, e.code());
+            assertEquals(631, e.code());
         }
 
         try {
@@ -181,10 +181,11 @@ public class AutoZoneBucketTest {
     @Test
     public void testPrefetch() {
         try {
-            bucketManager.prefetch(TestConfig.bucket, "java-sdk.html");
+            bucketManager.setImage(TestConfig.bucket, "http://developer.qiniu.com/");
+            bucketManager.prefetch(TestConfig.bucket, "kodo/sdk/java");
+            bucketManager.unsetImage(TestConfig.bucket);
         } catch (QiniuException e) {
-            e.printStackTrace();
-            fail();
+            fail(e.response.toString());
         }
     }
 
@@ -202,8 +203,8 @@ public class AutoZoneBucketTest {
     @Test
     public void testBatchCopy() {
         String key = "copyTo" + Math.random();
-        BucketManager.Batch ops = new BucketManager.Batch().
-                copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key);
+        BucketManager.BatchOperations ops = new BucketManager.BatchOperations().
+                addCopyOp(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -212,7 +213,7 @@ public class AutoZoneBucketTest {
             e.printStackTrace();
             fail();
         }
-        ops = new BucketManager.Batch().delete(TestConfig.bucket, key);
+        ops = new BucketManager.BatchOperations().addDeleteOp(TestConfig.bucket, key);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -233,7 +234,7 @@ public class AutoZoneBucketTest {
         }
         String key2 = key + "to";
         StringMap x = new StringMap().put(key, key2);
-        BucketManager.Batch ops = new BucketManager.Batch().move(TestConfig.bucket,
+        BucketManager.BatchOperations ops = new BucketManager.BatchOperations().addMoveOp(TestConfig.bucket,
                 key, TestConfig.bucket, key2);
         try {
             Response r = bucketManager.batch(ops);
@@ -261,7 +262,7 @@ public class AutoZoneBucketTest {
             fail();
         }
         String key2 = key + "to";
-        BucketManager.Batch ops = new BucketManager.Batch().rename(TestConfig.bucket, key, key2);
+        BucketManager.BatchOperations ops = new BucketManager.BatchOperations().addRenameOp(TestConfig.bucket, key, key2);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -281,7 +282,7 @@ public class AutoZoneBucketTest {
     @Test
     public void testBatchStat() {
         String[] array = {"java-sdk.html"};
-        BucketManager.Batch ops = new BucketManager.Batch().stat(TestConfig.bucket, array);
+        BucketManager.BatchOperations ops = new BucketManager.BatchOperations().addStatOps(TestConfig.bucket, array);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -311,12 +312,12 @@ public class AutoZoneBucketTest {
             fail();
         }
 
-        BucketManager.Batch ops = new BucketManager.Batch()
-                .copy(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key)
-                .move(TestConfig.bucket, key1, TestConfig.bucket, key2)
-                .rename(TestConfig.bucket, key3, key4)
-                .stat(TestConfig.bucket, array)
-                .stat(TestConfig.bucket, array[0]);
+        BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
+                .addCopyOp(TestConfig.bucket, TestConfig.key, TestConfig.bucket, key)
+                .addMoveOp(TestConfig.bucket, key1, TestConfig.bucket, key2)
+                .addRenameOp(TestConfig.bucket, key3, key4)
+                .addStatOps(TestConfig.bucket, array)
+                .addStatOps(TestConfig.bucket, array[0]);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -328,7 +329,7 @@ public class AutoZoneBucketTest {
             fail();
         }
 
-        BucketManager.Batch opsDel = new BucketManager.Batch().delete(TestConfig.bucket,
+        BucketManager.BatchOperations opsDel = new BucketManager.BatchOperations().addDeleteOp(TestConfig.bucket,
                 key, key1, key2, key3, key4);
 
         try {
