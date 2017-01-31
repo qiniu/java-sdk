@@ -335,4 +335,22 @@ public class BucketTest {
             fail(e.response.toString());
         }
     }
+
+    @Test
+    public void testSetAndUnsetImage() {
+        String srcSiteUrl = "http://developer.qiniu.com/";
+        String host = "developer.qiniu.com";
+        try {
+            Response setResp = bucketManager.setImage(TestConfig.bucket, srcSiteUrl);
+            assertEquals(200, setResp.statusCode);
+
+            setResp = bucketManager.setImage(TestConfig.bucket, srcSiteUrl, host);
+            assertEquals(200, setResp.statusCode);
+
+            Response unsetResp = bucketManager.unsetImage(TestConfig.bucket);
+            assertEquals(200, unsetResp.statusCode);
+        } catch (QiniuException e) {
+            fail(e.response.toString());
+        }
+    }
 }
