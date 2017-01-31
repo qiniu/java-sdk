@@ -185,7 +185,9 @@ public class BucketTest {
     @Test
     public void testPrefetch() {
         try {
-            bucketManager.prefetch(TestConfig.bucket, "java-sdk.html");
+            bucketManager.setImage(TestConfig.bucket, "http://developer.qiniu.com/");
+            bucketManager.prefetch(TestConfig.bucket, "kodo/sdk/java");
+            bucketManager.unsetImage(TestConfig.bucket);
         } catch (QiniuException e) {
             fail(e.response.toString());
         }
