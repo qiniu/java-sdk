@@ -149,7 +149,7 @@ public final class BucketManager {
      * @link http://developer.qiniu.com/kodo/api/stat
      */
     public FileInfo stat(String bucket, String fileKey) throws QiniuException {
-        Response r = rsGet(String.format("/stat/%s", encodedEntry(bucket, fileKey)));
+        Response r = rsGet(bucket, String.format("/stat/%s", encodedEntry(bucket, fileKey)));
         return r.jsonToObject(FileInfo.class);
     }
 
@@ -162,7 +162,7 @@ public final class BucketManager {
      * @link http://developer.qiniu.com/kodo/api/delete
      */
     public void delete(String bucket, String key) throws QiniuException {
-        rsPost(String.format("/delete/%s", encodedEntry(bucket, key)));
+        rsPost(bucket, String.format("/delete/%s", encodedEntry(bucket, key)), null);
     }
 
     /**
@@ -177,9 +177,9 @@ public final class BucketManager {
     public void changeMime(String bucket, String key, String mime)
             throws QiniuException {
         String resource = encodedEntry(bucket, key);
-        String encode_mime = UrlSafeBase64.encodeToString(mime);
-        String path = "/chgm/" + resource + "/mime/" + encode_mime;
-        rsPost(path);
+        String encodedMime = UrlSafeBase64.encodeToString(mime);
+        String path = String.format("/chgm/%s/mime/%s", resource, encodedMime);
+        rsPost(bucket, path, null);
     }
 
     /**
@@ -225,7 +225,7 @@ public final class BucketManager {
         String from = encodedEntry(fromBucket, fromFileKey);
         String to = encodedEntry(toBucket, toFileKey);
         String path = String.format("/copy/%s/%s/force/%s", from, to, force);
-        rsPost(path);
+        rsPost(fromBucket, path, null);
     }
 
     /**
@@ -258,7 +258,7 @@ public final class BucketManager {
         String from = encodedEntry(fromBucket, fromFileKey);
         String to = encodedEntry(toBucket, toFileKey);
         String path = String.format("/move/%s/%s/force/%s", from, to, force);
-        rsPost(path);
+        rsPost(fromBucket, path, null);
     }
 
     /**
@@ -301,7 +301,7 @@ public final class BucketManager {
         String resource = UrlSafeBase64.encodeToString(url);
         String to = encodedEntry(bucket, key);
         String path = String.format("/fetch/%s/to/%s", resource, to);
-        Response r = ioPost(path);
+        Response r = ioPost(bucket, path);
         return r.jsonToObject(DefaultPutRet.class);
     }
 
@@ -316,7 +316,7 @@ public final class BucketManager {
     public void prefetch(String bucket, String key) throws QiniuException {
         String resource = encodedEntry(bucket, key);
         String path = String.format("/prefetch/%s", resource);
-        ioPost(path);
+        ioPost(bucket, path);
     }
 
     /**
@@ -403,6 +403,13 @@ public final class BucketManager {
     }
 
     /**
+     * 批量文件管理请求
+     */
+    public Response batch(BatchOperations operations) throws QiniuException {
+        return rsPost(operations.execBucket(), "/batch", operations.toBody());
+    }
+
+    /**
      * 文件管理批量操作指令构建对象
      */
     public static class BatchOperations {
@@ -420,6 +427,7 @@ public final class BucketManager {
             String from = encodedEntry(fromBucket, fromFileKey);
             String to = encodedEntry(toBucket, toFileKey);
             ops.add(String.format("copy/%s/%s", from, to));
+            setExecBucket(fromBucket);
             return this;
         }
 
@@ -437,6 +445,7 @@ public final class BucketManager {
             String from = encodedEntry(fromBucket, fromKey);
             String to = encodedEntry(toBucket, toKey);
             ops.add(String.format("move/%s/%s", from, to));
+            setExecBucket(fromBucket);
             return this;
         }
 
