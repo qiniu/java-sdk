@@ -58,6 +58,7 @@ public final class BucketManager {
      * @param bucket
      * @param key
      * @return UrlSafeBase64.encodeToString(entry)
+     * @link http://developer.qiniu.com/kodo/api/data-format
      */
     public static String encodedEntry(String bucket, String key) {
         String encodedEntry;
@@ -74,6 +75,7 @@ public final class BucketManager {
      *
      * @param bucket 空间名称
      * @return UrlSafeBase64.encodeToString(bucket)
+     * @link http://developer.qiniu.com/kodo/api/data-format
      */
     public static String encodedEntry(String bucket) {
         return encodedEntry(bucket, null);
@@ -142,6 +144,7 @@ public final class BucketManager {
      * @param fileKey 文件名称
      * @return 文件属性
      * @throws QiniuException
+     * @link http://developer.qiniu.com/kodo/api/stat
      */
     public FileInfo stat(String bucket, String fileKey) throws QiniuException {
         Response r = rsGet(String.format("/stat/%s", encodedEntry(bucket, fileKey)));
@@ -151,21 +154,23 @@ public final class BucketManager {
     /**
      * 删除指定空间、文件名的文件
      *
-     * @param bucket
-     * @param key
+     * @param bucket 空间名称
+     * @param key    文件名称
      * @throws QiniuException
+     * @link http://developer.qiniu.com/kodo/api/delete
      */
     public void delete(String bucket, String key) throws QiniuException {
         rsPost(String.format("/delete/%s", encodedEntry(bucket, key)));
     }
 
     /**
-     * 修改完文件mimeTYpe
+     * 修改文件的MimeType
      *
-     * @param bucket
-     * @param key
-     * @param mime
+     * @param bucket 空间名称
+     * @param key    文件名称
+     * @param mime   文件的新MimeType
      * @throws QiniuException
+     * @link http://developer.qiniu.com/kodo/api/chgm
      */
     public void changeMime(String bucket, String key, String mime)
             throws QiniuException {
@@ -176,25 +181,12 @@ public final class BucketManager {
     }
 
     /**
-     * 重命名空间中的文件
+     * 重命名空间中的文件，可以设置force参数为true强行覆盖空间已有同名文件
      *
-     * @param bucket
-     * @param oldFileKey
-     * @param newFileKey
-     * @throws QiniuException
-     */
-    public void rename(String bucket, String oldFileKey, String newFileKey)
-            throws QiniuException {
-        move(bucket, oldFileKey, bucket, newFileKey);
-    }
-
-
-    /**
-     * 重命名空间中的文件
-     *
-     * @param bucket
-     * @param oldFileKey
-     * @param newFileKey
+     * @param bucket     空间名称
+     * @param oldFileKey 文件名称
+     * @param newFileKey 新文件名
+     * @param force      强制覆盖空间中已有同名（和 newFileKey 相同）的文件
      * @throws QiniuException
      */
     public void rename(String bucket, String oldFileKey, String newFileKey, boolean force)
@@ -203,27 +195,27 @@ public final class BucketManager {
     }
 
     /**
-     * 复制文件。要求空间在同一账号下。
+     * 重命名空间中的文件
      *
-     * @param fromBucket
-     * @param fromFileKey
-     * @param toBucket
-     * @param toFileKey
+     * @param bucket     空间名称
+     * @param oldFileKey 文件名称
+     * @param newFileKey 新文件名
      * @throws QiniuException
+     * @link http://developer.qiniu.com/kodo/api/move
      */
-    public void copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
+    public void rename(String bucket, String oldFileKey, String newFileKey)
             throws QiniuException {
-        copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
+        move(bucket, oldFileKey, bucket, newFileKey);
     }
 
     /**
-     * 复制文件。要求空间在同一账号下, 可以添加force参数为true强行复制文件。
+     * 复制文件，要求空间在同一账号下，可以设置force参数为true强行覆盖空间已有同名文件
      *
-     * @param fromBucket
-     * @param fromFileKey
-     * @param toBucket
-     * @param toFileKey
-     * @param force
+     * @param fromBucket  源空间名称
+     * @param fromFileKey 源文件名称
+     * @param toBucket    目的空间名称
+     * @param toFileKey   目的文件名称
+     * @param force       强制覆盖空间中已有同名（和 toFileKey 相同）的文件
      * @throws QiniuException
      */
     public void copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey, boolean force)
@@ -235,13 +227,28 @@ public final class BucketManager {
     }
 
     /**
-     * 移动文件。要求空间在同一账号下。
+     * 复制文件，要求空间在同一账号下
      *
-     * @param fromBucket
-     * @param fromFileKey
-     * @param toBucket
-     * @param toFileKey
-     * @param force
+     * @param fromBucket  源空间名称
+     * @param fromFileKey 源文件名称
+     * @param toBucket    目的空间名称
+     * @param toFileKey   目的文件名称
+     * @throws QiniuException
+     */
+    public void copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
+            throws QiniuException {
+        copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
+    }
+
+
+    /**
+     * 移动文件，要求空间在同一账号下
+     *
+     * @param fromBucket  源空间名称
+     * @param fromFileKey 源文件名称
+     * @param toBucket    目的空间名称
+     * @param toFileKey   目的文件名称
+     * @param force       强制覆盖空间中已有同名（和 toFileKey 相同）的文件
      * @throws QiniuException
      */
     public void move(String fromBucket, String fromFileKey, String toBucket,
@@ -255,10 +262,10 @@ public final class BucketManager {
     /**
      * 移动文件。要求空间在同一账号下, 可以添加force参数为true强行移动文件。
      *
-     * @param fromBucket
-     * @param fromFileKey
-     * @param toBucket
-     * @param toFileKey
+     * @param fromBucket  源空间名称
+     * @param fromFileKey 源文件名称
+     * @param toBucket    目的空间名称
+     * @param toFileKey   目的文件名称
      * @throws QiniuException
      */
     public void move(String fromBucket, String fromFileKey, String toBucket, String toFileKey) throws QiniuException {
@@ -267,12 +274,12 @@ public final class BucketManager {
 
 
     /**
-     * 抓取指定地址的文件，已指定名称保存在指定空间。
-     * 要求指定url可访问。
-     * 大文件不建议使用此接口抓取。可先下载再上传。
+     * 抓取指定地址的文件，以指定名称保存在指定空间
+     * 要求指定url可访问，大文件不建议使用此接口抓取。可先下载再上传
+     * 如果不指定保存的文件名，那么以文件内容的 etag 作为文件名
      *
-     * @param url
-     * @param bucket
+     * @param url    待抓取的文件链接
+     * @param bucket 文件抓取后保存的空间
      * @throws QiniuException
      */
     public DefaultPutRet fetch(String url, String bucket) throws QiniuException {
@@ -280,13 +287,12 @@ public final class BucketManager {
     }
 
     /**
-     * 抓取指定地址的文件，已指定名称保存在指定空间。
-     * 要求指定url可访问。
-     * 大文件不建议使用此接口抓取。可先下载再上传。
+     * 抓取指定地址的文件，已指定名称保存在指定空间
+     * 要求指定url可访问，大文件不建议使用此接口抓取。可先下载再上传
      *
-     * @param url
-     * @param bucket
-     * @param key
+     * @param url    待抓取的文件链接
+     * @param bucket 文件抓取后保存的空间
+     * @param key    文件抓取后保存的文件名
      * @throws QiniuException
      */
     public DefaultPutRet fetch(String url, String bucket, String key) throws QiniuException {
@@ -298,11 +304,11 @@ public final class BucketManager {
     }
 
     /**
-     * 对于设置了镜像存储的空间，从镜像源站抓取指定名称的资源并存储到该空间中。
+     * 对于设置了镜像存储的空间，从镜像源站抓取指定名称的资源并存储到该空间中
      * 如果该空间中已存在该名称的资源，则会将镜像源站的资源覆盖空间中相同名称的资源
      *
-     * @param bucket
-     * @param key
+     * @param bucket 空间名称
+     * @param key    文件名称
      * @throws QiniuException
      */
     public void prefetch(String bucket, String key) throws QiniuException {
@@ -314,7 +320,7 @@ public final class BucketManager {
     /**
      * 批量执行文件管理相关操作
      *
-     * @param operations
+     * @param operations 指令列表
      * @return
      * @throws QiniuException
      * @see BatchOperations
@@ -323,6 +329,49 @@ public final class BucketManager {
         return rsPost("/batch", operations.toBody());
     }
 
+    /**
+     * 设置空间的镜像源站
+     *
+     * @param bucket     空间名称
+     * @param srcSiteUrl 镜像回源地址
+     */
+    public Response setImage(String bucket, String srcSiteUrl) throws QiniuException {
+        return setImage(bucket, srcSiteUrl, null);
+    }
+
+    /**
+     * 设置空间的镜像源站
+     *
+     * @param bucket     空间名称
+     * @param srcSiteUrl 镜像回源地址
+     * @param host       镜像回源Host
+     */
+    public Response setImage(String bucket, String srcSiteUrl, String host) throws QiniuException {
+        String encodedSiteUrl = UrlSafeBase64.encodeToString(srcSiteUrl);
+        String encodedHost = null;
+        if (host != null && host.length() > 0) {
+            encodedHost = UrlSafeBase64.encodeToString(host);
+        }
+        String path = String.format("/image/%s/from/%s", bucket, encodedSiteUrl);
+        if (encodedHost != null) {
+            path += String.format("/host/%s", encodedHost);
+        }
+        return pubPost(path);
+    }
+
+    /**
+     * 取消空间的镜像源站设置
+     *
+     * @param bucket 空间名称
+     */
+    public Response unsetImage(String bucket) throws QiniuException {
+        String path = String.format("/unimage/%s", bucket);
+        return pubPost(path);
+    }
+
+    /*
+    * 相关请求的方法列表
+    * */
     private Response rsPost(String path, byte[] body) throws QiniuException {
         String url = configuration.zone.rsHost() + path;
         return post(url, body);
@@ -342,6 +391,11 @@ public final class BucketManager {
         return post(url, null);
     }
 
+    private Response pubPost(String path) throws QiniuException {
+        String url = "http://pu.qbox.me:10200" + path;
+        return post(url, null);
+    }
+
     private Response get(String url) throws QiniuException {
         StringMap headers = auth.authorization(url);
         return client.get(url, headers);
@@ -353,7 +407,7 @@ public final class BucketManager {
     }
 
     /**
-     * 文件管理操作指令
+     * 文件管理批量操作指令构建对象
      */
     public static class BatchOperations {
         private ArrayList<String> ops;
@@ -362,6 +416,9 @@ public final class BucketManager {
             this.ops = new ArrayList<String>();
         }
 
+        /**
+         * 添加copy指令
+         */
         public BatchOperations addCopyOp(String fromBucket, String fromFileKey, String toBucket, String toFileKey) {
             String from = encodedEntry(fromBucket, fromFileKey);
             String to = encodedEntry(toBucket, toFileKey);
@@ -369,11 +426,16 @@ public final class BucketManager {
             return this;
         }
 
-
+        /**
+         * 添加重命名指令
+         */
         public BatchOperations addRenameOp(String fromBucket, String fromFileKey, String toFileKey) {
             return addMoveOp(fromBucket, fromFileKey, fromBucket, toFileKey);
         }
 
+        /**
+         * 添加move指令
+         */
         public BatchOperations addMoveOp(String fromBucket, String fromKey, String toBucket, String toKey) {
             String from = encodedEntry(fromBucket, fromKey);
             String to = encodedEntry(toBucket, toKey);
@@ -381,6 +443,9 @@ public final class BucketManager {
             return this;
         }
 
+        /**
+         * 添加delete指令
+         */
         public BatchOperations addDeleteOp(String bucket, String... keys) {
             for (String key : keys) {
                 ops.add(String.format("delete/%s", encodedEntry(bucket, key)));
@@ -388,6 +453,9 @@ public final class BucketManager {
             return this;
         }
 
+        /**
+         * 添加stat指令
+         */
         public BatchOperations addStatOps(String bucket, String... keys) {
             for (String key : keys) {
                 ops.add(String.format("stat/%s", encodedEntry(bucket, key)));
@@ -407,7 +475,7 @@ public final class BucketManager {
     }
 
     /**
-     * 获取文件列表迭代器
+     * 创建文件列表迭代器
      */
     public class FileListIterator implements Iterator<FileInfo[]> {
         private String marker = null;
