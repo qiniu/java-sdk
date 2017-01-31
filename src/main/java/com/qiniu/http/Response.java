@@ -89,7 +89,7 @@ public final class Response {
                 address, duration, error, body);
     }
 
-    static Response createError(okhttp3.Response response, String address, double duration, String error) {
+    public static Response createError(okhttp3.Response response, String address, double duration, String error) {
         if (response == null) {
             return new Response(null, -1, "", "", "", "", duration, error, null);
         }

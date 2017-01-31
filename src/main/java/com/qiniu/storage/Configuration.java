@@ -1,5 +1,7 @@
 package com.qiniu.storage;
 
+import com.qiniu.common.QiniuException;
+import com.qiniu.common.ZoneReqInfo;
 import com.qiniu.common.Constants;
 import com.qiniu.common.Zone;
 import com.qiniu.http.ProxyConfiguration;
@@ -13,9 +15,9 @@ public final class Configuration implements Cloneable {
     /**
      * 使用的Zone
      */
-    public final Zone zone;
+    private final Zone zone;
     /**
-     * 上传是否使用 https , 默认否
+     * 空间相关上传管理操作是否使用 https , 默认否
      */
     public boolean uploadByHttps = false;
     /**
@@ -64,4 +66,60 @@ public final class Configuration implements Cloneable {
         return null;
     }
 
+    public String upHost(String upToken) throws QiniuException {
+        if (uploadByHttps) {
+            return zone.getUpHttps(new ZoneReqInfo(upToken));
+        } else {
+            return zone.getUpHttp(new ZoneReqInfo(upToken));
+        }
+    }
+
+    public String upHostBackup(String upToken) throws QiniuException {
+        if (uploadByHttps) {
+            return zone.getUpBackupHttps(new ZoneReqInfo(upToken));
+        } else {
+            return zone.getUpBackupHttp(new ZoneReqInfo(upToken));
+        }
+    }
+
+    public String rsfHost(String ak, String bucket) {
+        if (uploadByHttps) {
+            return zone.getRsfHttps(new ZoneReqInfo(ak, bucket));
+        } else {
+            return zone.getRsfHttp(new ZoneReqInfo(ak, bucket));
+        }
+    }
+
+    public String rsHost(String ak, String bucket) {
+        if (uploadByHttps) {
+            return zone.getRsHttps(new ZoneReqInfo(ak, bucket));
+        } else {
+            return zone.getRsHttp(new ZoneReqInfo(ak, bucket));
+        }
+    }
+
+    public String rsBucketsHost() {
+        if (uploadByHttps) {
+            return "https://rs.qbox.me";
+        } else {
+            return "http://rs.qiniu.com";
+        }
+    }
+
+    public String ioHost(String ak, String bucket) {
+        if (uploadByHttps) {
+            return zone.getIovipHttps(new ZoneReqInfo(ak, bucket));
+        } else {
+            return zone.getIovipHttp(new ZoneReqInfo(ak, bucket));
+        }
+    }
+
+
+    public String apiHost(String ak, String bucket) {
+        if (uploadByHttps) {
+            return zone.getApiHttps(new ZoneReqInfo(ak, bucket));
+        } else {
+            return zone.getApiHttp(new ZoneReqInfo(ak, bucket));
+        }
+    }
 }

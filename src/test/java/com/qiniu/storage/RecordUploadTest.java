@@ -8,13 +8,13 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.persistent.FileRecorder;
 import com.qiniu.util.Etag;
-import com.qiniu.util.UrlSafeBase64;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.MessageDigest;
 import java.util.Date;
 import java.util.Random;
 
@@ -107,9 +107,9 @@ public class RecordUploadTest {
             assertNotNull(response);
             assertTrue(response.isOK());
             assertEquals(etag, hash);
-            doSleep(100);
+            doSleep(500);
             showRecord("nodata: " + size + " :", recorder, recordKey);
-            assertNull(recorder.get(recordKey));
+            assertNull("文件上传成功,但断点记录文件为清理", recorder.get(recordKey));
         } finally {
             TempFile.remove(f);
         }
@@ -201,7 +201,7 @@ public class RecordUploadTest {
         fr.set(key, data);
         byte[] data2 = fr.get(key);
 
-        File recoderFile = new File(folder, UrlSafeBase64.encodeToString(key));
+        File recoderFile = new File(folder, hash(key));
 
         long m1 = recoderFile.lastModified();
 
@@ -230,6 +230,23 @@ public class RecordUploadTest {
         fr.set(key, data);
         long m4 = recoderFile.lastModified();
         assertTrue(m4 > m1);
+    }
+
+    // copied from FileRecorder
+    private static String hash(String base) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            byte[] hash = digest.digest(base.getBytes());
+            StringBuffer hexString = new StringBuffer();
+
+            for (int i = 0; i < hash.length; i++) {
+                hexString.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            return hexString.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     class Up {
