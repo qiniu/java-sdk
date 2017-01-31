@@ -88,7 +88,9 @@ public final class BucketManager {
      * @return 空间名称列表
      */
     public String[] buckets() throws QiniuException {
-        Response r = rsGet("/buckets");
+        // 获取 bucket 列表 写死用rs.qiniu.com or rs.qbox.me @冯立元
+        String url = configuration.rsBucketsHost() + "/buckets";
+        Response r = get(url);
         return r.jsonToObject(String[].class);
     }
 
@@ -132,7 +134,7 @@ public final class BucketManager {
         StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
                 .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
 
-        String url = configuration.zone.rsfHost(auth.accessKey, bucket) + "/list?" + map.formString();
+        String url = configuration.rsfHost(auth.accessKey, bucket) + "/list?" + map.formString();
         Response r = get(url);
         return r.jsonToObject(FileListing.class);
     }
@@ -318,18 +320,6 @@ public final class BucketManager {
     }
 
     /**
-     * 批量执行文件管理相关操作
-     *
-     * @param operations 指令列表
-     * @return
-     * @throws QiniuException
-     * @see BatchOperations
-     */
-    public Response batch(BatchOperations operations) throws QiniuException {
-        return rsPost("/batch", operations.toBody());
-    }
-
-    /**
      * 设置空间的镜像源站
      *
      * @param bucket     空间名称
@@ -372,22 +362,22 @@ public final class BucketManager {
     /*
     * 相关请求的方法列表
     * */
-    private Response rsPost(String path, byte[] body) throws QiniuException {
-        String url = configuration.zone.rsHost() + path;
+
+    private Response rsPost(String bucket, String path, byte[] body) throws QiniuException {
+        check(bucket);
+        String url = configuration.rsHost(auth.accessKey, bucket) + path;
         return post(url, body);
     }
 
-    private Response rsPost(String path) throws QiniuException {
-        return rsPost(path, null);
-    }
-
-    private Response rsGet(String path) throws QiniuException {
-        String url = configuration.zone.rsHost() + path;
+    private Response rsGet(String bucket, String path) throws QiniuException {
+        check(bucket);
+        String url = configuration.rsHost(auth.accessKey, bucket) + path;
         return get(url);
     }
 
-    private Response ioPost(String path) throws QiniuException {
-        String url = configuration.zone.ioHost() + path;
+    private Response ioPost(String bucket, String path) throws QiniuException {
+        check(bucket);
+        String url = configuration.ioHost(auth.accessKey, bucket) + path;
         return post(url, null);
     }
 
@@ -406,11 +396,18 @@ public final class BucketManager {
         return client.post(url, body, headers, Client.FormMime);
     }
 
+    private void check(String bucket) throws QiniuException {
+        if (StringUtils.isNullOrEmpty(bucket)) {
+            throw new QiniuException(Response.createError(null, null, 0, "未指定操作的空间或操作体为空"));
+        }
+    }
+
     /**
      * 文件管理批量操作指令构建对象
      */
     public static class BatchOperations {
         private ArrayList<String> ops;
+        private String execBucket = null;
 
         public BatchOperations() {
             this.ops = new ArrayList<String>();
@@ -450,6 +447,7 @@ public final class BucketManager {
             for (String key : keys) {
                 ops.add(String.format("delete/%s", encodedEntry(bucket, key)));
             }
+            setExecBucket(bucket);
             return this;
         }
 
@@ -460,6 +458,7 @@ public final class BucketManager {
             for (String key : keys) {
                 ops.add(String.format("stat/%s", encodedEntry(bucket, key)));
             }
+            setExecBucket(bucket);
             return this;
         }
 
@@ -470,7 +469,18 @@ public final class BucketManager {
 
         public BatchOperations merge(BatchOperations batch) {
             this.ops.addAll(batch.ops);
+            setExecBucket(batch.execBucket());
             return this;
+        }
+
+        private void setExecBucket(String bucket) {
+            if (execBucket == null) {
+                execBucket = bucket;
+            }
+        }
+
+        public String execBucket() {
+            return execBucket;
         }
     }
 
