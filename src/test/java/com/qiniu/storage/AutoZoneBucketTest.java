@@ -15,7 +15,8 @@ import static org.junit.Assert.*;
 
 @SuppressWarnings("ConstantConditions")
 public class AutoZoneBucketTest {
-    private BucketManager bucketManager = new BucketManager(TestConfig.testAuth, new Configuration(Zone.autoZone()));
+    private BucketManager bucketManager = new BucketManager(TestConfig.testAuth,
+            new Configuration(Zone.autoZone()));
     private BucketManager dummyBucketManager = new BucketManager(TestConfig.dummyAuth,
             new Configuration(Zone.autoZone()));
 
@@ -234,8 +235,8 @@ public class AutoZoneBucketTest {
         }
         String key2 = key + "to";
         StringMap x = new StringMap().put(key, key2);
-        BucketManager.BatchOperations ops = new BucketManager.BatchOperations().addMoveOp(TestConfig.bucket,
-                key, TestConfig.bucket, key2);
+        BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
+                .addMoveOp(TestConfig.bucket, key, TestConfig.bucket, key2);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -262,7 +263,8 @@ public class AutoZoneBucketTest {
             fail();
         }
         String key2 = key + "to";
-        BucketManager.BatchOperations ops = new BucketManager.BatchOperations().addRenameOp(TestConfig.bucket, key, key2);
+        BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
+                .addRenameOp(TestConfig.bucket, key, key2);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -282,7 +284,8 @@ public class AutoZoneBucketTest {
     @Test
     public void testBatchStat() {
         String[] array = {"java-sdk.html"};
-        BucketManager.BatchOperations ops = new BucketManager.BatchOperations().addStatOps(TestConfig.bucket, array);
+        BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
+                .addStatOps(TestConfig.bucket, array);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -329,8 +332,8 @@ public class AutoZoneBucketTest {
             fail();
         }
 
-        BucketManager.BatchOperations opsDel = new BucketManager.BatchOperations().addDeleteOp(TestConfig.bucket,
-                key, key1, key2, key3, key4);
+        BucketManager.BatchOperations opsDel = new BucketManager.BatchOperations()
+                .addDeleteOp(TestConfig.bucket, key, key1, key2, key3, key4);
 
         try {
             bucketManager.batch(opsDel);
