@@ -266,7 +266,8 @@ public class BucketTest {
             fail(e.response.toString());
         }
         String key2 = key + "to";
-        BucketManager.BatchOperations ops = new BucketManager.BatchOperations().addRenameOp(TestConfig.bucket, key, key2);
+        BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
+                .addRenameOp(TestConfig.bucket, key, key2);
         try {
             Response r = bucketManager.batch(ops);
             BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -328,8 +329,8 @@ public class BucketTest {
             fail(e.response.toString());
         }
 
-        BucketManager.BatchOperations opsDel = new BucketManager.BatchOperations().addDeleteOp(TestConfig.bucket,
-                key, key1, key2, key3, key4);
+        BucketManager.BatchOperations opsDel = new BucketManager.BatchOperations()
+                .addDeleteOp(TestConfig.bucket, key, key1, key2, key3, key4);
 
         try {
             bucketManager.batch(opsDel);
