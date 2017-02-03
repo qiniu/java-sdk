@@ -49,7 +49,7 @@ public final class CdnManager {
      * @return 刷新请求的回复
      * @link http://developer.qiniu.com/fusion/api/cache-refresh
      */
-    public Response refreshUrls(String[] urls) throws QiniuException {
+    public CdnResult.RefreshResult refreshUrls(String[] urls) throws QiniuException {
         return refreshUrlsAndDirs(urls, null);
     }
 
@@ -60,11 +60,11 @@ public final class CdnManager {
      * @return 刷新请求的回复
      * @link http://developer.qiniu.com/fusion/api/cache-refresh
      */
-    public Response refreshDirs(String[] dirs) throws QiniuException {
+    public CdnResult.RefreshResult refreshDirs(String[] dirs) throws QiniuException {
         return refreshUrlsAndDirs(null, dirs);
     }
 
-    public Response refreshUrlsAndDirs(String[] urls, String[] dirs) throws QiniuException {
+    public CdnResult.RefreshResult refreshUrlsAndDirs(String[] urls, String[] dirs) throws QiniuException {
         HashMap<String, String[]> req = new HashMap<>();
         if (urls != null) {
             req.put("urls", urls);
@@ -75,7 +75,8 @@ public final class CdnManager {
         byte[] body = Json.encode(req).getBytes(Constants.UTF_8);
         String url = server + "/v2/tune/refresh";
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
-        return client.post(url, body, headers, Client.JsonMime);
+        Response response = client.post(url, body, headers, Client.JsonMime);
+        return response.jsonToObject(CdnResult.RefreshResult.class);
     }
 
     /**
@@ -84,13 +85,14 @@ public final class CdnManager {
      * @return 预取请求的回复
      * @link http://developer.qiniu.com/fusion/api/file-prefetching
      */
-    public Response prefetchUrls(String[] urls) throws QiniuException {
+    public CdnResult.PrefetchResult prefetchUrls(String[] urls) throws QiniuException {
         HashMap<String, String[]> req = new HashMap<>();
         req.put("urls", urls);
         byte[] body = Json.encode(req).getBytes(Constants.UTF_8);
         String url = server + "/v2/tune/prefetch";
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
-        return client.post(url, body, headers, Client.JsonMime);
+        Response response = client.post(url, body, headers, Client.JsonMime);
+        return response.jsonToObject(CdnResult.PrefetchResult.class);
     }
 
     /**
@@ -99,8 +101,8 @@ public final class CdnManager {
      * @return 获取带宽请求的回复
      * @link http://developer.qiniu.com/fusion/api/traffic-bandwidth
      */
-    public Response getBandwidthData(String[] domains, String startDate, String endDate,
-                                     String granularity) throws QiniuException {
+    public CdnResult.BandwidthResult getBandwidthData(String[] domains, String startDate, String endDate,
+                                                      String granularity) throws QiniuException {
         HashMap<String, String> req = new HashMap<>();
         req.put("domains", StringUtils.join(domains, ";"));
         req.put("startDate", startDate);
@@ -110,7 +112,8 @@ public final class CdnManager {
         byte[] body = Json.encode(req).getBytes(Constants.UTF_8);
         String url = server + "/v2/tune/bandwidth";
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
-        return client.post(url, body, headers, Client.JsonMime);
+        Response response = client.post(url, body, headers, Client.JsonMime);
+        return response.jsonToObject(CdnResult.BandwidthResult.class);
     }
 
     /**
@@ -119,8 +122,8 @@ public final class CdnManager {
      * @return 获取流量请求的回复
      * @link http://developer.qiniu.com/fusion/api/traffic-bandwidth
      */
-    public Response getFluxData(String[] domains, String startDate, String endDate,
-                                String granularity) throws QiniuException {
+    public CdnResult.FluxResult getFluxData(String[] domains, String startDate, String endDate,
+                                            String granularity) throws QiniuException {
         HashMap<String, String> req = new HashMap<>();
         req.put("domains", StringUtils.join(domains, ";"));
         req.put("startDate", startDate);
@@ -130,7 +133,8 @@ public final class CdnManager {
         byte[] body = Json.encode(req).getBytes(Constants.UTF_8);
         String url = server + "/v2/tune/flux";
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
-        return client.post(url, body, headers, Client.JsonMime);
+        Response response = client.post(url, body, headers, Client.JsonMime);
+        return response.jsonToObject(CdnResult.FluxResult.class);
     }
 
     /**
@@ -139,7 +143,7 @@ public final class CdnManager {
      * @return 获取日志下载链接的回复
      * @link http://developer.qiniu.com/fusion/api/download-the-log
      */
-    public Response getCdnLogList(String[] domains, String logDate) throws QiniuException {
+    public CdnResult.LogListResult getCdnLogList(String[] domains, String logDate) throws QiniuException {
         HashMap<String, String> req = new HashMap<>();
         req.put("domains", StringUtils.join(domains, ";"));
         req.put("day", logDate);
@@ -147,7 +151,8 @@ public final class CdnManager {
         byte[] body = Json.encode(req).getBytes(Constants.UTF_8);
         String url = server + "/v2/tune/log/list";
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
-        return client.post(url, body, headers, Client.JsonMime);
+        Response response = client.post(url, body, headers, Client.JsonMime);
+        return response.jsonToObject(CdnResult.LogListResult.class);
     }
 
     /**
