@@ -35,7 +35,7 @@ public class HttpTest {
     public void testPost2() {
         Response r = null;
         try {
-            r = httpManager.post("http://up.qiniu.com", "hello", null);
+            r = httpManager.post("http://upload.qiniu.com", "hello", null);
             Assert.fail();
         } catch (QiniuException e) {
             Assert.assertNotNull(e.response.reqId);
