@@ -196,14 +196,15 @@ public class BucketTest {
     @Test
     public void testFetch() {
         try {
-            String resUrl = "http://developer.qiniu.com/kodo/sdk/java";
-            String resHash = "FgxQw6H41TjVklodOz7jGUHJ1XSo";
-            DefaultPutRet fRet = bucketManager.fetch(resUrl, TestConfig.bucket, "fetch.html");
+            String resUrl = "http://devtools.qiniu.com/qiniu.png";
+            String resKey = "qiniu.png";
+            String resHash = "FpHyF0kkil3sp-SaXXX8TBJY3jDh";
+            DefaultPutRet fRet = bucketManager.fetch(resUrl, TestConfig.bucket, resKey);
             assertEquals(resHash, fRet.hash);
 
             //no key specified, use hash as file key
             fRet = bucketManager.fetch(resUrl, TestConfig.bucket);
-            assertEquals(resHash, fRet.key);
+            assertEquals(resHash, fRet.hash);
         } catch (QiniuException e) {
             fail(e.response.toString());
         }
