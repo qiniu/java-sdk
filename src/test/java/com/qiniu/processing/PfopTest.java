@@ -3,10 +3,7 @@ package com.qiniu.processing;
 import com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
-import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
-import com.qiniu.util.Auth;
-import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 import junit.framework.TestCase;
@@ -14,9 +11,8 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
 
 public class PfopTest extends TestCase {
 
