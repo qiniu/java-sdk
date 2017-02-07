@@ -16,6 +16,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.Assert.*;
@@ -31,87 +33,94 @@ public class RecordUploadTest {
     private Response response = null;
 
     private void template(final int size) throws IOException {
-        response = null;
-        final String expectKey = "\r\n?&r=" + size + "k";
-        final File f = TempFile.createFile(size);
-        recorder = new FileRecorder(f.getParentFile());
-        try {
-            final String token = TestConfig.testAuth.uploadToken(TestConfig.bucket, expectKey);
-            final String recordKey = recorder.recorderKeyGenerate(expectKey, f);
+        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
+       // bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
+        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
+        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
+            String bucket = entry.getKey();
+            final Zone zone = entry.getValue();
+            response = null;
+            final String expectKey = "\r\n?&r=" + size + "k";
+            final File f = TempFile.createFile(size);
+            recorder = new FileRecorder(f.getParentFile());
+            try {
+                final String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
+                final String recordKey = recorder.recorderKeyGenerate(expectKey, f);
 
-            // 开始第一部分上传
-            final Up up = new Up(f, expectKey, token);
-            new Thread() {
-                @Override
-                public void run() {
-                    int i = r.nextInt(10000);
+                // 开始第一部分上传
+                final Up up = new Up(f, expectKey, token);
+                new Thread() {
+                    @Override
+                    public void run() {
+                        int i = r.nextInt(10000);
+                        try {
+                            System.out.println("UP: " + i + ",  enter run");
+                            response = up.up(zone);
+                            System.out.println("UP:  " + i + ", left run");
+                        } catch (Exception e) {
+                            System.out.println("UP:  " + i + ", exception run");
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
+
+                final boolean[] ch = new boolean[]{true};
+                // 显示断点记录文件
+                Thread showRecord = new Thread() {
+                    public void run() {
+                        for (; ch[0]; ) {
+                            doSleep(1000);
+                            showRecord("normal: " + size + " :", recorder, recordKey);
+                        }
+                    }
+                };
+                showRecord.setDaemon(true);
+                showRecord.start();
+
+                if (f.length() > Constants.BLOCK_SIZE) {
+                    // 终止第一部分上传,期望其部分成功
+                    for (int i = 150; i > 0; --i) {
+                        byte[] data = getRecord(recorder, recordKey);
+                        if (data != null) {
+                            up.close();
+                            doSleep(100);
+                            break;
+                        }
+                        doSleep(200);
+                    }
+                    up.close();
+                    doSleep(500);
+                }
+
+                System.out.println("response is " + response);
+
+                // 若第一部分上传部分未全部成功,再次上传
+                if (response == null) {
                     try {
-                        System.out.println("UP: " + i + ",  enter run");
-                        response = up.up();
-                        System.out.println("UP:  " + i + ", left run");
+                        response = new Up(f, expectKey, token).up(zone);
                     } catch (Exception e) {
-                        System.out.println("UP:  " + i + ", exception run");
                         e.printStackTrace();
                     }
                 }
-            }.start();
 
-            final boolean[] ch = new boolean[]{true};
-            // 显示断点记录文件
-            Thread showRecord = new Thread() {
-                public void run() {
-                    for (; ch[0]; ) {
-                        doSleep(1000);
-                        showRecord("normal: " + size + " :", recorder, recordKey);
-                    }
-                }
-            };
-            showRecord.setDaemon(true);
-            showRecord.start();
+                showRecord("done: " + size + " :", recorder, recordKey);
 
-            if (f.length() > Constants.BLOCK_SIZE) {
-                // 终止第一部分上传,期望其部分成功
-                for (int i = 150; i > 0; --i) {
-                    byte[] data = getRecord(recorder, recordKey);
-                    if (data != null) {
-                        up.close();
-                        doSleep(100);
-                        break;
-                    }
-                    doSleep(200);
-                }
-                up.close();
+                ch[0] = false;
+
+                String etag = Etag.file(f);
+                System.out.println("etag: " + etag);
+                String hash = response.jsonToMap().get("hash").toString();
+                System.out.println("hash: " + hash);
+
+                assertNotNull(response);
+                assertTrue(response.isOK());
+                assertEquals(etag, hash);
                 doSleep(500);
+                showRecord("nodata: " + size + " :", recorder, recordKey);
+                assertNull("文件上传成功,但断点记录文件为清理", recorder.get(recordKey));
+            } finally {
+                TempFile.remove(f);
             }
-
-            System.out.println("response is " + response);
-
-            // 若第一部分上传部分未全部成功,再次上传
-            if (response == null) {
-                try {
-                    response = new Up(f, expectKey, token).up();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            showRecord("done: " + size + " :", recorder, recordKey);
-
-            ch[0] = false;
-
-            String etag = Etag.file(f);
-            System.out.println("etag: " + etag);
-            String hash = response.jsonToMap().get("hash").toString();
-            System.out.println("hash: " + hash);
-
-            assertNotNull(response);
-            assertTrue(response.isOK());
-            assertEquals(etag, hash);
-            doSleep(500);
-            showRecord("nodata: " + size + " :", recorder, recordKey);
-            assertNull("文件上传成功,但断点记录文件为清理", recorder.get(recordKey));
-        } finally {
-            TempFile.remove(f);
         }
     }
 
@@ -279,26 +288,23 @@ public class RecordUploadTest {
         }
 
 
-        public Response up() throws Exception {
-            int i = r.nextInt(10000);
-            try {
-                System.out.println("UP: " + i + ",  enter up");
+        public Response up(Zone zone) throws Exception {
+                int i = r.nextInt(10000);
+                try {
+                    System.out.println("UP: " + i + ",  enter up");
+                    if (recorder == null) {
+                        recorder = new FileRecorder(file.getParentFile());
+                    }
 
-                String recorderKey = key;
-
-                if (recorder == null) {
-                    recorder = new FileRecorder(file.getParentFile());
+                    uploader = new ResumeUploader(client, token, key, file,
+                            null, Client.DefaultMime, recorder, new Configuration(zone));
+                    Response res = uploader.upload();
+                    System.out.println("UP:  " + i + ", left up");
+                    return res;
+                } catch (Exception e) {
+                    System.out.println("UP:  " + i + ", exception up");
+                    throw e;
                 }
-                recorderKey = recorder.recorderKeyGenerate(key, file);
-                uploader = new ResumeUploader(client, token, key, file,
-                        null, Client.DefaultMime, recorder, new Configuration(Zone.zone0()));
-                Response res = uploader.upload();
-                System.out.println("UP:  " + i + ", left up");
-                return res;
-            } catch (Exception e) {
-                System.out.println("UP:  " + i + ", exception up");
-                throw e;
-            }
         }
     }
 }
