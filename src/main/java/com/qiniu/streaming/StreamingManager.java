@@ -1,6 +1,5 @@
 package com.qiniu.streaming;
 
-import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
@@ -32,8 +31,7 @@ public final class StreamingManager {
         apiServer = server;
         this.hub = hub;
         this.auth = auth;
-        client = new Client(null, false, null,
-                Constants.CONNECT_TIMEOUT, Constants.RESPONSE_TIMEOUT, Constants.WRITE_TIMEOUT);
+        client = new Client();
     }
 
     public void create(String key) throws QiniuException {

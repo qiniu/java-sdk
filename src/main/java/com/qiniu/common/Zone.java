@@ -1,21 +1,26 @@
 package com.qiniu.common;
 
 /**
- * 上传多区域。若参数不设置, 上传、下载、拉取使用华东区域地址,管理使用转发地址。
+ * 多区域上传域名
  */
 public class Zone {
-    // 地址:  https://cf.qiniu.io/pages/viewpage.action?pageId=16092953
+    /**
+     * 上传，备用上传，备用上传IP和源站资源域名使用各个机房对应的域名
+     */
+    private String upHttp;
+    private String upHttps;
+    private String upBackupHttp;
+    private String upBackupHttps;
+    private String upIpHttp;
+    private String upIpHttps;
+    private String iovipHttp;
+    private String iovipHttps;
 
-    private String upHttp = "http://up.qiniu.com";
-    private String upHttps = "https://up.qbox.me";
-    private String upBackupHttp = "http://upload.qiniu.com";
-    private String upBackupHttps = "https://upload.qbox.me";
-    private String upIpHttp = "";
-    private String upIpHttps = "";
-    private String iovipHttp = "http://iovip.qbox.me";
-    private String iovipHttps = "https://iovip.qbox.me";
-
-
+    /**
+     * 资源管理，资源列表，资源处理类域名
+     * 默认的这组域名是国内国外共用域名，无论海外国内都可以访问
+     * 只有在无法自动查询到机房对应具体域名情况下，使用这组域名
+     */
     private String rsHttp = "http://rs.qiniu.com";
     private String rsHttps = "https://rs.qbox.me";
     private String rsfHttp = "http://rsf.qiniu.com";
@@ -23,122 +28,8 @@ public class Zone {
     private String apiHttp = "http://api.qiniu.com";
     private String apiHttps = "https://api.qiniu.com";
 
-
     /**
-     * 华东
-     */
-    public static Zone zone0() {
-        return new Builder().up("http://up.qiniu.com").upHttps("https://up.qbox.me").
-                upBackup("http://upload.qiniu.com").upBackupHttps("https://upload.qbox.me").
-                iovip("http://iovip.qbox.me").iovipHttps("https://iovip.qbox.me").
-                rs("http://rs-z0.qiniu.com").rsHttps("https://rs-z0.qbox.me").
-                rsf("http://rsf-z0.qiniu.com").rsfHttps("https://rsf-z0.qbox.me").
-                api("http://api.qiniu.com").apiHttps("https://api.qiniu.com").build();
-    }
-
-    /**
-     * 华北
-     */
-    public static Zone zone1() {
-        return new Builder().up("http://up-z1.qiniu.com").upHttps("https://up-z1.qbox.me").
-                upBackup("http://upload-z1.qiniu.com").upBackupHttps("https://upload-z1.qbox.me").
-                iovip("http://iovip-z1.qbox.me").iovipHttps("https://iovip-z1.qbox.me").
-                rs("http://rs-z1.qiniu.com").rsHttps("https://rs-z1.qbox.me").
-                rsf("http://rsf-z1.qiniu.com").rsfHttps("https://rsf-z1.qbox.me").
-                api("http://api.qiniu.com").apiHttps("https://api.qiniu.com").build();
-    }
-
-    /**
-     * 华南
-     */
-    public static Zone zone2() {
-        return new Builder().up("http://up-z2.qiniu.com").upHttps("https://up-z2.qbox.me").
-                upBackup("http://upload-z2.qiniu.com").upBackupHttps("https://upload-z2.qbox.me").
-                iovip("http://iovip-z2.qbox.me").iovipHttps("https://iovip-z2.qbox.me").
-                rs("http://rs-z2.qiniu.com").rsHttps("https://rs-z2.qbox.me").
-                rsf("http://rsf-z2.qiniu.com").rsfHttps("https://rsf-z2.qbox.me").
-                api("http://api.qiniu.com").apiHttps("https://api.qiniu.com").build();
-    }
-
-    /**
-     * 北美
-     */
-    public static Zone zoneNa0() {
-        return new Builder().up("http://up-na0.qiniu.com").upHttps("https://up-na0.qbox.me").
-                upBackup("http://upload-na0.qiniu.com").upBackupHttps("https://upload-na0.qbox.me").
-                iovip("http://iovip-na0.qbox.me").iovipHttps("https://iovip-na0.qbox.me").
-                rs("http://rs-na0.qiniu.com").rsHttps("https://rs-na0.qbox.me").
-                rsf("http://rsf-na0.qiniu.com").rsfHttps("https://rsf-na0.qbox.me").
-                api("http://api.qiniu.com").apiHttps("https://api.qiniu.com").build();
-    }
-
-    /**
-     * 自动判断区域,用于快速接入。实际中推荐使用固定 zone 。
-     * 空间所属区域,可到 portal 查询。
-     */
-    public static Zone autoZone() {
-        return new Builder().autoZone();
-    }
-
-    public String getUpHttp(ZoneReqInfo ab) {
-        return upHttp;
-    }
-
-    public String getUpBackupHttp(ZoneReqInfo ab) {
-        return upBackupHttp;
-    }
-
-    public String getUpHttps(ZoneReqInfo ab) {
-        return upHttps;
-    }
-
-    public String getUpBackupHttps(ZoneReqInfo ab) {
-        return upBackupHttps;
-    }
-
-    public String getRsHttp(ZoneReqInfo ab) {
-        return rsHttp;
-    }
-
-    public String getRsHttps(ZoneReqInfo ab) {
-        return rsHttps;
-    }
-
-    public String getRsfHttp(ZoneReqInfo ab) {
-        return rsfHttp;
-    }
-
-    public String getRsfHttps(ZoneReqInfo ab) {
-        return rsfHttps;
-    }
-
-    public String getApiHttp(ZoneReqInfo ab) {
-        return apiHttp;
-    }
-
-    public String getApiHttps(ZoneReqInfo ab) {
-        return apiHttps;
-    }
-
-    public String getIovipHttp(ZoneReqInfo ab) {
-        return iovipHttp;
-    }
-
-    public String getIovipHttps(ZoneReqInfo ab) {
-        return iovipHttps;
-    }
-
-    public String getUpIpHttp(ZoneReqInfo ab) {
-        return upIpHttp;
-    }
-
-    public String getUpIpHttps(ZoneReqInfo ab) {
-        return upIpHttps;
-    }
-
-
-    /**
-     * 默认为华东机房的配置
+     * 域名构造器
      */
     static class Builder {
         private Zone zone;
@@ -147,13 +38,13 @@ public class Zone {
             zone = new Zone();
         }
 
-        public Builder up(String up) {
-            zone.upHttp = up;
+        public Builder upHttp(String upHttp) {
+            zone.upHttp = upHttp;
             return this;
         }
 
-        public Builder upBackup(String upBackup) {
-            zone.upBackupHttp = upBackup;
+        public Builder upBackupHttp(String upBackupHttp) {
+            zone.upBackupHttp = upBackupHttp;
             return this;
         }
 
@@ -167,28 +58,18 @@ public class Zone {
             return this;
         }
 
-        public Builder rs(String rs) {
-            zone.rsHttp = rs;
+        public Builder upIpHttp(String upIpHttp) {
+            zone.upIpHttp = upIpHttp;
             return this;
         }
 
-        public Builder rsHttps(String rsHttps) {
-            zone.rsHttps = rsHttps;
+        public Builder upIpHttps(String upIpHttps) {
+            zone.upIpHttps = upIpHttps;
             return this;
         }
 
-        public Builder api(String api) {
-            zone.apiHttp = api;
-            return this;
-        }
-
-        public Builder apiHttps(String apiHttps) {
-            zone.apiHttps = apiHttps;
-            return this;
-        }
-
-        public Builder iovip(String iovip) {
-            zone.iovipHttp = iovip;
+        public Builder iovipHttp(String iovipHttp) {
+            zone.iovipHttp = iovipHttp;
             return this;
         }
 
@@ -197,8 +78,18 @@ public class Zone {
             return this;
         }
 
-        public Builder rsf(String rsf) {
-            zone.rsfHttp = rsf;
+        public Builder rsHttp(String rsHttp) {
+            zone.rsHttp = rsHttp;
+            return this;
+        }
+
+        public Builder rsHttps(String rsHttps) {
+            zone.rsHttps = rsHttps;
+            return this;
+        }
+
+        public Builder rsfHttp(String rsfHttp) {
+            zone.rsfHttp = rsfHttp;
             return this;
         }
 
@@ -207,15 +98,16 @@ public class Zone {
             return this;
         }
 
-        public Builder upIpHttp(String upIpHttp) {
-            zone.upIpHttp = upIpHttp;
+        public Builder apiHttp(String apiHttp) {
+            zone.apiHttp = apiHttp;
             return this;
         }
 
-        public Builder ipHttps(String upIpHttps) {
-            zone.upIpHttps = upIpHttps;
+        public Builder apiHttps(String apiHttps) {
+            zone.apiHttps = apiHttps;
             return this;
         }
+
 
         /**
          * 自动选择,其它参数设置无效
@@ -225,9 +117,158 @@ public class Zone {
             return zone;
         }
 
+        /**
+         * 返回构建好的Zone对象
+         */
         public Zone build() {
             return zone;
         }
     }
 
+    /**
+     * 华东机房相关域名
+     */
+    public static Zone zone0() {
+        return new Builder().upHttp("http://up.qiniu.com").upHttps("https://up.qbox.me").
+                upBackupHttp("http://upload.qiniu.com").upBackupHttps("https://upload.qbox.me").
+                iovipHttp("http://iovip.qbox.me").iovipHttps("https://iovip.qbox.me").
+                rsHttp("http://rs.qiniu.com").rsHttps("https://rs.qbox.me")
+                .rsfHttp("http://rsf.qiniu.com").rsfHttps("https://rsf.qbox.me")
+                .apiHttp("http://api.qiniu.com").apiHttps("https://api.qiniu.com").build();
+    }
+
+    /**
+     * 华北机房相关域名
+     */
+    public static Zone zone1() {
+        return new Builder().upHttp("http://up-z1.qiniu.com").upHttps("https://up-z1.qbox.me").
+                upBackupHttp("http://upload-z1.qiniu.com").upBackupHttps("https://upload-z1.qbox.me").
+                iovipHttp("http://iovip-z1.qbox.me").iovipHttps("https://iovip-z1.qbox.me").
+                rsHttp("http://rs-z1.qiniu.com").rsHttps("https://rs-z1.qbox.me")
+                .rsfHttp("http://rsf-z1.qiniu.com").rsfHttps("https://rsf-z1.qbox.me")
+                .apiHttp("http://api-z1.qiniu.com").apiHttps("https://api-z1.qiniu.com").build();
+    }
+
+    /**
+     * 华南机房相关域名
+     */
+    public static Zone zone2() {
+        return new Builder().upHttp("http://up-z2.qiniu.com").upHttps("https://up-z2.qbox.me").
+                upBackupHttp("http://upload-z2.qiniu.com").upBackupHttps("https://upload-z2.qbox.me").
+                iovipHttp("http://iovip-z2.qbox.me").iovipHttps("https://iovip-z2.qbox.me").
+                rsHttp("http://rs-z2.qiniu.com").rsHttps("https://rs-z2.qbox.me")
+                .rsfHttp("http://rsf-z2.qiniu.com").rsfHttps("https://rsf-z2.qbox.me")
+                .apiHttp("http://api-z2.qiniu.com").apiHttps("https://api-z2.qiniu.com").build();
+    }
+
+    /**
+     * 北美机房相关域名
+     */
+    public static Zone zoneNa0() {
+        return new Builder().upHttp("http://up-na0.qiniu.com").upHttps("https://up-na0.qbox.me").
+                upBackupHttp("http://upload-na0.qiniu.com").upBackupHttps("https://upload-na0.qbox.me").
+                iovipHttp("http://iovip-na0.qbox.me").iovipHttps("https://iovip-na0.qbox.me").
+                rsHttp("http://rs-na0.qiniu.com").rsHttps("https://rs-na0.qbox.me")
+                .rsfHttp("http://rsf-na0.qiniu.com").rsfHttps("https://rsf-na0.qbox.me")
+                .apiHttp("http://api-na0.qiniu.com").apiHttps("https://api-na0.qiniu.com").build();
+    }
+
+    /**
+     * 自动根据AccessKey和Bucket来判断所在机房，并获取相关的域名
+     * 空间所在的对应机房可以在空间创建的时候选择，或者创建完毕之后，从后台查看
+     */
+    public static Zone autoZone() {
+        return new Builder().autoZone();
+    }
+
+    /**
+     * 保留自动获取上传和资源抓取，更新相关域名接口
+     */
+
+    public String getUpHttp(ZoneReqInfo zoneReqInfo) {
+        return this.upHttp;
+    }
+
+    public String getUpHttps(ZoneReqInfo zoneReqInfo) {
+        return this.upHttps;
+    }
+
+    public String getUpBackupHttp(ZoneReqInfo zoneReqInfo) {
+        return this.upBackupHttp;
+    }
+
+    public String getUpBackupHttps(ZoneReqInfo zoneReqInfo) {
+        return this.upBackupHttps;
+    }
+
+    public String getUpIpHttp(ZoneReqInfo zoneReqInfo) {
+        return this.upIpHttp;
+    }
+
+    public String getUpIpHttps(ZoneReqInfo zoneReqInfo) {
+        return this.upIpHttps;
+    }
+
+    public String getIovipHttp(ZoneReqInfo zoneReqInfo) {
+        return this.iovipHttp;
+    }
+
+    public String getIovipHttps(ZoneReqInfo zoneReqInfo) {
+        return this.iovipHttps;
+    }
+
+
+    /**
+     * 保留自动获取资源管理，资源列表，资源处理相关域名接口
+     */
+    public String getRsHttp(ZoneReqInfo zoneReqInfo) {
+        return rsHttp;
+    }
+
+    public String getRsHttps(ZoneReqInfo zoneReqInfo) {
+        return rsHttps;
+    }
+
+    public String getRsfHttp(ZoneReqInfo zoneReqInfo) {
+        return rsfHttp;
+    }
+
+    public String getRsfHttps(ZoneReqInfo zoneReqInfo) {
+        return rsfHttps;
+    }
+
+    public String getApiHttp(ZoneReqInfo zoneReqInfo) {
+        return apiHttp;
+    }
+
+    public String getApiHttps(ZoneReqInfo zoneReqInfo) {
+        return apiHttps;
+    }
+
+    /**
+     * 获取资源管理，资源列表，资源处理相关域名
+     */
+    public String getRsHttp() {
+        return rsHttp;
+    }
+
+    public String getRsHttps() {
+        return rsHttps;
+    }
+
+    public String getRsfHttp() {
+        return rsfHttp;
+    }
+
+    public String getRsfHttps() {
+        return rsfHttps;
+    }
+
+    public String getApiHttp() {
+        return apiHttp;
+    }
+
+    public String getApiHttps() {
+        return apiHttps;
+    }
 }

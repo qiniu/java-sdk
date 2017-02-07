@@ -289,9 +289,6 @@ public final class Auth {
         URI uri = URI.create(urlString);
 
         Mac mac = createMac();
-
-
-        //
         StringBuilder sb = new StringBuilder();
 
         sb.append(String.format("%s %s", method, uri.getPath()));

@@ -32,8 +32,7 @@ public final class UploadManager {
      */
     public UploadManager(Configuration c, Recorder recorder) {
         configuration = c.clone();
-        client = new Client(configuration.dns, configuration.dnsHostFirst, configuration.proxy,
-                configuration.connectTimeout, configuration.responseTimeout, configuration.writeTimeout);
+        client = new Client(configuration);
         this.recorder = recorder;
 
     }
@@ -165,7 +164,7 @@ public final class UploadManager {
         }
         params = filterParam(params);
         long size = file.length();
-        if (size <= configuration.putThreshold) {
+        if (size <= configuration.getPutThreshold()) {
             return new FormUploader(client, token, key, file, params, mime, checkCrc, configuration).upload();
         }
 
