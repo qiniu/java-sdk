@@ -1,6 +1,5 @@
 package com.qiniu.streaming;
 
-import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
