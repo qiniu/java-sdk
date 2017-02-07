@@ -8,9 +8,7 @@ import com.qiniu.storage.model.BatchStatus;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
-import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
-import com.sun.javafx.collections.MappingChange;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -18,8 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
 
 @SuppressWarnings("ConstantConditions")
 public class BucketTest extends TestCase {
@@ -38,7 +34,7 @@ public class BucketTest extends TestCase {
         //na0 config
         Configuration cfgNa0 = new Configuration(Zone.zoneNa0());
         this.bucketManagerNa0 = new BucketManager(TestConfig.testAuth, cfgNa0);
-        
+
         //dummy config
         this.dummyBucketManager = new BucketManager(TestConfig.dummyAuth, new Configuration());
     }

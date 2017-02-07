@@ -1,9 +1,9 @@
 package com.qiniu.storage;
 
-import com.qiniu.common.QiniuException;
-import com.qiniu.common.ZoneReqInfo;
 import com.qiniu.common.Constants;
+import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
+import com.qiniu.common.ZoneReqInfo;
 import com.qiniu.http.ProxyConfiguration;
 import qiniu.happydns.DnsClient;
 

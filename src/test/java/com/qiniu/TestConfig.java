@@ -1,8 +1,6 @@
 package com.qiniu;
 
 
-import com.qiniu.common.Zone;
-import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 
 public final class TestConfig {

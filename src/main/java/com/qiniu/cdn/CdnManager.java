@@ -14,10 +14,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 该类主要提供CDN相关功能的接口实现，包括文件和目录的刷新，文件的预取，获取CDN访问日志链接，生成七牛时间戳防盗链等功能。
