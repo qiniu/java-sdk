@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Created by Simon on 6/22/16.
  */
-public class AutoZoneTest extends TestCase{
+public class AutoZoneTest extends TestCase {
 
     @Test
     public void testHttp() {

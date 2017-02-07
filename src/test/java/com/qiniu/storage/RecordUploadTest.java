@@ -34,7 +34,7 @@ public class RecordUploadTest {
 
     private void template(final int size) throws IOException {
         Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-       // bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
+        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
         bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
         for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
@@ -289,22 +289,22 @@ public class RecordUploadTest {
 
 
         public Response up(Zone zone) throws Exception {
-                int i = r.nextInt(10000);
-                try {
-                    System.out.println("UP: " + i + ",  enter up");
-                    if (recorder == null) {
-                        recorder = new FileRecorder(file.getParentFile());
-                    }
-
-                    uploader = new ResumeUploader(client, token, key, file,
-                            null, Client.DefaultMime, recorder, new Configuration(zone));
-                    Response res = uploader.upload();
-                    System.out.println("UP:  " + i + ", left up");
-                    return res;
-                } catch (Exception e) {
-                    System.out.println("UP:  " + i + ", exception up");
-                    throw e;
+            int i = r.nextInt(10000);
+            try {
+                System.out.println("UP: " + i + ",  enter up");
+                if (recorder == null) {
+                    recorder = new FileRecorder(file.getParentFile());
                 }
+
+                uploader = new ResumeUploader(client, token, key, file,
+                        null, Client.DefaultMime, recorder, new Configuration(zone));
+                Response res = uploader.upload();
+                System.out.println("UP:  " + i + ", left up");
+                return res;
+            } catch (Exception e) {
+                System.out.println("UP:  " + i + ", exception up");
+                throw e;
+            }
         }
     }
 }
