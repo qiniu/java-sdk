@@ -7,15 +7,15 @@ import com.qiniu.util.UrlSafeBase64;
  * Created by Simon on 23/12/2016.
  */
 public class ZoneReqInfo {
-    public final String ak;
-    public final String bucket;
+    private final String accessKey;
+    private final String bucket;
 
     public ZoneReqInfo(String token) throws QiniuException {
         // http://developer.qiniu.com/article/developer/security/upload-token.html
         // http://developer.qiniu.com/article/developer/security/put-policy.html
         try {
             String[] strings = token.split(":");
-            ak = strings[0];
+            accessKey = strings[0];
             String policy = new String(UrlSafeBase64.decode(strings[2]), Constants.UTF_8);
             bucket = Json.decode(policy).get("scope").toString().split(":")[0];
         } catch (Exception e) {
@@ -23,8 +23,17 @@ public class ZoneReqInfo {
         }
     }
 
-    public ZoneReqInfo(String ak, String bucket) {
-        this.ak = ak;
+    public ZoneReqInfo(String accessKey, String bucket) {
+        this.accessKey = accessKey;
         this.bucket = bucket;
     }
+
+    public String getAccessKey() {
+        return accessKey;
+    }
+
+    public String getBucket() {
+        return bucket;
+    }
+
 }

@@ -48,8 +48,7 @@ public final class BucketManager {
     public BucketManager(Auth auth, Configuration cfg) {
         this.auth = auth;
         this.configuration = cfg.clone();
-        client = new Client(cfg.dns, cfg.dnsHostFirst, cfg.proxy,
-                cfg.connectTimeout, cfg.responseTimeout, cfg.writeTimeout);
+        client = new Client(this.configuration);
     }
 
     /**
@@ -89,7 +88,7 @@ public final class BucketManager {
      */
     public String[] buckets() throws QiniuException {
         // 获取 bucket 列表 写死用rs.qiniu.com or rs.qbox.me @冯立元
-        String url = configuration.rsBucketsHost() + "/buckets";
+        String url = String.format("%s/buckets", configuration.rsHost());
         Response r = get(url);
         return r.jsonToObject(String[].class);
     }
@@ -134,7 +133,7 @@ public final class BucketManager {
         StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
                 .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
 
-        String url = configuration.rsfHost(auth.accessKey, bucket) + "/list?" + map.formString();
+        String url = String.format("%s/list?%s", configuration.rsfHost(auth.accessKey, bucket), map.formString());
         Response r = get(url);
         return r.jsonToObject(FileListing.class);
     }

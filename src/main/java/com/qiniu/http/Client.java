@@ -2,6 +2,7 @@ package com.qiniu.http;
 
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
+import com.qiniu.storage.Configuration;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.*;
@@ -30,7 +31,12 @@ public final class Client {
 
     public Client() {
         this(null, false, null,
-                Constants.CONNECT_TIMEOUT, Constants.RESPONSE_TIMEOUT, Constants.WRITE_TIMEOUT);
+                Constants.CONNECT_TIMEOUT, Constants.READ_TIMEOUT, Constants.WRITE_TIMEOUT);
+    }
+
+    public Client(Configuration cfg) {
+        this(cfg.getDnsClient(), cfg.isUseDnsHostFirst(), cfg.getProxy(),
+                cfg.getConnectTimeout(), cfg.getReadTimeout(), cfg.getWriteTimeout());
     }
 
     public Client(final DnsClient dns, final boolean hostFirst, final ProxyConfiguration proxy,
@@ -90,7 +96,6 @@ public final class Client {
         builder.readTimeout(readTimeout, TimeUnit.SECONDS);
         builder.writeTimeout(writeTimeout, TimeUnit.SECONDS);
         httpClient = builder.build();
-
     }
 
     private static String userAgent() {

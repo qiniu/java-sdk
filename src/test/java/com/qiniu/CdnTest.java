@@ -41,7 +41,7 @@ public class CdnTest {
     public void testGetBandwidth() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.BandwidthResult r = null;
-        String[] domains = {TestConfig.domain};
+        String[] domains = {TestConfig.testDomain_z0};
         String startDate = "2017-01-01";
         String endDate = "2017-01-06";
         String granularity = "day";
@@ -58,7 +58,7 @@ public class CdnTest {
     public void testGetFlux() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.FluxResult r = null;
-        String[] domains = {TestConfig.domain};
+        String[] domains = {TestConfig.testDomain_z0};
         String startDate = "2017-01-01";
         String endDate = "2017-01-06";
         String granularity = "day";
@@ -75,7 +75,7 @@ public class CdnTest {
     public void testGetCdnLogList() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.LogListResult r = null;
-        String[] domains = {TestConfig.domain};
+        String[] domains = {TestConfig.testDomain_z0};
         String logDate = "2017-01-01";
 
         try {

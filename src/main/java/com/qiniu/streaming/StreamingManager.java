@@ -32,8 +32,7 @@ public final class StreamingManager {
         apiServer = server;
         this.hub = hub;
         this.auth = auth;
-        client = new Client(null, false, null,
-                Constants.CONNECT_TIMEOUT, Constants.RESPONSE_TIMEOUT, Constants.WRITE_TIMEOUT);
+        client = new Client();
     }
 
     public void create(String key) throws QiniuException {

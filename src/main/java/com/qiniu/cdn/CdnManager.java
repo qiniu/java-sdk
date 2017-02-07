@@ -39,8 +39,7 @@ public final class CdnManager {
     private CdnManager(Auth auth, String server) {
         this.auth = auth;
         this.server = server;
-        this.client = new Client(null, false, null,
-                Constants.CONNECT_TIMEOUT, Constants.RESPONSE_TIMEOUT, Constants.WRITE_TIMEOUT);
+        this.client = new Client();
     }
 
     /**

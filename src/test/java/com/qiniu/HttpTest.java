@@ -55,7 +55,7 @@ public class HttpTest {
         h.put("upnonodns.qiniu.com", "115.231.183.168");
         DnsClient dns = new DnsClient(new IResolver[]{r1, r2}, h);
         Client c = new Client(dns, false, null,
-                Constants.CONNECT_TIMEOUT, Constants.RESPONSE_TIMEOUT, Constants.WRITE_TIMEOUT);
+                Constants.CONNECT_TIMEOUT, Constants.READ_TIMEOUT, Constants.WRITE_TIMEOUT);
         Response r = null;
         try {
             r = c.post("http://upnonodns.qiniu.com", "hello", null);
@@ -115,7 +115,7 @@ public class HttpTest {
     public void testProxy() {
         ProxyConfiguration proxy = new ProxyConfiguration("115.231.183.168", 80);
         Client c = new Client(null, false, proxy,
-                Constants.CONNECT_TIMEOUT, Constants.RESPONSE_TIMEOUT, Constants.WRITE_TIMEOUT);
+                Constants.CONNECT_TIMEOUT, Constants.READ_TIMEOUT, Constants.WRITE_TIMEOUT);
         Response r = null;
         try {
             r = c.post("http://upproxy1.qiniu.com", "hello", null);
