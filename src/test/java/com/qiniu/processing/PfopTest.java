@@ -7,6 +7,7 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -62,6 +63,19 @@ public class PfopTest extends TestCase {
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }
+        }
+    }
+
+    @Test
+    public void testPrefop() {
+        String persistentId = "na0.5899aaf692129336c2034e2d";
+        try {
+            Configuration cfg = new Configuration();
+            //cfg.setUseHttpsDomains(true);
+            OperationStatus status = new OperationManager(TestConfig.testAuth, cfg).prefop(persistentId);
+            assertEquals(0, status.getCode());
+        } catch (QiniuException ex) {
+            Assert.assertEquals(612, ex.code());
         }
     }
 }

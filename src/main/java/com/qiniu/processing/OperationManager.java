@@ -1,6 +1,7 @@
 package com.qiniu.processing;
 
 import com.qiniu.common.QiniuException;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
@@ -79,7 +80,7 @@ public final class OperationManager {
         String url = configuration.apiHost(auth.accessKey, bucket) + "/pfop/";
         StringMap headers = auth.authorization(url, data, Client.FormMime);
         Response response = client.post(url, data, headers, Client.FormMime);
-        PfopStatus status = response.jsonToObject(PfopStatus.class);
+        PfopResult status = response.jsonToObject(PfopResult.class);
         if (status != null) {
             return status.persistentId;
         }
@@ -142,7 +143,43 @@ public final class OperationManager {
         return pfop(bucket, key, fops, params);
     }
 
-    private class PfopStatus {
+    private class PfopResult {
         public String persistentId;
+    }
+
+    /**
+     * 根据persistentId查询任务状态
+     */
+    public OperationStatus prefop(String persistentId) throws QiniuException {
+        StringMap params = new StringMap().put("id", persistentId);
+        byte[] data = StringUtils.utf8Bytes(params.formString());
+        Zone zone = null;
+
+        String[] items = persistentId.trim().split("\\.");
+        if (items.length != 2) {
+            throw new QiniuException(new Exception("invalid persistentId"));
+        }
+        String zoneCode = items[0];
+        if (zoneCode.equals("z0")) {
+            zone = Zone.zone0();
+        } else if (zoneCode.equals("z1")) {
+            zone = Zone.zone1();
+        } else if (zoneCode.equals("z2")) {
+            zone = Zone.zone2();
+        } else if (zoneCode.equals("na0")) {
+            zone = Zone.zoneNa0();
+        } else {
+            throw new QiniuException(new Exception("invalid persistentId"));
+        }
+
+        //detect http or https
+        String apiHost = zone.getApiHttp();
+        if (this.configuration != null && this.configuration.isUseHttpsDomains()) {
+            apiHost = zone.getApiHttps();
+        }
+        String url = String.format("%s/status/get/prefop", apiHost);
+        Response response = new Client().post(url, data, null, Client.FormMime);
+        OperationStatus status = response.jsonToObject(OperationStatus.class);
+        return status;
     }
 }
