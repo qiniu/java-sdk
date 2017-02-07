@@ -43,8 +43,7 @@ public final class OperationManager {
     public OperationManager(Auth auth, Configuration cfg) {
         this.auth = auth;
         configuration = cfg.clone();
-        this.client = new Client(configuration.dns, configuration.dnsHostFirst, configuration.proxy,
-                configuration.connectTimeout, configuration.responseTimeout, configuration.writeTimeout);
+        this.client = new Client(configuration);
     }
 
     /**

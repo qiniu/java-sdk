@@ -161,7 +161,7 @@ public class CdnResult {
      * 带宽数据获取结果
      *
      * @link http://developer.qiniu.com/fusion/api/traffic-bandwidth
-     * */
+     */
     public class BandwidthResult {
         private int code;
         private String error;
@@ -226,7 +226,7 @@ public class CdnResult {
      * 流量数据获取结果
      *
      * @link http://developer.qiniu.com/fusion/api/traffic-bandwidth
-     * */
+     */
     public class FluxResult {
         private int code;
         private String error;
@@ -291,7 +291,7 @@ public class CdnResult {
      * 日志数据获取结果
      *
      * @link https://developer.qiniu.com/fusion/api/download-the-log
-     * */
+     */
     public class LogListResult {
         private int code;
         private String error;

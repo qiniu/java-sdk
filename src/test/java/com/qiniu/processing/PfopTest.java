@@ -3,101 +3,65 @@ package com.qiniu.processing;
 import com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
-import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
-import com.qiniu.util.Auth;
-import com.qiniu.util.StringMap;
+import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
+import junit.framework.TestCase;
 import org.junit.Test;
 
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
 
-public class PfopTest {
-    private Auth auth = TestConfig.testAuth;
-    private OperationManager operater = new OperationManager(auth, new Configuration(Zone.zone0()));
+public class PfopTest extends TestCase {
+
+    private String testMp4FileKey;
+    private String testPipeline;
+
+    @Override
+    protected void setUp() throws Exception {
+        this.testMp4FileKey = "sintel_trailer.mp4";
+        this.testPipeline = "demopipe";
+    }
 
     @Test
     public void testAvthumb() {
-        String bucket = "testres";
-        String key = "sintel_trailer.mp4";
+        Map<String, Zone> cases = new HashMap<String, Zone>();
+        cases.put(TestConfig.testBucket_z0, Zone.zone0());
+        cases.put(TestConfig.testBucket_na0, Zone.zoneNa0());
+        cases.put(TestConfig.testBucket_z0, Zone.autoZone());
+        cases.put(TestConfig.testBucket_na0, Zone.autoZone());
 
-        String notifyURL = "";
-        boolean force = true;
-        String pipeline = "";
-        StringMap params = new StringMap().putNotEmpty("notifyURL", notifyURL)
-                .putWhen("force", 1, force).putNotEmpty("pipeline", pipeline);
-        // CHECKSTYLE:OFF
-        String fops = "avthumb/m3u8/segtime/10/vcodec/libx264/s/320x240|saveas/amF2YXNkazptcDRfODVmZWVjY2ItMGZmOS00NTg5LTk3MTMtZDM1ZmYzZGQ4ZjM2";
-        // CHECKSTYLE:ON
-        try {
-            String id = operater.pfop(bucket, key, fops, params);
-            assertNotNull(id);
-            assertNotEquals("", id);
-            String purl = "http://api.qiniu.com/status/get/prefop?id=" + id;
-            System.out.println(purl);
-        } catch (QiniuException e) {
-            Response res = e.response;
-            System.out.println(res);
-            try {
-                System.out.println(res.bodyString());
-            } catch (QiniuException e1) {
-                e1.printStackTrace();
-            }
-            fail();
-        }
-    }
+        for (Map.Entry<String, Zone> entry : cases.entrySet()) {
+            String bucket = entry.getKey();
+            Zone zone = entry.getValue();
 
-    @Test
-    public void testMuAvthumb() {
-        String bucket = "testres";
-        String key = "sintel_trailer.mp4";
-        // CHECKSTYLE:OFF
-        String fops = "avthumb/m3u8/segtime/10/vcodec/libx264/s/320x240|saveas/amF2YXNkazptcDRfM19mMDNjZjQ4Mi1kMzgxLTQ5NWUtOThiNC04NjZkYTVkMDVlMTY=;avthumb/m3u8/segtime/10/vcodec/libx264/s/480x480|saveas/amF2YXNkazptcDRfNF8wYmQ2NjQxOS04MjZmLTRiZDItYjQ5MS00ZDRmM2Y1ZmQ1Mjk=;avthumb/m3u8/segtime/10/vcodec/libx264/s/720x720|saveas/amF2YXNkazptcDRfN19hMTM1ZmRlNS1hYTNlLTQ3MWItYjdhMi0yNmQ5MWEyZTc5MzM=;avthumb/mp4/vcodec/libx264";
-        // CHECKSTYLE:ON
-        StringMap params = new StringMap().putWhen("force", 1, true);
-        try {
-            String id = operater.pfop(bucket, key, fops, params);
-            assertNotNull(id);
-            assertNotEquals("", id);
-            String purl = "http://api.qiniu.com/status/get/prefop?id=" + id;
-            System.out.println(purl);
-        } catch (QiniuException e) {
-            Response res = e.response;
-            System.out.println(res);
-            try {
-                System.out.println(res.bodyString());
-            } catch (QiniuException e1) {
-                e1.printStackTrace();
-            }
-            fail();
-        }
-    }
+            String notifyURL = "";
+            boolean force = true;
 
-    @Test
-    public void testMkzip() {
-        String bucket = "testres";
-        String key = "sintel_trailer.mp4";
-        // CHECKSTYLE:OFF
-        String fops = "mkzip/2/url/aHR0cDovL3Rlc3RyZXMucWluaXVkbi5jb20vZ29nb3BoZXIuanBn/alias/Z29nb3BoZXIuanBn/url/aHR0cDovL3Rlc3RyZXMucWluaXVkbi5jb20vZ29nb3BoZXIuanBn";
-        fops += "|saveas/" + UrlSafeBase64.encodeToString("javasdk" + ":" + key + "_" + UUID.randomUUID());
-        // CHECKSTYLE:ON
-        try {
-            String id = operater.pfop(bucket, key, fops);
-            assertNotNull(id);
-            assertNotEquals("", id);
-            String purl = "http://api.qiniu.com/status/get/prefop?id=" + id;
-            System.out.println(purl);
-        } catch (QiniuException e) {
-            Response res = e.response;
-            System.out.println(res);
+            String m3u8SaveEntry = String.format("%s:%s", bucket, this.testMp4FileKey + "_320x240.m3u8");
+            String fopM3u8 = String.format("avthumb/m3u8/segtime/10/vcodec/libx264/s/320x240|saveas/%s",
+                    UrlSafeBase64.encodeToString(String.format(m3u8SaveEntry)));
+
+            String mp4SaveEntry = String.format("%s:%s", bucket, this.testMp4FileKey + "_320x240.mp4");
+            String fopMp4 = String.format("avthumb/mp4/vcodec/libx264/s/320x240|saveas/%s",
+                    UrlSafeBase64.encodeToString(mp4SaveEntry));
+
+            //join fop together
+            String fops = StringUtils.join(new String[]{fopM3u8, fopMp4}, ";");
+
             try {
-                System.out.println(res.bodyString());
-            } catch (QiniuException e1) {
-                e1.printStackTrace();
+                Configuration cfg = new Configuration(zone);
+                OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
+                String id = operationManager.pfop(bucket, this.testMp4FileKey, fops, testPipeline, notifyURL, force);
+                assertNotNull(id);
+                assertNotEquals("", id);
+                String purl = "http://api.qiniu.com/status/get/prefop?id=" + id;
+                System.out.println(purl);
+            } catch (QiniuException e) {
+                fail(e.response.toString());
             }
-            fail();
         }
     }
 }

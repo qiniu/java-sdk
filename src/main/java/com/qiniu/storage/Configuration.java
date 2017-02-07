@@ -1,9 +1,9 @@
 package com.qiniu.storage;
 
-import com.qiniu.common.QiniuException;
-import com.qiniu.common.ZoneReqInfo;
 import com.qiniu.common.Constants;
+import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
+import com.qiniu.common.ZoneReqInfo;
 import com.qiniu.http.ProxyConfiguration;
 import qiniu.happydns.DnsClient;
 
@@ -15,46 +15,52 @@ public final class Configuration implements Cloneable {
     /**
      * 使用的Zone
      */
-    private final Zone zone;
+    private Zone zone;
     /**
      * 空间相关上传管理操作是否使用 https , 默认否
      */
-    public boolean uploadByHttps = false;
+    private boolean useHttpsDomains = false;
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */
-    public int putThreshold = Constants.BLOCK_SIZE;
+    private int putThreshold = Constants.BLOCK_SIZE;
     /**
      * 连接超时时间 单位秒(默认10s)
      */
-    public int connectTimeout = Constants.CONNECT_TIMEOUT;
+    private int connectTimeout = Constants.CONNECT_TIMEOUT;
     /**
      * 写超时时间 单位秒(默认 0 , 不超时)
      */
-    public int writeTimeout = Constants.WRITE_TIMEOUT;
+    private int writeTimeout = Constants.WRITE_TIMEOUT;
     /**
      * 回复超时时间 单位秒(默认30s)
      */
-    public int responseTimeout = Constants.RESPONSE_TIMEOUT;
+    private int readTimeout = Constants.READ_TIMEOUT;
     /**
      * 上传失败重试次数
      */
-    public int retryMax = 5;
+    private int retryMax = 5;
     /**
      * 外部dns
      */
-    public DnsClient dns = null;
+    private DnsClient dnsClient;
     /*
      * 解析域名时,优先使用host配置,主要针对内部局域网配置
      */
-    public boolean dnsHostFirst = false;
+    private boolean useDnsHostFirst;
     /**
-     * proxy
+     * 代理对象
      */
-    public ProxyConfiguration proxy = null;
+    private ProxyConfiguration proxy;
+
+    public Configuration() {
+        this.zone = null;
+        this.dnsClient = null;
+    }
 
     public Configuration(Zone zone) {
         this.zone = zone;
+        this.dnsClient = null;
     }
 
     public Configuration clone() {
@@ -67,59 +73,151 @@ public final class Configuration implements Cloneable {
     }
 
     public String upHost(String upToken) throws QiniuException {
-        if (uploadByHttps) {
-            return zone.getUpHttps(new ZoneReqInfo(upToken));
+        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(upToken);
+        if (zone == null) {
+            zone = Zone.autoZone();
+        }
+        if (useHttpsDomains) {
+            return zone.getUpHttps(zoneReqInfo);
         } else {
-            return zone.getUpHttp(new ZoneReqInfo(upToken));
+            return zone.getUpHttp(zoneReqInfo);
         }
     }
 
     public String upHostBackup(String upToken) throws QiniuException {
-        if (uploadByHttps) {
-            return zone.getUpBackupHttps(new ZoneReqInfo(upToken));
+        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(upToken);
+        if (zone == null) {
+            zone = Zone.autoZone();
+        }
+        if (useHttpsDomains) {
+            return zone.getUpBackupHttps(zoneReqInfo);
         } else {
-            return zone.getUpBackupHttp(new ZoneReqInfo(upToken));
+            return zone.getUpBackupHttp(zoneReqInfo);
         }
     }
 
-    public String rsfHost(String ak, String bucket) {
-        if (uploadByHttps) {
-            return zone.getRsfHttps(new ZoneReqInfo(ak, bucket));
+
+    public String ioHost(String ak, String bucket) {
+        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
+        if (zone == null) {
+            zone = Zone.autoZone();
+        }
+        if (useHttpsDomains) {
+            return zone.getIovipHttps(zoneReqInfo);
         } else {
-            return zone.getRsfHttp(new ZoneReqInfo(ak, bucket));
+            return zone.getIovipHttp(zoneReqInfo);
         }
     }
 
-    public String rsHost(String ak, String bucket) {
-        if (uploadByHttps) {
-            return zone.getRsHttps(new ZoneReqInfo(ak, bucket));
+    public String apiHost(String ak, String bucket) {
+        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
+        if (zone == null) {
+            zone = Zone.autoZone();
+        }
+        if (useHttpsDomains) {
+            return zone.getApiHttps(zoneReqInfo);
         } else {
-            return zone.getRsHttp(new ZoneReqInfo(ak, bucket));
+            return zone.getApiHttp(zoneReqInfo);
         }
     }
 
-    public String rsBucketsHost() {
-        if (uploadByHttps) {
+    public String rsHost() {
+        if (useHttpsDomains) {
             return "https://rs.qbox.me";
         } else {
             return "http://rs.qiniu.com";
         }
     }
 
-    public String ioHost(String ak, String bucket) {
-        if (uploadByHttps) {
-            return zone.getIovipHttps(new ZoneReqInfo(ak, bucket));
+    public String rsHost(String ak, String bucket) {
+        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
+        if (zone == null) {
+            zone = Zone.autoZone();
+        }
+        if (useHttpsDomains) {
+            return zone.getRsHttps(zoneReqInfo);
         } else {
-            return zone.getIovipHttp(new ZoneReqInfo(ak, bucket));
+            return zone.getRsHttp(zoneReqInfo);
         }
     }
 
-
-    public String apiHost(String ak, String bucket) {
-        if (uploadByHttps) {
-            return zone.getApiHttps(new ZoneReqInfo(ak, bucket));
-        } else {
-            return zone.getApiHttp(new ZoneReqInfo(ak, bucket));
+    public String rsfHost(String ak, String bucket) {
+        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
+        if (zone == null) {
+            zone = Zone.autoZone();
         }
+        if (useHttpsDomains) {
+            return zone.getRsfHttps(zoneReqInfo);
+        } else {
+            return zone.getRsfHttp(zoneReqInfo);
+        }
+    }
+
+    public Zone getZone() {
+        return zone;
+    }
+
+    public boolean isUseHttpsDomains() {
+        return useHttpsDomains;
+    }
+
+    public void setUseHttpsDomains(boolean useHttpsDomains) {
+        this.useHttpsDomains = useHttpsDomains;
+    }
+
+    public int getPutThreshold() {
+        return putThreshold;
+    }
+
+    public void setPutThreshold(int putThreshold) {
+        this.putThreshold = putThreshold;
+    }
+
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public void setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public int getWriteTimeout() {
+        return writeTimeout;
+    }
+
+    public void setWriteTimeout(int writeTimeout) {
+        this.writeTimeout = writeTimeout;
+    }
+
+    public int getReadTimeout() {
+        return readTimeout;
+    }
+
+    public int getRetryMax() {
+        return retryMax;
+    }
+
+    public void setRetryMax(int retryMax) {
+        this.retryMax = retryMax;
+    }
+
+    public DnsClient getDnsClient() {
+        return dnsClient;
+    }
+
+    public boolean isUseDnsHostFirst() {
+        return useDnsHostFirst;
+    }
+
+    public void setUseDnsHostFirst(boolean useDnsHostFirst) {
+        this.useDnsHostFirst = useDnsHostFirst;
+    }
+
+    public ProxyConfiguration getProxy() {
+        return proxy;
+    }
+
+    public void setProxy(ProxyConfiguration proxy) {
+        this.proxy = proxy;
     }
 }

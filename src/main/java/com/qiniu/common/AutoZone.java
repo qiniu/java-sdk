@@ -11,20 +11,38 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by bailong on 16/9/15.
  */
 final class AutoZone extends Zone {
-    static AutoZone instance = new AutoZone();
+    public static AutoZone instance = new AutoZone();
     private final String ucServer;
-    private Map<ZoneIndex, ZoneInfo> zones = new ConcurrentHashMap<>();
+
+    /**
+     * 空间机房，域名信息缓存
+     */
+    private Map<ZoneIndex, ZoneInfo> zones;
+    private Map<String, Zone> inferDomainsMap;
     private Client client;
 
-    AutoZone() {
+
+    /**
+     * 构建默认的域名接口获取对象
+     */
+    public AutoZone() {
         this("https://uc.qbox.me");
     }
 
-    AutoZone(String ucServer) {
+    public AutoZone(String ucServer) {
         this.ucServer = ucServer;
-        client = new Client();
+        this.client = new Client();
+        this.zones = new ConcurrentHashMap<>();
+        this.inferDomainsMap = new ConcurrentHashMap<>();
+        this.inferDomainsMap.put("http://up.qiniu.com", zone0());
+        this.inferDomainsMap.put("http://up-z1.qiniu.com", zone1());
+        this.inferDomainsMap.put("http://up-z2.qiniu.com", zone2());
+        this.inferDomainsMap.put("http://up-na0.qiniu.com", zoneNa0());
     }
 
+    /**
+     * 通过接口查询域名
+     */
     private UCRet getZoneJson(ZoneIndex index) throws QiniuException {
         String address = ucServer + "/v1/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
 
@@ -32,8 +50,10 @@ final class AutoZone extends Zone {
         return r.jsonToObject(UCRet.class);
     }
 
-    // only for test public
-    ZoneInfo zoneInfo(String ak, String bucket) throws QiniuException {
+    /**
+     * 首先从缓存读取Zone信息，如果没有则发送请求从接口查询
+     */
+    public ZoneInfo queryZoneInfo(String ak, String bucket) throws QiniuException {
         ZoneIndex index = new ZoneIndex(ak, bucket);
         ZoneInfo info = zones.get(index);
         if (info == null) {
@@ -51,10 +71,12 @@ final class AutoZone extends Zone {
         return info;
     }
 
-    // only for test public
-    ZoneInfo queryByToken(ZoneReqInfo ab) {
+    /**
+     * Zone信息查询接口
+     */
+    public ZoneInfo queryZoneInfo(ZoneReqInfo zoneReqInfo) {
         try {
-            return zoneInfo(ab.ak, ab.bucket);
+            return queryZoneInfo(zoneReqInfo.getAccessKey(), zoneReqInfo.getBucket());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,8 +84,8 @@ final class AutoZone extends Zone {
     }
 
     @Override
-    public String getUpHttp(ZoneReqInfo ab) {
-        ZoneInfo info = queryByToken(ab);
+    public String getUpHttp(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
         if (info == null) {
             return "";
         }
@@ -71,8 +93,8 @@ final class AutoZone extends Zone {
     }
 
     @Override
-    public String getUpBackupHttp(ZoneReqInfo ab) {
-        ZoneInfo info = queryByToken(ab);
+    public String getUpBackupHttp(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
         if (info == null) {
             return "";
         }
@@ -80,8 +102,8 @@ final class AutoZone extends Zone {
     }
 
     @Override
-    public String getUpIpHttp(ZoneReqInfo ab) {
-        ZoneInfo info = queryByToken(ab);
+    public String getUpIpHttp(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
         if (info == null) {
             return "";
         }
@@ -89,8 +111,8 @@ final class AutoZone extends Zone {
     }
 
     @Override
-    public String getIovipHttp(ZoneReqInfo ab) {
-        ZoneInfo info = queryByToken(ab);
+    public String getIovipHttp(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
         if (info == null) {
             return "";
         }
@@ -99,8 +121,8 @@ final class AutoZone extends Zone {
 
 
     @Override
-    public String getUpHttps(ZoneReqInfo ab) {
-        ZoneInfo info = queryByToken(ab);
+    public String getUpHttps(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
         if (info == null) {
             return "";
         }
@@ -108,8 +130,8 @@ final class AutoZone extends Zone {
     }
 
     @Override
-    public String getUpBackupHttps(ZoneReqInfo ab) {
-        ZoneInfo info = queryByToken(ab);
+    public String getUpBackupHttps(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
         if (info == null) {
             return "";
         }
@@ -117,8 +139,8 @@ final class AutoZone extends Zone {
     }
 
     @Override
-    public String getUpIpHttps(ZoneReqInfo ab) {
-        ZoneInfo info = queryByToken(ab);
+    public String getUpIpHttps(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
         if (info == null) {
             return "";
         }
@@ -126,16 +148,101 @@ final class AutoZone extends Zone {
     }
 
     @Override
-    public String getIovipHttps(ZoneReqInfo ab) {
-        ZoneInfo info = queryByToken(ab);
+    public String getIovipHttps(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
         if (info == null) {
             return "";
         }
         return info.iovipHttps;
     }
 
+    @Override
+    public String getRsHttp(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
+        if (info == null) {
+            return super.getRsHttp();
+        }
+        Zone zone = this.inferDomainsMap.get(info.upHttp);
+        if (zone != null) {
+            return zone.getRsHttp();
+        } else {
+            return super.getRsHttp();
+        }
+    }
 
+    @Override
+    public String getRsHttps(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
+        if (info == null) {
+            return super.getRsHttps();
+        }
+        Zone zone = this.inferDomainsMap.get(info.upHttp);
+        if (zone != null) {
+            return zone.getRsHttps();
+        } else {
+            return super.getRsHttps();
+        }
+    }
 
+    @Override
+    public String getRsfHttp(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
+        if (info == null) {
+            return super.getRsfHttp();
+        }
+        Zone zone = this.inferDomainsMap.get(info.upHttp);
+        if (zone != null) {
+            return zone.getRsfHttp();
+        } else {
+            return super.getRsfHttp();
+        }
+    }
+
+    @Override
+    public String getRsfHttps(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
+        if (info == null) {
+            return super.getRsfHttps();
+        }
+        Zone zone = this.inferDomainsMap.get(info.upHttp);
+        if (zone != null) {
+            return zone.getRsfHttps();
+        } else {
+            return super.getRsfHttps();
+        }
+    }
+
+    @Override
+    public String getApiHttp(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
+        if (info == null) {
+            return super.getApiHttp();
+        }
+        Zone zone = this.inferDomainsMap.get(info.upHttp);
+        if (zone != null) {
+            return zone.getApiHttp();
+        } else {
+            return super.getApiHttp();
+        }
+    }
+
+    @Override
+    public String getApiHttps(ZoneReqInfo zoneReqInfo) {
+        ZoneInfo info = queryZoneInfo(zoneReqInfo);
+        if (info == null) {
+            return super.getApiHttps();
+        }
+        Zone zone = this.inferDomainsMap.get(info.upHttp);
+        if (zone != null) {
+            return zone.getApiHttps();
+        } else {
+            return super.getApiHttps();
+        }
+    }
+
+    /**
+     * 从接口获取的域名信息
+     */
     static class ZoneInfo {
         final String upHttp;
         final String upBackupHttp;

@@ -1,31 +1,43 @@
 package com.qiniu.common;
 
 import com.qiniu.TestConfig;
+import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Simon on 6/22/16.
  */
-public class AutoZoneTest {
-    private String ak = TestConfig.ak;
-    private String bkt = TestConfig.bucket;
+public class AutoZoneTest extends TestCase {
 
     @Test
     public void testHttp() {
-        try {
-            AutoZone zone = AutoZone.instance;
-            AutoZone.ZoneInfo zoneInfo = zone.zoneInfo(ak, bkt);
-            assertEquals(zoneInfo.upHttp, "http://up.qiniu.com");
-            assertEquals(zoneInfo.upBackupHttp, "http://upload.qiniu.com");
-            assertEquals(zoneInfo.upHttps, "https://up.qbox.me");
-        } catch (QiniuException e) {
-            e.printStackTrace();
-            System.out.println(e.response.url());
-            System.out.println(e.response.toString());
-            Assert.fail();
+        Map<String, String[]> cases = new HashMap<String, String[]>();
+        cases.put(TestConfig.testBucket_z0,
+                new String[]{"http://up.qiniu.com",
+                        "http://upload.qiniu.com",
+                        "https://up.qbox.me"});
+        cases.put(TestConfig.testBucket_na0,
+                new String[]{"http://up-na0.qiniu.com",
+                        "http://upload-na0.qiniu.com",
+                        "https://up-na0.qbox.me"});
+
+        for (Map.Entry<String, String[]> entry : cases.entrySet()) {
+            String bucket = entry.getKey();
+            String[] domains = entry.getValue();
+            try {
+                AutoZone zone = AutoZone.instance;
+                AutoZone.ZoneInfo zoneInfo = zone.queryZoneInfo(TestConfig.testAccessKey,
+                        bucket);
+                assertEquals(zoneInfo.upHttp, domains[0]);
+                assertEquals(zoneInfo.upBackupHttp, domains[1]);
+                assertEquals(zoneInfo.upHttps, domains[2]);
+            } catch (QiniuException e) {
+                fail(e.response.toString());
+            }
         }
     }
 
@@ -33,12 +45,9 @@ public class AutoZoneTest {
     public void testHttpFail() {
         try {
             AutoZone zone = AutoZone.instance;
-            AutoZone.ZoneInfo zoneInfo = zone.zoneInfo(ak + "_not_be_ak", bkt);
+            zone.queryZoneInfo(TestConfig.dummyAccessKey, TestConfig.dummyBucket);
             Assert.fail();
         } catch (QiniuException e) {
-            e.printStackTrace();
-            System.out.println(e.response.url());
-            System.out.println(e.response.toString());
             Assert.assertEquals(e.code(), 612);
         }
     }
@@ -53,17 +62,16 @@ public class AutoZoneTest {
     @Test
     public void testC1() {
         try {
-            AutoZone.ZoneInfo info = AutoZone.instance.zoneInfo(ak, bkt);
+            AutoZone.ZoneInfo info = AutoZone.instance.queryZoneInfo(TestConfig.testAccessKey,
+                    TestConfig.testBucket_z0);
             System.out.println("zone0: " + info.toString());
 
-            AutoZone.ZoneInfo info2 = AutoZone.instance.zoneInfo(ak, bkt);
+            AutoZone.ZoneInfo info2 = AutoZone.instance.queryZoneInfo(TestConfig.testAccessKey,
+                    TestConfig.testBucket_z0);
             Assert.assertSame(info, info2);
 
         } catch (QiniuException e) {
-            e.printStackTrace();
-            System.out.println(e.response.url());
-            System.out.println(e.response.toString());
-            Assert.fail();
+            fail(e.response.toString());
         }
     }
 }
