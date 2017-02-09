@@ -420,6 +420,18 @@ public final class BucketManager {
         }
 
         /**
+         * 添加chgm指令
+         */
+
+        public BatchOperations addChgmOp(String bucket, String key, String newMimeType) {
+            String resource = encodedEntry(bucket, key);
+            String encodedMime = UrlSafeBase64.encodeToString(newMimeType);
+            ops.add(String.format("/chgm/%s/mime/%s", resource, encodedMime));
+            setExecBucket(bucket);
+            return this;
+        }
+
+        /**
          * 添加copy指令
          */
         public BatchOperations addCopyOp(String fromBucket, String fromFileKey, String toBucket, String toFileKey) {
@@ -478,6 +490,11 @@ public final class BucketManager {
         public BatchOperations merge(BatchOperations batch) {
             this.ops.addAll(batch.ops);
             setExecBucket(batch.execBucket());
+            return this;
+        }
+
+        public BatchOperations clearOps() {
+            this.ops.clear();
             return this;
         }
 
