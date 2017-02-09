@@ -64,7 +64,7 @@ public final class ResumeUploader {
         this.recorder = recorder;
         this.modifyTime = f.lastModified();
         helper = new RecordHelper();
-        retryMax = configuration.getRetryMax();
+        retryMax = configuration.retryMax;
     }
 
     public Response upload() throws QiniuException {

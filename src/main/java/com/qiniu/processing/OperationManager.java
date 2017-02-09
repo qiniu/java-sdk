@@ -174,7 +174,7 @@ public final class OperationManager {
 
         //detect http or https
         String apiHost = zone.getApiHttp();
-        if (this.configuration != null && this.configuration.isUseHttpsDomains()) {
+        if (this.configuration != null && this.configuration.useHttpsDomains) {
             apiHost = zone.getApiHttps();
         }
         String url = String.format("%s/status/get/prefop", apiHost);
