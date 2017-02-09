@@ -28,7 +28,7 @@ public class BucketTest extends TestCase {
     protected void setUp() throws Exception {
         //default config
         Configuration cfg = new Configuration();
-        cfg.setUseHttpsDomains(true);
+        cfg.useHttpsDomains = true;
 
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
 
@@ -145,8 +145,8 @@ public class BucketTest extends TestCase {
             String key = entry.getValue();
             try {
                 FileInfo info = bucketManager.stat(bucket, key);
-                assertNotNull(info.getHash());
-                assertNotNull(info.getMimeType());
+                assertNotNull(info.hash);
+                assertNotNull(info.mimeType);
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }

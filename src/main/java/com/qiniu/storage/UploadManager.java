@@ -164,7 +164,7 @@ public final class UploadManager {
         }
         params = filterParam(params);
         long size = file.length();
-        if (size <= configuration.getPutThreshold()) {
+        if (size <= configuration.putThreshold) {
             return new FormUploader(client, token, key, file, params, mime, checkCrc, configuration).upload();
         }
 

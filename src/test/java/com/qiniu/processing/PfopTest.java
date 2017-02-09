@@ -73,7 +73,7 @@ public class PfopTest extends TestCase {
             Configuration cfg = new Configuration();
             //cfg.setUseHttpsDomains(true);
             OperationStatus status = new OperationManager(TestConfig.testAuth, cfg).prefop(persistentId);
-            assertEquals(0, status.getCode());
+            assertEquals(0, status.code);
         } catch (QiniuException ex) {
             Assert.assertEquals(612, ex.code());
         }

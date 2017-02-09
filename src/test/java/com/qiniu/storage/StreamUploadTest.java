@@ -72,7 +72,7 @@ public class StreamUploadTest {
             Zone zone = entry.getValue();
 
             Configuration c = new Configuration(zone);
-            c.setUseHttpsDomains(https);
+            c.useHttpsDomains = https;
             final String expectKey = "\r\n?&r=" + size + "k";
             final File f = TempFile.createFile(size);
             final String mime = "app/test";

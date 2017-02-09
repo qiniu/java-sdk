@@ -42,7 +42,7 @@ public final class StreamUploader {
         this.contexts = new ArrayList<>();
         this.blockBuffer = new byte[Constants.BLOCK_SIZE];
         this.stream = stream;
-        retryMax = configuration.getRetryMax();
+        retryMax = configuration.retryMax;
     }
 
     public Response upload() throws QiniuException {
