@@ -10,6 +10,7 @@ import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
 import com.qiniu.util.StringUtils;
 import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -418,6 +419,53 @@ public class BucketTest extends TestCase {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
                 assertEquals(200, bs[0].code);
+            } catch (QiniuException e) {
+                fail(e.response.toString());
+            }
+        }
+    }
+
+    @Test
+    public void testBatchCopyChgmDelete() {
+        Map<String, String> bucketKeyMap = new HashMap<String, String>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
+        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+        for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
+            String bucket = entry.getKey();
+            String key = entry.getValue();
+
+            //make 100 copies
+            String[] keyArray = new String[100];
+            for (int i = 0; i < keyArray.length; i++) {
+                keyArray[i] = String.format("%s-copy-%d", key, i);
+            }
+
+            BucketManager.BatchOperations ops = new BucketManager.BatchOperations();
+            for (int i = 0; i < keyArray.length; i++) {
+                ops.addCopyOp(bucket, key, bucket, keyArray[i]);
+            }
+
+            try {
+                Response response = bucketManager.batch(ops);
+                Assert.assertEquals(200, response.statusCode);
+
+                //clear ops
+                ops.clearOps();
+
+                //batch chane mimetype
+                for (int i = 0; i < keyArray.length; i++) {
+                    ops.addChgmOp(bucket, keyArray[i], "image/png");
+                }
+                response = bucketManager.batch(ops);
+                Assert.assertEquals(200, response.statusCode);
+
+                //clear ops
+                for (int i = 0; i < keyArray.length; i++) {
+                    ops.addDeleteOp(bucket, keyArray[i]);
+                }
+                response = bucketManager.batch(ops);
+                Assert.assertEquals(200, response.statusCode);
+
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }
