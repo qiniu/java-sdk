@@ -36,7 +36,7 @@ public class FormUploadTest {
             String bucket = entry.getKey();
             Zone zone = entry.getValue();
             Configuration c = new Configuration(zone);
-            c.setUseHttpsDomains(true);
+            c.useHttpsDomains = true;
             UploadManager uploadManager = new UploadManager(c);
             hello(uploadManager, bucket);
         }
@@ -327,13 +327,13 @@ public class FormUploadTest {
             String bucket = entry.getKey();
             Zone zone = entry.getValue();
             Configuration c = new Configuration(zone);
-            c.setPutThreshold(25 * 1024 * 1024);
+            c.putThreshold = 25 * 1024 * 1024;
             UploadManager uploadManager = new UploadManager(new Configuration(Zone.zone0()));
 
             final String expectKey = "yyyyyy";
             File f = null;
             try {
-                f = TempFile.createFile(c.getPutThreshold() / 1024 - 1);
+                f = TempFile.createFile(c.putThreshold / 1024 - 1);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -360,14 +360,14 @@ public class FormUploadTest {
             String bucket = entry.getKey();
             Zone zone = entry.getValue();
             Configuration c = new Configuration(zone);
-            c.setPutThreshold(25 * 1024 * 1024);
+            c.putThreshold = 25 * 1024 * 1024;
             UploadManager uploadManager = new UploadManager(new Configuration(Zone.zone0()));
 
             final String expectKey = "xxxxxxx";
             byte[] bb = null;
             File f = null;
             try {
-                f = TempFile.createFile(c.getPutThreshold() / 1024 - 1);
+                f = TempFile.createFile(c.putThreshold / 1024 - 1);
                 bb = new byte[(int) (f.length())];
                 FileInputStream fis = new FileInputStream(f);
                 fis.read(bb, 0, (int) (f.length()));
