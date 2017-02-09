@@ -35,8 +35,8 @@ public final class Client {
     }
 
     public Client(Configuration cfg) {
-        this(cfg.getDnsClient(), cfg.isUseDnsHostFirst(), cfg.getProxy(),
-                cfg.getConnectTimeout(), cfg.getReadTimeout(), cfg.getWriteTimeout());
+        this(cfg.dnsClient, cfg.useDnsHostFirst, cfg.proxy,
+                cfg.connectTimeout, cfg.readTimeout, cfg.writeTimeout);
     }
 
     public Client(final DnsClient dns, final boolean hostFirst, final ProxyConfiguration proxy,
