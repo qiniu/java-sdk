@@ -96,8 +96,8 @@ public final class Configuration implements Cloneable {
         if (zone == null) {
             zone = Zone.autoZone();
         }
-        return useHttpsDomains ? zone.getIovipHttps(zoneReqInfo) :
-                zone.getIovipHttp(zoneReqInfo);
+        return useHttpsDomains ? zone.getIovipHttps(zoneReqInfo)
+                : zone.getIovipHttp(zoneReqInfo);
     }
 
     public String apiHost(String ak, String bucket) {
@@ -106,8 +106,8 @@ public final class Configuration implements Cloneable {
             zone = Zone.autoZone();
         }
 
-        return useHttpsDomains ? zone.getApiHttps(zoneReqInfo) :
-                zone.getApiHttp(zoneReqInfo);
+        return useHttpsDomains ? zone.getApiHttps(zoneReqInfo)
+                : zone.getApiHttp(zoneReqInfo);
     }
 
     public String rsHost() {
@@ -119,8 +119,8 @@ public final class Configuration implements Cloneable {
         if (zone == null) {
             zone = Zone.autoZone();
         }
-        return useHttpsDomains ? zone.getRsHttps(zoneReqInfo) :
-                zone.getRsHttp(zoneReqInfo);
+        return useHttpsDomains ? zone.getRsHttps(zoneReqInfo)
+                : zone.getRsHttp(zoneReqInfo);
     }
 
 
@@ -129,7 +129,7 @@ public final class Configuration implements Cloneable {
         if (zone == null) {
             zone = Zone.autoZone();
         }
-        return useHttpsDomains ? zone.getRsfHttps(zoneReqInfo) :
-                zone.getRsfHttp(zoneReqInfo);
+        return useHttpsDomains ? zone.getRsfHttps(zoneReqInfo)
+                : zone.getRsfHttp(zoneReqInfo);
     }
 }
