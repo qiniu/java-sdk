@@ -31,7 +31,7 @@ public class Zone {
     /**
      * 域名构造器
      */
-    static class Builder {
+    public static class Builder {
         private Zone zone;
 
         public Builder() {
