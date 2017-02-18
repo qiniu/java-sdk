@@ -4,6 +4,7 @@ import com.qiniu.storage.UploadManager;
 import com.qiniu.common.Zone;
 import com.qiniu.storage.Configuration;
 import com.qiniu.util.Auth;
+
 import java.io.IOException;
 
 
@@ -20,7 +21,7 @@ public class UploadDemo {
 
     //密钥配置
     Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
-    
+
     ///////////////////////指定上传的Zone的信息//////////////////
     //第一种方式: 指定具体的要上传的zone
     //注：该具体指定的方式和以下自动识别的方式选择其一即可

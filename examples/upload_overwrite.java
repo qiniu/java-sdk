@@ -40,7 +40,7 @@ public class UploadDemo {
     UploadManager uploadManager = new UploadManager(c);
 
     // 覆盖上传
-    public String getUpToken(){
+    public String getUpToken() {
         //<bucket>:<key>，表示只允许用户上传指定key的文件。在这种格式下文件默认允许“修改”，已存在同名资源则会被本次覆盖。
         //如果希望只能上传指定key的文件，并且不允许修改，那么可以将下面的 insertOnly 属性值设为 1。
         //第三个参数是token的过期时间

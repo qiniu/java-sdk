@@ -3,7 +3,7 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.storage.model.DefaultPutRet;
+import com.qiniu.storage.model.FetchRet;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
 import com.qiniu.util.Auth;
@@ -16,8 +16,7 @@ import java.util.Iterator;
 
 /**
  * 主要涉及了空间资源管理及批量操作接口的实现，具体的接口规格可以参考
- *
- * @link http://developer.qiniu.com/kodo/api/rs
+ * 参考文档：<a href="http://developer.qiniu.com/kodo/api/rs">资源管理</a>
  */
 public final class BucketManager {
     /**
@@ -283,7 +282,7 @@ public final class BucketManager {
      * @param bucket 文件抓取后保存的空间
      * @throws QiniuException
      */
-    public DefaultPutRet fetch(String url, String bucket) throws QiniuException {
+    public FetchRet fetch(String url, String bucket) throws QiniuException {
         return fetch(url, bucket, null);
     }
 
@@ -296,12 +295,12 @@ public final class BucketManager {
      * @param key    文件抓取后保存的文件名
      * @throws QiniuException
      */
-    public DefaultPutRet fetch(String url, String bucket, String key) throws QiniuException {
+    public FetchRet fetch(String url, String bucket, String key) throws QiniuException {
         String resource = UrlSafeBase64.encodeToString(url);
         String to = encodedEntry(bucket, key);
         String path = String.format("/fetch/%s/to/%s", resource, to);
         Response r = ioPost(bucket, path);
-        return r.jsonToObject(DefaultPutRet.class);
+        return r.jsonToObject(FetchRet.class);
     }
 
     /**

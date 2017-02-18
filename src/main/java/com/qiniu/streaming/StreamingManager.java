@@ -15,7 +15,8 @@ import com.qiniu.util.UrlSafeBase64;
 import java.util.Iterator;
 
 /**
- * Created by bailong on 16/9/22.
+ * 该类封装了直播服务端API的功能
+ * 参考文档：<a href="https://developer.qiniu.com/pili/api/the-server-api-reference">直播服务端API参考</a>
  */
 public final class StreamingManager {
     private final String apiServer;
@@ -23,6 +24,12 @@ public final class StreamingManager {
     private final Client client;
     private final Auth auth;
 
+    /**
+     * 构建一个直播流管理对象
+     *
+     * @param auth Auth对象
+     * @param hub  直播应用名称
+     */
     public StreamingManager(Auth auth, String hub) {
         this(auth, hub, "http://pili.qiniuapi.com");
     }
@@ -34,14 +41,24 @@ public final class StreamingManager {
         client = new Client();
     }
 
-    public void create(String key) throws QiniuException {
+    /**
+     * 创建一个新的直播流对象，其鉴权方式默认和直播应用设置的鉴权方式一致
+     *
+     * @param streamKey 直播流名称，可包含 字母、数字、中划线、下划线；1 ~ 200 个字符长
+     */
+    public void create(String streamKey) throws QiniuException {
         String path = "";
-        String body = String.format("{\"key\":\"%s\"}", key);
+        String body = String.format("{\"key\":\"%s\"}", streamKey);
         post(path, body, null);
     }
 
-    public StreamAttribute attribute(String key) throws QiniuException {
-        String path = encodeKey(key);
+    /**
+     * 获取流对象的相关信息
+     *
+     * @param streamKey 直播流名称
+     */
+    public StreamAttribute attribute(String streamKey) throws QiniuException {
+        String path = encodeKey(streamKey);
         return get(path, StreamAttribute.class);
     }
 
@@ -56,6 +73,13 @@ public final class StreamingManager {
         return new ListIterator(live, prefix);
     }
 
+    /**
+     * 获取直播流列表
+     *
+     * @param live   是否直播中
+     * @param prefix 流名称前缀
+     * @param marker 下一次列举的位置
+     */
     public StreamListing listStreams(boolean live, String prefix, String marker) throws QiniuException {
         StringMap map = new StringMap();
         if (live) {
@@ -75,27 +99,57 @@ public final class StreamingManager {
         return get(path, StreamListing.class);
     }
 
-    public void disableTill(String key, long epoch) throws QiniuException {
-        String path = encodeKey(key) + "/disabled";
-        String body = String.format("{\"disabledTill\":%d}", epoch);
+    /**
+     * 禁用流
+     *
+     * @param streamKey         流名称
+     * @param expireAtTimestamp 禁用截至时间戳，单位秒
+     */
+    public void disableTill(String streamKey, long expireAtTimestamp) throws QiniuException {
+        String path = encodeKey(streamKey) + "/disabled";
+        String body = String.format("{\"disabledTill\":%d}", expireAtTimestamp);
         post(path, body, null);
     }
 
-    public void enable(String key) throws QiniuException {
-        disableTill(key, 0);
+    /**
+     * 启用流
+     *
+     * @param streamKey 流名称
+     */
+    public void enable(String streamKey) throws QiniuException {
+        disableTill(streamKey, 0);
     }
 
-    public StreamStatus status(String key) throws QiniuException {
-        String path = encodeKey(key) + "/live";
+    /**
+     * 获取流状态
+     *
+     * @param streamKey 流名称
+     */
+    public StreamStatus status(String streamKey) throws QiniuException {
+        String path = encodeKey(streamKey) + "/live";
         return get(path, StreamStatus.class);
     }
 
-    public String saveAs(String key, String fileName) throws QiniuException {
-        return saveAs(key, fileName, 0, 0);
+    /**
+     * 从直播流数据中录制点播，该方法录制的时间段为整个流开始和结束时间
+     *
+     * @param streamKey 流名称
+     * @param fileName  录制后保存的文件名
+     */
+    public String saveAs(String streamKey, String fileName) throws QiniuException {
+        return saveAs(streamKey, fileName, 0, 0);
     }
 
-    public String saveAs(String key, String fileName, long start, long end) throws QiniuException {
-        String path = encodeKey(key) + "/saveas";
+    /**
+     * * 从直播流数据中录制点播，该方法可以指定录制的时间段
+     *
+     * @param streamKey 流名称
+     * @param fileName  录制后保存的文件名
+     * @param start     录制开始的时间戳，单位秒
+     * @param end       录制结束的时间戳，单位秒
+     */
+    public String saveAs(String streamKey, String fileName, long start, long end) throws QiniuException {
+        String path = encodeKey(streamKey) + "/saveas";
         String body;
         if (fileName == null) {
             body = String.format("{\"start\": %d,\"end\": %d}", start, end);
@@ -106,11 +160,18 @@ public final class StreamingManager {
         return r.fname;
     }
 
-    public ActivityRecords history(String key, long start, long end) throws QiniuException {
+    /**
+     * 获取流推流的片段列表，一个流开始和断流算一个片段
+     *
+     * @param streamKey 流名称
+     * @param start     开始时间戳，单位秒
+     * @param end       结束时间戳，单位秒
+     */
+    public ActivityRecords history(String streamKey, long start, long end) throws QiniuException {
         if (start <= 0 || end < 0 || (start >= end && end != 0)) {
             throw new QiniuException(new IllegalArgumentException("bad argument" + start + "," + end));
         }
-        String path = encodeKey(key) + "/historyactivity?" + start;
+        String path = encodeKey(streamKey) + "/historyactivity?" + start;
         if (end != 0) {
             path += "&end=" + end;
         }
@@ -147,7 +208,7 @@ public final class StreamingManager {
     }
 
     /**
-     * 获取文件列表迭代器
+     * 获取流列表迭代器
      */
     public class ListIterator implements Iterator<String[]> {
         private final boolean live;
