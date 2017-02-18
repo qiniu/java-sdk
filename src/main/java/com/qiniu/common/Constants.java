@@ -3,7 +3,7 @@ package com.qiniu.common;
 import java.nio.charset.Charset;
 
 /**
- * Created by bailong on 16/9/14.
+ * SDK相关配置常量
  */
 public final class Constants {
     /**

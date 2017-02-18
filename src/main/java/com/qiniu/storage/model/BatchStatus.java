@@ -1,7 +1,7 @@
 package com.qiniu.storage.model;
 
 /**
- * Created by bailong on 15/2/22.
+ * 定义批量请求的状态码
  */
 public final class BatchStatus {
     public int code;

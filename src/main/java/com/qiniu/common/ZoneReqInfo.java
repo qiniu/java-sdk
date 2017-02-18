@@ -4,7 +4,7 @@ import com.qiniu.util.Json;
 import com.qiniu.util.UrlSafeBase64;
 
 /**
- * Created by Simon on 23/12/2016.
+ * 封装了 accessKey 和 bucket 的类
  */
 public class ZoneReqInfo {
     private final String accessKey;
