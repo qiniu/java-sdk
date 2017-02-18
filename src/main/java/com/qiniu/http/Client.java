@@ -31,20 +31,27 @@ public final class Client {
 
     public Client() {
         this(null, false, null,
-                Constants.CONNECT_TIMEOUT, Constants.READ_TIMEOUT, Constants.WRITE_TIMEOUT);
+                Constants.CONNECT_TIMEOUT, Constants.READ_TIMEOUT, Constants.WRITE_TIMEOUT,
+                Constants.DISPATCHER_MAX_REQUESTS, Constants.DISPATCHER_MAX_REQUESTS_PER_HOST,
+                Constants.CONNECTION_POOL_MAX_IDLE_COUNT, Constants.CONNECTION_POOL_MAX_IDLE_MINUTES);
     }
 
     public Client(Configuration cfg) {
         this(cfg.dnsClient, cfg.useDnsHostFirst, cfg.proxy,
-                cfg.connectTimeout, cfg.readTimeout, cfg.writeTimeout);
+                cfg.connectTimeout, cfg.readTimeout, cfg.writeTimeout,
+                cfg.dispatcherMaxRequests, cfg.dispatcherMaxRequestsPerHost,
+                cfg.connectionPoolMaxIdleCount, cfg.connectionPoolMaxIdleMinutes);
     }
 
     public Client(final DnsClient dns, final boolean hostFirst, final ProxyConfiguration proxy,
-                  int connTimeout, int readTimeout, int writeTimeout) {
+                  int connTimeout, int readTimeout, int writeTimeout, int dispatcherMaxRequests,
+                  int dispatcherMaxRequestsPerHost, int connectionPoolMaxIdleCount,
+                  int connectionPoolMaxIdleMinutes) {
         Dispatcher dispatcher = new Dispatcher();
-        dispatcher.setMaxRequests(64);
-        dispatcher.setMaxRequestsPerHost(16);
-        ConnectionPool connectionPool = new ConnectionPool(32, 5, TimeUnit.MINUTES);
+        dispatcher.setMaxRequests(dispatcherMaxRequests);
+        dispatcher.setMaxRequestsPerHost(dispatcherMaxRequestsPerHost);
+        ConnectionPool connectionPool = new ConnectionPool(connectionPoolMaxIdleCount,
+                connectionPoolMaxIdleMinutes, TimeUnit.MINUTES);
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
         builder.dispatcher(dispatcher);

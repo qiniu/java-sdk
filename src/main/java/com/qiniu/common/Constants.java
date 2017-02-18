@@ -30,6 +30,22 @@ public final class Constants {
      * 回复超时时间 单位秒(默认30s)
      */
     public static final int READ_TIMEOUT = 30;
+    /**
+     * 底层HTTP库所有的并发执行的请求数量
+     */
+    public static final int DISPATCHER_MAX_REQUESTS = 64;
+    /**
+     * 底层HTTP库对每个独立的Host进行并发请求的数量
+     */
+    public static final int DISPATCHER_MAX_REQUESTS_PER_HOST = 16;
+    /**
+     * 底层HTTP库中复用连接对象的最大空闲数量
+     */
+    public static final int CONNECTION_POOL_MAX_IDLE_COUNT = 32;
+    /**
+     * 底层HTTP库中复用连接对象的回收周期（单位分钟）
+     */
+    public static final int CONNECTION_POOL_MAX_IDLE_MINUTES = 5;
 
     private Constants() {
     }
