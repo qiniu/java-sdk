@@ -47,7 +47,7 @@ final class AutoZone extends Zone {
      * 通过 API 接口查询上传域名
      */
     private UCRet getZoneJson(ZoneIndex index) throws QiniuException {
-        String address = ucServer + "/v1/query?accessKey=" + index.accessKey + "&bucket=" + index.bucket;
+        String address = ucServer + "/v1/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
 
         Response r = client.get(address);
         return r.jsonToObject(UCRet.class);
