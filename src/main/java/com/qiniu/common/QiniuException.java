@@ -6,7 +6,7 @@ import com.qiniu.http.Response;
 import java.io.IOException;
 
 /**
- * 异常，封装了http响应数据
+ * 七牛SDK异常封装类，封装了http响应数据
  */
 public final class QiniuException extends IOException {
     public final Response response;

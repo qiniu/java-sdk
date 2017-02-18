@@ -17,7 +17,7 @@ public class CdnTest {
         CdnResult.RefreshResult r = null;
         try {
             r = c.refreshUrls(new String[]{"http://javasdk.qiniudn.com/gopher.jpg"});
-            Assert.assertEquals(200, r.getCode());
+            Assert.assertEquals(200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
             Assert.fail();
@@ -30,7 +30,7 @@ public class CdnTest {
         CdnResult.PrefetchResult r = null;
         try {
             r = c.prefetchUrls(new String[]{"http://javasdk.qiniudn.com/gopher.jpg"});
-            Assert.assertEquals(200, r.getCode());
+            Assert.assertEquals(200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
             Assert.fail();
@@ -47,7 +47,7 @@ public class CdnTest {
         String granularity = "day";
         try {
             r = c.getBandwidthData(domains, startDate, endDate, granularity);
-            Assert.assertEquals(200, r.getCode());
+            Assert.assertEquals(200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
             Assert.fail();
@@ -64,7 +64,7 @@ public class CdnTest {
         String granularity = "day";
         try {
             r = c.getFluxData(domains, startDate, endDate, granularity);
-            Assert.assertEquals(200, r.getCode());
+            Assert.assertEquals(200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
             Assert.fail();
@@ -80,7 +80,7 @@ public class CdnTest {
 
         try {
             r = c.getCdnLogList(domains, logDate);
-            Assert.assertEquals(true, r.getData().size() > 0);
+            Assert.assertEquals(true, r.data.size() > 0);
         } catch (QiniuException e) {
             e.printStackTrace();
             Assert.fail();

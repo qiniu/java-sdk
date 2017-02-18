@@ -10,9 +10,8 @@ import java.security.GeneralSecurityException;
 public final class Auth {
 
     /**
-     * 上传策略，参数规格详见
-     * <p/>
-     * http://developer.qiniu.com/docs/v6/api/reference/security/put-policy.html
+     * 上传策略
+     * 参考文档：<a href="https://developer.qiniu.com/kodo/manual/put-policy">上传策略</a>
      */
     private static final String[] policyFields = new String[]{
             "callbackUrl",

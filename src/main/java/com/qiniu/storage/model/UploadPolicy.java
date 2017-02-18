@@ -1,10 +1,9 @@
 package com.qiniu.storage.model;
 
 /**
- * Created by bailong on 16/9/21.
+ * 该类封装了上传策略
+ * 参考文档：<a href="https://developer.qiniu.com/kodo/manual/put-policy">上传策略</a>
  */
-
-// 这只是个例子，可以自己创建policy 类使用
 public final class UploadPolicy {
 
     public final String scope;

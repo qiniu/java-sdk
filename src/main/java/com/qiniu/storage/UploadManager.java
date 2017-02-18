@@ -10,28 +10,35 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * 七牛文件上传管理器
- * <p/>
+ * 七牛文件上传管理器，通过该类上传文件时，会自动根据定义的{@link Configuration#putThreshold}
+ * 来判断是采用表单上传还是分片上传的方法，超过了定义的{@link Configuration#putThreshold}就会采用
+ * 分片上传的方法，可以在构造该类对象的时候，通过{@link Configuration}类来自定义这个值。
  * 一般默认可以使用这个类的方法来上传数据和文件。这个类自动检测文件的大小，
- * 只要超过了{@link Configuration#putThreshold}
  */
 public final class UploadManager {
     private final Client client;
     private final Recorder recorder;
     private final Configuration configuration;
 
-    public UploadManager(Configuration c) {
-        this(c, null);
+    /**
+     * 构建一个非断点续传的上传对象
+     *
+     * @param config 配置类对象
+     */
+    public UploadManager(Configuration config) {
+        this(config, null);
     }
 
     /**
-     * 断点上传记录。只针对 文件分块上传。
+     * 构建一个支持断点续传的上传对象。只在文件采用分片上传时才会有效。
      * 分块上传中，将每一块上传的记录保存下来。上传中断后可在上一次断点记录基础上上传剩余部分。
+     * 对于不同的文件上传需要支持断点续传的情况，请定义不同的UploadManager对象，而不要共享。
      *
-     * @param recorder 断点记录者
+     * @param config   配置类对象
+     * @param recorder 断点记录对象
      */
-    public UploadManager(Configuration c, Recorder recorder) {
-        configuration = c.clone();
+    public UploadManager(Configuration config, Recorder recorder) {
+        configuration = config.clone();
         client = new Client(configuration);
         this.recorder = recorder;
 
@@ -78,7 +85,7 @@ public final class UploadManager {
     }
 
     /**
-     * 上传数据
+     * 上传字节数组
      *
      * @param data  上传的数据
      * @param key   上传数据保存的文件名
@@ -89,7 +96,7 @@ public final class UploadManager {
     }
 
     /**
-     * 上传数据
+     * 上传字节数组
      *
      * @param data     上传的数据
      * @param key      上传数据保存的文件名
