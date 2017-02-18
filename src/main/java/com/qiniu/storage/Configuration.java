@@ -8,7 +8,7 @@ import com.qiniu.http.ProxyConfiguration;
 import qiniu.happydns.DnsClient;
 
 /**
- * Created by bailong on 16/9/21.
+ * 该类封装了SDK相关配置参数
  */
 public final class Configuration implements Cloneable {
 

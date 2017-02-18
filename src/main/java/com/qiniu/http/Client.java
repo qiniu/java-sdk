@@ -29,6 +29,9 @@ public final class Client {
     public static final String FormMime = "application/x-www-form-urlencoded";
     private final OkHttpClient httpClient;
 
+    /**
+     * 构建一个默认配置的 HTTP Client 类
+     */
     public Client() {
         this(null, false, null,
                 Constants.CONNECT_TIMEOUT, Constants.READ_TIMEOUT, Constants.WRITE_TIMEOUT,
@@ -36,6 +39,9 @@ public final class Client {
                 Constants.CONNECTION_POOL_MAX_IDLE_COUNT, Constants.CONNECTION_POOL_MAX_IDLE_MINUTES);
     }
 
+    /**
+     * 构建一个自定义配置的 HTTP Client 类
+     */
     public Client(Configuration cfg) {
         this(cfg.dnsClient, cfg.useDnsHostFirst, cfg.proxy,
                 cfg.connectTimeout, cfg.readTimeout, cfg.writeTimeout,
@@ -43,6 +49,9 @@ public final class Client {
                 cfg.connectionPoolMaxIdleCount, cfg.connectionPoolMaxIdleMinutes);
     }
 
+    /**
+     * 构建一个自定义配置的 HTTP Client 类
+     */
     public Client(final DnsClient dns, final boolean hostFirst, final ProxyConfiguration proxy,
                   int connTimeout, int readTimeout, int writeTimeout, int dispatcherMaxRequests,
                   int dispatcherMaxRequestsPerHost, int connectionPoolMaxIdleCount,

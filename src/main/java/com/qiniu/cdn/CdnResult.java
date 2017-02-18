@@ -3,370 +3,186 @@ package com.qiniu.cdn;
 import java.util.Map;
 
 /**
- * Created by jemy on 03/02/2017.
+ * 这里定义了Cdn请求相关回复的封装类
  */
 public class CdnResult {
     /**
      * 刷新结果
-     *
-     * @link https://developer.qiniu.com/fusion/api/cache-refresh
+     * 参考文档：<a href="https://developer.qiniu.com/fusion/api/cache-refresh#refresh-response">缓存刷新</a>
      */
     public class RefreshResult {
-        private int code;
-        private String error;
-        private String requestId;
-        private String[] invalidUrls;
-        private String[] invalidDirs;
-        private int urlQuotaDay;
-        private int urlSurplusDay;
-        private int dirQuotaDay;
-        private int dirSurplusDay;
-
-        public int getCode() {
-            return code;
-        }
-
-        public void setCode(int code) {
-            this.code = code;
-        }
-
-        public String getError() {
-            return error;
-        }
-
-        public void setError(String error) {
-            this.error = error;
-        }
-
-        public String getRequestId() {
-            return requestId;
-        }
-
-        public void setRequestId(String requestId) {
-            this.requestId = requestId;
-        }
-
-        public String[] getInvalidUrls() {
-            return invalidUrls;
-        }
-
-        public void setInvalidUrls(String[] invalidUrls) {
-            this.invalidUrls = invalidUrls;
-        }
-
-        public String[] getInvalidDirs() {
-            return invalidDirs;
-        }
-
-        public void setInvalidDirs(String[] invalidDirs) {
-            this.invalidDirs = invalidDirs;
-        }
-
-        public int getUrlQuotaDay() {
-            return urlQuotaDay;
-        }
-
-        public void setUrlQuotaDay(int urlQuotaDay) {
-            this.urlQuotaDay = urlQuotaDay;
-        }
-
-        public int getUrlSurplusDay() {
-            return urlSurplusDay;
-        }
-
-        public void setUrlSurplusDay(int urlSurplusDay) {
-            this.urlSurplusDay = urlSurplusDay;
-        }
-
-        public int getDirQuotaDay() {
-            return dirQuotaDay;
-        }
-
-        public void setDirQuotaDay(int dirQuotaDay) {
-            this.dirQuotaDay = dirQuotaDay;
-        }
-
-        public int getDirSurplusDay() {
-            return dirSurplusDay;
-        }
-
-        public void setDirSurplusDay(int dirSurplusDay) {
-            this.dirSurplusDay = dirSurplusDay;
-        }
+        /**
+         * 自定义错误码
+         */
+        public int code;
+        /**
+         * 自定义错误码描述，字符串
+         */
+        public String error;
+        /**
+         * 刷新请求id，只有在任务被接受时才有值
+         */
+        public String requestId;
+        /**
+         * 无效的url列表
+         */
+        public String[] invalidUrls;
+        /**
+         * 无效的dir列表
+         */
+        public String[] invalidDirs;
+        /**
+         * 每日的刷新url限额
+         */
+        public int urlQuotaDay;
+        /**
+         * 每日的当前剩余的刷新url限额
+         */
+        public int urlSurplusDay;
+        /**
+         * 每日的刷新dir限额
+         */
+        public int dirQuotaDay;
+        /**
+         * 每日的当前剩余的刷新dir限额
+         */
+        public int dirSurplusDay;
     }
 
     /**
      * 预取结果
-     *
-     * @link https://developer.qiniu.com/fusion/api/file-prefetching
+     * 参考文档：<a href="https://developer.qiniu.com/fusion/api/file-prefetching">文件预取</a>
      */
     public class PrefetchResult {
-        private int code;
-        private String error;
-        private String requestId;
-        private String[] invalidUrls;
-        private int quotaDay;
-        private int surplusDay;
-
-        public int getCode() {
-            return code;
-        }
-
-        public void setCode(int code) {
-            this.code = code;
-        }
-
-        public String getError() {
-            return error;
-        }
-
-        public void setError(String error) {
-            this.error = error;
-        }
-
-        public String getRequestId() {
-            return requestId;
-        }
-
-        public void setRequestId(String requestId) {
-            this.requestId = requestId;
-        }
-
-        public String[] getInvalidUrls() {
-            return invalidUrls;
-        }
-
-        public void setInvalidUrls(String[] invalidUrls) {
-            this.invalidUrls = invalidUrls;
-        }
-
-        public int getQuotaDay() {
-            return quotaDay;
-        }
-
-        public void setQuotaDay(int quotaDay) {
-            this.quotaDay = quotaDay;
-        }
-
-        public int getSurplusDay() {
-            return surplusDay;
-        }
-
-        public void setSurplusDay(int surplusDay) {
-            this.surplusDay = surplusDay;
-        }
+        /**
+         * 自定义状态码
+         */
+        public int code;
+        /**
+         * 自定义错误码描述，字符串
+         */
+        public String error;
+        /**
+         * 预取请求 id，只有在任务被接受时才有值
+         */
+        public String requestId;
+        /**
+         * 无效的 url 列表
+         */
+        public String[] invalidUrls;
+        /**
+         * 每日的预取 url 限额
+         */
+        public int quotaDay;
+        /**
+         * 每日的当前剩余的预取 url 限额
+         */
+        public int surplusDay;
     }
 
     /**
      * 带宽数据获取结果
-     *
-     * @link http://developer.qiniu.com/fusion/api/traffic-bandwidth
+     * 参考文档：<a href="http://developer.qiniu.com/fusion/api/traffic-bandwidth">流量带宽</a>
      */
     public class BandwidthResult {
-        private int code;
-        private String error;
-        private String[] time;
-        private Map<String, BandwidthData> data;
-
-        public int getCode() {
-            return code;
-        }
-
-        public void setCode(int code) {
-            this.code = code;
-        }
-
-        public String getError() {
-            return error;
-        }
-
-        public void setError(String error) {
-            this.error = error;
-        }
-
-        public String[] getTime() {
-            return time;
-        }
-
-        public void setTime(String[] time) {
-            this.time = time;
-        }
-
-        public Map<String, BandwidthData> getData() {
-            return data;
-        }
-
-        public void setData(Map<String, BandwidthData> data) {
-            this.data = data;
-        }
+        /**
+         * 自定义状态码
+         */
+        public int code;
+        /**
+         * 自定义错误码描述，字符串
+         */
+        public String error;
+        /**
+         * 数据时间点
+         */
+        public String[] time;
+        /**
+         * 数据
+         */
+        public Map<String, BandwidthData> data;
     }
 
     public class BandwidthData {
-        private Long[] china;
-        private Long[] oversea;
-
-        public Long[] getChina() {
-            return china;
-        }
-
-        public void setChina(Long[] china) {
-            this.china = china;
-        }
-
-        public Long[] getOversea() {
-            return oversea;
-        }
-
-        public void setOversea(Long[] oversea) {
-            this.oversea = oversea;
-        }
+        /**
+         * 国内数据
+         */
+        public Long[] china;
+        /**
+         * 海外数据
+         */
+        public Long[] oversea;
     }
 
     /**
      * 流量数据获取结果
-     *
-     * @link http://developer.qiniu.com/fusion/api/traffic-bandwidth
+     * 参考文档：<a href="http://developer.qiniu.com/fusion/api/traffic-bandwidth">流量带宽</a>
      */
     public class FluxResult {
-        private int code;
-        private String error;
-        private String[] time;
-        private Map<String, FluxData> data;
-
-        public int getCode() {
-            return code;
-        }
-
-        public void setCode(int code) {
-            this.code = code;
-        }
-
-        public String getError() {
-            return error;
-        }
-
-        public void setError(String error) {
-            this.error = error;
-        }
-
-        public String[] getTime() {
-            return time;
-        }
-
-        public void setTime(String[] time) {
-            this.time = time;
-        }
-
-        public Map<String, FluxData> getData() {
-            return data;
-        }
-
-        public void setData(Map<String, FluxData> data) {
-            this.data = data;
-        }
+        /**
+         * 自定义状态码
+         */
+        public int code;
+        /**
+         * 自定义错误码描述，字符串
+         */
+        public String error;
+        /**
+         * 数据时间点
+         */
+        public String[] time;
+        /**
+         * 数据
+         */
+        public Map<String, FluxData> data;
     }
 
     public class FluxData {
-        private Long[] china;
-        private Long[] oversea;
-
-        public Long[] getChina() {
-            return china;
-        }
-
-        public void setChina(Long[] china) {
-            this.china = china;
-        }
-
-        public Long[] getOversea() {
-            return oversea;
-        }
-
-        public void setOversea(Long[] oversea) {
-            this.oversea = oversea;
-        }
+        /**
+         * 国内数据
+         */
+        public Long[] china;
+        /**
+         * 海外数据
+         */
+        public Long[] oversea;
     }
 
     /**
      * 日志数据获取结果
-     *
-     * @link https://developer.qiniu.com/fusion/api/download-the-log
+     * 参考文档：<a href="https://developer.qiniu.com/fusion/api/download-the-log">日志下载</a>
      */
     public class LogListResult {
-        private int code;
-        private String error;
-        private String[] time;
-        private Map<String, LogData[]> data;
-
-        public int getCode() {
-            return code;
-        }
-
-        public void setCode(int code) {
-            this.code = code;
-        }
-
-        public String getError() {
-            return error;
-        }
-
-        public void setError(String error) {
-            this.error = error;
-        }
-
-        public String[] getTime() {
-            return time;
-        }
-
-        public void setTime(String[] time) {
-            this.time = time;
-        }
-
-        public Map<String, LogData[]> getData() {
-            return data;
-        }
-
-        public void setData(Map<String, LogData[]> data) {
-            this.data = data;
-        }
+        /**
+         * 自定义状态码
+         */
+        public int code;
+        /**
+         * 自定义错误码描述，字符串
+         */
+        public String error;
+        /**
+         * 日志信息
+         */
+        public Map<String, LogData[]> data;
     }
 
     public class LogData {
-        private String name;
-        private int size;
-        private long mtime;
-        private String url;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getSize() {
-            return size;
-        }
-
-        public void setSize(int size) {
-            this.size = size;
-        }
-
-        public long getMtime() {
-            return mtime;
-        }
-
-        public void setMtime(long mtime) {
-            this.mtime = mtime;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
+        /**
+         * 日志文件名
+         */
+        public String name;
+        /**
+         * 日志文件大小
+         */
+        public int size;
+        /**
+         * 日志文件最后修改时间
+         */
+        public long mtime;
+        /**
+         * 日志文件下载链接
+         */
+        public String url;
     }
 }

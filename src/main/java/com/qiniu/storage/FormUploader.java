@@ -10,6 +10,10 @@ import com.qiniu.util.StringMap;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * 该类封装了七牛提供的表单上传机制
+ * 参考文档：<a href="https://developer.qiniu.com/kodo/manual/form-upload">表单上传</a>
+ */
 public final class FormUploader {
 
     private final String token;
@@ -23,13 +27,19 @@ public final class FormUploader {
     private Client client;
     private String fileName;
 
-    FormUploader(Client client, String upToken, String key, byte[] data, StringMap params,
-                 String mime, boolean checkCrc, Configuration configuration) {
+    /**
+     * 构建一个表单上传字节数组的对象
+     */
+    public FormUploader(Client client, String upToken, String key, byte[] data, StringMap params,
+                        String mime, boolean checkCrc, Configuration configuration) {
         this(client, upToken, key, data, null, params, mime, checkCrc, configuration);
     }
 
-    FormUploader(Client client, String upToken, String key, File file, StringMap params,
-                 String mime, boolean checkCrc, Configuration configuration) {
+    /**
+     * 构建一个表单上传文件的对象
+     */
+    public FormUploader(Client client, String upToken, String key, File file, StringMap params,
+                        String mime, boolean checkCrc, Configuration configuration) {
         this(client, upToken, key, null, file, params, mime, checkCrc, configuration);
     }
 
@@ -46,8 +56,10 @@ public final class FormUploader {
         this.configuration = configuration;
     }
 
-
-    Response upload() throws QiniuException {
+    /**
+     * 同步上传文件
+     */
+    public Response upload() throws QiniuException {
         buildParams();
         if (data != null) {
             return client.multipartPost(configuration.upHost(token), params, "file", fileName, data,
@@ -57,7 +69,10 @@ public final class FormUploader {
                 mime, new StringMap());
     }
 
-    void asyncUpload(final UpCompletionHandler handler) throws IOException {
+    /**
+     * 异步上传文件
+     */
+    public void asyncUpload(final UpCompletionHandler handler) throws IOException {
         buildParams();
         if (data != null) {
             client.asyncMultipartPost(configuration.upHost(token), params, "file", fileName,

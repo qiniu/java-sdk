@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by bailong on 16/9/15.
+ * 该接口主要用来根据用户提供的AccessKey和Bucket来自动获取相关域名
  */
 final class AutoZone extends Zone {
     public static AutoZone instance = new AutoZone();
@@ -18,6 +18,9 @@ final class AutoZone extends Zone {
      * 空间机房，域名信息缓存
      */
     private Map<ZoneIndex, ZoneInfo> zones;
+    /**
+     * 根据API返回的上传域名推导出其他资源管理域名
+     */
     private Map<String, Zone> inferDomainsMap;
     private Client client;
 
@@ -41,10 +44,10 @@ final class AutoZone extends Zone {
     }
 
     /**
-     * 通过接口查询域名
+     * 通过 API 接口查询上传域名
      */
     private UCRet getZoneJson(ZoneIndex index) throws QiniuException {
-        String address = ucServer + "/v1/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
+        String address = ucServer + "/v1/query?accessKey=" + index.accessKey + "&bucket=" + index.bucket;
 
         Response r = client.get(address);
         return r.jsonToObject(UCRet.class);
@@ -52,9 +55,13 @@ final class AutoZone extends Zone {
 
     /**
      * 首先从缓存读取Zone信息，如果没有则发送请求从接口查询
+     *
+     * @param accessKey 账号 accessKey
+     * @param bucket    空间名
+     * @return 机房域名信息
      */
-    public ZoneInfo queryZoneInfo(String ak, String bucket) throws QiniuException {
-        ZoneIndex index = new ZoneIndex(ak, bucket);
+    public ZoneInfo queryZoneInfo(String accessKey, String bucket) throws QiniuException {
+        ZoneIndex index = new ZoneIndex(accessKey, bucket);
         ZoneInfo info = zones.get(index);
         if (info == null) {
             UCRet ret = getZoneJson(index);
@@ -72,7 +79,10 @@ final class AutoZone extends Zone {
     }
 
     /**
-     * Zone信息查询接口
+     * 首先从缓存读取Zone信息，如果没有则发送请求从接口查询
+     *
+     * @param zoneReqInfo 封装了 accessKey 和 bucket 的对象
+     * @return 机房域名信息
      */
     public ZoneInfo queryZoneInfo(ZoneReqInfo zoneReqInfo) {
         try {
@@ -83,6 +93,9 @@ final class AutoZone extends Zone {
         return null;
     }
 
+    /**
+     * 获取上传HTTP域名
+     */
     @Override
     public String getUpHttp(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -92,6 +105,9 @@ final class AutoZone extends Zone {
         return info.upHttp;
     }
 
+    /**
+     * 获取上传备用HTTP域名（Cdn加速域名）
+     */
     @Override
     public String getUpBackupHttp(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -101,6 +117,9 @@ final class AutoZone extends Zone {
         return info.upBackupHttp;
     }
 
+    /**
+     * 获取上传入口IP
+     */
     @Override
     public String getUpIpHttp(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -110,6 +129,9 @@ final class AutoZone extends Zone {
         return info.upIpHttp;
     }
 
+    /**
+     * 获取资源高级管理HTTP域名
+     */
     @Override
     public String getIovipHttp(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -119,7 +141,9 @@ final class AutoZone extends Zone {
         return info.iovipHttp;
     }
 
-
+    /**
+     * 获取上传HTTPS域名
+     */
     @Override
     public String getUpHttps(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -129,6 +153,9 @@ final class AutoZone extends Zone {
         return info.upHttps;
     }
 
+    /**
+     * 获取上传备用HTTPS域名（Cdn加速域名）
+     */
     @Override
     public String getUpBackupHttps(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -138,6 +165,9 @@ final class AutoZone extends Zone {
         return info.upBackupHttps;
     }
 
+    /**
+     * 获取上传入口IP
+     */
     @Override
     public String getUpIpHttps(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -147,6 +177,9 @@ final class AutoZone extends Zone {
         return info.upIpHttps;
     }
 
+    /**
+     * 获取资源高级管理HTTPS域名
+     */
     @Override
     public String getIovipHttps(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -156,6 +189,9 @@ final class AutoZone extends Zone {
         return info.iovipHttps;
     }
 
+    /**
+     * 获取资源管理HTTP域名
+     */
     @Override
     public String getRsHttp(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -170,6 +206,9 @@ final class AutoZone extends Zone {
         }
     }
 
+    /**
+     * 获取资源管理HTTPS域名
+     */
     @Override
     public String getRsHttps(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -184,6 +223,9 @@ final class AutoZone extends Zone {
         }
     }
 
+    /**
+     * 获取资源列表HTTP域名
+     */
     @Override
     public String getRsfHttp(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -198,6 +240,10 @@ final class AutoZone extends Zone {
         }
     }
 
+
+    /**
+     * 获取资源列表HTTP域名
+     */
     @Override
     public String getRsfHttps(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);
@@ -226,6 +272,10 @@ final class AutoZone extends Zone {
         }
     }
 
+
+    /**
+     * 获取资源处理HTTP域名
+     */
     @Override
     public String getApiHttps(ZoneReqInfo zoneReqInfo) {
         ZoneInfo info = queryZoneInfo(zoneReqInfo);

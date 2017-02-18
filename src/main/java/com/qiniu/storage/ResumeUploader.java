@@ -19,8 +19,7 @@ import java.io.IOException;
 
 /**
  * 分片上传
- * 文档：<a href="http://developer.qiniu.com/docs/v6/api/overview/up/chunked-upload.html">
- * 分片上传</a>
+ * 参考文档：<a href="http://developer.qiniu.com/docs/v6/api/overview/up/chunked-upload.html">分片上传</a>
  * <p/>
  * 分片上传通过将一个文件分割为固定大小的块(4M)，每次上传一个块的内容（服务端只分块，没有分片）。
  * 等待所有块都上传完成之后，再将这些块拼接起来，构成一个完整的文件。
@@ -48,8 +47,11 @@ public final class ResumeUploader {
     private String host;
     private int retryMax;
 
-    ResumeUploader(Client client, String upToken, String key, File file,
-                   StringMap params, String mime, Recorder recorder, Configuration configuration) {
+    /**
+     * 构建分片上传文件的对象
+     */
+    public ResumeUploader(Client client, String upToken, String key, File file,
+                          StringMap params, String mime, Recorder recorder, Configuration configuration) {
         this.configuration = configuration;
         this.client = client;
         this.upToken = upToken;
@@ -67,6 +69,9 @@ public final class ResumeUploader {
         retryMax = configuration.retryMax;
     }
 
+    /**
+     * 同步上传文件
+     */
     public Response upload() throws QiniuException {
         try {
             return upload0();
