@@ -93,8 +93,8 @@ public final class Configuration implements Cloneable {
         if (zone == null) {
             zone = Zone.autoZone();
         }
-        return useHttpsDomains ? zone.getUpHttps(zoneReqInfo) :
-                zone.getUpHttp(zoneReqInfo);
+        return useHttpsDomains ? zone.getUpHttps(zoneReqInfo)
+                : zone.getUpHttp(zoneReqInfo);
     }
 
     public String upHostBackup(String upToken) throws QiniuException {
