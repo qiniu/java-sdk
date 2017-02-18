@@ -4,10 +4,7 @@ import com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
-import com.qiniu.storage.model.BatchStatus;
-import com.qiniu.storage.model.DefaultPutRet;
-import com.qiniu.storage.model.FileInfo;
-import com.qiniu.storage.model.FileListing;
+import com.qiniu.storage.model.*;
 import com.qiniu.util.StringUtils;
 import junit.framework.TestCase;
 import org.junit.Assert;
@@ -279,7 +276,7 @@ public class BucketTest extends TestCase {
                 String resUrl = "http://devtools.qiniu.com/qiniu.png";
                 String resKey = "qiniu.png";
                 String resHash = "FpHyF0kkil3sp-SaXXX8TBJY3jDh";
-                DefaultPutRet fRet = bucketManager.fetch(resUrl, bucket, resKey);
+                FetchRet fRet = bucketManager.fetch(resUrl, bucket, resKey);
                 assertEquals(resHash, fRet.hash);
 
                 //no key specified, use hash as file key
@@ -297,7 +294,7 @@ public class BucketTest extends TestCase {
             String resUrl = "http://devtools.qiniu.com/qiniu.png";
             String resKey = "qiniu.png";
             String resHash = "FpHyF0kkil3sp-SaXXX8TBJY3jDh";
-            DefaultPutRet fRet = bucketManagerNa0.fetch(resUrl, TestConfig.testBucket_na0, resKey);
+            FetchRet fRet = bucketManagerNa0.fetch(resUrl, TestConfig.testBucket_na0, resKey);
             assertEquals(resHash, fRet.hash);
 
             //no key specified, use hash as file key
