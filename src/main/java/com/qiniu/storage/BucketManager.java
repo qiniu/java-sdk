@@ -159,8 +159,8 @@ public final class BucketManager {
      * @throws QiniuException
      * @link http://developer.qiniu.com/kodo/api/delete
      */
-    public void delete(String bucket, String key) throws QiniuException {
-        rsPost(bucket, String.format("/delete/%s", encodedEntry(bucket, key)), null);
+    public Response delete(String bucket, String key) throws QiniuException {
+        return rsPost(bucket, String.format("/delete/%s", encodedEntry(bucket, key)), null);
     }
 
     /**
@@ -172,12 +172,12 @@ public final class BucketManager {
      * @throws QiniuException
      * @link http://developer.qiniu.com/kodo/api/chgm
      */
-    public void changeMime(String bucket, String key, String mime)
+    public Response changeMime(String bucket, String key, String mime)
             throws QiniuException {
         String resource = encodedEntry(bucket, key);
         String encodedMime = UrlSafeBase64.encodeToString(mime);
         String path = String.format("/chgm/%s/mime/%s", resource, encodedMime);
-        rsPost(bucket, path, null);
+        return rsPost(bucket, path, null);
     }
 
     /**
@@ -189,9 +189,9 @@ public final class BucketManager {
      * @param force      强制覆盖空间中已有同名（和 newFileKey 相同）的文件
      * @throws QiniuException
      */
-    public void rename(String bucket, String oldFileKey, String newFileKey, boolean force)
+    public Response rename(String bucket, String oldFileKey, String newFileKey, boolean force)
             throws QiniuException {
-        move(bucket, oldFileKey, bucket, newFileKey, force);
+        return move(bucket, oldFileKey, bucket, newFileKey, force);
     }
 
     /**
@@ -203,9 +203,9 @@ public final class BucketManager {
      * @throws QiniuException
      * @link http://developer.qiniu.com/kodo/api/move
      */
-    public void rename(String bucket, String oldFileKey, String newFileKey)
+    public Response rename(String bucket, String oldFileKey, String newFileKey)
             throws QiniuException {
-        move(bucket, oldFileKey, bucket, newFileKey);
+        return move(bucket, oldFileKey, bucket, newFileKey);
     }
 
     /**
@@ -218,12 +218,12 @@ public final class BucketManager {
      * @param force       强制覆盖空间中已有同名（和 toFileKey 相同）的文件
      * @throws QiniuException
      */
-    public void copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey, boolean force)
+    public Response copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey, boolean force)
             throws QiniuException {
         String from = encodedEntry(fromBucket, fromFileKey);
         String to = encodedEntry(toBucket, toFileKey);
         String path = String.format("/copy/%s/%s/force/%s", from, to, force);
-        rsPost(fromBucket, path, null);
+        return rsPost(fromBucket, path, null);
     }
 
     /**
@@ -251,12 +251,12 @@ public final class BucketManager {
      * @param force       强制覆盖空间中已有同名（和 toFileKey 相同）的文件
      * @throws QiniuException
      */
-    public void move(String fromBucket, String fromFileKey, String toBucket,
-                     String toFileKey, boolean force) throws QiniuException {
+    public Response move(String fromBucket, String fromFileKey, String toBucket,
+                         String toFileKey, boolean force) throws QiniuException {
         String from = encodedEntry(fromBucket, fromFileKey);
         String to = encodedEntry(toBucket, toFileKey);
         String path = String.format("/move/%s/%s/force/%s", from, to, force);
-        rsPost(fromBucket, path, null);
+        return rsPost(fromBucket, path, null);
     }
 
     /**
@@ -268,8 +268,9 @@ public final class BucketManager {
      * @param toFileKey   目的文件名称
      * @throws QiniuException
      */
-    public void move(String fromBucket, String fromFileKey, String toBucket, String toFileKey) throws QiniuException {
-        move(fromBucket, fromFileKey, toBucket, toFileKey, false);
+    public Response move(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
+            throws QiniuException {
+        return move(fromBucket, fromFileKey, toBucket, toFileKey, false);
     }
 
 
@@ -355,6 +356,17 @@ public final class BucketManager {
     public Response unsetImage(String bucket) throws QiniuException {
         String path = String.format("/unimage/%s", bucket);
         return pubPost(path);
+    }
+
+    /**
+     * 设置文件的存活时间
+     *
+     * @param bucket 空间名称
+     * @param key    文件名称
+     * @param days   存活时间，单位：天
+     */
+    public Response deleteAfterDays(String bucket, String key, int days) throws QiniuException {
+        return rsPost(bucket, String.format("/deleteAfterDays/%s/%d", encodedEntry(bucket, key), days), null);
     }
 
     /*
