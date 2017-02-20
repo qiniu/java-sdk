@@ -553,8 +553,8 @@ public class BucketTest extends TestCase {
             String keyForDelete = "keyForDelete" + Math.random();
             try {
                 bucketManager.copy(bucket, key, bucket, keyForDelete);
-                Response response=bucketManager.deleteAfterDays(bucket, key, 10);
-                Assert.assertEquals(200,response.statusCode);
+                Response response = bucketManager.deleteAfterDays(bucket, key, 10);
+                Assert.assertEquals(200, response.statusCode);
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }
