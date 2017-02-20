@@ -25,7 +25,7 @@ public class BucketTest extends TestCase {
     protected void setUp() throws Exception {
         //default config
         Configuration cfg = new Configuration();
-        cfg.useHttpsDomains = true;
+        //cfg.useHttpsDomains = true;
 
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
 
@@ -535,6 +535,26 @@ public class BucketTest extends TestCase {
 
                 Response unsetResp = bucketManager.unsetImage(bucket);
                 assertEquals(200, unsetResp.statusCode);
+            } catch (QiniuException e) {
+                fail(e.response.toString());
+            }
+        }
+    }
+
+    @Test
+    public void testDeleteAfterDays() {
+        Map<String, String> bucketKeyMap = new HashMap<String, String>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
+        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
+        for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
+            String bucket = entry.getKey();
+            String key = entry.getValue();
+            String keyForDelete = "keyForDelete" + Math.random();
+            try {
+                bucketManager.copy(bucket, key, bucket, keyForDelete);
+                Response response=bucketManager.deleteAfterDays(bucket, key, 10);
+                Assert.assertEquals(200,response.statusCode);
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }
