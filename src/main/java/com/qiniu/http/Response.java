@@ -225,15 +225,15 @@ public final class Response {
     public String getInfo() {
         String[] msg = new String[3];
         try {
-            msg[0] = this.url();
+            msg[0] = url();
         } catch (Throwable t) {
         }
         try {
-            msg[1] = this.toString();
+            msg[1] = toString();
         } catch (Throwable t) {
         }
         try {
-            msg[2] = this.bodyString();
+            msg[2] = bodyString();
         } catch (Throwable t) {
 
         }
