@@ -2,7 +2,6 @@ package com.qiniu.common;
 
 import com.qiniu.http.Error;
 import com.qiniu.http.Response;
-import com.qiniu.util.StringUtils;
 
 import java.io.IOException;
 
