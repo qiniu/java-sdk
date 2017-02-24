@@ -221,4 +221,23 @@ public final class Response {
     public static class ErrorBody {
         public String error;
     }
+
+    public String getInfo() {
+        String[] msg = new String[3];
+        try {
+            msg[0] = url();
+        } catch (Throwable t) {
+        }
+        try {
+            msg[1] = toString();
+        } catch (Throwable t) {
+        }
+        try {
+            msg[2] = bodyString();
+        } catch (Throwable t) {
+
+        }
+
+        return StringUtils.join(msg, "  \n");
+    }
 }

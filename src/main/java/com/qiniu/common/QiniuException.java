@@ -14,6 +14,7 @@ public final class QiniuException extends IOException {
 
 
     public QiniuException(Response response) {
+        super(response != null ? response.getInfo() : null);
         this.response = response;
     }
 
@@ -22,7 +23,7 @@ public final class QiniuException extends IOException {
     }
 
     public QiniuException(Exception e, String msg) {
-        super(e);
+        super(msg, e);
         this.response = null;
         this.error = msg;
     }
