@@ -49,8 +49,19 @@ public final class Etag {
      * @throws IOException 文件读取异常
      */
     public static String file(File file) throws IOException {
-        FileInputStream fi = new FileInputStream(file);
-        return stream(fi, file.length());
+        FileInputStream fi = null;
+        try {
+            fi = new FileInputStream(file);
+            return stream(fi, file.length());
+        } finally {
+            if (fi != null) {
+                try {
+                    fi.close();
+                } catch (Throwable t) {
+                }
+            }
+        }
+
     }
 
     /**
@@ -66,7 +77,7 @@ public final class Etag {
     }
 
     /**
-     * 计算输入流的etag
+     * 计算输入流的etag，如果计算完毕不需要这个InputStream对象，请自行关闭流
      *
      * @param in  数据输入流
      * @param len 数据流长度
