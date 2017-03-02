@@ -128,11 +128,8 @@ public final class Auth {
             mac.update(StringUtils.utf8Bytes(query));
         }
         mac.update((byte) '\n');
-        if (body != null && body.length > 0 && !StringUtils.isNullOrEmpty(contentType)) {
-            if (contentType.equals(Client.FormMime)
-                    || contentType.equals(Client.JsonMime)) {
-                mac.update(body);
-            }
+        if (body != null && Client.FormMime.equalsIgnoreCase(contentType)) {
+            mac.update(body);
         }
 
         String digest = UrlSafeBase64.encodeToString(mac.doFinal());
@@ -312,6 +309,8 @@ public final class Auth {
                 sb.append(new String(body));
             }
         }
+
+        System.out.println(sb.toString());
         mac.update(StringUtils.utf8Bytes(sb.toString()));
 
         String digest = UrlSafeBase64.encodeToString(mac.doFinal());
