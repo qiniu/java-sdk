@@ -9,11 +9,8 @@ import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -201,6 +198,30 @@ public final class CdnManager {
         return response.jsonToObject(CdnResult.LogListResult.class);
     }
 
+    public static String createTimestampAntiLeechUrl(URL oUrl, String encryptKey, long deadline) throws QiniuException {
+        try {
+            String urlencodedPath = URLEncoder.encode(oUrl.getPath(), "UTF-8").replaceAll("%2F", "/");
+            String query = oUrl.getQuery();
+            String file = (query == null) ? urlencodedPath : (urlencodedPath + "?" + query);
+            URL url = new URL(oUrl.getProtocol(), oUrl.getHost(), oUrl.getPort(), file);
+            String expireHex = Long.toHexString(deadline);
+
+            String toSignStr = String.format("%s%s%s", encryptKey, urlencodedPath, expireHex);
+            String signedStr = StringUtils.md5Lower(toSignStr);
+
+            String signedUrl;
+            if (url.getQuery() != null) {
+                signedUrl = String.format("%s&sign=%s&t=%s", url, signedStr, expireHex);
+            } else {
+                signedUrl = String.format("%s?sign=%s&t=%s", url, signedStr, expireHex);
+            }
+
+            return signedUrl;
+        } catch (Exception e) {
+            throw new QiniuException(e, "timestamp anti leech failed");
+        }
+    }
+
     /**
      * 构建七牛标准的基于时间戳的防盗链
      * 参考文档：<a href="https://support.qiniu.com/question/195128">时间戳防盗链</a>
@@ -214,37 +235,28 @@ public final class CdnManager {
      */
     public static String createTimestampAntiLeechUrl(
             String host, String fileName, final StringMap queryStringMap, String encryptKey, long deadline)
-            throws UnsupportedEncodingException, MalformedURLException, NoSuchAlgorithmException {
-        String urlToSign;
-        String encodedFileName = URLEncoder.encode(fileName, "utf-8").replaceAll("\\+", "%20");
-        if (queryStringMap != null && queryStringMap.size() > 0) {
-            List<String> queryStrings = new ArrayList<String>();
-            for (Map.Entry<String, Object> entry : queryStringMap.map().entrySet()) {
-                StringBuilder queryStringBuilder = new StringBuilder();
-                queryStringBuilder.append(URLEncoder.encode(entry.getKey(), "utf-8"));
-                queryStringBuilder.append("=");
-                queryStringBuilder.append(URLEncoder.encode(entry.getValue().toString(), "utf-8"));
-                queryStrings.add(queryStringBuilder.toString());
+            throws QiniuException {
+        URL urlObj = null;
+        try {
+            String urlToSign = null;
+            if (queryStringMap != null && queryStringMap.size() > 0) {
+                List<String> queryStrings = new ArrayList<String>();
+                for (Map.Entry<String, Object> entry : queryStringMap.map().entrySet()) {
+                    StringBuilder queryStringBuilder = new StringBuilder();
+                    queryStringBuilder.append(URLEncoder.encode(entry.getKey(), "utf-8"));
+                    queryStringBuilder.append("=");
+                    queryStringBuilder.append(URLEncoder.encode(entry.getValue().toString(), "utf-8"));
+                    queryStrings.add(queryStringBuilder.toString());
+                }
+                urlToSign = String.format("%s/%s?%s", host, fileName, StringUtils.join(queryStrings, "&"));
+            } else {
+                urlToSign = String.format("%s/%s", host, fileName);
             }
-            urlToSign = String.format("%s/%s?%s", host, encodedFileName, StringUtils.join(queryStrings, "&"));
-        } else {
-            urlToSign = String.format("%s/%s", host, encodedFileName);
+
+            urlObj = new URL(urlToSign);
+        } catch (Exception e) {
+            throw new QiniuException(e, "timestamp anti leech failed");
         }
-
-        URL urlObj = new URL(urlToSign);
-        String path = urlObj.getPath();
-        String expireHex = Long.toHexString(deadline);
-
-        String toSignStr = String.format("%s%s%s", encryptKey, path, expireHex);
-        String signedStr = StringUtils.md5Lower(toSignStr);
-
-        String signedUrl;
-        if (urlObj.getQuery() != null) {
-            signedUrl = String.format("%s&sign=%s&t=%s", urlToSign, signedStr, expireHex);
-        } else {
-            signedUrl = String.format("%s?sign=%s&t=%s", urlToSign, signedStr, expireHex);
-        }
-
-        return signedUrl;
+        return createTimestampAntiLeechUrl(urlObj, encryptKey, deadline);
     }
 }
