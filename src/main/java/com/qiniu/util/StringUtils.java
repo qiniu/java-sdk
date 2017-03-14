@@ -3,7 +3,6 @@ package com.qiniu.util;
 import com.qiniu.common.Constants;
 import qiniu.happydns.util.Hex;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
