@@ -180,6 +180,30 @@ public final class BucketManager {
         return rsPost(bucket, path, null);
     }
 
+
+    //存储类型
+    enum STORAGE_TYPE {
+        //普通存储
+        COMMON,
+        //低频存储
+        INFREQUENCY
+    }
+
+    /**
+     * 修改文件的类型（普通存储或低频存储）
+     *
+     * @param bucket 空间名称
+     * @param key    文件名称
+     * @param type   type=0 表示普通存储，type=1 表示低频存存储
+     * @throws QiniuException
+     */
+    public Response changeType(String bucket, String key, STORAGE_TYPE type)
+            throws QiniuException {
+        String resource = encodedEntry(bucket, key);
+        String path = String.format("/chtype/%s/type/%d", resource, type.ordinal());
+        return rsPost(bucket, path, null);
+    }
+
     /**
      * 重命名空间中的文件，可以设置force参数为true强行覆盖空间已有同名文件
      *

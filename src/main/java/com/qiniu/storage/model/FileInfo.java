@@ -29,4 +29,8 @@ public final class FileInfo {
      * 文件上传时设置的endUser
      */
     public String endUser;
+    /**
+     * 文件的存储类型，0为普通存储，1为低频存储
+     */
+    public int type;
 }
