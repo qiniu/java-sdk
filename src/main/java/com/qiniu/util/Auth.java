@@ -37,6 +37,7 @@ public final class Auth {
             "persistentPipeline",
 
             "deleteAfterDays",
+            "fileType",
     };
     private static final String[] deprecatedPolicyFields = new String[]{
             "asyncOps",

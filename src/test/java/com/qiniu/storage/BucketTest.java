@@ -560,4 +560,30 @@ public class BucketTest extends TestCase {
             }
         }
     }
+
+    @Test
+    public void testChangeFileType() {
+        Map<String, String> bucketKeyMap = new HashMap<String, String>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
+        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
+        for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
+            String bucket = entry.getKey();
+            String key = entry.getValue();
+            String keyToChangeType = "keyToChangeType" + Math.random();
+            try {
+                bucketManager.copy(bucket, key, bucket, keyToChangeType);
+                Response response = bucketManager.changeType(bucket, keyToChangeType,
+                        BucketManager.STORAGE_TYPE.INFREQUENCY);
+                Assert.assertEquals(200, response.statusCode);
+                //stat
+                FileInfo fileInfo = bucketManager.stat(bucket, keyToChangeType);
+                Assert.assertEquals(BucketManager.STORAGE_TYPE.INFREQUENCY.ordinal(), fileInfo.type);
+                //delete the temp file
+                bucketManager.delete(bucket, keyToChangeType);
+            } catch (QiniuException e) {
+                fail(e.response.toString());
+            }
+        }
+    }
 }
