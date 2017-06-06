@@ -182,7 +182,7 @@ public final class BucketManager {
 
 
     //存储类型
-    enum STORAGE_TYPE {
+    enum StorageType {
         //普通存储
         COMMON,
         //低频存储
@@ -197,7 +197,7 @@ public final class BucketManager {
      * @param type   type=0 表示普通存储，type=1 表示低频存存储
      * @throws QiniuException
      */
-    public Response changeType(String bucket, String key, STORAGE_TYPE type)
+    public Response changeType(String bucket, String key, StorageType type)
             throws QiniuException {
         String resource = encodedEntry(bucket, key);
         String path = String.format("/chtype/%s/type/%d", resource, type.ordinal());
