@@ -574,11 +574,11 @@ public class BucketTest extends TestCase {
             try {
                 bucketManager.copy(bucket, key, bucket, keyToChangeType);
                 Response response = bucketManager.changeType(bucket, keyToChangeType,
-                        BucketManager.STORAGE_TYPE.INFREQUENCY);
+                        BucketManager.StorageType.INFREQUENCY);
                 Assert.assertEquals(200, response.statusCode);
                 //stat
                 FileInfo fileInfo = bucketManager.stat(bucket, keyToChangeType);
-                Assert.assertEquals(BucketManager.STORAGE_TYPE.INFREQUENCY.ordinal(), fileInfo.type);
+                Assert.assertEquals(BucketManager.StorageType.INFREQUENCY.ordinal(), fileInfo.type);
                 //delete the temp file
                 bucketManager.delete(bucket, keyToChangeType);
             } catch (QiniuException e) {
