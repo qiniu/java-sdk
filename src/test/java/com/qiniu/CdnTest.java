@@ -232,7 +232,9 @@ public class CdnTest {
         long deadline = 1438358400;
         String encryptKey = "12345678";
         String signedUrl;
+        // CHECKSTYLE:OFF
         String ret = "http://xxx.yyy.com/DIR1/dir2/vodfile.mp4?v=1.1&sign=19eb212771e87cc3d478b9f32d6c7bf9&t=55bb9b80";
+        // CHECKSTYLE:ON
         try {
             signedUrl = CdnManager.createTimestampAntiLeechUrl(url, encryptKey, deadline);
             Assert.assertEquals(ret, signedUrl);
@@ -248,7 +250,9 @@ public class CdnTest {
         long deadline = 1438358400;
         String encryptKey = "12345678";
         String signedUrl;
+        // CHECKSTYLE:OFF
         String ret = "http://xxx.yyy.com/DIR1/%E4%B8%AD%E6%96%87/vodfile.mp4?v=1.2&sign=6356bca0d2aecf7211003e468861f5ea&t=55bb9b80";
+        // CHECKSTYLE:ON
         try {
             signedUrl = CdnManager.createTimestampAntiLeechUrl(url, encryptKey, deadline);
             Assert.assertEquals(ret, signedUrl);
