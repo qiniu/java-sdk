@@ -38,6 +38,24 @@ public class Zone {
             zone = new Zone();
         }
 
+        public Builder(Zone originZone) {
+            this();
+            zone.upHttp = originZone.upHttp;
+            zone.upHttps = originZone.upHttps;
+            zone.upBackupHttp = originZone.upBackupHttp;
+            zone.upBackupHttps = originZone.upBackupHttps;
+            zone.upIpHttp = originZone.upIpHttp;
+            zone.upIpHttps = originZone.upIpHttps;
+            zone.iovipHttp = originZone.iovipHttp;
+            zone.iovipHttps = originZone.iovipHttps;
+            zone.rsHttp = originZone.rsHttp;
+            zone.rsHttps = originZone.rsHttps;
+            zone.rsfHttp = originZone.rsfHttp;
+            zone.rsfHttps = originZone.rsfHttps;
+            zone.apiHttp = originZone.apiHttp;
+            zone.apiHttps = originZone.apiHttps;
+        }
+
         public Builder upHttp(String upHttp) {
             zone.upHttp = upHttp;
             return this;
@@ -113,8 +131,7 @@ public class Zone {
          * 自动选择,其它参数设置无效
          */
         public Zone autoZone() {
-            zone = AutoZone.instance;
-            return zone;
+            return AutoZone.instance;
         }
 
         /**
@@ -138,6 +155,13 @@ public class Zone {
     }
 
     /**
+     * 华东机房相关域名
+     */
+    public static Zone huadong() {
+        return zone0();
+    }
+
+    /**
      * 华北机房相关域名
      */
     public static Zone zone1() {
@@ -147,6 +171,13 @@ public class Zone {
                 rsHttp("http://rs-z1.qiniu.com").rsHttps("https://rs-z1.qbox.me")
                 .rsfHttp("http://rsf-z1.qiniu.com").rsfHttps("https://rsf-z1.qbox.me")
                 .apiHttp("http://api-z1.qiniu.com").apiHttps("https://api-z1.qiniu.com").build();
+    }
+
+    /**
+     * 华北机房相关域名
+     */
+    public static Zone huabei() {
+        return zone1();
     }
 
     /**
@@ -162,6 +193,13 @@ public class Zone {
     }
 
     /**
+     * 华南机房相关域名
+     */
+    public static Zone huanan() {
+        return zone2();
+    }
+
+    /**
      * 北美机房相关域名
      */
     public static Zone zoneNa0() {
@@ -171,6 +209,13 @@ public class Zone {
                 rsHttp("http://rs-na0.qiniu.com").rsHttps("https://rs-na0.qbox.me")
                 .rsfHttp("http://rsf-na0.qiniu.com").rsfHttps("https://rsf-na0.qbox.me")
                 .apiHttp("http://api-na0.qiniu.com").apiHttps("https://api-na0.qiniu.com").build();
+    }
+
+    /**
+     * 北美机房相关域名
+     */
+    public static Zone beimei() {
+        return zoneNa0();
     }
 
     /**
