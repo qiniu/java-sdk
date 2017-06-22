@@ -74,4 +74,11 @@ public class AutoZoneTest extends TestCase {
             fail(e.response.toString());
         }
     }
+
+    @Test
+    public void testZ() {
+        Zone z1 = new Zone.Builder(Zone.zone0()).upHttp("http://uphttp").build();
+        Assert.assertSame(z1.getUpHttp(null), "http://uphttp");
+        Assert.assertSame(Zone.zone0().getUpHttp(null), "http://up.qiniu.com");
+    }
 }
