@@ -56,6 +56,16 @@ public class BucketTest extends TestCase {
     }
 
     @Test
+    public void testDomains() {
+        try {
+            String[] domains = bucketManager.domainList(TestConfig.testBucket_z0);
+            assertNotNull(domains);
+        } catch (QiniuException e) {
+            assertEquals(401, e.code());
+        }
+    }
+
+    @Test
     public void testList() {
         try {
             String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
