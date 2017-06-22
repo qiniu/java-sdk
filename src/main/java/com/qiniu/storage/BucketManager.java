@@ -94,13 +94,14 @@ public final class BucketManager {
 
     /**
      * 获取该空间下所有的domain
+     *
      * @param bucket
      * @return 该空间名下的domain
      * @throws QiniuException
      */
 
-    public String[] domainList (String bucket) throws QiniuException{
-        String url = String.format("%s/v6/domain/list?tbl=%s", "http://api.qiniu.com" ,bucket);
+    public String[] domainList(String bucket) throws QiniuException {
+        String url = String.format("%s/v6/domain/list?tbl=%s", "http://api.qiniu.com", bucket);
         Response r = get(url);
         return r.jsonToObject(String[].class);
     }

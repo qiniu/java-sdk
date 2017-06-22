@@ -18,8 +18,8 @@ public final class TestConfig {
 
 
     //valid ak & sk
-    public static final String testAccessKey = "QWYn5TFQsLLU1pL5MFEmX3s5DmHdUThav9WyOWOm";
-    public static final String testSecretKey = "Bxckh6FA-Fbs9Yt3i3cbKVK22UPBmAOHJcL95pGz";
+    public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
+    public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
     public static final Auth testAuth = Auth.create(testAccessKey, testSecretKey);
 
     //z0
