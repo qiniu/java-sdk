@@ -61,11 +61,11 @@ public final class StreamUploader {
         long uploaded = 0;
         int ret = 0;
         boolean retry = false;
-        int contextIndex = 0;
 
         while (size == 0) {
             int bufferIndex = 0;
             int blockSize = 0;
+
             while (ret != -1 && bufferIndex != blockBuffer.length) {
                 try {
                     blockSize = blockBuffer.length - bufferIndex;
@@ -88,7 +88,7 @@ public final class StreamUploader {
                 }
             }
 
-            long crc = Crc32.bytes(blockBuffer, 0, blockSize);
+            long crc = Crc32.bytes(blockBuffer, 0, bufferIndex);
             Response response = null;
             QiniuException temp = null;
             try {
