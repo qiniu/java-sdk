@@ -1,4 +1,12 @@
-#Changelog
+# Changelog
+
+## 7.2.7 (2017-07-10)
+### 增加
+* PutPolicy里面增加 isPrefixalScope 参数
+
+### 修正
+* 修复put方法遇到InputStream为0的时候进入死循环的问题
+* 修复put方法遇到IputStream的时候，出现的block's crc32 is not correct的问题
 
 ## 7.2.5 (2017-02-20)
 ### 增加
