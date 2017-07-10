@@ -26,6 +26,7 @@ public final class Auth {
             "endUser",
             "saveKey",
             "insertOnly",
+            "isPrefixalScope",
 
             "detectMime",
             "mimeLimit",
