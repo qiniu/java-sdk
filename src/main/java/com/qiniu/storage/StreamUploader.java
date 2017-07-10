@@ -61,11 +61,13 @@ public final class StreamUploader {
         long uploaded = 0;
         int ret = 0;
         boolean retry = false;
+        boolean eof = false;
 
-        while (size == 0) {
+        while (size == 0 && !eof) {
             int bufferIndex = 0;
             int blockSize = 0;
 
+            //try to read the full BLOCK or until the EOF
             while (ret != -1 && bufferIndex != blockBuffer.length) {
                 try {
                     blockSize = blockBuffer.length - bufferIndex;
@@ -75,6 +77,8 @@ public final class StreamUploader {
                     throw new QiniuException(e);
                 }
                 if (ret != -1) {
+                    //continue to read more
+                    //advance bufferIndex
                     bufferIndex += ret;
                     if (ret == 0) {
                         try {
@@ -84,10 +88,13 @@ public final class StreamUploader {
                         }
                     }
                 } else {
+                    eof = true;
+                    //file EOF here, trigger outer while-loop finish
                     size = uploaded + bufferIndex;
                 }
             }
 
+            //mkblk request
             long crc = Crc32.bytes(blockBuffer, 0, bufferIndex);
             Response response = null;
             QiniuException temp = null;
