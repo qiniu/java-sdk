@@ -9,11 +9,22 @@ import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
 
 /**
  * Created by bailong on 16/9/21.
  */
 public class CdnTest {
+
+    private String getDate(int daysBefore) {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, -daysBefore);
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        return String.format("%04d-%02d-%02d", year, month + 1, day);
+    }
+
     @Test
     public void testRefresh() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
@@ -45,8 +56,8 @@ public class CdnTest {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.BandwidthResult r = null;
         String[] domains = {TestConfig.testDomain_z0};
-        String startDate = "2017-01-01";
-        String endDate = "2017-01-06";
+        String startDate = getDate(3);
+        String endDate = getDate(1);
         String granularity = "day";
         try {
             r = c.getBandwidthData(domains, startDate, endDate, granularity);
@@ -62,8 +73,9 @@ public class CdnTest {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.FluxResult r = null;
         String[] domains = {TestConfig.testDomain_z0};
-        String startDate = "2017-01-01";
-        String endDate = "2017-01-06";
+        String startDate = getDate(3);
+        String endDate = getDate(1);
+
         String granularity = "day";
         try {
             r = c.getFluxData(domains, startDate, endDate, granularity);
@@ -79,7 +91,7 @@ public class CdnTest {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.LogListResult r = null;
         String[] domains = {TestConfig.testDomain_z0};
-        String logDate = "2017-01-01";
+        String logDate = getDate(2);
 
         try {
             r = c.getCdnLogList(domains, logDate);
