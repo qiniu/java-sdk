@@ -104,18 +104,18 @@ public final class FormUploader {
         if (fileName == null || fileName.trim().length() == 0) {
             fileName = "fileName";
         }
-        if (checkCrc) {
-            long crc32 = 0;
-            if (file != null) {
-                try {
-                    crc32 = Crc32.file(file);
-                } catch (IOException e) {
-                    throw new QiniuException(e);
-                }
-            } else {
-                crc32 = Crc32.bytes(data);
+
+        long crc32 = 0;
+        if (file != null) {
+            try {
+                crc32 = Crc32.file(file);
+            } catch (IOException e) {
+                throw new QiniuException(e);
             }
-            params.put("crc32", "" + crc32);
+        } else {
+            crc32 = Crc32.bytes(data);
         }
+        params.put("crc32", "" + crc32);
+
     }
 }
