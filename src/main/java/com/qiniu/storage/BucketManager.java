@@ -530,6 +530,7 @@ public final class BucketManager {
             setExecBucket(bucket);
             return this;
         }
+
         /**
          * 添加changeType指令
          */
@@ -540,6 +541,7 @@ public final class BucketManager {
             setExecBucket(bucket);
             return this;
         }
+
         public byte[] toBody() {
             String body = StringUtils.join(ops, "&op=", "op=");
             return StringUtils.utf8Bytes(body);
