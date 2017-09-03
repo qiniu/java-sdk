@@ -530,7 +530,16 @@ public final class BucketManager {
             setExecBucket(bucket);
             return this;
         }
-
+        /**
+         * 添加changeType指令
+         */
+        public BatchOperations addChangeTypeOps(String bucket, StorageType type, String... keys) {
+            for (String key : keys) {
+                ops.add(String.format("chtype/%s/type/%d", encodedEntry(bucket, key),type.ordinal()));
+            }
+            setExecBucket(bucket);
+            return this;
+        }
         public byte[] toBody() {
             String body = StringUtils.join(ops, "&op=", "op=");
             return StringUtils.utf8Bytes(body);
