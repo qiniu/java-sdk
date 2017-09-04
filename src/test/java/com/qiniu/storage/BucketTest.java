@@ -5,11 +5,11 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.*;
+import com.qiniu.storage.BucketManager.StorageType;
 import com.qiniu.util.StringUtils;
 import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -431,7 +431,26 @@ public class BucketTest extends TestCase {
             }
         }
     }
-
+    @Test
+    public void testBatchChangeType() {
+        Map<String, String> bucketKeyMap = new HashMap<String, String>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
+        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+        for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
+            String bucket = entry.getKey();
+            String key = entry.getValue();
+            String[] keyArray = new String[100];
+            keyArray[0]=key;
+            BucketManager.BatchOperations ops = new BucketManager.BatchOperations().addChangeTypeOps(bucket, StorageType.INFREQUENCY, keyArray);
+            try {
+                Response r = bucketManager.batch(ops);
+                BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
+                assertEquals(200, bs[0].code);
+            } catch (QiniuException e) {
+                fail(e.response.toString());
+            }
+        }
+    }
     @Test
     public void testBatchCopyChgmDelete() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
