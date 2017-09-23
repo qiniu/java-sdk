@@ -43,7 +43,7 @@ public final class OperationManager {
      */
     public OperationManager(Auth auth, Configuration cfg) {
         this.auth = auth;
-        configuration = cfg.clone();
+        this.configuration = cfg.clone();
         this.client = new Client(configuration);
     }
 
@@ -153,33 +153,22 @@ public final class OperationManager {
     public OperationStatus prefop(String persistentId) throws QiniuException {
         StringMap params = new StringMap().put("id", persistentId);
         byte[] data = StringUtils.utf8Bytes(params.formString());
-        Zone zone = null;
+        String apiHost;
 
-        String[] items = persistentId.trim().split("\\.");
-        if (items.length != 2) {
-            throw new QiniuException(new Exception("invalid persistentId"));
-        }
-        String zoneCode = items[0];
-        if (zoneCode.equals("z0")) {
-            zone = Zone.zone0();
-        } else if (zoneCode.equals("z1")) {
-            zone = Zone.zone1();
-        } else if (zoneCode.equals("z2")) {
-            zone = Zone.zone2();
-        } else if (zoneCode.equals("na0")) {
-            zone = Zone.zoneNa0();
+        if (this.configuration.zone != null) {
+            apiHost = this.configuration.zone.getApiHttp();
+            if (this.configuration.useHttpsDomains) {
+                apiHost = this.configuration.zone.getApiHttps();
+            }
         } else {
-            throw new QiniuException(new Exception("invalid persistentId"));
+            apiHost = "http://api.qiniu.com";
+            if (this.configuration.useHttpsDomains) {
+                apiHost = "https://api.qiniu.com";
+            }
         }
 
-        //detect http or https
-        String apiHost = zone.getApiHttp();
-        if (this.configuration != null && this.configuration.useHttpsDomains) {
-            apiHost = zone.getApiHttps();
-        }
         String url = String.format("%s/status/get/prefop", apiHost);
         Response response = new Client().post(url, data, null, Client.FormMime);
-        OperationStatus status = response.jsonToObject(OperationStatus.class);
-        return status;
+        return response.jsonToObject(OperationStatus.class);
     }
 }
