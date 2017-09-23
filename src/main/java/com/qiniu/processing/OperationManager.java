@@ -1,7 +1,6 @@
 package com.qiniu.processing;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
