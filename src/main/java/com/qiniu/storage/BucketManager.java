@@ -536,7 +536,7 @@ public final class BucketManager {
          */
         public BatchOperations addChangeTypeOps(String bucket, StorageType type, String... keys) {
             for (String key : keys) {
-                ops.add(String.format("chtype/%s/type/%d", encodedEntry(bucket, key),type.ordinal()));
+                ops.add(String.format("chtype/%s/type/%d", encodedEntry(bucket, key), type.ordinal()));
             }
             setExecBucket(bucket);
             return this;

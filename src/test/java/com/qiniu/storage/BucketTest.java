@@ -10,6 +10,7 @@ import com.qiniu.util.StringUtils;
 import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -431,6 +432,7 @@ public class BucketTest extends TestCase {
             }
         }
     }
+
     @Test
     public void testBatchChangeType() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
@@ -440,8 +442,9 @@ public class BucketTest extends TestCase {
             String bucket = entry.getKey();
             String key = entry.getValue();
             String[] keyArray = new String[100];
-            keyArray[0]=key;
-            BucketManager.BatchOperations ops = new BucketManager.BatchOperations().addChangeTypeOps(bucket, StorageType.INFREQUENCY, keyArray);
+            keyArray[0] = key;
+            BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
+                    .addChangeTypeOps(bucket, StorageType.INFREQUENCY, keyArray);
             try {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
@@ -451,6 +454,7 @@ public class BucketTest extends TestCase {
             }
         }
     }
+
     @Test
     public void testBatchCopyChgmDelete() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
