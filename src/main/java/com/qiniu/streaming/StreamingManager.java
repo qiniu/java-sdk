@@ -171,7 +171,7 @@ public final class StreamingManager {
         if (start <= 0 || end < 0 || (start >= end && end != 0)) {
             throw new QiniuException(new IllegalArgumentException("bad argument" + start + "," + end));
         }
-        String path = encodeKey(streamKey) + "/historyactivity?" + start;
+        String path = encodeKey(streamKey) + "/historyactivity?start=" + start;
         if (end != 0) {
             path += "&end=" + end;
         }
