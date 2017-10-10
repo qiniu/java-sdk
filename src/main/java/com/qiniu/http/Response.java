@@ -206,6 +206,12 @@ public final class Response {
         return this.response.body().byteStream();
     }
 
+    public synchronized void close() {
+        if (this.response != null) {
+            this.response.close();
+        }
+    }
+
     public String contentType() {
         return ctype(response);
     }
