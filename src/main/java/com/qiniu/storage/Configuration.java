@@ -72,8 +72,8 @@ public final class Configuration implements Cloneable {
     /**
      * 特殊默认域名
      */
-    public static String DEFAULT_RS_HOST = "rs.qiniu.com";
-    public static String DEFAULT_API_HOST = "api.qiniu.com";
+    public static String defaultRsHost = "rs.qiniu.com";
+    public static String defaultApiHost = "api.qiniu.com";
 
     public Configuration() {
         this.zone = null;
@@ -137,7 +137,7 @@ public final class Configuration implements Cloneable {
         if (useHttpsDomains) {
             scheme = "https://";
         }
-        return scheme + DEFAULT_RS_HOST;
+        return scheme + defaultRsHost;
     }
 
     public String apiHost() {
@@ -145,7 +145,7 @@ public final class Configuration implements Cloneable {
         if (useHttpsDomains) {
             scheme = "https://";
         }
-        return scheme + DEFAULT_API_HOST;
+        return scheme + defaultApiHost;
     }
 
 
