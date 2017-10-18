@@ -69,6 +69,12 @@ public final class Configuration implements Cloneable {
      */
     public ProxyConfiguration proxy;
 
+    /**
+     * 特殊默认域名
+     */
+    public static String DEFAULT_RS_HOST = "rs.qiniu.com";
+    public static String DEFAULT_API_HOST = "api.qiniu.com";
+
     public Configuration() {
         this.zone = null;
         this.dnsClient = null;
@@ -127,8 +133,21 @@ public final class Configuration implements Cloneable {
     }
 
     public String rsHost() {
-        return useHttpsDomains ? "https://rs.qbox.me" : "http://rs.qiniu.com";
+        String scheme = "http://";
+        if (useHttpsDomains) {
+            scheme = "https://";
+        }
+        return scheme + DEFAULT_RS_HOST;
     }
+
+    public String apiHost() {
+        String scheme = "http://";
+        if (useHttpsDomains) {
+            scheme = "https://";
+        }
+        return scheme + DEFAULT_API_HOST;
+    }
+
 
     public String rsHost(String ak, String bucket) {
         ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);

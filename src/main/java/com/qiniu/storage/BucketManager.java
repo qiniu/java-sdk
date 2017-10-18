@@ -101,7 +101,7 @@ public final class BucketManager {
      */
 
     public String[] domainList(String bucket) throws QiniuException {
-        String url = String.format("%s/v6/domain/list?tbl=%s", "http://api.qiniu.com", bucket);
+        String url = String.format("%s/v6/domain/list?tbl=%s", configuration.apiHost(), bucket);
         Response r = get(url);
         return r.jsonToObject(String[].class);
     }
