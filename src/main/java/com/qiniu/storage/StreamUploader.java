@@ -31,7 +31,7 @@ public final class StreamUploader {
     private String host;
     private int retryMax;
 
-    StreamUploader(Client client, String upToken, String key, InputStream stream,
+    public StreamUploader(Client client, String upToken, String key, InputStream stream,
                    StringMap params, String mime, Configuration configuration) {
         this.configuration = configuration;
         this.client = client;

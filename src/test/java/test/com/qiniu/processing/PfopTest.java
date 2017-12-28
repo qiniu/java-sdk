@@ -1,6 +1,8 @@
-package com.qiniu.processing;
+package test.com.qiniu.processing;
 
-import com.qiniu.TestConfig;
+import com.qiniu.processing.OperationManager;
+import com.qiniu.processing.OperationStatus;
+import test.com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.storage.Configuration;

@@ -196,7 +196,7 @@ public final class BucketManager {
 
 
     //存储类型
-    enum StorageType {
+    public enum StorageType {
         //普通存储
         COMMON,
         //低频存储
