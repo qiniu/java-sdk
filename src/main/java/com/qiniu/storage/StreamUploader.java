@@ -32,7 +32,7 @@ public final class StreamUploader {
     private int retryMax;
 
     public StreamUploader(Client client, String upToken, String key, InputStream stream,
-                   StringMap params, String mime, Configuration configuration) {
+                          StringMap params, String mime, Configuration configuration) {
         this.configuration = configuration;
         this.client = client;
         this.upToken = upToken;

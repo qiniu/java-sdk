@@ -638,7 +638,8 @@ public class BucketTest extends TestCase {
                 //delete the temp file
                 bucketManager.delete(bucket, keyToChangeType);
             } catch (QiniuException e) {
-                fail(bucket + ":" + key + " > " + keyToChangeType + " >> " + BucketManager.StorageType.INFREQUENCY + " ==> " + e.response.toString());
+                fail(bucket + ":" + key + " > " + keyToChangeType + " >> "
+                        + BucketManager.StorageType.INFREQUENCY + " ==> " + e.response.toString());
             }
         }
     }
