@@ -1,7 +1,8 @@
-package com.qiniu.util;
+package test.com.qiniu.util;
 
-import com.qiniu.TempFile;
+import test.com.qiniu.TempFile;
 import com.qiniu.common.Constants;
+import com.qiniu.util.Etag;
 import org.junit.Test;
 
 import java.io.File;

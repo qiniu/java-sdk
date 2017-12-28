@@ -1,4 +1,4 @@
-package com.qiniu;
+package test.com.qiniu;
 
 import java.io.File;
 import java.io.FileOutputStream;

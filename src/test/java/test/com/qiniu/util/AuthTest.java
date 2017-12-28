@@ -1,6 +1,7 @@
-package com.qiniu.util;
+package test.com.qiniu.util;
 
-import com.qiniu.TestConfig;
+import com.qiniu.util.StringMap;
+import test.com.qiniu.TestConfig;
 import com.qiniu.http.Client;
 import org.junit.Test;
 

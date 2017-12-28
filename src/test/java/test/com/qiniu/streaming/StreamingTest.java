@@ -1,6 +1,7 @@
-package com.qiniu.streaming;
+package test.com.qiniu.streaming;
 
-import com.qiniu.TestConfig;
+import com.qiniu.streaming.StreamingManager;
+import test.com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.streaming.model.ActivityRecords;
 import com.qiniu.streaming.model.StreamAttribute;

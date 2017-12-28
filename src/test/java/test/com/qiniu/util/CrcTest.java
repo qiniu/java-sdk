@@ -1,5 +1,6 @@
-package com.qiniu.util;
+package test.com.qiniu.util;
 
+import com.qiniu.util.Crc32;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

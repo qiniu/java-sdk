@@ -1,4 +1,4 @@
-package com.qiniu;
+package test.com.qiniu;
 
 
 import com.qiniu.util.Auth;
@@ -20,6 +20,8 @@ public final class TestConfig {
     //valid ak & sk
     public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
     public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
+
+
     public static final Auth testAuth = Auth.create(testAccessKey, testSecretKey);
 
     //z0

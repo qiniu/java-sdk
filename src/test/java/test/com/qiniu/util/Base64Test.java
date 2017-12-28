@@ -1,5 +1,6 @@
-package com.qiniu.util;
+package test.com.qiniu.util;
 
+import com.qiniu.util.UrlSafeBase64;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
