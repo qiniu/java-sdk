@@ -1,7 +1,9 @@
-package com.qiniu.storage;
+package test.com.qiniu.storage;
 
-import com.qiniu.TempFile;
-import com.qiniu.TestConfig;
+import com.qiniu.storage.Configuration;
+import com.qiniu.storage.ResumeUploader;
+import test.com.qiniu.TempFile;
+import test.com.qiniu.TestConfig;
 import com.qiniu.common.Constants;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
@@ -62,7 +64,7 @@ public class RecordUploadTest {
                             e.printStackTrace();
                         }
                     }
-                } .start();
+                }.start();
 
                 final boolean[] ch = new boolean[]{true};
                 // 显示断点记录文件

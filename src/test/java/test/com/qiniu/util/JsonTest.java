@@ -1,5 +1,7 @@
-package com.qiniu.util;
+package test.com.qiniu.util;
 
+import com.qiniu.util.Json;
+import com.qiniu.util.StringMap;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

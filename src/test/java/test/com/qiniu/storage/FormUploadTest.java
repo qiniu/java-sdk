@@ -1,7 +1,10 @@
-package com.qiniu.storage;
+package test.com.qiniu.storage;
 
-import com.qiniu.TempFile;
-import com.qiniu.TestConfig;
+import com.qiniu.storage.Configuration;
+import com.qiniu.storage.UpCompletionHandler;
+import com.qiniu.storage.UploadManager;
+import test.com.qiniu.TempFile;
+import test.com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;

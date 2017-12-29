@@ -1,4 +1,4 @@
-package com.qiniu;
+package test.com.qiniu;
 
 import com.qiniu.cdn.CdnManager;
 import com.qiniu.cdn.CdnResult;
