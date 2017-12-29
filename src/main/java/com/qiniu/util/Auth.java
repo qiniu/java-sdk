@@ -177,7 +177,7 @@ public final class Auth {
         return privateDownloadUrlWithDeadline(baseUrl, deadline);
     }
 
-    String privateDownloadUrlWithDeadline(String baseUrl, long deadline) {
+    public String privateDownloadUrlWithDeadline(String baseUrl, long deadline) {
         StringBuilder b = new StringBuilder();
         b.append(baseUrl);
         int pos = baseUrl.indexOf("?");

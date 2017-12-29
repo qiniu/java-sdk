@@ -1,6 +1,8 @@
-package com.qiniu.storage;
+package test.com.qiniu.storage;
 
-import com.qiniu.TestConfig;
+import com.qiniu.storage.BucketManager;
+import com.qiniu.storage.Configuration;
+import test.com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
@@ -156,7 +158,7 @@ public class BucketTest extends TestCase {
                 assertNotNull(info.hash);
                 assertNotNull(info.mimeType);
             } catch (QiniuException e) {
-                fail(e.response.toString());
+                fail(bucket + ":" + key + "==> " + e.response.toString());
             }
         }
 
@@ -201,7 +203,7 @@ public class BucketTest extends TestCase {
             int code = entry.getValue();
             try {
                 bucketManager.delete(bucket, key);
-                fail();
+                fail(bucket + ":" + key + "==> " + "delete failed");
             } catch (QiniuException e) {
                 assertEquals(code, e.code());
             }
@@ -224,7 +226,7 @@ public class BucketTest extends TestCase {
                 bucketManager.rename(bucket, renameFromKey, renameToKey);
                 bucketManager.delete(bucket, renameToKey);
             } catch (QiniuException e) {
-                fail(e.response.toString());
+                fail(bucket + ":" + key + "==> " + e.response.toString());
             }
         }
     }
@@ -242,7 +244,7 @@ public class BucketTest extends TestCase {
                 bucketManager.copy(bucket, key, bucket, copyToKey);
                 bucketManager.delete(bucket, copyToKey);
             } catch (QiniuException e) {
-                fail(e.response.toString());
+                fail(bucket + ":" + key + "==> " + e.response.toString());
             }
         }
     }
@@ -260,7 +262,7 @@ public class BucketTest extends TestCase {
             try {
                 bucketManager.changeMime(bucket, key, mime);
             } catch (QiniuException e) {
-                fail(e.response.toString());
+                fail(bucket + ":" + key + "==> " + e.response.toString());
             }
         }
     }
@@ -270,11 +272,11 @@ public class BucketTest extends TestCase {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
             try {
-                bucketManager.setImage(bucket, "http://developer.qiniu.com/");
-                bucketManager.prefetch(bucket, "kodo/sdk/java");
+                bucketManager.setImage(bucket, "https://developer.qiniu.com/");
+                bucketManager.prefetch(bucket, "kodo/sdk/1239/java");
                 bucketManager.unsetImage(bucket);
             } catch (QiniuException e) {
-                fail(e.response.toString());
+                fail(bucket + "==>" + e.response.toString());
             }
         }
     }
@@ -440,9 +442,23 @@ public class BucketTest extends TestCase {
         bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            String key = entry.getValue();
+            String okey = entry.getValue();
+            String key = "batchChangeType" + Math.random();
+            String key2 = "batchChangeType" + Math.random();
             String[] keyArray = new String[100];
             keyArray[0] = key;
+            keyArray[1] = key2;
+
+
+            BucketManager.BatchOperations opsCopy = new BucketManager.BatchOperations().
+                    addCopyOp(bucket, okey, bucket, key).addCopyOp(bucket, okey, bucket, key2);
+
+            try {
+                bucketManager.batch(opsCopy);
+            } catch (QiniuException e) {
+                fail("batch copy failed: " + e.response.toString());
+            }
+
             BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
                     .addChangeTypeOps(bucket, StorageType.INFREQUENCY, keyArray);
             try {
@@ -451,6 +467,13 @@ public class BucketTest extends TestCase {
                 assertEquals(200, bs[0].code);
             } catch (QiniuException e) {
                 fail(e.response.toString());
+            } finally {
+                try {
+                    bucketManager.delete(bucket, key);
+                    bucketManager.delete(bucket, key2);
+                } catch (QiniuException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -615,7 +638,8 @@ public class BucketTest extends TestCase {
                 //delete the temp file
                 bucketManager.delete(bucket, keyToChangeType);
             } catch (QiniuException e) {
-                fail(e.response.toString());
+                fail(bucket + ":" + key + " > " + keyToChangeType + " >> "
+                        + BucketManager.StorageType.INFREQUENCY + " ==> " + e.response.toString());
             }
         }
     }

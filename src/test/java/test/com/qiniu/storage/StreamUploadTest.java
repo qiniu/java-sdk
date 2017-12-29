@@ -1,7 +1,10 @@
-package com.qiniu.storage;
+package test.com.qiniu.storage;
 
-import com.qiniu.TempFile;
-import com.qiniu.TestConfig;
+import com.qiniu.storage.Configuration;
+import com.qiniu.storage.StreamUploader;
+import com.qiniu.storage.UploadManager;
+import test.com.qiniu.TempFile;
+import test.com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
@@ -11,6 +14,7 @@ import com.qiniu.util.StringMap;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,17 +22,21 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class ResumeUploadTest {
+/**
+ * Created by long on 2016/11/4.
+ */
+public class StreamUploadTest {
 
     @Test
     public void testXVar() throws IOException {
+        Map<String, Zone> bucketZoneMap = new HashMap<String, Zone>();
+        bucketZoneMap.put(TestConfig.testBucket_z0, Zone.zone0());
+        bucketZoneMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
 
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
+        for (Map.Entry<String, Zone> entry : bucketZoneMap.entrySet()) {
             String bucket = entry.getKey();
             Zone zone = entry.getValue();
+
             final String expectKey = "世/界";
             File f = null;
             try {
@@ -45,7 +53,7 @@ public class ResumeUploadTest {
 
             try {
                 UploadManager uploadManager = new UploadManager(new Configuration(zone));
-                Response res = uploadManager.put(f, expectKey, token, params, null, true);
+                Response res = uploadManager.put(new FileInputStream(f), expectKey, token, params, null);
                 StringMap m = res.jsonToMap();
                 assertEquals("foo_val", m.get("foo"));
             } catch (QiniuException e) {
@@ -58,16 +66,19 @@ public class ResumeUploadTest {
     }
 
     private void template(int size, boolean https) throws IOException {
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
+        Map<String, Zone> bucketZoneMap = new HashMap<String, Zone>();
+        bucketZoneMap.put(TestConfig.testBucket_z0, Zone.zone0());
+        bucketZoneMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
+
+        for (Map.Entry<String, Zone> entry : bucketZoneMap.entrySet()) {
             String bucket = entry.getKey();
             Zone zone = entry.getValue();
+
             Configuration c = new Configuration(zone);
             c.useHttpsDomains = https;
             final String expectKey = "\r\n?&r=" + size + "k";
             final File f = TempFile.createFile(size);
+            final String mime = "app/test";
             final String etag = Etag.file(f);
             final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                     + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
@@ -75,13 +86,13 @@ public class ResumeUploadTest {
                     new StringMap().put("returnBody", returnBody));
 
             try {
-                ResumeUploader up = new ResumeUploader(new Client(), token, expectKey, f, null, null, null,
-                        new Configuration(zone));
+                StreamUploader up = new StreamUploader(new Client(), token, expectKey,
+                        new FileInputStream(f), null, mime, c);
                 Response r = up.upload();
-                MyRet ret = r.jsonToObject(MyRet.class);
+                StreamUploadTest.MyRet ret = r.jsonToObject(StreamUploadTest.MyRet.class);
                 assertEquals(expectKey, ret.key);
-                assertEquals(f.getName(), ret.fname);
                 assertEquals(String.valueOf(f.length()), ret.fsize);
+                assertEquals(mime, ret.mimeType);
                 assertEquals(etag, ret.hash);
             } catch (QiniuException e) {
                 assertEquals("", e.response == null ? "e.response is null" : e.response.bodyString());
