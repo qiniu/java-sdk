@@ -4,7 +4,6 @@ sudo: false
 language: java
 
 jdk:
-  - oraclejdk7
   - oraclejdk8
 
 before_script:
