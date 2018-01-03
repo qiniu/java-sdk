@@ -95,7 +95,7 @@ public class CdnTest {
 
         try {
             r = c.getCdnLogList(domains, logDate);
-            Assert.assertEquals(true, r.data.size() > 0);
+            Assert.assertEquals(true, r.data.size() >= 0);
         } catch (QiniuException e) {
             e.printStackTrace();
             Assert.fail();
