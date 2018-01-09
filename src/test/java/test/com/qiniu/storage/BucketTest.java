@@ -13,10 +13,8 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @SuppressWarnings("ConstantConditions")
 public class BucketTest extends TestCase {
@@ -266,6 +264,30 @@ public class BucketTest extends TestCase {
             }
         }
     }
+
+    @Test
+    public void testChangeHeaders() {
+        List<String[]> cases = new ArrayList<String[]>();
+        cases.add(new String[]{TestConfig.testBucket_z0, TestConfig.testKey_z0});
+        cases.add(new String[]{TestConfig.testBucket_na0, TestConfig.testKey_na0});
+
+        for (String[] icase : cases) {
+            String bucket = icase[0];
+            String key = icase[1];
+            try {
+                Map<String, String> headers = new HashMap<>();
+                Date d = new Date();
+                SimpleDateFormat dateFm = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
+                System.out.println(dateFm.format(d));
+                headers.put("x-qn-meta-!Content-Type", "image/png");
+                headers.put("x-qn-meta-!Last-Modifie", dateFm.format(d));
+                bucketManager.changeHeaders(bucket, key, headers);
+            } catch (QiniuException e) {
+                fail(bucket + ":" + key + "==> " + e.response.toString());
+            }
+        }
+    }
+
 
     @Test
     public void testPrefetch() {
