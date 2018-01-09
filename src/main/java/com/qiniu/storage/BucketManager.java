@@ -13,6 +13,7 @@ import com.qiniu.util.UrlSafeBase64;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * 主要涉及了空间资源管理及批量操作接口的实现，具体的接口规格可以参考
@@ -191,6 +192,26 @@ public final class BucketManager {
         String resource = encodedEntry(bucket, key);
         String encodedMime = UrlSafeBase64.encodeToString(mime);
         String path = String.format("/chgm/%s/mime/%s", resource, encodedMime);
+        return rsPost(bucket, path, null);
+    }
+
+    /**
+     * 修改文件的元数据
+     *
+     * @param bucket  空间名称
+     * @param key     文件名称
+     * @param headers 需要修改的文件元数据
+     * @throws QiniuException
+     * @link https://developer.qiniu.com/kodo/api/1252/chgm
+     */
+    public Response changeHeaders(String bucket, String key, Map<String, String> headers)
+            throws QiniuException {
+        String resource = encodedEntry(bucket, key);
+        String path = String.format("/chgm/%s", resource);
+        for (String k : headers.keySet()) {
+            String encodedMetaValue = UrlSafeBase64.encodeToString(headers.get(k));
+            path = String.format("%s/%s/%s", path, k, encodedMetaValue);
+        }
         return rsPost(bucket, path, null);
     }
 
