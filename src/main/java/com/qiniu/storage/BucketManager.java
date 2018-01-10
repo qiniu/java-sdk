@@ -210,7 +210,7 @@ public final class BucketManager {
         String path = String.format("/chgm/%s", resource);
         for (String k : headers.keySet()) {
             String encodedMetaValue = UrlSafeBase64.encodeToString(headers.get(k));
-            path = String.format("%s/%s/%s", path, k, encodedMetaValue);
+            path = String.format("%s/x-qn-meta-!%s/%s", path, k, encodedMetaValue);
         }
         return rsPost(bucket, path, null);
     }
