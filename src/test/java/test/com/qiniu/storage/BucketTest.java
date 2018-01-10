@@ -280,7 +280,7 @@ public class BucketTest extends TestCase {
                 SimpleDateFormat dateFm = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
                 System.out.println(dateFm.format(d));
                 headers.put("Content-Type", "image/png");
-                headers.put("Last-Modifie", dateFm.format(d));
+                headers.put("Last-Modified", dateFm.format(d));
                 bucketManager.changeHeaders(bucket, key, headers);
             } catch (QiniuException e) {
                 fail(bucket + ":" + key + "==> " + e.response.toString());
