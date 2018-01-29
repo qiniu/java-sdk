@@ -6,16 +6,11 @@ import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
 
 import java.io.IOException;
-
-<<<<<<<HEAD
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.common.Zone;
-
-=======
-        >>>>>>>java/master
 
 public class UploadDemo {
     //设置好账号的ACCESS_KEY和SECRET_KEY
