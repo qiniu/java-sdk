@@ -211,11 +211,31 @@ public class Zone {
                 .apiHttp("http://api-na0.qiniu.com").apiHttps("https://api-na0.qiniu.com").build();
     }
 
+
     /**
      * 北美机房相关域名
      */
     public static Zone beimei() {
         return zoneNa0();
+    }
+
+    /**
+     * 新加坡相关域名
+     */
+    public static Zone zoneAs0() {
+        return new Builder().upHttp("http://up-as0.qiniu.com").upHttps("https://up-as0.qbox.me").
+                upBackupHttp("http://upload-as0.qiniu.com").upBackupHttps("https://upload-as0.qbox.me").
+                iovipHttp("http://iovip-as0.qbox.me").iovipHttps("https://iovip-as0.qbox.me").
+                rsHttp("http://rs-as0.qiniu.com").rsHttps("https://rs-as0.qbox.me")
+                .rsfHttp("http://rsf-as0.qiniu.com").rsfHttps("https://rsf-as0.qbox.me")
+                .apiHttp("http://api-as0.qiniu.com").apiHttps("https://api-as0.qiniu.com").build();
+    }
+
+    /**
+     * 新加坡机房相关域名
+     */
+    public static Zone xinjiapo() {
+        return zoneAs0();
     }
 
     /**
