@@ -41,6 +41,7 @@ public final class AutoZone extends Zone {
         this.inferDomainsMap.put("http://up-z1.qiniu.com", zone1());
         this.inferDomainsMap.put("http://up-z2.qiniu.com", zone2());
         this.inferDomainsMap.put("http://up-na0.qiniu.com", zoneNa0());
+        this.inferDomainsMap.put("http://up-as0.qiniu.com",zoneAs0());
     }
 
     /**
