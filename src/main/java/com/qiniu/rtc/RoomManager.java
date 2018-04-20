@@ -47,7 +47,7 @@ public class RoomManager {
      * @throws QiniuException
      * @returnjsonString
      */
-    public String kickUser(String appId, String roomName, String userId) throws QiniuException{
+    public String kickUser(String appId, String roomName, String userId) throws QiniuException {
         String urlStr = getLink(appId, roomName, "users/" + userId);
         StringMap headers = auth.authorizationV2(urlStr, "DELETE", null, null);
         Response response = client.delete(urlStr, headers);
