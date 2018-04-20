@@ -39,7 +39,8 @@ public class AppManager {
      * @return
      * @throws QiniuException
      */
-    public String creatApp(String hub, String title, int maxUsers, boolean noAutoCloseRoom, boolean noAutoCreateRoom, boolean noAutoKickUser) throws QiniuException {
+    public String creatApp(String hub, String title, int maxUsers, boolean noAutoCloseRoom,
+                           boolean noAutoCreateRoom, boolean noAutoKickUser) throws QiniuException {
         if (hub != null) {
             params.put("hub", hub);
         }
@@ -100,7 +101,8 @@ public class AppManager {
      * @return
      * @throws QiniuException
      */
-    public String updateApp(String appId, String hub, String title, int maxUsers, boolean noAutoCloseRoom, boolean noAutoCreateRoom, boolean noAutoKickUser) throws QiniuException {
+    public String updateApp(String appId, String hub, String title, int maxUsers, boolean noAutoCloseRoom,
+                            boolean noAutoCreateRoom, boolean noAutoKickUser) throws QiniuException {
         if (hub != null) {
             params.put("hub", hub);
         }

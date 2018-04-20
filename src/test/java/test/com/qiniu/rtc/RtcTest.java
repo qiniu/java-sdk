@@ -61,7 +61,6 @@ public class RtcTest {
         }
     }
 
-    //鉴权失败
     @Test
     public void listUser(){
         try {
@@ -75,7 +74,6 @@ public class RtcTest {
     @Test
     public void kickUser(){
         try {
-            //String token = rmanager.getRoomToken(mac,"d7rqwfxqd","roomid","userid",3600,"admin");
             System.out.print(rmanager.kickUser("dex74xpqd","roomid","userid"));
         } catch (QiniuException e) {
             e.printStackTrace();

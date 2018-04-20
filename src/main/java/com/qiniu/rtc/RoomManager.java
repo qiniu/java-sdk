@@ -1,16 +1,11 @@
 package com.qiniu.rtc;
 
 import com.google.gson.Gson;
-import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.rtc.model.RoomAccess;
 import com.qiniu.util.*;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-
-import java.net.URL;
 
 public class RoomManager {
     private final Auth auth;
@@ -50,10 +45,9 @@ public class RoomManager {
      * @param roomName 操作房间名
      * @param userId   被踢人员
      * @throws QiniuException
-     * @throws Exception
      * @returnjsonString
      */
-    public String kickUser(String appId, String roomName, String userId) throws QiniuException, Exception {
+    public String kickUser(String appId, String roomName, String userId) throws QiniuException{
         String urlStr = getLink(appId, roomName, "users/" + userId);
         StringMap headers = auth.authorizationV2(urlStr, "DELETE", null, null);
         Response response = client.delete(urlStr, headers);
@@ -97,7 +91,8 @@ public class RoomManager {
      * @return
      * @throws Exception
      */
-    public String getRoomToken(String appId, String roomName, String userId, long expireAt, String permission) throws Exception {
+    public String getRoomToken(String appId, String roomName, String userId,
+                               long expireAt, String permission) throws Exception {
         RoomAccess access = new RoomAccess(appId, roomName, userId, expireAt, permission);
         String json = gson.toJson(access);
         return auth.signRoomToken(json);
