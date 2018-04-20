@@ -333,7 +333,7 @@ public final class Auth {
     //连麦 RoomToken
     public String signRoomToken(String roomAccess) throws Exception {
         String encodedRoomAcc = UrlSafeBase64.encodeToString(roomAccess);
-        byte[] sign = HMac.HmacSHA1Encrypt(encodedRoomAcc, sk);
+        byte[] sign = HMac.hmacSHA1Encrypt(encodedRoomAcc, sk);
         String encodedSign = UrlSafeBase64.encodeToString(sign);
         return this.accessKey + ":" + encodedSign + ":" + encodedRoomAcc;
     }
