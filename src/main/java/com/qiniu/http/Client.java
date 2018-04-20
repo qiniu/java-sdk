@@ -114,10 +114,10 @@ public final class Client {
         httpClient = builder.build();
     }
 
-    private static String userAgent() {
+    public static String userAgent() {
         String javaVersion = "Java/" + System.getProperty("java.version");
         String os = System.getProperty("os.name") + " "
-                + System.getProperty("os.arch") + " " + System.getProperty("os.version");
+                + System.getProperty("os.arch") + " "+ System.getProperty("os.version");
         String sdk = "QiniuJava/" + Constants.VERSION;
         return sdk + " (" + os + ") " + javaVersion;
     }
@@ -153,6 +153,10 @@ public final class Client {
         return send(requestBuilder, headers);
     }
 
+    public Response delete(String url, StringMap headers) throws QiniuException {
+        Request.Builder requestBuilder = new Request.Builder().delete().url(url);
+        return send(requestBuilder, headers);
+    }
     public Response post(String url, byte[] body, StringMap headers) throws QiniuException {
         return post(url, body, headers, DefaultMime);
     }
