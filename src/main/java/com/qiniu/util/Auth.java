@@ -335,6 +335,6 @@ public final class Auth {
         String encodedRoomAcc = UrlSafeBase64.encodeToString(roomAccess);
         byte[] sign = HMac.HmacSHA1Encrypt(encodedRoomAcc, sk);
         String encodedSign = UrlSafeBase64.encodeToString(sign);
-        return this.accessKey + ":" + encodedSign+":"+encodedRoomAcc;
+        return this.accessKey + ":" + encodedSign + ":" + encodedRoomAcc;
     }
 }

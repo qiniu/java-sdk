@@ -17,7 +17,7 @@ public class RoomAccess {
     @SerializedName("permission")
     private String permission;
 
-    public RoomAccess(String appId,String roomName,String userId, long expireAt, String permission){
+    public RoomAccess(String appId, String roomName, String userId, long expireAt, String permission) {
         this.appId = appId;
         this.roomName = roomName;
         this.userId = userId;
