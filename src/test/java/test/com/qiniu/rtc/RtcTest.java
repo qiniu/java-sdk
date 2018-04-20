@@ -20,81 +20,82 @@ public class RtcTest {
             auth = TestConfig.testAuth;
         }
     }
+
     private AppManager manager = new AppManager(auth);
     private RoomManager rmanager = new RoomManager(auth);
+
     @Test
-    public void creatApp(){
+    public void creatApp() {
         try {
-            System.out.print( manager.creatApp("zw111","zwhome",10,false,false,false));
+            System.out.print(manager.creatApp("zw111", "zwhome", 10, false, false, false));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
     }
 
     @Test
-    public void getApp(){
+    public void getApp() {
         try {
-            System.out.print( manager.getApp("dex74xpqd"));
+            System.out.print(manager.getApp("dex74xpqd"));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
     }
 
     @Test
-    public void deleteApp(){
+    public void deleteApp() {
         try {
-            System.out.print( manager.deleteApp("dex74xpqd"));
+            System.out.print(manager.deleteApp("dex74xpqd"));
         } catch (QiniuException e) {
             e.printStackTrace();
-        }
-        catch (Exception e1){
+        } catch (Exception e1) {
 
         }
     }
 
     @Test
-    public void updateApp(){
+    public void updateApp() {
         try {
-            System.out.print( manager.updateApp("dex74xpqd","zwte123","zw111",10,false,false,false));
-        } catch (QiniuException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void listUser(){
-        try {
-            System.out.print(rmanager.listUser("dex74xpqd","ww"));
-        } catch (QiniuException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    @Test
-    public void kickUser(){
-        try {
-            System.out.print(rmanager.kickUser("dex74xpqd","roomid","userid"));
-        } catch (QiniuException e) {
-            e.printStackTrace();
-        }
-        catch (Exception e1){
-
-        }
-    }
-    @Test
-    public void listActiveRoom(){
-        try {
-            System.out.print(rmanager.listActiveRoom("dex74xpqd",null,1,2));
+            System.out.print(manager.updateApp("dex74xpqd", "zwte123", "zw111", 10, false, false, false));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
     }
 
     @Test
-    public void getRoomToken(){
+    public void listUser() {
         try {
-            System.out.print(rmanager.getRoomToken("dex74xpqd","roomid","userid",3600,"admin"));
+            System.out.print(rmanager.listUser("dex74xpqd", "ww"));
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void kickUser() {
+        try {
+            System.out.print(rmanager.kickUser("dex74xpqd", "roomid", "userid"));
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } catch (Exception e1) {
+
+        }
+    }
+
+    @Test
+    public void listActiveRoom() {
+        try {
+            System.out.print(rmanager.listActiveRoom("dex74xpqd", null, 1, 2));
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void getRoomToken() {
+        try {
+            System.out.print(rmanager.getRoomToken("dex74xpqd", "roomid", "userid", 3600, "admin"));
         } catch (Exception e) {
             e.printStackTrace();
         }
