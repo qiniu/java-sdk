@@ -8,7 +8,7 @@ import javax.crypto.spec.SecretKeySpec;
 public final class HMac {
     private static final String MAC_NAME = "HmacSHA1";
     private static final String UTF8 = "UTF-8";
-    private HMac(){
+    private HMac() {
 
     }
     public static byte[] hmacSHA1Encrypt(String dataStr, String secretKeyStr) throws Exception {
