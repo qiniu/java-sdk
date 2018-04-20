@@ -100,7 +100,7 @@ public class AppManager {
      * @return
      * @throws QiniuException
      */
-    public String updateApp(String appId, String hub, String title, int maxUsers, boolean noAutoCloseRoom,
+    public String updateApp(String appId, String hub, String title, Integer maxUsers, boolean noAutoCloseRoom,
                             boolean noAutoCreateRoom, boolean noAutoKickUser) throws QiniuException {
         if (hub != null) {
             params.put("hub", hub);
@@ -108,7 +108,7 @@ public class AppManager {
         if (title != null) {
             params.put("title", title);
         }
-        if (hub != null) {
+        if (maxUsers != null) {
             params.put("maxUsers", maxUsers);
         }
         params.put("noAutoCloseRoom", noAutoCloseRoom);
