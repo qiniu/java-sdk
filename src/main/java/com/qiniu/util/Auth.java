@@ -44,6 +44,7 @@ public final class Auth {
             "asyncOps",
     };
     public final String accessKey;
+    public static String sk;
     private final SecretKeySpec secretKey;
 
     private Auth(String accessKey, SecretKeySpec secretKeySpec) {
@@ -52,6 +53,7 @@ public final class Auth {
     }
 
     public static Auth create(String accessKey, String secretKey) {
+        sk = secretKey;
         if (StringUtils.isNullOrEmpty(accessKey) || StringUtils.isNullOrEmpty(secretKey)) {
             throw new IllegalArgumentException("empty key");
         }
@@ -316,7 +318,6 @@ public final class Auth {
         mac.update(StringUtils.utf8Bytes(sb.toString()));
 
         String digest = UrlSafeBase64.encodeToString(mac.doFinal());
-
         return this.accessKey + ":" + digest;
     }
 
@@ -327,5 +328,13 @@ public final class Auth {
 
     public StringMap authorizationV2(String url) {
         return authorizationV2(url, "GET", null, null);
+    }
+
+    //连麦 RoomToken
+    public String signRoomToken(String roomAccess) throws Exception {
+        String encodedRoomAcc = UrlSafeBase64.encodeToString(roomAccess);
+        byte[] sign = HMac.hmacSHA1Encrypt(encodedRoomAcc, sk);
+        String encodedSign = UrlSafeBase64.encodeToString(sign);
+        return this.accessKey + ":" + encodedSign + ":" + encodedRoomAcc;
     }
 }

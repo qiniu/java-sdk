@@ -1,0 +1,101 @@
+package com.qiniu.rtc;
+
+import com.google.gson.Gson;
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Client;
+import com.qiniu.http.Response;
+import com.qiniu.rtc.model.RoomAccess;
+import com.qiniu.util.*;
+
+public class RoomManager {
+    private final Auth auth;
+    private final String host;
+    private final String link;
+    private final Client client;
+    private Gson gson;
+
+    public RoomManager(Auth auth) {
+        this(auth, "rtc.qiniuapi.com", "/v3/apps");
+    }
+
+    RoomManager(Auth auth, String host, String link) {
+        this.auth = auth;
+        this.host = host;
+        this.link = link;
+        client = new Client();
+        gson = new Gson();
+    }
+
+    /**
+     * @param appId    房间所属帐号的 app
+     * @param roomName 操作所查询的连麦房间
+     * @return jsonString
+     * @throws QiniuException
+     */
+    public String listUser(String appId, String roomName) throws QiniuException {
+        String url = getLink(appId, roomName, "users");
+        StringMap headers = auth.authorizationV2(url);
+        Response response = client.get(url, headers);
+        String[] resJson = response.getInfo().split("\n");
+        return response.statusCode + "\n" + resJson[2];
+    }
+
+    /**
+     * @param appId    房间所属帐号的 app
+     * @param roomName 操作房间名
+     * @param userId   被踢人员
+     * @throws QiniuException
+     * @returnjsonString
+     */
+    public String kickUser(String appId, String roomName, String userId) throws QiniuException {
+        String urlStr = getLink(appId, roomName, "users/" + userId);
+        StringMap headers = auth.authorizationV2(urlStr, "DELETE", null, null);
+        Response response = client.delete(urlStr, headers);
+        String[] resJson = response.getInfo().split("\n");
+        return response.statusCode + "\n" + resJson[2];
+    }
+
+    /**
+     * @param appId  连麦房间所属的 app
+     * @param prefix 所查询房间名的前缀索引，可以为空。
+     * @param offset 分页查询的位移标记
+     * @param limit  此次查询的最大长度
+     * @return jsonString
+     * @throws QiniuException
+     */
+    public String listActiveRoom(String appId, String prefix, int offset, int limit) throws QiniuException {
+        String url = getLink(appId, null, "?prefix=" + prefix + "&offset=" + offset + "&limit=" + limit);
+        StringMap headers = auth.authorizationV2(url);
+        Response response = client.get(url, headers);
+        String[] resJson = response.getInfo().split("\n");
+        return response.statusCode + "\n" + resJson[2];
+    }
+
+    private String getLink(String appId, String roomName, String param) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("http://" + host + link);
+        builder.append("/" + appId + "/rooms");
+        if (roomName != null) {
+            builder.append("/" + roomName + "/");
+        }
+        builder.append(param);
+        return builder.toString();
+    }
+
+    /**
+     * @param appId      房间所属帐号的 app
+     * @param roomName   房间名称，需满足规格 ^[a-zA-Z0-9_-]{3,64}$
+     * @param userId     请求加入房间的用户 ID，需满足规格 ^[a-zA-Z0-9_-]{3,50}$
+     * @param expireAt   int64 类型，鉴权的有效时间，传入以秒为单位的64位Unix绝对时间，token 将在该时间后失效
+     * @param permission 该用户的房间管理权限，"admin" 或 "user"，默认为 "user" 。当权限角色为 "admin" 时，拥有将其他用户移除出房间等特权.
+     * @return
+     * @throws Exception
+     */
+    public String getRoomToken(String appId, String roomName, String userId,
+                               long expireAt, String permission) throws Exception {
+        RoomAccess access = new RoomAccess(appId, roomName, userId, expireAt, permission);
+        String json = gson.toJson(access);
+        return auth.signRoomToken(json);
+    }
+
+}
