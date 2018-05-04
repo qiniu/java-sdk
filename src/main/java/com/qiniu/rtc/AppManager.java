@@ -37,7 +37,7 @@ public class AppManager {
      * @return
      * @throws QiniuException
      */
-    public String creatApp(String hub, String title, int maxUsers,
+    public String createApp(String hub, String title, int maxUsers,
                             boolean noAutoKickUser) throws QiniuException {
         if (hub != null) {
             params.put("hub", hub);

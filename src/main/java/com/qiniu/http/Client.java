@@ -114,7 +114,7 @@ public final class Client {
         httpClient = builder.build();
     }
 
-    public static String userAgent() {
+    private static String userAgent() {
         String javaVersion = "Java/" + System.getProperty("java.version");
         String os = System.getProperty("os.name") + " "
                 + System.getProperty("os.arch") + " " + System.getProperty("os.version");

@@ -25,9 +25,9 @@ public class RtcTest {
     private RoomManager rmanager = new RoomManager(auth);
 
     @Test
-    public void creatApp() {
+    public void createApp() {
         try {
-            System.out.print(manager.creatApp("test0022", "zwhome", 10, false));
+            System.out.print(manager.createApp("test0022", "zwhome", 10, false));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
