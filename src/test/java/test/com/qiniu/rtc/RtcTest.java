@@ -27,7 +27,7 @@ public class RtcTest {
     @Test
     public void creatApp() {
         try {
-            System.out.print(manager.creatApp("zw111", "zwhome", 10, false, false, false));
+            System.out.print(manager.creatApp("test0503", "zwhome", 10, false));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -36,7 +36,7 @@ public class RtcTest {
     @Test
     public void getApp() {
         try {
-            System.out.print(manager.getApp("dex74xpqd"));
+            System.out.print(manager.getApp("dfykiv8e5"));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -56,7 +56,7 @@ public class RtcTest {
     @Test
     public void updateApp() {
         try {
-            System.out.print(manager.updateApp("dex74xpqd", "zwte123", "zw111", 10, false, false, false));
+            System.out.print(manager.updateApp("dfykiv8e5", "kongjiang", "zw111", 10, false));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -65,7 +65,7 @@ public class RtcTest {
     @Test
     public void listUser() {
         try {
-            System.out.print(rmanager.listUser("dex74xpqd", "ww"));
+            System.out.print(rmanager.listUser("dfykiv8e5", "ww"));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -75,7 +75,7 @@ public class RtcTest {
     @Test
     public void kickUser() {
         try {
-            System.out.print(rmanager.kickUser("dex74xpqd", "roomid", "userid"));
+            System.out.print(rmanager.kickUser("dfykiv8e5", "roomid", "userid"));
         } catch (QiniuException e) {
             e.printStackTrace();
         } catch (Exception e1) {
@@ -86,7 +86,7 @@ public class RtcTest {
     @Test
     public void listActiveRoom() {
         try {
-            System.out.print(rmanager.listActiveRoom("dex74xpqd", null, 1, 2));
+            System.out.print(rmanager.listActiveRoom("dfykiv8e5", null, 1, 2));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -95,7 +95,7 @@ public class RtcTest {
     @Test
     public void getRoomToken() {
         try {
-            System.out.print(rmanager.getRoomToken("dex74xpqd", "roomid", "userid", 3600, "admin"));
+            System.out.print(rmanager.getRoomToken("dfykiv8e5", "zw111", "userid", 3600, "admin"));
         } catch (Exception e) {
             e.printStackTrace();
         }
