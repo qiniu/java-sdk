@@ -97,5 +97,5 @@ public class RoomManager {
         String json = gson.toJson(access);
         return auth.signRoomToken(json);
     }
-
+    
 }

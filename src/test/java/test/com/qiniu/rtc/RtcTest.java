@@ -9,7 +9,7 @@ import test.com.qiniu.TestConfig;
 
 
 public class RtcTest {
-    private String ak = "DXFtikq1Y"; //AccessKey you get from qiniu
+    private String ak = "DXFtikq1YuD"; //AccessKey you get from qiniu
     private String sk = "F397hz"; //SecretKey you get from qiniu
     private Auth auth = null;
 
@@ -27,7 +27,7 @@ public class RtcTest {
     @Test
     public void creatApp() {
         try {
-            System.out.print(manager.creatApp("test0001", "zwhome", 10, false));
+            System.out.print(manager.creatApp("test0022", "zwhome", 10, false));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -36,7 +36,7 @@ public class RtcTest {
     @Test
     public void getApp() {
         try {
-            System.out.print(manager.getApp("dfykiv8e5"));
+            System.out.print(manager.getApp("test0001"));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -95,9 +95,10 @@ public class RtcTest {
     @Test
     public void getRoomToken() {
         try {
-            System.out.print(rmanager.getRoomToken("dfykiv8e5", "zw111", "userid", 3600, "admin"));
+            System.out.print(rmanager.getRoomToken("dg0b80olh", "zwhome", "zhangwei", 1525410499, "user"));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }
