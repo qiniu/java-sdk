@@ -44,7 +44,6 @@ public final class Auth {
             "asyncOps",
     };
     public final String accessKey;
-    public static String sk;
     private final SecretKeySpec secretKey;
 
     private Auth(String accessKey, SecretKeySpec secretKeySpec) {
@@ -53,7 +52,6 @@ public final class Auth {
     }
 
     public static Auth create(String accessKey, String secretKey) {
-        sk = secretKey;
         if (StringUtils.isNullOrEmpty(accessKey) || StringUtils.isNullOrEmpty(secretKey)) {
             throw new IllegalArgumentException("empty key");
         }
@@ -333,7 +331,7 @@ public final class Auth {
     //连麦 RoomToken
     public String signRoomToken(String roomAccess) throws Exception {
         String encodedRoomAcc = UrlSafeBase64.encodeToString(roomAccess);
-        byte[] sign = HMac.hmacSHA1Encrypt(encodedRoomAcc, sk);
+        byte[] sign = createMac().doFinal(encodedRoomAcc.getBytes());
         String encodedSign = UrlSafeBase64.encodeToString(sign);
         return this.accessKey + ":" + encodedSign + ":" + encodedRoomAcc;
     }
