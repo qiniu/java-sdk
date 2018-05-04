@@ -27,7 +27,7 @@ public class RtcTest {
     @Test
     public void creatApp() {
         try {
-            System.out.print(manager.creatApp("test0503", "zwhome", 10, false));
+            System.out.print(manager.creatApp("test0001", "zwhome", 10, false));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
