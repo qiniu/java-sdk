@@ -7,21 +7,19 @@ import com.qiniu.http.Response;
 import com.qiniu.rtc.model.RoomAccess;
 import com.qiniu.util.*;
 
-public class RoomManager {
+public class RtcRoomManager {
     private final Auth auth;
     private final String host;
-    private final String link;
     private final Client client;
     private Gson gson;
 
-    public RoomManager(Auth auth) {
-        this(auth, "rtc.qiniuapi.com", "/v3/apps");
+    public RtcRoomManager(Auth auth) {
+        this(auth, "rtc.qiniuapi.com");
     }
 
-    RoomManager(Auth auth, String host, String link) {
+    RtcRoomManager(Auth auth, String host) {
         this.auth = auth;
         this.host = host;
-        this.link = link;
         client = new Client();
         gson = new Gson();
     }
@@ -73,8 +71,8 @@ public class RoomManager {
 
     private String getLink(String appId, String roomName, String param) {
         StringBuilder builder = new StringBuilder();
-        builder.append("http://" + host + link);
-        builder.append("/" + appId + "/rooms");
+        builder.append("http://" + host );
+        builder.append("/v3/apps/" + appId + "/rooms");
         if (roomName != null) {
             builder.append("/" + roomName + "/");
         }
