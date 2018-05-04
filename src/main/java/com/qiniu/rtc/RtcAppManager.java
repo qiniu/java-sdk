@@ -8,23 +8,21 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 
-public class AppManager {
+public class RtcAppManager {
 
     private final Auth auth;
     private final String host;
-    private final String link;
     private final Client client;
 
     private StringMap params;
 
-    public AppManager(Auth auth) {
-        this(auth, "rtc.qiniuapi.com", "/v3/apps");
+    public RtcAppManager(Auth auth) {
+        this(auth, "rtc.qiniuapi.com");
     }
 
-    AppManager(Auth auth, String host, String link) {
+    RtcAppManager(Auth auth, String host) {
         this.auth = auth;
         this.host = host;
-        this.link = link;
         this.client = new Client();
         this.params = new StringMap();
     }
@@ -50,7 +48,7 @@ public class AppManager {
         }
         params.put("noAutoKickUser", noAutoKickUser);
 
-        String url = "http://" + host + link;
+        String url = "http://" + host + "/v3/apps";
         byte[] body = Json.encode(params).getBytes(Constants.UTF_8);
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
         Response response = client.post(url, body, headers, Client.JsonMime);
@@ -64,7 +62,7 @@ public class AppManager {
      * @throws QiniuException
      */
     public String getApp(String appId) throws QiniuException {
-        String url = "http://" + host + link + "/" + appId;
+        String url = "http://" + host + "/v3/apps" + "/" + appId;
         StringMap headers = auth.authorizationV2(url);
         Response response = client.get(url, headers);
         String[] resJson = response.getInfo().split("\n");
@@ -78,7 +76,7 @@ public class AppManager {
      * @throws Exception
      */
     public String deleteApp(String appId) throws Exception {
-        String urlStr = "http://" + host + link + "/" + appId;
+        String urlStr = "http://" + host + "/v3/apps" + "/" + appId;
         StringMap headers = auth.authorizationV2(urlStr, "DELETE", null, null);
         Response response = client.delete(urlStr, headers);
         String[] resJson = response.getInfo().split("\n");
@@ -107,7 +105,7 @@ public class AppManager {
         }
         params.put("noAutoKickUser", noAutoKickUser);
 
-        String url = "http://" + host + link + "/" + appId;
+        String url = "http://" + host + "/v3/apps" + "/" + appId;
         byte[] body = Json.encode(params).getBytes(Constants.UTF_8);
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
         Response response = client.post(url, body, headers, Client.JsonMime);
