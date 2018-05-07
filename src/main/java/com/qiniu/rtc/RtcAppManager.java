@@ -17,7 +17,7 @@ public class RtcAppManager {
     private StringMap params;
 
     public RtcAppManager(Auth auth) {
-        this(auth, "rtc.qiniuapi.com");
+        this(auth, "http://rtc.qiniuapi.com");
     }
 
     RtcAppManager(Auth auth, String host) {
@@ -48,7 +48,7 @@ public class RtcAppManager {
         }
         params.put("noAutoKickUser", noAutoKickUser);
 
-        String url = "http://" + host + "/v3/apps";
+        String url = String.format("%s%s", host, "/v3/apps");
         byte[] body = Json.encode(params).getBytes(Constants.UTF_8);
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
         Response response = client.post(url, body, headers, Client.JsonMime);
@@ -62,7 +62,7 @@ public class RtcAppManager {
      * @throws QiniuException
      */
     public String getApp(String appId) throws QiniuException {
-        String url = "http://" + host + "/v3/apps" + "/" + appId;
+        String url = String.format("%s%s%s", host, "/v3/apps/", appId);
         StringMap headers = auth.authorizationV2(url);
         Response response = client.get(url, headers);
         String[] resJson = response.getInfo().split("\n");
@@ -76,7 +76,7 @@ public class RtcAppManager {
      * @throws Exception
      */
     public String deleteApp(String appId) throws Exception {
-        String urlStr = "http://" + host + "/v3/apps" + "/" + appId;
+        String urlStr = String.format("%s%s%s", host + "/v3/apps/", appId);
         StringMap headers = auth.authorizationV2(urlStr, "DELETE", null, null);
         Response response = client.delete(urlStr, headers);
         String[] resJson = response.getInfo().split("\n");
@@ -93,7 +93,7 @@ public class RtcAppManager {
      * @throws QiniuException
      */
     public String updateApp(String appId, String hub, String title, int maxUsers,
-                             boolean noAutoKickUser) throws QiniuException {
+                            boolean noAutoKickUser) throws QiniuException {
         if (hub != null) {
             params.put("hub", hub);
         }
@@ -105,7 +105,7 @@ public class RtcAppManager {
         }
         params.put("noAutoKickUser", noAutoKickUser);
 
-        String url = "http://" + host + "/v3/apps" + "/" + appId;
+        String url = String.format("%s%s%s", host, "/v3/apps/", appId);
         byte[] body = Json.encode(params).getBytes(Constants.UTF_8);
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
         Response response = client.post(url, body, headers, Client.JsonMime);

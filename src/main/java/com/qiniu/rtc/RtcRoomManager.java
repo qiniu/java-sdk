@@ -14,7 +14,7 @@ public class RtcRoomManager {
     private Gson gson;
 
     public RtcRoomManager(Auth auth) {
-        this(auth, "rtc.qiniuapi.com");
+        this(auth, "http://rtc.qiniuapi.com");
     }
 
     RtcRoomManager(Auth auth, String host) {
@@ -61,7 +61,7 @@ public class RtcRoomManager {
      * @return jsonString
      * @throws QiniuException
      */
-    public String listActiveRoom(String appId, String prefix, int offset, int limit) throws QiniuException {
+    public String listActiveRooms(String appId, String prefix, int offset, int limit) throws QiniuException {
         String url = getLink(appId, null, "?prefix=" + prefix + "&offset=" + offset + "&limit=" + limit);
         StringMap headers = auth.authorizationV2(url);
         Response response = client.get(url, headers);
@@ -71,7 +71,7 @@ public class RtcRoomManager {
 
     private String getLink(String appId, String roomName, String param) {
         StringBuilder builder = new StringBuilder();
-        builder.append("http://" + host );
+        builder.append(host);
         builder.append("/v3/apps/" + appId + "/rooms");
         if (roomName != null) {
             builder.append("/" + roomName + "/");
@@ -95,5 +95,5 @@ public class RtcRoomManager {
         String json = gson.toJson(access);
         return auth.signRoomToken(json);
     }
-    
+
 }
