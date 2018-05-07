@@ -10,8 +10,8 @@ import test.com.qiniu.TestConfig;
 
 
 public class RtcTest {
-    private String ak = "DXFtikq1YuDT_WMUntOpzpWPm2UZVtEnYvN3-CUD"; //AccessKey you get from qiniu
-    private String sk = "F397hzMohpORVZ-bBbb-IVbpdWlI4SWu8sWq78v3"; //SecretKey you get from qiniu
+    private String ak = "DXFtikq1YuD"; //AccessKey you get from qiniu
+    private String sk = "F397hz"; //SecretKey you get from qiniu
     private Auth auth = null;
 
     {
