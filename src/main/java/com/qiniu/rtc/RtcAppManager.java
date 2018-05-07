@@ -64,7 +64,6 @@ public class RtcAppManager {
         String url = String.format("%s%s%s", host, "/v3/apps/", appId);
         StringMap headers = auth.authorizationV2(url);
         return client.get(url, headers);
-
     }
 
     /**
@@ -72,7 +71,7 @@ public class RtcAppManager {
      * @return
      * @throws Exception
      */
-    public Response deleteApp(String appId) throws Exception {
+    public Response deleteApp(String appId) throws QiniuException {
         String urlStr = String.format("%s%s%s", host, "/v3/apps/", appId);
         StringMap headers = auth.authorizationV2(urlStr, "DELETE", null, null);
         return client.delete(urlStr, headers);
