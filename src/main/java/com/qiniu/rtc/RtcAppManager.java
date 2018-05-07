@@ -17,7 +17,7 @@ public class RtcAppManager {
     private StringMap params;
 
     public RtcAppManager(Auth auth) {
-        this(auth, "https://rtc.qiniuapi.com");
+        this(auth, "http://rtc.qiniuapi.com");
     }
 
     RtcAppManager(Auth auth, String host) {
