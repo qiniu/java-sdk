@@ -72,9 +72,9 @@ public class RtcRoomManager {
     private String getLink(String appId, String roomName, String param) {
         StringBuilder builder = new StringBuilder();
         builder.append(host);
-        builder.append("/v3/apps/" + appId + "/rooms");
+        builder.append("/v3/apps/").append(appId).append("/rooms");
         if (roomName != null) {
-            builder.append("/" + roomName + "/");
+            builder.append("/").append(roomName).append("/");
         }
         builder.append(param);
         return builder.toString();

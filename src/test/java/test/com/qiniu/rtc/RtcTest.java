@@ -9,7 +9,7 @@ import test.com.qiniu.TestConfig;
 
 
 public class RtcTest {
-    private String ak = "DXFtikq1YuD"; //AccessKey you get from qiniu
+    private String ak = "DXFtikq1YuDT"; //AccessKey you get from qiniu
     private String sk = "F397hz"; //SecretKey you get from qiniu
     private Auth auth = null;
 
@@ -36,7 +36,7 @@ public class RtcTest {
     @Test
     public void getApp() {
         try {
-            System.out.print(manager.getApp("dg82yb4f6"));
+            System.out.print(manager.getApp("dg8emfd4t"));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -45,7 +45,7 @@ public class RtcTest {
     @Test
     public void deleteApp() {
         try {
-            System.out.print(manager.deleteApp("dex74xpqd"));
+            System.out.print(manager.deleteApp("dg8emfd4t"));
         } catch (QiniuException e) {
             e.printStackTrace();
         } catch (Exception e1) {
@@ -56,7 +56,7 @@ public class RtcTest {
     @Test
     public void updateApp() {
         try {
-            System.out.print(manager.updateApp("dg82yb4f6", "2222", "zwhome", 10, false));
+            System.out.print(manager.updateApp("dg8emfd4t", "333", "zwhome", 10, false));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -65,7 +65,7 @@ public class RtcTest {
     @Test
     public void listUser() {
         try {
-            System.out.print(rmanager.listUser("dg82yb4f6", "zwhome"));
+            System.out.print(rmanager.listUser("dg8emfd4t", "zwhome"));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -75,7 +75,7 @@ public class RtcTest {
     @Test
     public void kickUser() {
         try {
-            System.out.print(rmanager.kickUser("dg82yb4f6", "zwhome", "userid"));
+            System.out.print(rmanager.kickUser("dg8emfd4t", "zwhome", "userid"));
         } catch (QiniuException e) {
             e.printStackTrace();
         } catch (Exception e1) {
@@ -86,7 +86,7 @@ public class RtcTest {
     @Test
     public void listActiveRooms() {
         try {
-            System.out.print(rmanager.listActiveRooms("dg82yb4f6", null, 1, 2));
+            System.out.print(rmanager.listActiveRooms("dg8emfd4t", null, 1, 2));
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -95,7 +95,7 @@ public class RtcTest {
     @Test
     public void getRoomToken() {
         try {
-            System.out.print(rmanager.getRoomToken("dg0b80olh", "zwhome", "zhangwei", 1525410499, "user"));
+            System.out.print(rmanager.getRoomToken("dg8emfd4t", "zwhome", "zhangwei", 1525410499, "user"));
         } catch (Exception e) {
             e.printStackTrace();
         }

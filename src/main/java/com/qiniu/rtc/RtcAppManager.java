@@ -76,7 +76,7 @@ public class RtcAppManager {
      * @throws Exception
      */
     public String deleteApp(String appId) throws Exception {
-        String urlStr = String.format("%s%s%s", host + "/v3/apps/", appId);
+        String urlStr = String.format("%s%s%s", host, "/v3/apps/", appId);
         StringMap headers = auth.authorizationV2(urlStr, "DELETE", null, null);
         Response response = client.delete(urlStr, headers);
         String[] resJson = response.getInfo().split("\n");
