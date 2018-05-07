@@ -30,12 +30,10 @@ public class RtcRoomManager {
      * @return jsonString
      * @throws QiniuException
      */
-    public String listUser(String appId, String roomName) throws QiniuException {
+    public Response listUser(String appId, String roomName) throws QiniuException {
         String url = getLink(appId, roomName, "users");
         StringMap headers = auth.authorizationV2(url);
-        Response response = client.get(url, headers);
-        String[] resJson = response.getInfo().split("\n");
-        return response.statusCode + "\n" + resJson[2];
+        return client.get(url, headers);
     }
 
     /**
@@ -45,12 +43,10 @@ public class RtcRoomManager {
      * @throws QiniuException
      * @returnjsonString
      */
-    public String kickUser(String appId, String roomName, String userId) throws QiniuException {
+    public Response kickUser(String appId, String roomName, String userId) throws QiniuException {
         String urlStr = getLink(appId, roomName, "users/" + userId);
         StringMap headers = auth.authorizationV2(urlStr, "DELETE", null, null);
-        Response response = client.delete(urlStr, headers);
-        String[] resJson = response.getInfo().split("\n");
-        return response.statusCode + "\n" + resJson[2];
+        return client.delete(urlStr, headers);
     }
 
     /**
@@ -61,12 +57,10 @@ public class RtcRoomManager {
      * @return jsonString
      * @throws QiniuException
      */
-    public String listActiveRooms(String appId, String prefix, int offset, int limit) throws QiniuException {
+    public Response listActiveRooms(String appId, String prefix, int offset, int limit) throws QiniuException {
         String url = getLink(appId, null, "?prefix=" + prefix + "&offset=" + offset + "&limit=" + limit);
         StringMap headers = auth.authorizationV2(url);
-        Response response = client.get(url, headers);
-        String[] resJson = response.getInfo().split("\n");
-        return response.statusCode + "\n" + resJson[2];
+        return client.get(url, headers);
     }
 
     private String getLink(String appId, String roomName, String param) {
@@ -85,7 +79,8 @@ public class RtcRoomManager {
      * @param roomName   房间名称，需满足规格 ^[a-zA-Z0-9_-]{3,64}$
      * @param userId     请求加入房间的用户 ID，需满足规格 ^[a-zA-Z0-9_-]{3,50}$
      * @param expireAt   int64 类型，鉴权的有效时间，传入以秒为单位的64位Unix绝对时间，token 将在该时间后失效
-     * @param permission 该用户的房间管理权限，"admin" 或 "user"，默认为 "user" 。当权限角色为 "admin" 时，拥有将其他用户移除出房间等特权.
+     * @param permission 该用户的房间管理权限，"admin" 或 "user"，默认为 "user" 。当权限角色为 "admin" 时，拥有将其他用户移除出房
+     *                   间等特权.
      * @return
      * @throws Exception
      */
