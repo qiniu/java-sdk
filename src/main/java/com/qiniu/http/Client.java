@@ -153,6 +153,11 @@ public final class Client {
         return send(requestBuilder, headers);
     }
 
+    public Response delete(String url, StringMap headers) throws QiniuException {
+        Request.Builder requestBuilder = new Request.Builder().delete().url(url);
+        return send(requestBuilder, headers);
+    }
+
     public Response post(String url, byte[] body, StringMap headers) throws QiniuException {
         return post(url, body, headers, DefaultMime);
     }

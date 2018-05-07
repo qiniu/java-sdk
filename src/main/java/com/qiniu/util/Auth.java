@@ -316,7 +316,6 @@ public final class Auth {
         mac.update(StringUtils.utf8Bytes(sb.toString()));
 
         String digest = UrlSafeBase64.encodeToString(mac.doFinal());
-
         return this.accessKey + ":" + digest;
     }
 
@@ -327,5 +326,13 @@ public final class Auth {
 
     public StringMap authorizationV2(String url) {
         return authorizationV2(url, "GET", null, null);
+    }
+
+    //连麦 RoomToken
+    public String signRoomToken(String roomAccess) throws Exception {
+        String encodedRoomAcc = UrlSafeBase64.encodeToString(roomAccess);
+        byte[] sign = createMac().doFinal(encodedRoomAcc.getBytes());
+        String encodedSign = UrlSafeBase64.encodeToString(sign);
+        return this.accessKey + ":" + encodedSign + ":" + encodedRoomAcc;
     }
 }
