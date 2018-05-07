@@ -10,8 +10,8 @@ import test.com.qiniu.TestConfig;
 
 
 public class RtcTest {
-    private String ak = "DXFtikq1YuD"; //AccessKey you get from qiniu
-    private String sk = "F397hz"; //SecretKey you get from qiniu
+    private String ak = "DXFtikq1YuDT_WMUntOpzpWPm2UZVtEnYvN3-CUD"; //AccessKey you get from qiniu
+    private String sk = "F397hzMohpORVZ-bBbb-IVbpdWlI4SWu8sWq78v3"; //SecretKey you get from qiniu
     private Auth auth = null;
 
     {
@@ -38,7 +38,7 @@ public class RtcTest {
     @Test
     public void getApp() {
         try {
-            Response response = manager.getApp("dg8hr57oi");
+            Response response = manager.getApp("dg8lz5211");
             System.out.print(getString(response));
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -48,19 +48,17 @@ public class RtcTest {
     @Test
     public void deleteApp() {
         try {
-            Response response = manager.deleteApp("dg8hr57oi");
+            Response response = manager.deleteApp("dg8lz5211");
             System.out.print(getString(response));
         } catch (QiniuException e) {
             e.printStackTrace();
-        } catch (Exception e1) {
-
         }
     }
 
     @Test
     public void updateApp() {
         try {
-            Response response = manager.updateApp("dg8hr57oi", "333", "zwhome", 10, false);
+            Response response = manager.updateApp("dg8lz5211", "333", "zwhome", 10, false);
             System.out.print(getString(response));
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -70,7 +68,7 @@ public class RtcTest {
     @Test
     public void listUser() {
         try {
-            Response response = rmanager.listUser("dg8hr57oi", "zwhome");
+            Response response = rmanager.listUser("dg8lz5211", "zwhome");
             System.out.print(getString(response));
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -81,7 +79,7 @@ public class RtcTest {
     @Test
     public void kickUser() {
         try {
-            Response response = rmanager.kickUser("dg8hr57oi", "zwhome", "userid");
+            Response response = rmanager.kickUser("dg8lz5211", "zwhome", "userid");
             System.out.print(getString(response));
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -93,7 +91,7 @@ public class RtcTest {
     @Test
     public void listActiveRooms() {
         try {
-            Response response = rmanager.listActiveRooms("dg8hr57oi", null, 1, 2);
+            Response response = rmanager.listActiveRooms("dg8lz5211", null, 1, 2);
             System.out.print(getString(response));
         } catch (QiniuException e) {
             e.printStackTrace();
