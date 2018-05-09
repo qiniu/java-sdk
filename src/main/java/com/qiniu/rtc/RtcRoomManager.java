@@ -43,7 +43,6 @@ public class RtcRoomManager {
      * @param userId   被踢人员
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
      * @throws QiniuException
-     * @returnjsonString
      */
     public Response kickUser(String appId, String roomName, String userId) throws QiniuException {
         String urlStr = getLink(appId, roomName, "users/" + userId);
