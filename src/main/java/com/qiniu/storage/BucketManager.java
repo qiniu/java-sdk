@@ -93,6 +93,12 @@ public final class BucketManager {
         return r.jsonToObject(String[].class);
     }
 
+    public void createBucket(String bucketName, String region) throws Exception {
+        String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(),
+                UrlSafeBase64.encodeToString(bucketName), region);
+        post(url, null);
+    }
+
     /**
      * 获取该空间下所有的domain
      *
