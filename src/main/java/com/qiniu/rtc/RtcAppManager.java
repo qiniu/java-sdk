@@ -69,7 +69,7 @@ public class RtcAppManager {
     /**
      * @param appId 房间所属帐号的 app
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
-     * @throws Exception
+     * @throws QiniuException
      */
     public Response deleteApp(String appId) throws QiniuException {
         String urlStr = String.format("%s%s%s", host, "/v3/apps/", appId);
