@@ -167,7 +167,7 @@ public final class OperationManager {
         }
 
         String url = String.format("%s/status/get/prefop", apiHost);
-        Response response = new Client().post(url, data, null, Client.FormMime);
+        Response response = this.client.post(url, data, null, Client.FormMime);
         return response.jsonToObject(OperationStatus.class);
     }
 }
