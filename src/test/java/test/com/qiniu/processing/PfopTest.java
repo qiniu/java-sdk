@@ -1,16 +1,16 @@
 package test.com.qiniu.processing;
 
-import com.qiniu.processing.OperationManager;
-import com.qiniu.processing.OperationStatus;
-import test.com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
+import com.qiniu.processing.OperationManager;
+import com.qiniu.processing.OperationStatus;
 import com.qiniu.storage.Configuration;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
+import test.com.qiniu.TestConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,6 +76,54 @@ public class PfopTest extends TestCase {
             //cfg.useHttpsDomains = true;
             OperationStatus status = new OperationManager(TestConfig.testAuth, cfg).prefop(persistentId);
             assertEquals(0, status.code);
+        } catch (QiniuException ex) {
+            Assert.assertEquals(612, ex.code());
+        }
+    }
+
+
+    /*
+    *
+    * http://api.qiniu.com/status/get/prefop?id=z0.5b2cd03638b9f324a561e56d
+    *
+    * {
+        code: 0,
+        desc: "The fop was completed successfully",
+        id: "z0.5b2cd03638b9f324a561e56d",
+        inputBucket: "kk-community-video",
+        inputKey: "shortvideo-1529655406116.mp4",
+        items: [
+        {
+        cmd: "vsample/jpg/ss/1/t/10/interval/1/pattern/dmZyYW1lLSQoY291bnQp",
+        code: 0,
+        desc: "The fop was completed successfully",
+        keys: [
+        "vframe-000001",
+        "vframe-000002",
+        "vframe-000003",
+        "vframe-000004",
+        "vframe-000005",
+        "vframe-000006",
+        "vframe-000007",
+        "vframe-000008",
+        "vframe-000009"
+        ],
+        returnOld: 0
+        }
+        ],
+        pipeline: "1380312146.kkpri02",
+        reqid: "O2kAAFx4s3jjdDoV"
+        }
+    * */
+    @Test
+    public void testPrefopVsample() {
+        String persistentId = "z0.5b2cd03638b9f324a561e56d";
+        try {
+            Configuration cfg = new Configuration();
+            //cfg.useHttpsDomains = true;
+            OperationStatus status = new OperationManager(TestConfig.testAuth, cfg).prefop(persistentId);
+            assertEquals(0, status.code);
+            assertTrue("vsample prefop's keys length gt 1", status.items[0].keys.length > 1);
         } catch (QiniuException ex) {
             Assert.assertEquals(612, ex.code());
         }
