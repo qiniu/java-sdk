@@ -1,5 +1,3 @@
-package com.poger.test;
-
 import java.io.UnsupportedEncodingException;
 
 import org.junit.Test;
@@ -28,7 +26,7 @@ public class VideoPulp {
 		//创建body
 		String requestBody = getBody("source url",null,null,null,"bucket",null,null,"pulp",null,"0",2,null,null,null,null);
 		//创建请求Url
-		String Url = "http://argus.atlab.ai/v1/video/99999";
+		String Url = "http://argus.atlab.ai/v1/video/{vid}";
 		//创建请求头 包含七牛鉴权
 		StringMap headers = auth.authorizationV2(Url,"POST",requestBody.getBytes("UTF-8"),Client.JsonMime);	
 		try {
