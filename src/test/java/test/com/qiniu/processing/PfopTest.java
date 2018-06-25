@@ -118,14 +118,12 @@ public class PfopTest extends TestCase {
     @Test
     public void testPrefopVsample() {
         String persistentId = "z0.5b2cd03638b9f324a561e56d";
-        try {
-            Configuration cfg = new Configuration();
-            //cfg.useHttpsDomains = true;
-            OperationStatus status = new OperationManager(TestConfig.testAuth, cfg).prefop(persistentId);
-            assertEquals(0, status.code);
-            assertTrue("vsample prefop's keys length gt 1", status.items[0].keys.length > 1);
-        } catch (QiniuException ex) {
-            Assert.assertEquals(612, ex.code());
-        }
+
+        Configuration cfg = new Configuration();
+        //cfg.useHttpsDomains = true;
+        OperationStatus status = new OperationManager(TestConfig.testAuth, cfg).prefop(persistentId);
+        assertEquals(0, status.code);
+        assertTrue("vsample prefop's keys length gt 1", status.items[0].keys.length > 1);
+
     }
 }
