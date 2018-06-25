@@ -63,6 +63,12 @@ public class OperationStatus {
          * 云处理结果保存在目标空间的文件名
          */
         public String key;
+
+        /**
+         * 云处理结果保存在目标空间的文件名列表
+         */
+        public String[] keys;
+
         /**
          * 默认为0。当用户执行saveas时，如果未加force且指定的bucket：key存在，则返回1 ，告诉用户返回的是旧数据
          */
