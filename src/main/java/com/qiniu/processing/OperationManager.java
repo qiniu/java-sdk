@@ -150,6 +150,14 @@ public final class OperationManager {
      * 根据persistentId查询任务状态
      */
     public OperationStatus prefop(String persistentId) throws QiniuException {
+        return prefop(persistentId, OperationStatus.class);
+    }
+
+    /**
+     * 根据persistentId查询任务状态
+     * 返回结果的 class
+     */
+    public  <T> T prefop(String persistentId, Class<T> retClass) throws QiniuException {
         StringMap params = new StringMap().put("id", persistentId);
         byte[] data = StringUtils.utf8Bytes(params.formString());
         String apiHost;
@@ -168,6 +176,6 @@ public final class OperationManager {
 
         String url = String.format("%s/status/get/prefop", apiHost);
         Response response = this.client.post(url, data, null, Client.FormMime);
-        return response.jsonToObject(OperationStatus.class);
+        return response.jsonToObject(retClass);
     }
 }
