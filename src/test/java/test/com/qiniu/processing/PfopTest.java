@@ -116,7 +116,7 @@ public class PfopTest extends TestCase {
         }
     * */
     @Test
-    public void testPrefopVsample() {
+    public void testPrefopVsample() throws QiniuException {
         String persistentId = "z0.5b2cd03638b9f324a561e56d";
 
         Configuration cfg = new Configuration();
@@ -124,6 +124,5 @@ public class PfopTest extends TestCase {
         OperationStatus status = new OperationManager(TestConfig.testAuth, cfg).prefop(persistentId);
         assertEquals(0, status.code);
         assertTrue("vsample prefop's keys length gt 1", status.items[0].keys.length > 1);
-
     }
 }
