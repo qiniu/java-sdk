@@ -86,6 +86,9 @@ public final class AutoZone extends Zone {
      * @return 机房域名信息
      */
     public ZoneInfo queryZoneInfo(ZoneReqInfo zoneReqInfo) {
+        if (zoneReqInfo.getBucket() == null || zoneReqInfo.getAccessKey() == null) {
+            return null;
+        }
         try {
             return queryZoneInfo(zoneReqInfo.getAccessKey(), zoneReqInfo.getBucket());
         } catch (Exception e) {
