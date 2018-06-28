@@ -72,7 +72,9 @@ public final class Configuration implements Cloneable {
     /**
      * 特殊默认域名
      */
+    @Deprecated
     public static String defaultRsHost = "rs.qiniu.com";
+    @Deprecated
     public static String defaultApiHost = "api.qiniu.com";
 
     public Configuration() {
@@ -132,6 +134,7 @@ public final class Configuration implements Cloneable {
                 : zone.getApiHttp(zoneReqInfo);
     }
 
+    @Deprecated
     public String rsHost() {
         String scheme = "http://";
         if (useHttpsDomains) {
@@ -140,6 +143,8 @@ public final class Configuration implements Cloneable {
         return scheme + defaultRsHost;
     }
 
+
+    @Deprecated
     public String apiHost() {
         String scheme = "http://";
         if (useHttpsDomains) {

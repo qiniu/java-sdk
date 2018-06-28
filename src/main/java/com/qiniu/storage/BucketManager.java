@@ -88,14 +88,14 @@ public final class BucketManager {
      */
     public String[] buckets() throws QiniuException {
         // 获取 bucket 列表 写死用rs.qiniu.com or rs.qbox.me @冯立元
-        String url = String.format("%s/buckets", configuration.rsHost());
+        String url = String.format("%s/buckets", configuration.rsHost(auth.accessKey, null));
         Response r = get(url);
         return r.jsonToObject(String[].class);
     }
 
-    public void createBucket(String bucketName, String region) throws Exception {
-        String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(),
-                UrlSafeBase64.encodeToString(bucketName), region);
+    public void createBucket(String bucket, String region) throws Exception {
+        String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(auth.accessKey, bucket),
+                UrlSafeBase64.encodeToString(bucket), region);
         post(url, null);
     }
 
@@ -108,7 +108,7 @@ public final class BucketManager {
      */
 
     public String[] domainList(String bucket) throws QiniuException {
-        String url = String.format("%s/v6/domain/list?tbl=%s", configuration.apiHost(), bucket);
+        String url = String.format("%s/v6/domain/list?tbl=%s", configuration.apiHost(auth.accessKey, bucket), bucket);
         Response r = get(url);
         return r.jsonToObject(String[].class);
     }

@@ -116,7 +116,7 @@ public class PfopTest extends TestCase {
         }
     * */
     @Test
-    public void testPrefopVsample() throws QiniuException {
+    public void testPrefopVsample() throws Exception {
         String persistentId = "z0.5b2cd03638b9f324a561e56d";
 
         Configuration cfg = new Configuration();
