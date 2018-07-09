@@ -1,19 +1,18 @@
 package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
+import com.qiniu.common.Constants;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.FetchRet;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
-import com.qiniu.util.Auth;
-import com.qiniu.util.StringMap;
-import com.qiniu.util.StringUtils;
-import com.qiniu.util.UrlSafeBase64;
+import com.qiniu.util.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+
 
 /**
  * 主要涉及了空间资源管理及批量操作接口的实现，具体的接口规格可以参考
@@ -93,10 +92,15 @@ public final class BucketManager {
         return r.jsonToObject(String[].class);
     }
 
-    public void createBucket(String bucketName, String region) throws Exception {
+    public Response createBucket(String bucketName, String region) throws Exception {
         String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(),
                 UrlSafeBase64.encodeToString(bucketName), region);
-        post(url, null);
+        return post(url, null);
+    }
+
+    public Response deleteBucket(String bucketname) throws QiniuException {
+        String url = String.format("%s/drop/%s", configuration.rsHost(), bucketname);
+        return post(url, null);
     }
 
     /**
@@ -171,6 +175,7 @@ public final class BucketManager {
         Response r = rsGet(bucket, String.format("/stat/%s", encodedEntry(bucket, fileKey)));
         return r.jsonToObject(FileInfo.class);
     }
+
 
     /**
      * 删除指定空间、文件名的文件
@@ -353,7 +358,7 @@ public final class BucketManager {
     }
 
     /**
-     * 抓取指定地址的文件，已指定名称保存在指定空间
+     * 抓取指定地址的文件，以指定名称保存在指定空间
      * 要求指定url可访问，大文件不建议使用此接口抓取。可先下载再上传
      *
      * @param url    待抓取的文件链接
@@ -367,6 +372,76 @@ public final class BucketManager {
         String path = String.format("/fetch/%s/to/%s", resource, to);
         Response r = ioPost(bucket, path);
         return r.jsonToObject(FetchRet.class);
+    }
+
+    /**
+     * 异步第三方资源抓取 从指定 URL 抓取资源，并将该资源存储到指定空间中。每次只抓取一个文件，抓取时可以指定保存空间名和最终资源名。
+     * 主要对于大文件进行抓取
+     * https://developer.qiniu.com/kodo/api/4097/asynch-fetch
+     *
+     * @param region 文件抓取后保存的空间所在区域 华东 z0 华北 z1 华南 z2 北美 na0 东南亚 as0
+     * @param url    待抓取的文件链接，支持设置多个,以';'分隔
+     * @param bucket 文件抓取后保存的空间
+     * @param key    文件抓取后保存的文件名
+     * @return
+     * @throws QiniuException
+     */
+
+    public Response asynFetch(String region, String url, String bucket, String key) throws QiniuException {
+
+        String path = String.format("http://api-%s.qiniu.com/sisyphus/fetch", region);
+        StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key);
+        byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
+        return client.post(path, bodyByte, auth.authorizationV2(path, "POST", bodyByte, "application/json"), Client.JsonMime);
+    }
+
+    /**
+     * 异步第三方资源抓取 从指定 URL 抓取资源，并将该资源存储到指定空间中。每次只抓取一个文件，抓取时可以指定保存空间名和最终资源名。
+     * https://developer.qiniu.com/kodo/api/4097/asynch-fetch
+     * 提供更多参数的抓取 可以对抓取文件进行校验 和自定义抓取回调地址等
+     *
+     * @param region           文件抓取后保存的空间所在区域 华东 z0 华北 z1 华南 z2 北美 na0 东南亚 as0
+     * @param url              待抓取的文件链接，支持设置多个,以';'分隔
+     * @param bucket           文件抓取后保存的空间
+     * @param key              文件抓取后保存的文件名
+     * @param md5              文件md5,传入以后会在存入存储时对文件做校验，校验失败则不存入指定空间
+     * @param etag             文件etag,传入以后会在存入存储时对文件做校验，校验失败则不存入指定空间
+     * @param callbackurl      回调URL，详细解释请参考上传策略中的callbackUrl
+     * @param callbackbody     回调Body，如果callbackurl不为空则必须指定。与普通上传一致支持魔法变量，
+     * @param callbackbodytype 回调Body内容类型,默认为"application/x-www-form-urlencoded"，
+     * @param callbackhost     回调时使用的Host
+     * @param file_type        存储文件类型 0:正常存储(默认),1:低频存储
+     * @return
+     * @throws QiniuException
+     */
+    public Response asynFetch(String region, String url, String bucket,
+                              String key,
+                              String md5,
+                              String etag,
+                              String callbackurl,
+                              String callbackbody,
+                              String callbackbodytype,
+                              String callbackhost,
+                              String file_type) throws QiniuException {
+        String path = String.format("http://api-%s.qiniu.com/sisyphus/fetch", region);
+        StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key).putNotNull("md5", md5).
+                putNotNull("etag", etag).putNotNull("callbackurl", callbackurl).putNotNull("callbackbody", callbackbody).putNotNull("callbackbodytype", callbackbodytype).
+                putNotNull("callbackhost", callbackhost).putNotNull("file_type", file_type);
+        byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
+        return client.post(path, bodyByte, auth.authorizationV2(path, "POST", bodyByte, "application/json"), Client.JsonMime);
+    }
+
+    /**
+     * 查询异步抓取任务
+     *
+     * @param region      抓取任务所在bucket区域 华东 z0 华北 z1 华南 z2 北美 na0 东南亚 as0
+     * @param fetchWorkId 抓取任务id
+     * @return
+     * @throws QiniuException
+     */
+    public Response checkAsynFetchid(String region, String fetchWorkId) throws QiniuException {
+        String path = String.format("http://api-%s.qiniu.com/sisyphus/fetch?id=%s", region, fetchWorkId);
+        return client.get(path, auth.authorization(path));
     }
 
     /**
@@ -435,8 +510,8 @@ public final class BucketManager {
     }
 
     /*
-    * 相关请求的方法列表
-    * */
+     * 相关请求的方法列表
+     * */
 
     private Response rsPost(String bucket, String path, byte[] body) throws QiniuException {
         check(bucket);
