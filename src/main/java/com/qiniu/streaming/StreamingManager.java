@@ -40,6 +40,12 @@ public final class StreamingManager {
         this.auth = auth;
         client = new Client();
     }
+    public StreamingManager(Auth auth,String hub,String sever,Client client){
+        apiServer=sever;
+        this.hub=hub;
+        this.auth=auth;
+        this.client=client;
+    }
 
     /**
      * 创建一个新的直播流对象，其鉴权方式默认和直播应用设置的鉴权方式一致

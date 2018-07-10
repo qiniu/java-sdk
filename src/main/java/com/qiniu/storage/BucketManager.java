@@ -30,7 +30,7 @@ public final class BucketManager {
      * 该类相关的域名配置，解析配置，HTTP请求超时时间设置等
      */
 
-    private final Configuration configuration;
+    private  Configuration configuration;
 
     /**
      * HTTP Client 对象
@@ -49,6 +49,12 @@ public final class BucketManager {
         this.configuration = cfg.clone();
         client = new Client(this.configuration);
     }
+
+    public BucketManager(Auth auth, Client client) {
+        this.auth=auth;
+        this.client=client;
+    }
+
 
     /**
      * EncodedEntryURI格式，其中 bucket+":"+key 称之为 entry
