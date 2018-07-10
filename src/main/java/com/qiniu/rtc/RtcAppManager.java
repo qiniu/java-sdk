@@ -20,10 +20,17 @@ public class RtcAppManager {
         this(auth, "http://rtc.qiniuapi.com");
     }
 
-    RtcAppManager(Auth auth, String host) {
+    public RtcAppManager(Auth auth, String host) {
         this.auth = auth;
         this.host = host;
         this.client = new Client();
+        this.params = new StringMap();
+    }
+
+    public RtcAppManager(Auth auth, String host, Client client) {
+        this.auth = auth;
+        this.host = host;
+        this.client = client;
         this.params = new StringMap();
     }
 
