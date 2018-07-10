@@ -1,7 +1,7 @@
 package com.qiniu.storage;
 
-import com.qiniu.common.QiniuException;
 import com.qiniu.common.Constants;
+import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.FetchRet;
@@ -98,15 +98,15 @@ public final class BucketManager {
         return r.jsonToObject(String[].class);
     }
 
-    public Response createBucket(String bucketName, String region) throws Exception {
+    public void createBucket(String bucketName, String region) throws Exception {
         String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(),
                 UrlSafeBase64.encodeToString(bucketName), region);
-        return post(url, null);
+         post(url, null).close();
     }
 
-    public Response deleteBucket(String bucketname) throws QiniuException {
+    public void deleteBucket(String bucketname) throws QiniuException {
         String url = String.format("%s/drop/%s", configuration.rsHost(), bucketname);
-        return post(url, null);
+         post(url, null).close();
     }
 
     /**
