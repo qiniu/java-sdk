@@ -32,7 +32,7 @@ public final class OperationManager {
      * 该类相关的域名配置，解析配置，HTTP请求超时时间设置等
      */
 
-    public Configuration configuration;
+    private Configuration configuration;
 
     /**
      * 构建一个新的 OperationManager 对象
