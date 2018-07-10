@@ -379,20 +379,18 @@ public final class BucketManager {
      * 主要对于大文件进行抓取
      * https://developer.qiniu.com/kodo/api/4097/asynch-fetch
      *
-     * @param region 文件抓取后保存的空间所在区域 华东 z0 华北 z1 华南 z2 北美 na0 东南亚 as0
      * @param url    待抓取的文件链接，支持设置多个,以';'分隔
      * @param bucket 文件抓取后保存的空间
      * @param key    文件抓取后保存的文件名
-     * @return
+     * @return Response
      * @throws QiniuException
      */
 
-    public Response asynFetch(String region, String url, String bucket, String key) throws QiniuException {
-
-        String path = String.format("http://api-%s.qiniu.com/sisyphus/fetch", region);
+    public Response asynFetch(String url, String bucket, String key) throws QiniuException {
+        String requesturl = configuration.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
         StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key);
         byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
-        return client.post(path, bodyByte, auth.authorizationV2(path, "POST", bodyByte, "application/json"), Client.JsonMime);
+        return client.post(requesturl, bodyByte, auth.authorizationV2(requesturl, "POST", bodyByte, "application/json"), Client.JsonMime);
     }
 
     /**
@@ -400,7 +398,6 @@ public final class BucketManager {
      * https://developer.qiniu.com/kodo/api/4097/asynch-fetch
      * 提供更多参数的抓取 可以对抓取文件进行校验 和自定义抓取回调地址等
      *
-     * @param region           文件抓取后保存的空间所在区域 华东 z0 华北 z1 华南 z2 北美 na0 东南亚 as0
      * @param url              待抓取的文件链接，支持设置多个,以';'分隔
      * @param bucket           文件抓取后保存的空间
      * @param key              文件抓取后保存的文件名
@@ -411,10 +408,10 @@ public final class BucketManager {
      * @param callbackbodytype 回调Body内容类型,默认为"application/x-www-form-urlencoded"，
      * @param callbackhost     回调时使用的Host
      * @param file_type        存储文件类型 0:正常存储(默认),1:低频存储
-     * @return
+     * @return Response
      * @throws QiniuException
      */
-    public Response asynFetch(String region, String url, String bucket,
+    public Response asynFetch(String url, String bucket,
                               String key,
                               String md5,
                               String etag,
@@ -423,12 +420,12 @@ public final class BucketManager {
                               String callbackbodytype,
                               String callbackhost,
                               String file_type) throws QiniuException {
-        String path = String.format("http://api-%s.qiniu.com/sisyphus/fetch", region);
+        String requesturl = configuration.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
         StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key).putNotNull("md5", md5).
                 putNotNull("etag", etag).putNotNull("callbackurl", callbackurl).putNotNull("callbackbody", callbackbody).putNotNull("callbackbodytype", callbackbodytype).
                 putNotNull("callbackhost", callbackhost).putNotNull("file_type", file_type);
         byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
-        return client.post(path, bodyByte, auth.authorizationV2(path, "POST", bodyByte, "application/json"), Client.JsonMime);
+        return client.post(requesturl, bodyByte, auth.authorizationV2(requesturl, "POST", bodyByte, "application/json"), Client.JsonMime);
     }
 
     /**
@@ -436,7 +433,7 @@ public final class BucketManager {
      *
      * @param region      抓取任务所在bucket区域 华东 z0 华北 z1 华南 z2 北美 na0 东南亚 as0
      * @param fetchWorkId 抓取任务id
-     * @return
+     * @return Response
      * @throws QiniuException
      */
     public Response checkAsynFetchid(String region, String fetchWorkId) throws QiniuException {
