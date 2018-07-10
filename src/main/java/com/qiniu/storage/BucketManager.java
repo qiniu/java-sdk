@@ -413,23 +413,17 @@ public final class BucketManager {
      * @param callbackbody     回调Body，如果callbackurl不为空则必须指定。与普通上传一致支持魔法变量，
      * @param callbackbodytype 回调Body内容类型,默认为"application/x-www-form-urlencoded"，
      * @param callbackhost     回调时使用的Host
-     * @param file_type        存储文件类型 0:正常存储(默认),1:低频存储
+     * @param fileType        存储文件类型 0:正常存储(默认),1:低频存储
      * @return Response
      * @throws QiniuException
      */
-    public Response asynFetch(String url, String bucket,
-                              String key,
-                              String md5,
-                              String etag,
-                              String callbackurl,
-                              String callbackbody,
-                              String callbackbodytype,
-                              String callbackhost,
-                              String file_type) throws QiniuException {
+    public Response asynFetch(String url, String bucket, String key, String md5, String etag, String callbackurl,
+                              String callbackbody, String callbackbodytype, String callbackhost, String fileType) throws QiniuException {
         String requesturl = configuration.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
         StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key).putNotNull("md5", md5).
-                putNotNull("etag", etag).putNotNull("callbackurl", callbackurl).putNotNull("callbackbody", callbackbody).putNotNull("callbackbodytype", callbackbodytype).
-                putNotNull("callbackhost", callbackhost).putNotNull("file_type", file_type);
+                putNotNull("etag", etag).putNotNull("callbackurl", callbackurl).putNotNull("callbackbody", callbackbody).
+                putNotNull("callbackbodytype", callbackbodytype).
+                putNotNull("callbackhost", callbackhost).putNotNull("file_type", fileType);
         byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
         return client.post(requesturl, bodyByte, auth.authorizationV2(requesturl, "POST", bodyByte, "application/json"), Client.JsonMime);
     }
