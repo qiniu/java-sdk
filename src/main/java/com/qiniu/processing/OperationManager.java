@@ -32,7 +32,7 @@ public final class OperationManager {
      * 该类相关的域名配置，解析配置，HTTP请求超时时间设置等
      */
 
-    private final Configuration configuration;
+    private Configuration configuration;
 
     /**
      * 构建一个新的 OperationManager 对象
@@ -44,6 +44,11 @@ public final class OperationManager {
         this.auth = auth;
         this.configuration = cfg.clone();
         this.client = new Client(configuration);
+    }
+
+    public OperationManager(Auth auth, Client client) {
+        this.auth = auth;
+        this.client = client;
     }
 
     /**
@@ -157,7 +162,7 @@ public final class OperationManager {
      * 根据persistentId查询任务状态
      * 返回结果的 class
      */
-    public  <T> T prefop(String persistentId, Class<T> retClass) throws QiniuException {
+    public <T> T prefop(String persistentId, Class<T> retClass) throws QiniuException {
         StringMap params = new StringMap().put("id", persistentId);
         byte[] data = StringUtils.utf8Bytes(params.formString());
         String apiHost;

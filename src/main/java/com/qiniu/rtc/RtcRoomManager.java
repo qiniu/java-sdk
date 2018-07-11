@@ -18,7 +18,7 @@ public class RtcRoomManager {
         this(auth, "http://rtc.qiniuapi.com");
     }
 
-    RtcRoomManager(Auth auth, String host) {
+   public RtcRoomManager(Auth auth, String host) {
         this.auth = auth;
         this.host = host;
         client = new Client();
