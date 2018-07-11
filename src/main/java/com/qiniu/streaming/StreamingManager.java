@@ -34,11 +34,17 @@ public final class StreamingManager {
         this(auth, hub, "http://pili.qiniuapi.com");
     }
 
-    StreamingManager(Auth auth, String hub, String server) {
-        apiServer = server;
+    public StreamingManager(Auth auth, String hub, String server) {
+        this.apiServer = server;
         this.hub = hub;
         this.auth = auth;
         client = new Client();
+    }
+    public StreamingManager(Auth auth,String hub,String sever,Client client){
+        this.apiServer=sever;
+        this.hub=hub;
+        this.auth=auth;
+        this.client=client;
     }
 
     /**
