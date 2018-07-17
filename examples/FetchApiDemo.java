@@ -4,14 +4,11 @@ import com.google.gson.Gson;
 import com.qiniu.http.Client;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class FetchApiDemo {
-
-    protected static final org.slf4j.Logger logger = LoggerFactory.getLogger(FetchApiDemo.class);
 
     public static void main(String[] args) throws Exception {
         //参考api文档 https://developer.qiniu.com/kodo/api/4097/asynch-fetch
@@ -34,11 +31,9 @@ public class FetchApiDemo {
                 .get("Authorization");
         Client client = new Client();
         StringMap headers = new StringMap();
-        logger.info(accessToken);
         headers.put("Authorization", accessToken);
         try {
             com.qiniu.http.Response resp = client.post(url, bodyByte, headers, Client.JsonMime);
-            logger.info(resp.bodyString());
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
