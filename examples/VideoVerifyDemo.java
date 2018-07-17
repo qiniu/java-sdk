@@ -5,14 +5,11 @@ import com.qiniu.http.Client;
 import com.qiniu.http.ProxyConfiguration;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class VideoVerifyDemo {
-
-    protected static final org.slf4j.Logger logger = LoggerFactory.getLogger(VideoVerifyDemo.class);
 
     public static void main(String[] args) throws Exception {
         //参考api文档 https://developer.qiniu.com/dora/manual/4258/video-pulp
@@ -99,12 +96,9 @@ public class VideoVerifyDemo {
         Client client =
                 new Client(null, false, (ProxyConfiguration) null, 10, 30, 0, 64, 16, 32, 5);
         StringMap headers = new StringMap();
-        logger.info(accessToken);
         headers.put("Authorization", accessToken);
         try {
             com.qiniu.http.Response resp = client.post(vedioUrl, bodyByte, headers, Client.JsonMime);
-            logger.info(resp.toString());
-            logger.info(resp.bodyString());
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
