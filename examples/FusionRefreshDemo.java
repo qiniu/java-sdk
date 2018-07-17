@@ -4,14 +4,11 @@ import com.google.gson.Gson;
 import com.qiniu.http.Client;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class FusionRefreshDemo {
-
-    protected static final org.slf4j.Logger logger = LoggerFactory.getLogger(FusionRefreshDemo.class);
 
     public static void main(String[] args) throws Exception {
         String ACCESS_KEY = "Access_Key";
