@@ -1,4 +1,4 @@
-package com.example.fusion;
+package com.examples;
 
 import com.google.gson.Gson;
 import com.qiniu.http.Client;
@@ -12,17 +12,16 @@ import java.util.Map;
 
 public class VideoVerifyDemo {
 
-    protected static final org.slf4j.Logger logger = LoggerFactory.getLogger(FetchApiDemo.class);
+    protected static final org.slf4j.Logger logger = LoggerFactory.getLogger(VideoVerifyDemo.class);
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws Exception {
         //参考api文档 https://developer.qiniu.com/dora/manual/4258/video-pulp
         //设置好账号的ACCESS_KEY和SECRET_KEY
         String ACCESS_KEY = "Access_Key";
         String SECRET_KEY = "Secret_Key";
         //要上传的空间
         String bucketname = "Bucket_Name";
-        Auth auth =  Auth.create(ACCESS_KEY,SECRET_KEY);
+        Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
         //aaaa 视频别名标识
         String vedioUrl = "http://argus.atlab.ai/v1/video/aaaa";
 
@@ -98,7 +97,7 @@ public class VideoVerifyDemo {
                 + "' -H 'Content-Type:application/json' -H 'Authorization:" + accessToken + "'");
 
         Client client =
-                new Client(null, false, (ProxyConfiguration)null, 10, 30, 0, 64, 16, 32, 5);
+                new Client(null, false, (ProxyConfiguration) null, 10, 30, 0, 64, 16, 32, 5);
         StringMap headers = new StringMap();
         logger.info(accessToken);
         headers.put("Authorization", accessToken);
@@ -106,9 +105,8 @@ public class VideoVerifyDemo {
             com.qiniu.http.Response resp = client.post(vedioUrl, bodyByte, headers, Client.JsonMime);
             logger.info(resp.toString());
             logger.info(resp.bodyString());
-            //return resp.bodyString();
         } catch (Exception e) {
-            //throw new Exception(e.getMessage());
+            throw new Exception(e.getMessage());
         }
     }
 }
