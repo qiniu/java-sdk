@@ -312,7 +312,7 @@ public final class Auth {
             }
         }
 
-        System.out.println(sb.toString());
+        // System.out.println(sb.toString()); 注释打印信息
         mac.update(StringUtils.utf8Bytes(sb.toString()));
 
         String digest = UrlSafeBase64.encodeToString(mac.doFinal());
