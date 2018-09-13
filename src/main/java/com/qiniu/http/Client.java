@@ -7,15 +7,11 @@ import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.*;
 import okio.BufferedSink;
-import qiniu.happydns.DnsClient;
-import qiniu.happydns.Domain;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +39,7 @@ public final class Client {
      * 构建一个自定义配置的 HTTP Client 类
      */
     public Client(Configuration cfg) {
-        this(cfg.dnsClient, cfg.useDnsHostFirst, cfg.proxy,
+        this(cfg.dns, cfg.useDnsHostFirst, cfg.proxy,
                 cfg.connectTimeout, cfg.readTimeout, cfg.writeTimeout,
                 cfg.dispatcherMaxRequests, cfg.dispatcherMaxRequestsPerHost,
                 cfg.connectionPoolMaxIdleCount, cfg.connectionPoolMaxIdleMinutes);
@@ -52,7 +48,7 @@ public final class Client {
     /**
      * 构建一个自定义配置的 HTTP Client 类
      */
-    public Client(final DnsClient dns, final boolean hostFirst, final ProxyConfiguration proxy,
+    public Client(final Dns dns, final boolean hostFirst, final ProxyConfiguration proxy,
                   int connTimeout, int readTimeout, int writeTimeout, int dispatcherMaxRequests,
                   int dispatcherMaxRequestsPerHost, int connectionPoolMaxIdleCount,
                   int connectionPoolMaxIdleMinutes) {
@@ -82,23 +78,15 @@ public final class Client {
             }
         });
         if (dns != null) {
-            builder.dns(new Dns() {
+            builder.dns(new okhttp3.Dns() {
                 @Override
                 public List<InetAddress> lookup(String hostname) throws UnknownHostException {
-                    InetAddress[] ips;
-                    Domain domain = new Domain(hostname, false, hostFirst);
                     try {
-                        ips = dns.queryInetAddress(domain);
-                    } catch (IOException e) {
+                        return dns.lookup(hostname);
+                    } catch (Exception e) {
                         e.printStackTrace();
-                        throw new UnknownHostException(e.getMessage());
                     }
-                    if (ips == null) {
-                        throw new UnknownHostException(hostname + " resolve failed");
-                    }
-                    List<InetAddress> l = new ArrayList<>();
-                    Collections.addAll(l, ips);
-                    return l;
+                    return okhttp3.Dns.SYSTEM.lookup(hostname);
                 }
             });
         }
