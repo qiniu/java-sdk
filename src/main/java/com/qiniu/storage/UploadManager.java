@@ -18,7 +18,7 @@ import java.io.InputStream;
 public final class UploadManager {
     private final Client client;
     private final Recorder recorder;
-    private  Configuration configuration;
+    private Configuration configuration;
 
     /**
      * 构建一个非断点续传的上传对象
@@ -60,6 +60,31 @@ public final class UploadManager {
         }
     }
 
+    /**
+     * 过滤用户自定义参数，只有参数名以<code>x:</code>开头的参数才会被使用
+     *
+     * @param params 待过滤的用户自定义参数
+     * @return 过滤后的用户自定义参数
+     */
+    private static StringMap filterParam(StringMap params) {
+        final StringMap ret = new StringMap();
+        if (params == null) {
+            return ret;
+        }
+        params.forEach(new StringMap.Consumer() {
+            @Override
+            public void accept(String key, Object value) {
+                if (value == null) {
+                    return;
+                }
+                String val = value.toString();
+                if ((key.startsWith("x:") || key.startsWith("x-qn-meta-")) && !val.equals("")) {
+                    ret.put(key, val);
+                }
+            }
+        });
+        return ret;
+    }
 
     /**
      * 上传字节数组
@@ -90,6 +115,7 @@ public final class UploadManager {
         if (mime == null) {
             mime = Client.DefaultMime;
         }
+        params = filterParam(params);
         return new FormUploader(client, token, key, data, params, mime, checkCrc, configuration).upload();
     }
 
@@ -145,6 +171,7 @@ public final class UploadManager {
         if (mime == null) {
             mime = Client.DefaultMime;
         }
+        params = filterParam(params);
         long size = file.length();
         if (size <= configuration.putThreshold) {
             return new FormUploader(client, token, key, file, params, mime, checkCrc, configuration).upload();
@@ -172,6 +199,7 @@ public final class UploadManager {
         if (mime == null) {
             mime = Client.DefaultMime;
         }
+        params = filterParam(params);
         new FormUploader(client, token, key, data, params, mime, checkCrc, configuration).asyncUpload(handler);
     }
 
