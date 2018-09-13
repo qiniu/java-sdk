@@ -7,14 +7,6 @@ import com.qiniu.http.ProxyConfiguration;
 import com.qiniu.http.Response;
 import org.junit.Assert;
 import org.junit.Test;
-import qiniu.happydns.DnsClient;
-import qiniu.happydns.IResolver;
-import qiniu.happydns.local.Hosts;
-import qiniu.happydns.local.Resolver;
-import qiniu.happydns.local.SystemDnsServer;
-
-import java.io.IOException;
-import java.net.InetAddress;
 
 
 public class HttpTest {
@@ -39,32 +31,6 @@ public class HttpTest {
             Assert.fail();
         } catch (QiniuException e) {
             Assert.assertNotNull(e.response.reqId);
-        }
-    }
-
-    @Test
-    public void testDns() {
-        IResolver r1 = SystemDnsServer.defaultResolver();
-        IResolver r2 = null;
-        try {
-            r2 = new Resolver(InetAddress.getByName("119.29.29.29"));
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        Hosts h = new Hosts();
-        h.put("upnonodns.qiniu.com", "115.231.183.168");
-        DnsClient dns = new DnsClient(new IResolver[]{r1, r2}, h);
-        Client c = new Client(dns, false, null,
-                Constants.CONNECT_TIMEOUT, Constants.READ_TIMEOUT, Constants.WRITE_TIMEOUT,
-                Constants.DISPATCHER_MAX_REQUESTS, Constants.DISPATCHER_MAX_REQUESTS_PER_HOST,
-                Constants.CONNECTION_POOL_MAX_IDLE_COUNT, Constants.CONNECTION_POOL_MAX_IDLE_MINUTES);
-        Response r = null;
-        try {
-            r = c.post("http://upnonodns.qiniu.com", "hello", null);
-            Assert.fail();
-        } catch (QiniuException e) {
-            Assert.assertNotNull(e.response.reqId);
-            Assert.assertEquals(e.response.statusCode, 400);
         }
     }
 
