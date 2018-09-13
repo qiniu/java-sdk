@@ -4,8 +4,8 @@ import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.common.ZoneReqInfo;
+import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
-import qiniu.happydns.DnsClient;
 
 /**
  * 该类封装了SDK相关配置参数
@@ -59,7 +59,7 @@ public final class Configuration implements Cloneable {
     /**
      * 外部dns
      */
-    public DnsClient dnsClient;
+    public Dns dns;
     /*
      * 解析域名时,优先使用host配置,主要针对内部局域网配置
      */
@@ -76,13 +76,11 @@ public final class Configuration implements Cloneable {
     public static String defaultApiHost = "api.qiniu.com";
 
     public Configuration() {
-        this.zone = null;
-        this.dnsClient = null;
+
     }
 
     public Configuration(Zone zone) {
         this.zone = zone;
-        this.dnsClient = null;
     }
 
     public Configuration clone() {

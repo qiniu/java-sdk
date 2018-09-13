@@ -1,7 +1,6 @@
 package com.qiniu.util;
 
 import com.qiniu.common.Constants;
-import qiniu.happydns.util.Hex;
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
