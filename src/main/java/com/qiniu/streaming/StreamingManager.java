@@ -40,11 +40,12 @@ public final class StreamingManager {
         this.auth = auth;
         client = new Client();
     }
-    public StreamingManager(Auth auth,String hub,String sever,Client client){
-        this.apiServer=sever;
-        this.hub=hub;
-        this.auth=auth;
-        this.client=client;
+
+    public StreamingManager(Auth auth, String hub, String sever, Client client) {
+        this.apiServer = sever;
+        this.hub = hub;
+        this.auth = auth;
+        this.client = client;
     }
 
     /**
