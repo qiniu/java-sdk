@@ -30,7 +30,7 @@ public final class BucketManager {
      * 该类相关的域名配置，解析配置，HTTP请求超时时间设置等
      */
 
-    private  Configuration configuration;
+    private Configuration configuration;
 
     /**
      * HTTP Client 对象
@@ -51,8 +51,8 @@ public final class BucketManager {
     }
 
     public BucketManager(Auth auth, Client client) {
-        this.auth=auth;
-        this.client=client;
+        this.auth = auth;
+        this.client = client;
     }
 
 
@@ -101,12 +101,12 @@ public final class BucketManager {
     public void createBucket(String bucketName, String region) throws Exception {
         String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(),
                 UrlSafeBase64.encodeToString(bucketName), region);
-         post(url, null).close();
+        post(url, null).close();
     }
 
     public void deleteBucket(String bucketname) throws QiniuException {
         String url = String.format("%s/drop/%s", configuration.rsHost(), bucketname);
-         post(url, null).close();
+        post(url, null).close();
     }
 
     /**
@@ -396,7 +396,8 @@ public final class BucketManager {
         String requesturl = configuration.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
         StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key);
         byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
-        return client.post(requesturl, bodyByte, auth.authorizationV2(requesturl, "POST", bodyByte, "application/json"), Client.JsonMime);
+        return client.post(requesturl, bodyByte,
+                auth.authorizationV2(requesturl, "POST", bodyByte, "application/json"), Client.JsonMime);
     }
 
     /**
@@ -413,19 +414,22 @@ public final class BucketManager {
      * @param callbackbody     回调Body，如果callbackurl不为空则必须指定。与普通上传一致支持魔法变量，
      * @param callbackbodytype 回调Body内容类型,默认为"application/x-www-form-urlencoded"，
      * @param callbackhost     回调时使用的Host
-     * @param fileType        存储文件类型 0:正常存储(默认),1:低频存储
+     * @param fileType         存储文件类型 0:正常存储(默认),1:低频存储
      * @return Response
      * @throws QiniuException
      */
-    public Response asynFetch(String url, String bucket, String key, String md5, String etag, String callbackurl,
-                              String callbackbody, String callbackbodytype, String callbackhost, String fileType) throws QiniuException {
+    public Response asynFetch(String url, String bucket, String key, String md5, String etag,
+                              String callbackurl, String callbackbody, String callbackbodytype,
+                              String callbackhost, String fileType) throws QiniuException {
         String requesturl = configuration.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
-        StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key).putNotNull("md5", md5).
-                putNotNull("etag", etag).putNotNull("callbackurl", callbackurl).putNotNull("callbackbody", callbackbody).
+        StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).
+                putNotNull("key", key).putNotNull("md5", md5).putNotNull("etag", etag).
+                putNotNull("callbackurl", callbackurl).putNotNull("callbackbody", callbackbody).
                 putNotNull("callbackbodytype", callbackbodytype).
                 putNotNull("callbackhost", callbackhost).putNotNull("file_type", fileType);
         byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
-        return client.post(requesturl, bodyByte, auth.authorizationV2(requesturl, "POST", bodyByte, "application/json"), Client.JsonMime);
+        return client.post(requesturl, bodyByte,
+                auth.authorizationV2(requesturl, "POST", bodyByte, "application/json"), Client.JsonMime);
     }
 
     /**
