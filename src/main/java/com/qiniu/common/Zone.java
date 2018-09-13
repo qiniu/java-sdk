@@ -4,6 +4,9 @@ package com.qiniu.common;
  * 多区域上传域名
  */
 public class Zone {
+
+    // 区域名称：z0 华东  z1 华北  z2 华南  na0 北美  as0 东南亚
+    private String region;
     /**
      * 上传，备用上传，备用上传IP和源站资源域名使用各个机房对应的域名
      */
@@ -40,6 +43,7 @@ public class Zone {
 
         public Builder(Zone originZone) {
             this();
+            zone.region = originZone.region;
             zone.upHttp = originZone.upHttp;
             zone.upHttps = originZone.upHttps;
             zone.upBackupHttp = originZone.upBackupHttp;
@@ -54,6 +58,11 @@ public class Zone {
             zone.rsfHttps = originZone.rsfHttps;
             zone.apiHttp = originZone.apiHttp;
             zone.apiHttps = originZone.apiHttps;
+        }
+
+        public Builder region(String region) {
+            zone.region = region;
+            return this;
         }
 
         public Builder upHttp(String upHttp) {
@@ -146,7 +155,7 @@ public class Zone {
      * 华东机房相关域名
      */
     public static Zone zone0() {
-        return new Builder().upHttp("http://up.qiniu.com").upHttps("https://up.qbox.me").
+        return new Builder().region("z0").upHttp("http://up.qiniu.com").upHttps("https://up.qbox.me").
                 upBackupHttp("http://upload.qiniu.com").upBackupHttps("https://upload.qbox.me").
                 iovipHttp("http://iovip.qbox.me").iovipHttps("https://iovip.qbox.me").
                 rsHttp("http://rs.qiniu.com").rsHttps("https://rs.qbox.me")
@@ -165,7 +174,7 @@ public class Zone {
      * 华北机房相关域名
      */
     public static Zone zone1() {
-        return new Builder().upHttp("http://up-z1.qiniu.com").upHttps("https://up-z1.qbox.me").
+        return new Builder().region("z1").upHttp("http://up-z1.qiniu.com").upHttps("https://up-z1.qbox.me").
                 upBackupHttp("http://upload-z1.qiniu.com").upBackupHttps("https://upload-z1.qbox.me").
                 iovipHttp("http://iovip-z1.qbox.me").iovipHttps("https://iovip-z1.qbox.me").
                 rsHttp("http://rs-z1.qiniu.com").rsHttps("https://rs-z1.qbox.me")
@@ -184,7 +193,7 @@ public class Zone {
      * 华南机房相关域名
      */
     public static Zone zone2() {
-        return new Builder().upHttp("http://up-z2.qiniu.com").upHttps("https://up-z2.qbox.me").
+        return new Builder().region("z2").upHttp("http://up-z2.qiniu.com").upHttps("https://up-z2.qbox.me").
                 upBackupHttp("http://upload-z2.qiniu.com").upBackupHttps("https://upload-z2.qbox.me").
                 iovipHttp("http://iovip-z2.qbox.me").iovipHttps("https://iovip-z2.qbox.me").
                 rsHttp("http://rs-z2.qiniu.com").rsHttps("https://rs-z2.qbox.me")
@@ -203,7 +212,7 @@ public class Zone {
      * 北美机房相关域名
      */
     public static Zone zoneNa0() {
-        return new Builder().upHttp("http://up-na0.qiniu.com").upHttps("https://up-na0.qbox.me").
+        return new Builder().region("na0").upHttp("http://up-na0.qiniu.com").upHttps("https://up-na0.qbox.me").
                 upBackupHttp("http://upload-na0.qiniu.com").upBackupHttps("https://upload-na0.qbox.me").
                 iovipHttp("http://iovip-na0.qbox.me").iovipHttps("https://iovip-na0.qbox.me").
                 rsHttp("http://rs-na0.qiniu.com").rsHttps("https://rs-na0.qbox.me")
@@ -223,7 +232,7 @@ public class Zone {
      * 新加坡相关域名
      */
     public static Zone zoneAs0() {
-        return new Builder().upHttp("http://up-as0.qiniu.com").upHttps("https://up-as0.qbox.me").
+        return new Builder().region("as0").upHttp("http://up-as0.qiniu.com").upHttps("https://up-as0.qbox.me").
                 upBackupHttp("http://upload-as0.qiniu.com").upBackupHttps("https://upload-as0.qbox.me").
                 iovipHttp("http://iovip-as0.qbox.me").iovipHttps("https://iovip-as0.qbox.me").
                 rsHttp("http://rs-as0.qiniu.com").rsHttps("https://rs-as0.qbox.me")
@@ -244,6 +253,11 @@ public class Zone {
      */
     public static Zone autoZone() {
         return new Builder().autoZone();
+    }
+
+
+    public String getRegion(ZoneReqInfo zoneReqInfo) {
+        return this.region;
     }
 
     /**
@@ -313,6 +327,10 @@ public class Zone {
     /**
      * 获取资源管理，资源列表，资源处理相关域名
      */
+    public String getRegion() {
+        return this.region;
+    }
+
     public String getRsHttp() {
         return rsHttp;
     }
