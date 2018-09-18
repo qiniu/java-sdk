@@ -17,9 +17,9 @@ public final class Configuration implements Cloneable {
      */
     public Zone zone;
     /**
-     * 空间相关上传管理操作是否使用 https , 默认否
+     * 空间相关上传管理操作是否使用 https , 默认 是
      */
-    public boolean useHttpsDomains = false;
+    public boolean useHttpsDomains = true;
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */
@@ -74,6 +74,7 @@ public final class Configuration implements Cloneable {
      */
     public static String defaultRsHost = "rs.qiniu.com";
     public static String defaultApiHost = "api.qiniu.com";
+    public static String defaultUcHost = "uc.qbox.me";
 
     public Configuration() {
 
@@ -164,5 +165,13 @@ public final class Configuration implements Cloneable {
         }
         return useHttpsDomains ? zone.getRsfHttps(zoneReqInfo)
                 : zone.getRsfHttp(zoneReqInfo);
+    }
+
+    public String ucHost() {
+        String scheme = "http://";
+        if (useHttpsDomains) {
+            scheme = "https://";
+        }
+        return scheme + defaultUcHost;
     }
 }

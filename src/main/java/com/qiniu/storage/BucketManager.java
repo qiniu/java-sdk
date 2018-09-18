@@ -4,9 +4,7 @@ import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.storage.model.FetchRet;
-import com.qiniu.storage.model.FileInfo;
-import com.qiniu.storage.model.FileListing;
+import com.qiniu.storage.model.*;
 import com.qiniu.util.*;
 
 import java.util.ArrayList;
@@ -98,7 +96,7 @@ public final class BucketManager {
         return r.jsonToObject(String[].class);
     }
 
-    public void createBucket(String bucketName, String region) throws Exception {
+    public void createBucket(String bucketName, String region) throws QiniuException {
         String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(),
                 UrlSafeBase64.encodeToString(bucketName), region);
         post(url, null).close();
@@ -232,14 +230,6 @@ public final class BucketManager {
         return rsPost(bucket, path, null);
     }
 
-
-    //存储类型
-    public enum StorageType {
-        //普通存储
-        COMMON,
-        //低频存储
-        INFREQUENCY
-    }
 
     /**
      * 修改文件的类型（普通存储或低频存储）
@@ -510,6 +500,33 @@ public final class BucketManager {
         return rsPost(bucket, String.format("/deleteAfterDays/%s/%d", encodedEntry(bucket, key), days), null);
     }
 
+    public void setBucketAcl(String bucket, AclType acl) throws QiniuException {
+        String url = String.format("%s/private?bucket=%s&private=%s", configuration.ucHost(), bucket, acl.getType());
+        Response res = post(url, null);
+        res.close();
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+    }
+
+    public BucketInfo getBucketInfo(String bucket) throws QiniuException {
+        String url = String.format("%s/v2/bucketInfo?bucket=%s", configuration.ucHost(), bucket);
+        Response res = post(url, null);
+        if (!res.isOK()) {
+            res.close();
+            throw new QiniuException(res);
+        }
+        BucketInfo info = res.jsonToObject(BucketInfo.class);
+        return info;
+    }
+
+
+    public void setIndexPage(String bucket, IndexPageType type) throws QiniuException {
+        String url = String.format("%s/noIndexPage?bucket=%s&noIndexPage=%s", configuration.ucHost(), bucket, type.getType());
+        Response res = post(url, null);
+    }
+
+
     /*
      * 相关请求的方法列表
      * */
@@ -722,4 +739,5 @@ public final class BucketManager {
             throw new UnsupportedOperationException("remove");
         }
     }
+
 }
