@@ -35,17 +35,17 @@ public class DnsTest {
             @Override
             public List<InetAddress> lookup(String hostname) throws UnknownHostException {
                 InetAddress[] ips;
-                try{
-                Domain domain = new Domain(hostname, true, true);
-                ips = dnsClient.queryInetAddress(domain);
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new UnknownHostException(e.getMessage());
-            }
+                try {
+                    Domain domain = new Domain(hostname, true, true);
+                    ips = dnsClient.queryInetAddress(domain);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new UnknownHostException(e.getMessage());
+                }
                 if (ips == null) {
-                throw new UnknownHostException(hostname + " resolve failed.");
-            }
-            List<InetAddress> l = new ArrayList<>(ips.length);
+                    throw new UnknownHostException(hostname + " resolve failed.");
+                }
+                List<InetAddress> l = new ArrayList<>(ips.length);
                 Collections.addAll(l, ips);
                 return l;
             }
