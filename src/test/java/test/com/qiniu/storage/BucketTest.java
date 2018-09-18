@@ -1,17 +1,16 @@
 package test.com.qiniu.storage;
 
-import com.qiniu.storage.BucketManager;
-import com.qiniu.storage.Configuration;
-import test.com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
+import com.qiniu.storage.BucketManager;
+import com.qiniu.storage.Configuration;
 import com.qiniu.storage.model.*;
-import com.qiniu.storage.BucketManager.StorageType;
 import com.qiniu.util.StringUtils;
 import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
+import test.com.qiniu.TestConfig;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -26,8 +25,8 @@ public class BucketTest extends TestCase {
     protected void setUp() throws Exception {
         //default config
         Configuration cfg = new Configuration();
-        //cfg.useHttpsDomains = true;
-
+        cfg.useHttpsDomains = false;
+//        cfg.useHttpsDomains = true;
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
 
         //na0 config
@@ -652,17 +651,72 @@ public class BucketTest extends TestCase {
             try {
                 bucketManager.copy(bucket, key, bucket, keyToChangeType);
                 Response response = bucketManager.changeType(bucket, keyToChangeType,
-                        BucketManager.StorageType.INFREQUENCY);
+                        StorageType.INFREQUENCY);
                 Assert.assertEquals(200, response.statusCode);
                 //stat
                 FileInfo fileInfo = bucketManager.stat(bucket, keyToChangeType);
-                Assert.assertEquals(BucketManager.StorageType.INFREQUENCY.ordinal(), fileInfo.type);
+                Assert.assertEquals(StorageType.INFREQUENCY.ordinal(), fileInfo.type);
                 //delete the temp file
                 bucketManager.delete(bucket, keyToChangeType);
             } catch (QiniuException e) {
                 fail(bucket + ":" + key + " > " + keyToChangeType + " >> "
-                        + BucketManager.StorageType.INFREQUENCY + " ==> " + e.response.toString());
+                        + StorageType.INFREQUENCY + " ==> " + e.response.toString());
             }
+        }
+    }
+
+    @Test
+    public void testAcl() throws QiniuException {
+        bucketManager.setBucketAcl("javasdk", AclType.PRIVATE);
+        BucketInfo info = bucketManager.getBucketInfo("javasdk");
+        Assert.assertEquals(1, info.getPrivate());
+
+        bucketManager.setBucketAcl("javasdk", AclType.PUBLIC);
+        info = bucketManager.getBucketInfo("javasdk");
+        Assert.assertEquals(0, info.getPrivate());
+
+        try {
+            bucketManager.setBucketAcl("javsfsdfsfsdfsdfsdfasdk1", AclType.PRIVATE);
+//            Assert.fail(" 空间 javasdk2 不存在，理应报错 ");   // kodo 实际响应 200
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Test
+    public void testBucketInfo() throws QiniuException {
+        BucketInfo info = bucketManager.getBucketInfo("javasdk");
+        System.out.println(info.getRegion());
+        System.out.println(info.getZone());
+        System.out.println(info.getPrivate());
+        try {
+            BucketInfo info2 = bucketManager.getBucketInfo("javasdk2");
+            Assert.fail(" 空间 javasdk2 不存在，理应报错 ");
+        } catch (QiniuException e) {
+            if (e.response != null) {
+                System.out.println(e.response.getInfo());
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testIndexPage() throws QiniuException {
+        bucketManager.setIndexPage("javasdk", IndexPageType.HAS);
+        BucketInfo info = bucketManager.getBucketInfo("javasdk");
+        Assert.assertEquals(0, info.getNoIndexPage());
+
+        bucketManager.setIndexPage("javasdk", IndexPageType.NO);
+        info = bucketManager.getBucketInfo("javasdk");
+        Assert.assertEquals(1, info.getNoIndexPage());
+
+        try {
+            bucketManager.setIndexPage("javasdk2", IndexPageType.HAS);
+//            Assert.fail(" 空间 javasdk2 不存在，理应报错 ");   // kodo 实际响应 200
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 }
