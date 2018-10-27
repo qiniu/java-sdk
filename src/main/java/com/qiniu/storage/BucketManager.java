@@ -591,6 +591,19 @@ public final class BucketManager {
         }
 
         /**
+         * 批量输入文件名方式添加copy指令，会默认保持原文件名，可以使用targetPrefix来设置copy之后添加的文件名前缀
+         */
+        public BatchOperations addCopyOps(String fromBucket, String toBucket, boolean force, String targetPrefix, String... fileKeys) {
+            for (String fileKey : fileKeys) {
+                String from = encodedEntry(fromBucket, fileKey);
+                String to = encodedEntry(toBucket, targetPrefix + fileKey);
+                ops.add(String.format("copy/%s/%s/force/%s", from, to, force));
+            }
+            setExecBucket(fromBucket);
+            return this;
+        }
+
+        /**
          * 添加重命名指令
          */
         public BatchOperations addRenameOp(String fromBucket, String fromFileKey, String toFileKey) {
@@ -604,6 +617,19 @@ public final class BucketManager {
             String from = encodedEntry(fromBucket, fromKey);
             String to = encodedEntry(toBucket, toKey);
             ops.add(String.format("move/%s/%s", from, to));
+            setExecBucket(fromBucket);
+            return this;
+        }
+
+        /**
+         * 批量输入文件名方式添加move指令，会默认保持原文件名，可以使用targetPrefix来设置move之后添加的文件名前缀
+         */
+        public BatchOperations addMoveOps(String fromBucket, String toBucket, String targetPrefix, String... fileKeys) {
+            for (String fileKey : fileKeys) {
+                String from = encodedEntry(fromBucket, fileKey);
+                String to = encodedEntry(toBucket, targetPrefix + fileKey);
+                ops.add(String.format("move/%s/%s", from, to));
+            }
             setExecBucket(fromBucket);
             return this;
         }
@@ -636,6 +662,28 @@ public final class BucketManager {
         public BatchOperations addChangeTypeOps(String bucket, StorageType type, String... keys) {
             for (String key : keys) {
                 ops.add(String.format("chtype/%s/type/%d", encodedEntry(bucket, key), type.ordinal()));
+            }
+            setExecBucket(bucket);
+            return this;
+        }
+
+        /**
+         * 添加changeStatus指令
+         */
+        public BatchOperations addChangeStatusOps(String bucket, int status, String... keys) {
+            for (String key : keys) {
+                ops.add(String.format("chstatus/%s/status/%d", encodedEntry(bucket, key), status));
+            }
+            setExecBucket(bucket);
+            return this;
+        }
+
+        /**
+         * 添加deleteAfterDays指令
+         */
+        public BatchOperations addDeleteAfterDaysOps(String bucket, int days, String... keys) {
+            for (String key : keys) {
+                ops.add(String.format("deleteAfterDays/%s/%d", encodedEntry(bucket, key), days));
             }
             setExecBucket(bucket);
             return this;
