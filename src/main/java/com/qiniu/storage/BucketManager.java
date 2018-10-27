@@ -92,21 +92,23 @@ public final class BucketManager {
      * @return 空间名称列表
      */
     public String[] buckets() throws QiniuException {
-        // 获取 bucket 列表 写死用rs.qiniu.com or rs.qbox.me @冯立元
+        // 获取 bucket 列表 写死用rs.qiniu.com or rs.qbox.me
         String url = String.format("%s/buckets", configuration.rsHost());
         Response r = get(url);
-        return r.jsonToObject(String[].class);
+        String[] buckets = r.jsonToObject(String[].class);
+        r.close();
+        return buckets;
     }
 
-    public void createBucket(String bucketName, String region) throws Exception {
+    public Response createBucket(String bucketName, String region) throws Exception {
         String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(),
                 UrlSafeBase64.encodeToString(bucketName), region);
-         post(url, null).close();
+        return post(url, null);
     }
 
-    public void deleteBucket(String bucketname) throws QiniuException {
+    public Response deleteBucket(String bucketname) throws QiniuException {
         String url = String.format("%s/drop/%s", configuration.rsHost(), bucketname);
-         post(url, null).close();
+        return post(url, null);
     }
 
     /**
@@ -120,7 +122,9 @@ public final class BucketManager {
     public String[] domainList(String bucket) throws QiniuException {
         String url = String.format("%s/v6/domain/list?tbl=%s", configuration.apiHost(), bucket);
         Response r = get(url);
-        return r.jsonToObject(String[].class);
+        String[] domains = r.jsonToObject(String[].class);
+        r.close();
+        return domains;
     }
 
     /**
@@ -165,7 +169,9 @@ public final class BucketManager {
 
         String url = String.format("%s/list?%s", configuration.rsfHost(auth.accessKey, bucket), map.formString());
         Response r = get(url);
-        return r.jsonToObject(FileListing.class);
+        FileListing fileListing = r.jsonToObject(FileListing.class);
+        r.close();
+        return fileListing;
     }
 
     /**
@@ -179,7 +185,9 @@ public final class BucketManager {
      */
     public FileInfo stat(String bucket, String fileKey) throws QiniuException {
         Response r = rsGet(bucket, String.format("/stat/%s", encodedEntry(bucket, fileKey)));
-        return r.jsonToObject(FileInfo.class);
+        FileInfo fileInfo = r.jsonToObject(FileInfo.class);
+        r.close();
+        return fileInfo;
     }
 
 
@@ -326,9 +334,9 @@ public final class BucketManager {
      * @param toFileKey   目的文件名称
      * @throws QiniuException
      */
-    public void copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
+    public Response copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
             throws QiniuException {
-        copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
+        return copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
     }
 
 
@@ -392,7 +400,9 @@ public final class BucketManager {
         String to = encodedEntry(bucket, key);
         String path = String.format("/fetch/%s/to/%s", resource, to);
         Response r = ioPost(bucket, path);
-        return r.jsonToObject(FetchRet.class);
+        FetchRet fetchRet = r.jsonToObject(FetchRet.class);
+        r.close();
+        return fetchRet;
     }
 
     /**
@@ -464,10 +474,10 @@ public final class BucketManager {
      * @param key    文件名称
      * @throws QiniuException
      */
-    public void prefetch(String bucket, String key) throws QiniuException {
+    public Response prefetch(String bucket, String key) throws QiniuException {
         String resource = encodedEntry(bucket, key);
         String path = String.format("/prefetch/%s", resource);
-        ioPost(bucket, path);
+        return ioPost(bucket, path);
     }
 
     /**
