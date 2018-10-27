@@ -257,6 +257,21 @@ public final class BucketManager {
     }
 
     /**
+     * 修改文件的状态（禁用或者正常）
+     *
+     * @param bucket 空间名称
+     * @param key    文件名称
+     * @param status   0表示启用；1表示禁用。
+     * @throws QiniuException
+     */
+    public Response changeStatus(String bucket, String key, short status)
+            throws QiniuException {
+        String resource = encodedEntry(bucket, key);
+        String path = String.format("/chstatus/%s/status/%d", resource, status);
+        return rsPost(bucket, path, null);
+    }
+
+    /**
      * 重命名空间中的文件，可以设置force参数为true强行覆盖空间已有同名文件
      *
      * @param bucket     空间名称
