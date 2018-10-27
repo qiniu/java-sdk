@@ -33,4 +33,8 @@ public final class FileInfo {
      * 文件的存储类型，0为普通存储，1为低频存储
      */
     public int type;
+    /**
+     * 文件的状态，0表示启用，1表示禁用
+     */
+    public int status;
 }
