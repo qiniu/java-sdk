@@ -173,6 +173,28 @@ public final class BucketManager {
     }
 
     /**
+     * 列举空间文件接口，返回一个 response 对象。v2 接口可以避免由于大量删除导致的列举超时问题，返回的 response 对象中的 body 可以转换为
+     * string stream 来处理。
+     *
+     * @param bucket    空间名
+     * @param prefix    文件名前缀
+     * @param marker    上一次获取文件列表时返回的 marker
+     * @param limit     每次迭代的长度限制，推荐值 10000
+     * @param delimiter 指定目录分隔符，列出所有公共前缀（模拟列出目录效果）。缺省值为空字符串
+     * @param version   list 的接口版本（v1/v2）
+     * @return Response
+     * @throws QiniuException
+     */
+    public Response list(String bucket, String prefix, String marker, int limit, String delimiter, int version)
+            throws QiniuException {
+        StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
+                .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
+        String url = String.format((version == 2 ? "%s/v2/" : "%s/") + "list?%s", configuration.rsfHost(auth.accessKey, bucket),
+                map.formString());
+        return get(url);
+    }
+
+    /**
      * 获取空间中文件的属性
      *
      * @param bucket  空间名称
