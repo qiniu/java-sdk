@@ -189,7 +189,8 @@ public final class BucketManager {
             throws QiniuException {
         StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
                 .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
-        String url = String.format((version == 2 ? "%s/v2/" : "%s/") + "list?%s", configuration.rsfHost(auth.accessKey, bucket),
+        String path = (version == 2 ? "%s/v2/" : "%s/") + "list?%s";
+        String url = String.format(path, configuration.rsfHost(auth.accessKey, bucket),
                 map.formString());
         return get(url);
     }
@@ -662,13 +663,13 @@ public final class BucketManager {
         /**
          * 批量输入文件名方式添加copy指令，会默认保持原文件名，可以使用targetPrefix来设置copy之后添加的文件名前缀
          */
-        public BatchOperations addCopyOps(String fromBucket, String toBucket, boolean force, String targetPrefix, String... fileKeys) {
-            for (String fileKey : fileKeys) {
-                String from = encodedEntry(fromBucket, fileKey);
-                String to = encodedEntry(toBucket, targetPrefix + fileKey);
-                ops.add(String.format("copy/%s/%s/force/%s", from, to, force));
+        public BatchOperations addCopyOps(String from, String to, boolean force, String targetPrefix, String... keys) {
+            for (String fileKey : keys) {
+                String fromEntry = encodedEntry(from, fileKey);
+                String toEntry = encodedEntry(to, targetPrefix + fileKey);
+                ops.add(String.format("copy/%s/%s/force/%s", fromEntry, toEntry, force));
             }
-            setExecBucket(fromBucket);
+            setExecBucket(from);
             return this;
         }
 
@@ -693,13 +694,13 @@ public final class BucketManager {
         /**
          * 批量输入文件名方式添加move指令，会默认保持原文件名，可以使用targetPrefix来设置move之后添加的文件名前缀
          */
-        public BatchOperations addMoveOps(String fromBucket, String toBucket, String targetPrefix, String... fileKeys) {
-            for (String fileKey : fileKeys) {
-                String from = encodedEntry(fromBucket, fileKey);
-                String to = encodedEntry(toBucket, targetPrefix + fileKey);
-                ops.add(String.format("move/%s/%s", from, to));
+        public BatchOperations addMoveOps(String from, String to, String targetPrefix, String... keys) {
+            for (String fileKey : keys) {
+                String fromEntry = encodedEntry(from, fileKey);
+                String toEntry = encodedEntry(to, targetPrefix + fileKey);
+                ops.add(String.format("move/%s/%s", fromEntry, toEntry));
             }
-            setExecBucket(fromBucket);
+            setExecBucket(from);
             return this;
         }
 
