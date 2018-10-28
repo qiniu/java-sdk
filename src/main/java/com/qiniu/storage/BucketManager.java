@@ -162,11 +162,7 @@ public final class BucketManager {
      */
     public FileListing listFiles(String bucket, String prefix, String marker, int limit, String delimiter)
             throws QiniuException {
-        StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
-                .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
-
-        String url = String.format("%s/list?%s", configuration.rsfHost(auth.accessKey, bucket), map.formString());
-        Response r = get(url);
+        Response r = list(bucket, prefix, marker, limit, delimiter, 1);
         FileListing fileListing = r.jsonToObject(FileListing.class);
         r.close();
         return fileListing;
@@ -190,8 +186,7 @@ public final class BucketManager {
         StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
                 .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
         String path = (version == 2 ? "%s/v2/" : "%s/") + "list?%s";
-        String url = String.format(path, configuration.rsfHost(auth.accessKey, bucket),
-                map.formString());
+        String url = String.format(path, configuration.rsfHost(auth.accessKey, bucket), map.formString());
         return get(url);
     }
 
@@ -570,7 +565,8 @@ public final class BucketManager {
 
 
     public void setIndexPage(String bucket, IndexPageType type) throws QiniuException {
-        String url = String.format("%s/noIndexPage?bucket=%s&noIndexPage=%s", configuration.ucHost(), bucket, type.getType());
+        String noIndexPageQuery = "%s/noIndexPage?bucket=%s&noIndexPage=%s";
+        String url = String.format(noIndexPageQuery, configuration.ucHost(), bucket, type.getType());
         Response res = post(url, null);
         res.close();
     }

@@ -10,9 +10,9 @@ public class BucketInfo {
     @SerializedName("host")
     private String imageHost;
     @SerializedName("protected")
-    private int _protected;
+    private int beProtected;
     @SerializedName("private")
-    private int _private;
+    private int bePrivate;
     @SerializedName("no_index_page")
     private int noIndexPage;
     private int imgsft;
@@ -39,19 +39,19 @@ public class BucketInfo {
     }
 
     public int getProtected() {
-        return _protected;
+        return beProtected;
     }
 
-    public void setProtected(int _protected) {
-        this._protected = _protected;
+    public void setProtected(int beProtected) {
+        this.beProtected = beProtected;
     }
 
     public int getPrivate() {
-        return _private;
+        return bePrivate;
     }
 
-    public void setPrivate(int _private) {
-        this._private = _private;
+    public void setPrivate(int bePrivate) {
+        this.bePrivate = bePrivate;
     }
 
     public int getNoIndexPage() {
