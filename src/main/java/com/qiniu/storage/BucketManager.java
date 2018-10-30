@@ -175,16 +175,32 @@ public final class BucketManager {
      */
     public FileListing listFiles(String bucket, String prefix, String marker, int limit, String delimiter)
             throws QiniuException {
-        StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
-                .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
-        String url = String.format("%s/list?%s", configuration.rsfHost(auth.accessKey, bucket), map.formString());
-        Response res = get(url);
+        Response res = listV1(bucket, prefix, marker, limit, delimiter);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
         FileListing fileListing = res.jsonToObject(FileListing.class);
         res.close();
         return fileListing;
+    }
+
+    /**
+     * 列举空间文件 v1 接口，返回一个 response 对象。
+     *
+     * @param bucket    空间名
+     * @param prefix    文件名前缀
+     * @param marker    上一次获取文件列表时返回的 marker
+     * @param limit     每次迭代的长度限制，最大1000，推荐值 100
+     * @param delimiter 指定目录分隔符，列出所有公共前缀（模拟列出目录效果）。缺省值为空字符串
+     * @return
+     * @throws QiniuException
+     */
+    public Response listV1(String bucket, String prefix, String marker, int limit, String delimiter)
+            throws QiniuException {
+        StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
+                .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
+        String url = String.format("%s/list?%s", configuration.rsfHost(auth.accessKey, bucket), map.formString());
+        return get(url);
     }
 
     /**
