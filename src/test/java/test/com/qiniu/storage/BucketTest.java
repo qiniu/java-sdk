@@ -21,6 +21,11 @@ public class BucketTest extends TestCase {
     private BucketManager bucketManagerNa0;
     private BucketManager dummyBucketManager;
 
+    ArrayList<Integer> batchStatusCode = new ArrayList(){{
+        this.add(200);
+        this.add(298);
+    }};
+
     @Override
     protected void setUp() throws Exception {
         //default config
@@ -353,7 +358,7 @@ public class BucketTest extends TestCase {
             try {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
-                assertEquals(200, bs[0].code);
+                Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }
@@ -361,7 +366,7 @@ public class BucketTest extends TestCase {
             try {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
-                assertEquals(200, bs[0].code);
+                Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }
@@ -388,7 +393,7 @@ public class BucketTest extends TestCase {
             try {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
-                assertEquals(200, bs[0].code);
+                Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }
@@ -420,7 +425,7 @@ public class BucketTest extends TestCase {
             try {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
-                assertEquals(200, bs[0].code);
+                Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }
@@ -449,7 +454,7 @@ public class BucketTest extends TestCase {
             try {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
-                assertEquals(200, bs[0].code);
+                Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }
@@ -485,7 +490,7 @@ public class BucketTest extends TestCase {
             try {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
-                assertEquals(200, bs[0].code);
+                Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
                 fail(e.response.toString());
             } finally {
@@ -519,9 +524,10 @@ public class BucketTest extends TestCase {
                 ops.addCopyOp(bucket, key, bucket, keyArray[i]);
             }
 
+
             try {
                 Response response = bucketManager.batch(ops);
-                Assert.assertEquals(200, response.statusCode);
+                Assert.assertTrue("200 or 298", batchStatusCode.contains(response.statusCode));
 
                 //clear ops
                 ops.clearOps();
@@ -531,14 +537,14 @@ public class BucketTest extends TestCase {
                     ops.addChgmOp(bucket, keyArray[i], "image/png");
                 }
                 response = bucketManager.batch(ops);
-                Assert.assertEquals(200, response.statusCode);
+                Assert.assertTrue("200 or 298", batchStatusCode.contains(response.statusCode));
 
                 //clear ops
                 for (int i = 0; i < keyArray.length; i++) {
                     ops.addDeleteOp(bucket, keyArray[i]);
                 }
                 response = bucketManager.batch(ops);
-                Assert.assertEquals(200, response.statusCode);
+                Assert.assertTrue("200 or 298", batchStatusCode.contains(response.statusCode));
 
             } catch (QiniuException e) {
                 fail(e.response.toString());
@@ -580,7 +586,7 @@ public class BucketTest extends TestCase {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
                 for (BatchStatus b : bs) {
-                    assertEquals(200, b.code);
+                    Assert.assertTrue("200 or 298", batchStatusCode.contains(b.code));
                 }
             } catch (QiniuException e) {
                 fail(e.response.toString());
