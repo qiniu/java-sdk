@@ -9,10 +9,12 @@ public class BucketInfo {
     private String imageSource;
     @SerializedName("host")
     private String imageHost;
+    // CHECKSTYLE:OFF
     @SerializedName("protected")
     private int _protected;
     @SerializedName("private")
     private int _private;
+    // CHECKSTYLE:ON
     @SerializedName("no_index_page")
     private int noIndexPage;
     private int imgsft;
