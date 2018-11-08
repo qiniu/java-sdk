@@ -2,6 +2,7 @@ package com.qiniu.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -22,6 +23,11 @@ public final class Json {
 
     public static <T> T decode(String json, Class<T> classOfT) {
         return new Gson().fromJson(json, classOfT);
+    }
+
+    public static <T> T decode(JsonElement jsonElement, Class<T> clazz) {
+        Gson gson = new Gson();
+        return gson.fromJson(jsonElement, clazz);
     }
 
     public static StringMap decode(String json) {
