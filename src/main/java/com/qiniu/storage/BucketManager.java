@@ -208,15 +208,19 @@ public final class BucketManager {
         FileListing fileListing = new FileListing();
         List<FileInfo> fileInfoList = new ArrayList<>();
         Set<String> commonPrefixSet = new HashSet<>();
-        for (String line : lineList) {
+        for (int i = 0; i < lineList.size(); i++) {
+            String line = lineList.get(i);
             JsonObject jsonObject = Json.decode(line, JsonObject.class);
             if (!(jsonObject.get("item") instanceof JsonNull))
                 fileInfoList.add(Json.decode(jsonObject.get("item"), FileInfo.class));
-            if (!"".equals(jsonObject.get("dir").getAsString())) commonPrefixSet.add(jsonObject.get("dir").getAsString());
+            String dir = jsonObject.get("dir").getAsString();
+            if (!"".equals(dir)) commonPrefixSet.add(dir);
+            if (i == lineList.size() - 1)
+                fileListing.marker = jsonObject.get("marker").getAsString();
         }
         fileListing.items = fileInfoList.toArray(new FileInfo[]{});
         fileListing.commonPrefixes = commonPrefixSet.toArray(new String[]{});
-        fileListing.marker = Json.decode(lineList.get(lineList.size() - 1), JsonObject.class).get("marker").getAsString();
+
         return fileListing;
     }
 
@@ -573,7 +577,6 @@ public final class BucketManager {
         BucketInfo info = res.jsonToObject(BucketInfo.class);
         return info;
     }
-
 
     public void setIndexPage(String bucket, IndexPageType type) throws QiniuException {
         String url = String.format("%s/noIndexPage?bucket=%s&noIndexPage=%s", configuration.ucHost(), bucket, type.getType());
