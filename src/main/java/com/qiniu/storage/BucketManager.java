@@ -579,8 +579,8 @@ public final class BucketManager {
     }
 
     public void setIndexPage(String bucket, IndexPageType type) throws QiniuException {
-        String url = String.format("%s/noIndexPage?bucket=%s&noIndexPage=%s", configuration.ucHost(), bucket, type.getType());
-        Response res = post(url, null);
+        String urlFormat = "%s/noIndexPage?bucket=%s&noIndexPage=%s";
+        Response res = post(String.format(urlFormat, configuration.ucHost(), bucket, type.getType()), null);
     }
 
 
