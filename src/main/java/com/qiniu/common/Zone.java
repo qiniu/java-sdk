@@ -172,7 +172,7 @@ public class Zone {
 
 
     /**
-     * 华东机房内网上传
+     * 华东机房内网上传相关域名
      */
     public static Zone q_zone0() {
         return new Builder().region("z0").upHttp("http://free-qvm-z0-xs.qiniup.com").upHttps("https://free-qvm-z0-xs.qiniup.com").
@@ -212,7 +212,7 @@ public class Zone {
 
 
     /**
-     * 华北机房相关域名
+     * 华北机房内网上传相关域名
      */
     public static Zone q_zone1() {
         return new Builder().region("z1").upHttp("http://free-qvm-z1-zz.qiniup.com").upHttps("https://free-qvm-z1-zz.qiniup.com").
@@ -224,7 +224,7 @@ public class Zone {
     }
 
     /**
-     * 华北机房相关域名
+     * 华北机房内网上传相关域名
      */
     public static Zone q_huabei() {
         return q_zone1();
