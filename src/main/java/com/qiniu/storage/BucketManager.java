@@ -17,6 +17,7 @@ import java.util.*;
  * 参考文档：<a href="http://developer.qiniu.com/kodo/api/rs">资源管理</a>
  */
 public final class BucketManager {
+
     /**
      * Auth 对象
      * 该类需要使用QBox鉴权，所以需要指定Auth对象
@@ -53,7 +54,6 @@ public final class BucketManager {
         this.client = client;
     }
 
-
     /**
      * EncodedEntryURI格式，其中 bucket+":"+key 称之为 entry
      *
@@ -82,7 +82,6 @@ public final class BucketManager {
     public static String encodedEntry(String bucket) {
         return encodedEntry(bucket, null);
     }
-
 
     /**
      * 获取账号下所有空间名称列表
@@ -238,7 +237,6 @@ public final class BucketManager {
         return r.jsonToObject(FileInfo.class);
     }
 
-
     /**
      * 删除指定空间、文件名的文件
      *
@@ -288,7 +286,6 @@ public final class BucketManager {
         return rsPost(bucket, path, null);
     }
 
-
     /**
      * 修改文件的类型（普通存储或低频存储）
      *
@@ -301,6 +298,21 @@ public final class BucketManager {
             throws QiniuException {
         String resource = encodedEntry(bucket, key);
         String path = String.format("/chtype/%s/type/%d", resource, type.ordinal());
+        return rsPost(bucket, path, null);
+    }
+
+    /**
+     * 修改文件的状态（禁用或者正常）
+     *
+     * @param bucket 空间名称
+     * @param key    文件名称
+     * @param status   0表示启用；1表示禁用。
+     * @throws QiniuException
+     */
+    public Response changeStatus(String bucket, String key, int status)
+            throws QiniuException {
+        String resource = encodedEntry(bucket, key);
+        String path = String.format("/chstatus/%s/status/%d", resource, status);
         return rsPost(bucket, path, null);
     }
 
@@ -364,7 +376,6 @@ public final class BucketManager {
         copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
     }
 
-
     /**
      * 移动文件，要求空间在同一账号下
      *
@@ -396,7 +407,6 @@ public final class BucketManager {
             throws QiniuException {
         return move(fromBucket, fromFileKey, toBucket, toFileKey, false);
     }
-
 
     /**
      * 抓取指定地址的文件，以指定名称保存在指定空间
@@ -583,11 +593,9 @@ public final class BucketManager {
         Response res = post(String.format(urlFormat, configuration.ucHost(), bucket, type.getType()), null);
     }
 
-
     /*
      * 相关请求的方法列表
      * */
-
     private Response rsPost(String bucket, String path, byte[] body) throws QiniuException {
         check(bucket);
         String url = configuration.rsHost(auth.accessKey, bucket) + path;
@@ -714,6 +722,28 @@ public final class BucketManager {
         public BatchOperations addChangeTypeOps(String bucket, StorageType type, String... keys) {
             for (String key : keys) {
                 ops.add(String.format("chtype/%s/type/%d", encodedEntry(bucket, key), type.ordinal()));
+            }
+            setExecBucket(bucket);
+            return this;
+        }
+
+        /**
+         * 添加changeStatus指令
+         */
+        public BatchOperations addChangeStatusOps(String bucket, int status, String... keys) {
+            for (String key : keys) {
+                ops.add(String.format("chstatus/%s/status/%d", encodedEntry(bucket, key), status));
+            }
+            setExecBucket(bucket);
+            return this;
+        }
+
+        /**
+         * 添加deleteAfterDays指令
+         */
+        public BatchOperations addDeleteAfterDaysOps(String bucket, int days, String... keys) {
+            for (String key : keys) {
+                ops.add(String.format("deleteAfterDays/%s/%d", encodedEntry(bucket, key), days));
             }
             setExecBucket(bucket);
             return this;
