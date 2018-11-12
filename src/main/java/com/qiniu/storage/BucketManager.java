@@ -16,6 +16,7 @@ import java.util.*;
  * 参考文档：<a href="http://developer.qiniu.com/kodo/api/rs">资源管理</a>
  */
 public final class BucketManager {
+
     /**
      * Auth 对象
      * 该类需要使用QBox鉴权，所以需要指定Auth对象
@@ -220,15 +221,18 @@ public final class BucketManager {
         FileListing fileListing = new FileListing();
         List<FileInfo> fileInfoList = new ArrayList<>();
         Set<String> commonPrefixSet = new HashSet<>();
+        JsonObject jsonObject = new JsonObject();
         for (String line : lineList) {
-            JsonObject jsonObject = Json.decode(line, JsonObject.class);
+            jsonObject = Json.decode(line, JsonObject.class);
+            if (jsonObject == null) continue;
             if (!(jsonObject.get("item") instanceof JsonNull))
                 fileInfoList.add(Json.decode(jsonObject.get("item"), FileInfo.class));
-            if (!"".equals(jsonObject.get("dir").getAsString())) commonPrefixSet.add(jsonObject.get("dir").getAsString());
+            String dir = jsonObject.get("dir").getAsString();
+            if (!"".equals(dir)) commonPrefixSet.add(dir);
         }
         fileListing.items = fileInfoList.toArray(new FileInfo[]{});
         fileListing.commonPrefixes = commonPrefixSet.toArray(new String[]{});
-        fileListing.marker = Json.decode(lineList.get(lineList.size() - 1), JsonObject.class).get("marker").getAsString();
+        fileListing.marker = jsonObject != null ? jsonObject.get("marker").getAsString() : "";
         return fileListing;
     }
 
