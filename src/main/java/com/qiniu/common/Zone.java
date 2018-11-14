@@ -174,7 +174,7 @@ public class Zone {
     /**
      * 华东机房内网上传相关域名
      */
-    public static Zone q_zone0() {
+    public static Zone qvmZone0() {
         return new Builder().region("z0").upHttp("http://free-qvm-z0-xs.qiniup.com").upHttps("https://free-qvm-z0-xs.qiniup.com").
                 upBackupHttp("http://free-qvm-z0-xs.qiniup.com").upBackupHttps("https://free-qvm-z0-xs.qiniup.com").
                 iovipHttp("http://iovip.qbox.me").iovipHttps("https://iovip.qbox.me").
@@ -186,8 +186,8 @@ public class Zone {
     /**
      * 华东机房内网上传相关域名
      */
-    public static Zone q_huadong() {
-        return q_zone0();
+    public static Zone qvmHuadong() {
+        return qvmZone0();
     }
 
 
@@ -214,7 +214,7 @@ public class Zone {
     /**
      * 华北机房内网上传相关域名
      */
-    public static Zone q_zone1() {
+    public static Zone qvmZone1() {
         return new Builder().region("z1").upHttp("http://free-qvm-z1-zz.qiniup.com").upHttps("https://free-qvm-z1-zz.qiniup.com").
                 upBackupHttp("http://free-qvm-z1-zz.qiniup.com").upBackupHttps("https://free-qvm-z1-zz.qiniup.com").
                 iovipHttp("http://iovip-z1.qbox.me").iovipHttps("https://iovip-z1.qbox.me").
@@ -226,8 +226,8 @@ public class Zone {
     /**
      * 华北机房内网上传相关域名
      */
-    public static Zone q_huabei() {
-        return q_zone1();
+    public static Zone qvmHuabei() {
+        return qvmZone1();
     }
 
     /**
