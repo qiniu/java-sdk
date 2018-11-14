@@ -21,7 +21,7 @@ public class BucketTest extends TestCase {
     private BucketManager bucketManagerNa0;
     private BucketManager dummyBucketManager;
 
-    ArrayList<Integer> batchStatusCode = new ArrayList(){{
+    ArrayList<Integer> batchStatusCode = new ArrayList() {{
         this.add(200);
         this.add(298);
     }};
