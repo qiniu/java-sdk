@@ -21,7 +21,7 @@ public class BucketTest {
     private BucketManager bucketManagerNa0;
     private BucketManager dummyBucketManager;
 
-    ArrayList<Integer> batchStatusCode = new ArrayList() {
+    ArrayList<Integer> batchStatusCode = new ArrayList<Integer>() {
         {
             this.add(200);
             this.add(298);
