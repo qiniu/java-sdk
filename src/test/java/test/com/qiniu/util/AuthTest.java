@@ -1,9 +1,9 @@
 package test.com.qiniu.util;
 
-import com.qiniu.util.StringMap;
-import test.com.qiniu.TestConfig;
 import com.qiniu.http.Client;
+import com.qiniu.util.StringMap;
 import org.junit.Test;
+import test.com.qiniu.TestConfig;
 
 import static org.junit.Assert.*;
 

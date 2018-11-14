@@ -1,8 +1,8 @@
 package test.com.qiniu.streaming;
 
 import com.qiniu.streaming.UrlFactory;
-import test.com.qiniu.TestConfig;
 import org.junit.Test;
+import test.com.qiniu.TestConfig;
 
 import static org.junit.Assert.assertTrue;
 

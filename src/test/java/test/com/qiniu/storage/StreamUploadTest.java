@@ -1,17 +1,17 @@
 package test.com.qiniu.storage;
 
-import com.qiniu.storage.Configuration;
-import com.qiniu.storage.StreamUploader;
-import com.qiniu.storage.UploadManager;
-import test.com.qiniu.TempFile;
-import test.com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.storage.Configuration;
+import com.qiniu.storage.StreamUploader;
+import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Etag;
 import com.qiniu.util.StringMap;
 import org.junit.Test;
+import test.com.qiniu.TempFile;
+import test.com.qiniu.TestConfig;
 
 import java.io.File;
 import java.io.FileInputStream;
