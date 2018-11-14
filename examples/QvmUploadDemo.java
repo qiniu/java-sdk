@@ -23,7 +23,7 @@ public class QvmUploadDemo {
         String key = "my-java.png";
         //上传文件的路径
         String FilePath = "/.../...";
-        // 构造一个带指定的zone对象的配置类,华东 1 区域的云主机可以选择Zone.qvmZone0()，华北 2 区域(北京)的云主机可以选择Zone.qvmZone1()，目前其他存储区域是不支持
+        // 构造一个带指定的zone对象的配置类,华东1区域的云主机可以选择Zone.qvmZone0()，华北2区域(北京)的云主机可以选择Zone.qvmZone1()，目前其他存储区域是不支持
         Configuration configuration = new Configuration(Zone.qvmZone0());
         //创建上传对象
         UploadManager uploadManager = new UploadManager(configuration);
