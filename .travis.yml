@@ -11,5 +11,3 @@ before_script:
 
 script:
   - ./gradlew  --info clean check
-  - tree /home/travis/build/qiniu/java-sdk/build/ -L 2
-  - pwd
