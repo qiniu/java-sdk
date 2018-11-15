@@ -1,9 +1,9 @@
 package com.qiniu.common;
 
-import test.com.qiniu.TestConfig;
 import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
+import test.com.qiniu.TestConfig;
 
 import java.util.HashMap;
 import java.util.Map;

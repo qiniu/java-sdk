@@ -1,14 +1,14 @@
 package test.com.qiniu.streaming;
 
-import com.qiniu.streaming.StreamingManager;
-import test.com.qiniu.TestConfig;
 import com.qiniu.common.QiniuException;
+import com.qiniu.streaming.StreamingManager;
 import com.qiniu.streaming.model.ActivityRecords;
 import com.qiniu.streaming.model.StreamAttribute;
 import com.qiniu.streaming.model.StreamListing;
 import com.qiniu.streaming.model.StreamStatus;
 import com.qiniu.util.Auth;
 import org.junit.Test;
+import test.com.qiniu.TestConfig;
 
 import static org.junit.Assert.*;
 
