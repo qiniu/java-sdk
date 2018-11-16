@@ -1,5 +1,7 @@
 package com.qiniu.storage;
 
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
@@ -7,16 +9,14 @@ import com.qiniu.http.Response;
 import com.qiniu.storage.model.*;
 import com.qiniu.util.*;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-
+import java.util.*;
 
 /**
  * 主要涉及了空间资源管理及批量操作接口的实现，具体的接口规格可以参考
  * 参考文档：<a href="http://developer.qiniu.com/kodo/api/rs">资源管理</a>
  */
 public final class BucketManager {
+
     /**
      * Auth 对象
      * 该类需要使用QBox鉴权，所以需要指定Auth对象
@@ -27,7 +27,6 @@ public final class BucketManager {
      * Configuration 对象
      * 该类相关的域名配置，解析配置，HTTP请求超时时间设置等
      */
-
     private Configuration configuration;
 
     /**
@@ -52,7 +51,6 @@ public final class BucketManager {
         this.auth = auth;
         this.client = client;
     }
-
 
     /**
      * EncodedEntryURI格式，其中 bucket+":"+key 称之为 entry
@@ -82,7 +80,6 @@ public final class BucketManager {
     public static String encodedEntry(String bucket) {
         return encodedEntry(bucket, null);
     }
-
 
     /**
      * 获取账号下所有空间名称列表
@@ -114,7 +111,6 @@ public final class BucketManager {
      * @return 该空间名下的domain
      * @throws QiniuException
      */
-
     public String[] domainList(String bucket) throws QiniuException {
         String url = String.format("%s/v6/domain/list?tbl=%s", configuration.apiHost(), bucket);
         Response r = get(url);
@@ -145,8 +141,14 @@ public final class BucketManager {
         return new FileListIterator(bucket, prefix, limit, delimiter);
     }
 
+    private String listQuery(String bucket, String prefix, String marker, int limit, String delimiter) {
+        StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
+                .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
+        return map.formString();
+    }
+
     /**
-     * 根据前缀获取文件列表
+     * 列举空间文件 v1 接口，返回一个 response 对象。
      *
      * @param bucket    空间名
      * @param prefix    文件名前缀
@@ -156,15 +158,68 @@ public final class BucketManager {
      * @return
      * @throws QiniuException
      */
+    public Response listV1(String bucket, String prefix, String marker, int limit, String delimiter)
+            throws QiniuException {
+        String url = String.format("%s/list?%s", configuration.rsfHost(auth.accessKey, bucket),
+                listQuery(bucket, prefix, marker, limit, delimiter));
+        return get(url);
+    }
+
     public FileListing listFiles(String bucket, String prefix, String marker, int limit, String delimiter)
             throws QiniuException {
-        StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
-                .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
-
-        String url = String.format("%s/list?%s", configuration.rsfHost(auth.accessKey, bucket), map.formString());
-        Response r = get(url);
-        return r.jsonToObject(FileListing.class);
+        Response response = listV1(bucket, prefix, marker, limit, delimiter);
+        if (!response.isOK()) {
+            throw new QiniuException(response);
+        }
+        FileListing fileListing = response.jsonToObject(FileListing.class);
+        response.close();
+        return fileListing;
     }
+
+    /**
+     * 列举空间文件 v2 接口，返回一个 response 对象。v2 接口可以避免由于大量删除导致的列举超时问题，返回的 response 对象中的 body 可以转换为
+     * string stream 来处理。
+     *
+     * @param bucket    空间名
+     * @param prefix    文件名前缀
+     * @param marker    上一次获取文件列表时返回的 marker
+     * @param limit     每次迭代的长度限制，推荐值 10000
+     * @param delimiter 指定目录分隔符，列出所有公共前缀（模拟列出目录效果）。缺省值为空字符串
+     * @return Response 返回一个 okhttp response 对象
+     * @throws QiniuException
+     */
+    public Response listV2(String bucket, String prefix, String marker, int limit, String delimiter)
+            throws QiniuException {
+        String url = String.format("%s/v2/list?%s", configuration.rsfHost(auth.accessKey, bucket),
+                listQuery(bucket, prefix, marker, limit, delimiter));
+        return get(url);
+    }
+
+    public FileListing listFilesV2(String bucket, String prefix, String marker, int limit, String delimiter)
+            throws QiniuException {
+        Response response = listV2(bucket, prefix, marker, limit, delimiter);
+        final String result = response.bodyString();
+        response.close();
+        List<String> lineList = Arrays.asList(result.split("\n"));
+        FileListing fileListing = new FileListing();
+        List<FileInfo> fileInfoList = new ArrayList<>();
+        Set<String> commonPrefixSet = new HashSet<>();
+        for (int i = 0; i < lineList.size(); i++) {
+            String line = lineList.get(i);
+            JsonObject jsonObject = Json.decode(line, JsonObject.class);
+            if (!(jsonObject.get("item") instanceof JsonNull))
+                fileInfoList.add(Json.decode(jsonObject.get("item"), FileInfo.class));
+            String dir = jsonObject.get("dir").getAsString();
+            if (!"".equals(dir)) commonPrefixSet.add(dir);
+            if (i == lineList.size() - 1)
+                fileListing.marker = jsonObject.get("marker").getAsString();
+        }
+        fileListing.items = fileInfoList.toArray(new FileInfo[]{});
+        fileListing.commonPrefixes = commonPrefixSet.toArray(new String[]{});
+
+        return fileListing;
+    }
+
 
     /**
      * 获取空间中文件的属性
@@ -179,7 +234,6 @@ public final class BucketManager {
         Response r = rsGet(bucket, String.format("/stat/%s", encodedEntry(bucket, fileKey)));
         return r.jsonToObject(FileInfo.class);
     }
-
 
     /**
      * 删除指定空间、文件名的文件
@@ -229,7 +283,6 @@ public final class BucketManager {
         }
         return rsPost(bucket, path, null);
     }
-
 
     /**
      * 修改文件的类型（普通存储或低频存储）
@@ -306,7 +359,6 @@ public final class BucketManager {
         copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
     }
 
-
     /**
      * 移动文件，要求空间在同一账号下
      *
@@ -338,7 +390,6 @@ public final class BucketManager {
             throws QiniuException {
         return move(fromBucket, fromFileKey, toBucket, toFileKey, false);
     }
-
 
     /**
      * 抓取指定地址的文件，以指定名称保存在指定空间
@@ -381,7 +432,6 @@ public final class BucketManager {
      * @return Response
      * @throws QiniuException
      */
-
     public Response asynFetch(String url, String bucket, String key) throws QiniuException {
         String requesturl = configuration.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
         StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key);
@@ -520,18 +570,15 @@ public final class BucketManager {
         return info;
     }
 
-
     public void setIndexPage(String bucket, IndexPageType type) throws QiniuException {
         String url = String.format("%s/noIndexPage?bucket=%s&noIndexPage=%s",
                 configuration.ucHost(), bucket, type.getType());
         Response res = post(url, null);
     }
 
-
     /*
      * 相关请求的方法列表
      * */
-
     private Response rsPost(String bucket, String path, byte[] body) throws QiniuException {
         check(bucket);
         String url = configuration.rsHost(auth.accessKey, bucket) + path;
@@ -592,7 +639,6 @@ public final class BucketManager {
         /**
          * 添加chgm指令
          */
-
         public BatchOperations addChgmOp(String bucket, String key, String newMimeType) {
             String resource = encodedEntry(bucket, key);
             String encodedMime = UrlSafeBase64.encodeToString(newMimeType);
