@@ -8,3 +8,6 @@ jdk:
 
 before_script:
     - export QINIU_TEST_ENV="travis"
+
+script:
+  - ./gradlew  --info clean check
