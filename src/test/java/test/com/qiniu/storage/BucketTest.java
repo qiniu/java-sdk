@@ -29,7 +29,7 @@ public class BucketTest {
     };
 
     @Before
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         //default config
         Configuration cfg = new Configuration();
         cfg.useHttpsDomains = false;
