@@ -93,6 +93,10 @@ public final class StringMap {
         return b.toString();
     }
 
+    public String jsonString() {
+        return Json.encode(this);
+    }
+
     public interface Consumer {
         void accept(String key, Object value);
     }
