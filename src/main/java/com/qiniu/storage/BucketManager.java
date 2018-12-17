@@ -190,8 +190,13 @@ public final class BucketManager {
      * @link http://developer.qiniu.com/kodo/api/stat
      */
     public FileInfo stat(String bucket, String fileKey) throws QiniuException {
-        Response r = rsGet(bucket, String.format("/stat/%s", encodedEntry(bucket, fileKey)));
-        return r.jsonToObject(FileInfo.class);
+        Response res = rsGet(bucket, String.format("/stat/%s", encodedEntry(bucket, fileKey)));
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        FileInfo fileInfo = res.jsonToObject(FileInfo.class);
+        res.close();
+        return fileInfo;
     }
 
     /**
@@ -330,7 +335,11 @@ public final class BucketManager {
      */
     public void copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
             throws QiniuException {
-        copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
+        Response res = copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        res.close();
     }
 
     /**
@@ -391,8 +400,13 @@ public final class BucketManager {
         String resource = UrlSafeBase64.encodeToString(url);
         String to = encodedEntry(bucket, key);
         String path = String.format("/fetch/%s/to/%s", resource, to);
-        Response r = ioPost(bucket, path);
-        return r.jsonToObject(FetchRet.class);
+        Response res = ioPost(bucket, path);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        FetchRet fetchRet = res.jsonToObject(FetchRet.class);
+        res.close();
+        return fetchRet;
     }
 
     /**
@@ -470,7 +484,11 @@ public final class BucketManager {
     public void prefetch(String bucket, String key) throws QiniuException {
         String resource = encodedEntry(bucket, key);
         String path = String.format("/prefetch/%s", resource);
-        ioPost(bucket, path);
+        Response res = ioPost(bucket, path);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        res.close();
     }
 
     /**
@@ -527,20 +545,20 @@ public final class BucketManager {
     public void setBucketAcl(String bucket, AclType acl) throws QiniuException {
         String url = String.format("%s/private?bucket=%s&private=%s", configuration.ucHost(), bucket, acl.getType());
         Response res = post(url, null);
-        res.close();
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
+        res.close();
     }
 
     public BucketInfo getBucketInfo(String bucket) throws QiniuException {
         String url = String.format("%s/v2/bucketInfo?bucket=%s", configuration.ucHost(), bucket);
         Response res = post(url, null);
         if (!res.isOK()) {
-            res.close();
             throw new QiniuException(res);
         }
         BucketInfo info = res.jsonToObject(BucketInfo.class);
+        res.close();
         return info;
     }
 
@@ -548,6 +566,10 @@ public final class BucketManager {
         String url = String.format("%s/noIndexPage?bucket=%s&noIndexPage=%s",
                 configuration.ucHost(), bucket, type.getType());
         Response res = post(url, null);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        res.close();
     }
 
     /*
