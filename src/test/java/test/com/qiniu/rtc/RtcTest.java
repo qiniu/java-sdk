@@ -10,18 +10,7 @@ import test.com.qiniu.TestConfig;
 
 
 public class RtcTest {
-    private String ak = "DXFtikq1YuD"; //AccessKey you get from qiniu
-    private String sk = "F397hz"; //SecretKey you get from qiniu
-    private Auth auth = null;
-
-    {
-        try {
-            auth = Auth.create(ak, sk);
-        } catch (Exception e) {
-            auth = TestConfig.testAuth;
-        }
-    }
-
+    private Auth auth = TestConfig.testAuth;
     private RtcAppManager manager = new RtcAppManager(auth);
     private RtcRoomManager rmanager = new RtcRoomManager(auth);
 

@@ -8,6 +8,7 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.*;
 import com.qiniu.util.*;
+
 import java.util.*;
 
 /**
@@ -326,7 +327,7 @@ public final class BucketManager {
      *
      * @param bucket 空间名称
      * @param key    文件名称
-     * @param status   0表示启用；1表示禁用。
+     * @param status 0表示启用；1表示禁用。
      * @throws QiniuException
      */
     public Response changeStatus(String bucket, String key, int status)
