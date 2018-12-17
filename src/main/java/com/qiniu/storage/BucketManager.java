@@ -1,15 +1,14 @@
 package com.qiniu.storage;
 
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.*;
 import com.qiniu.util.*;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 主要涉及了空间资源管理及批量操作接口的实现，具体的接口规格可以参考
@@ -159,8 +158,14 @@ public final class BucketManager {
         return new FileListIterator(bucket, prefix, limit, delimiter);
     }
 
+    private String listQuery(String bucket, String prefix, String marker, int limit, String delimiter) {
+        StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
+                .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
+        return map.formString();
+    }
+
     /**
-     * 根据前缀获取文件列表
+     * 列举空间文件 v1 接口，返回一个 response 对象。
      *
      * @param bucket    空间名
      * @param prefix    文件名前缀
@@ -170,15 +175,68 @@ public final class BucketManager {
      * @return
      * @throws QiniuException
      */
+    public Response listV1(String bucket, String prefix, String marker, int limit, String delimiter)
+            throws QiniuException {
+        String url = String.format("%s/list?%s", configuration.rsfHost(auth.accessKey, bucket),
+                listQuery(bucket, prefix, marker, limit, delimiter));
+        return get(url);
+    }
+
     public FileListing listFiles(String bucket, String prefix, String marker, int limit, String delimiter)
             throws QiniuException {
-        StringMap map = new StringMap().put("bucket", bucket).putNotEmpty("marker", marker)
-                .putNotEmpty("prefix", prefix).putNotEmpty("delimiter", delimiter).putWhen("limit", limit, limit > 0);
-
-        String url = String.format("%s/list?%s", configuration.rsfHost(auth.accessKey, bucket), map.formString());
-        Response r = get(url);
-        return r.jsonToObject(FileListing.class);
+        Response response = listV1(bucket, prefix, marker, limit, delimiter);
+        if (!response.isOK()) {
+            throw new QiniuException(response);
+        }
+        FileListing fileListing = response.jsonToObject(FileListing.class);
+        response.close();
+        return fileListing;
     }
+
+    /**
+     * 列举空间文件 v2 接口，返回一个 response 对象。v2 接口可以避免由于大量删除导致的列举超时问题，返回的 response 对象中的 body 可以转换为
+     * string stream 来处理。
+     *
+     * @param bucket    空间名
+     * @param prefix    文件名前缀
+     * @param marker    上一次获取文件列表时返回的 marker
+     * @param limit     每次迭代的长度限制，推荐值 10000
+     * @param delimiter 指定目录分隔符，列出所有公共前缀（模拟列出目录效果）。缺省值为空字符串
+     * @return Response 返回一个 okhttp response 对象
+     * @throws QiniuException
+     */
+    public Response listV2(String bucket, String prefix, String marker, int limit, String delimiter)
+            throws QiniuException {
+        String url = String.format("%s/v2/list?%s", configuration.rsfHost(auth.accessKey, bucket),
+                listQuery(bucket, prefix, marker, limit, delimiter));
+        return get(url);
+    }
+
+    public FileListing listFilesV2(String bucket, String prefix, String marker, int limit, String delimiter)
+            throws QiniuException {
+        Response response = listV2(bucket, prefix, marker, limit, delimiter);
+        final String result = response.bodyString();
+        response.close();
+        List<String> lineList = Arrays.asList(result.split("\n"));
+        FileListing fileListing = new FileListing();
+        List<FileInfo> fileInfoList = new ArrayList<>();
+        Set<String> commonPrefixSet = new HashSet<>();
+        for (int i = 0; i < lineList.size(); i++) {
+            String line = lineList.get(i);
+            JsonObject jsonObject = Json.decode(line, JsonObject.class);
+            if (!(jsonObject.get("item") instanceof JsonNull))
+                fileInfoList.add(Json.decode(jsonObject.get("item"), FileInfo.class));
+            String dir = jsonObject.get("dir").getAsString();
+            if (!"".equals(dir)) commonPrefixSet.add(dir);
+            if (i == lineList.size() - 1)
+                fileListing.marker = jsonObject.get("marker").getAsString();
+        }
+        fileListing.items = fileInfoList.toArray(new FileInfo[]{});
+        fileListing.commonPrefixes = commonPrefixSet.toArray(new String[]{});
+
+        return fileListing;
+    }
+
 
     /**
      * 获取空间中文件的属性
