@@ -8,7 +8,6 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.*;
 import com.qiniu.util.*;
-
 import java.util.*;
 
 /**
@@ -89,19 +88,32 @@ public final class BucketManager {
     public String[] buckets() throws QiniuException {
         // 获取 bucket 列表 写死用rs.qiniu.com or rs.qbox.me @冯立元
         String url = String.format("%s/buckets", configuration.rsHost());
-        Response r = get(url);
-        return r.jsonToObject(String[].class);
+        Response res = get(url);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        String[] buckets = res.jsonToObject(String[].class);
+        res.close();
+        return buckets;
     }
 
     public void createBucket(String bucketName, String region) throws QiniuException {
         String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(),
                 UrlSafeBase64.encodeToString(bucketName), region);
-        post(url, null).close();
+        Response res = post(url, null);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        res.close();
     }
 
     public void deleteBucket(String bucketname) throws QiniuException {
         String url = String.format("%s/drop/%s", configuration.rsHost(), bucketname);
-        post(url, null).close();
+        Response res = post(url, null);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        res.close();
     }
 
     /**
@@ -113,8 +125,13 @@ public final class BucketManager {
      */
     public String[] domainList(String bucket) throws QiniuException {
         String url = String.format("%s/v6/domain/list?tbl=%s", configuration.apiHost(), bucket);
-        Response r = get(url);
-        return r.jsonToObject(String[].class);
+        Response res = get(url);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        String[] domains = res.jsonToObject(String[].class);
+        res.close();
+        return domains;
     }
 
     /**
@@ -231,8 +248,13 @@ public final class BucketManager {
      * @link http://developer.qiniu.com/kodo/api/stat
      */
     public FileInfo stat(String bucket, String fileKey) throws QiniuException {
-        Response r = rsGet(bucket, String.format("/stat/%s", encodedEntry(bucket, fileKey)));
-        return r.jsonToObject(FileInfo.class);
+        Response res = rsGet(bucket, String.format("/stat/%s", encodedEntry(bucket, fileKey)));
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        FileInfo fileInfo = res.jsonToObject(FileInfo.class);
+        res.close();
+        return fileInfo;
     }
 
     /**
@@ -300,6 +322,21 @@ public final class BucketManager {
     }
 
     /**
+     * 修改文件的状态（禁用或者正常）
+     *
+     * @param bucket 空间名称
+     * @param key    文件名称
+     * @param status   0表示启用；1表示禁用。
+     * @throws QiniuException
+     */
+    public Response changeStatus(String bucket, String key, int status)
+            throws QiniuException {
+        String resource = encodedEntry(bucket, key);
+        String path = String.format("/chstatus/%s/status/%d", resource, status);
+        return rsPost(bucket, path, null);
+    }
+
+    /**
      * 重命名空间中的文件，可以设置force参数为true强行覆盖空间已有同名文件
      *
      * @param bucket     空间名称
@@ -356,7 +393,11 @@ public final class BucketManager {
      */
     public void copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
             throws QiniuException {
-        copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
+        Response res = copy(fromBucket, fromFileKey, toBucket, toFileKey, false);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        res.close();
     }
 
     /**
@@ -417,8 +458,13 @@ public final class BucketManager {
         String resource = UrlSafeBase64.encodeToString(url);
         String to = encodedEntry(bucket, key);
         String path = String.format("/fetch/%s/to/%s", resource, to);
-        Response r = ioPost(bucket, path);
-        return r.jsonToObject(FetchRet.class);
+        Response res = ioPost(bucket, path);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        FetchRet fetchRet = res.jsonToObject(FetchRet.class);
+        res.close();
+        return fetchRet;
     }
 
     /**
@@ -496,7 +542,11 @@ public final class BucketManager {
     public void prefetch(String bucket, String key) throws QiniuException {
         String resource = encodedEntry(bucket, key);
         String path = String.format("/prefetch/%s", resource);
-        ioPost(bucket, path);
+        Response res = ioPost(bucket, path);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        res.close();
     }
 
     /**
@@ -553,20 +603,20 @@ public final class BucketManager {
     public void setBucketAcl(String bucket, AclType acl) throws QiniuException {
         String url = String.format("%s/private?bucket=%s&private=%s", configuration.ucHost(), bucket, acl.getType());
         Response res = post(url, null);
-        res.close();
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
+        res.close();
     }
 
     public BucketInfo getBucketInfo(String bucket) throws QiniuException {
         String url = String.format("%s/v2/bucketInfo?bucket=%s", configuration.ucHost(), bucket);
         Response res = post(url, null);
         if (!res.isOK()) {
-            res.close();
             throw new QiniuException(res);
         }
         BucketInfo info = res.jsonToObject(BucketInfo.class);
+        res.close();
         return info;
     }
 
@@ -574,6 +624,10 @@ public final class BucketManager {
         String url = String.format("%s/noIndexPage?bucket=%s&noIndexPage=%s",
                 configuration.ucHost(), bucket, type.getType());
         Response res = post(url, null);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        res.close();
     }
 
     /*
@@ -704,6 +758,28 @@ public final class BucketManager {
         public BatchOperations addChangeTypeOps(String bucket, StorageType type, String... keys) {
             for (String key : keys) {
                 ops.add(String.format("chtype/%s/type/%d", encodedEntry(bucket, key), type.ordinal()));
+            }
+            setExecBucket(bucket);
+            return this;
+        }
+
+        /**
+         * 添加changeStatus指令
+         */
+        public BatchOperations addChangeStatusOps(String bucket, int status, String... keys) {
+            for (String key : keys) {
+                ops.add(String.format("chstatus/%s/status/%d", encodedEntry(bucket, key), status));
+            }
+            setExecBucket(bucket);
+            return this;
+        }
+
+        /**
+         * 添加deleteAfterDays指令
+         */
+        public BatchOperations addDeleteAfterDaysOps(String bucket, int days, String... keys) {
+            for (String key : keys) {
+                ops.add(String.format("deleteAfterDays/%s/%d", encodedEntry(bucket, key), days));
             }
             setExecBucket(bucket);
             return this;

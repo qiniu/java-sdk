@@ -9,7 +9,6 @@ import com.qiniu.streaming.model.StreamListing;
 import com.qiniu.streaming.model.StreamStatus;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
-import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 
 import java.util.Iterator;
@@ -55,7 +54,7 @@ public final class StreamingManager {
      */
     public void create(String streamKey) throws QiniuException {
         String path = "";
-        String body = String.format("{\"key\":\"%s\"}", streamKey);
+        String body = new StringMap().put("key", streamKey).jsonString();
         post(path, body, null);
     }
 
@@ -89,15 +88,11 @@ public final class StreamingManager {
      */
     public StreamListing listStreams(boolean live, String prefix, String marker) throws QiniuException {
         StringMap map = new StringMap();
-        if (live) {
-            map.put("liveonly", live);
-        }
-        if (!StringUtils.isNullOrEmpty(prefix)) {
-            map.put("prefix", prefix);
-        }
-        if (!StringUtils.isNullOrEmpty(marker)) {
-            map.put("marker", marker);
-        }
+
+        map.putWhen("liveonly", live, live);
+        map.putNotEmpty("prefix", prefix);
+        map.putNotEmpty("marker", marker);
+
         String path = "";
 
         if (map.size() != 0) {
@@ -156,16 +151,28 @@ public final class StreamingManager {
      * @param end       录制结束的时间戳，单位秒
      */
     public String saveAs(String streamKey, String fileName, long start, long end) throws QiniuException {
+        return saveAs(streamKey, fileName, start, end, null);
+    }
+
+
+    /**
+     * * 从直播流数据中录制点播，该方法可以指定录制的时间段
+     *
+     * @param streamKey 流名称
+     * @param fileName  录制后保存的文件名
+     * @param start     录制开始的时间戳，单位秒
+     * @param end       录制结束的时间戳，单位秒
+     * @param other     文档中指定的其它参数
+     */
+    public String saveAs(String streamKey, String fileName, long start, long end, StringMap other) throws QiniuException {
         String path = encodeKey(streamKey) + "/saveas";
-        String body;
-        if (fileName == null) {
-            body = String.format("{\"start\": %d,\"end\": %d}", start, end);
-        } else {
-            body = String.format("{\"fname\": %s,\"start\": %d,\"end\": %d}", fileName, start, end);
-        }
+        StringMap param = other != null ? other : new StringMap();
+        param.putNotEmpty("fname", fileName).put("start", start).put("end", end);
+        String body = param.jsonString();
         SaveRet r = post(path, body, SaveRet.class);
         return r.fname;
     }
+
 
     /**
      * 获取流推流的片段列表，一个流开始和断流算一个片段
