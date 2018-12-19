@@ -150,6 +150,9 @@ public final class ResumeUploader {
             }
 
             ResumeBlockInfo blockInfo = response.jsonToObject(ResumeBlockInfo.class);
+            if (blockInfo.crc32 != crc) {
+                throw new QiniuException(new Exception("block's crc32 is not match"));
+            }
             contexts[contextIndex++] = blockInfo.ctx;
             uploaded += blockSize;
             helper.record(uploaded);

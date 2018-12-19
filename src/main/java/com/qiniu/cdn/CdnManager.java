@@ -39,10 +39,10 @@ public final class CdnManager {
     private final Client client;
 
     /*
-    * CdnManager 使用七牛标准的管理鉴权方式
-    *
-    * @param auth - Auth 对象
-    * */
+     * CdnManager 使用七牛标准的管理鉴权方式
+     *
+     * @param auth - Auth 对象
+     * */
     public CdnManager(Auth auth) {
         this(auth, "http://fusion.qiniuapi.com");
     }
@@ -51,6 +51,12 @@ public final class CdnManager {
         this.auth = auth;
         this.server = server;
         this.client = new Client();
+    }
+
+    public CdnManager(Auth auth, String server, Client client) {
+        this.auth = auth;
+        this.server = server;
+        this.client = client;
     }
 
     /**

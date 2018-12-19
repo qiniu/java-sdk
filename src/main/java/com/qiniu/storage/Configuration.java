@@ -4,8 +4,8 @@ import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.common.ZoneReqInfo;
+import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
-import qiniu.happydns.DnsClient;
 
 /**
  * 该类封装了SDK相关配置参数
@@ -17,9 +17,9 @@ public final class Configuration implements Cloneable {
      */
     public Zone zone;
     /**
-     * 空间相关上传管理操作是否使用 https , 默认否
+     * 空间相关上传管理操作是否使用 https , 默认 是
      */
-    public boolean useHttpsDomains = false;
+    public boolean useHttpsDomains = true;
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */
@@ -59,7 +59,7 @@ public final class Configuration implements Cloneable {
     /**
      * 外部dns
      */
-    public DnsClient dnsClient;
+    public Dns dns;
     /*
      * 解析域名时,优先使用host配置,主要针对内部局域网配置
      */
@@ -74,15 +74,14 @@ public final class Configuration implements Cloneable {
      */
     public static String defaultRsHost = "rs.qiniu.com";
     public static String defaultApiHost = "api.qiniu.com";
+    public static String defaultUcHost = "uc.qbox.me";
 
     public Configuration() {
-        this.zone = null;
-        this.dnsClient = null;
+
     }
 
     public Configuration(Zone zone) {
         this.zone = zone;
-        this.dnsClient = null;
     }
 
     public Configuration clone() {
@@ -166,5 +165,13 @@ public final class Configuration implements Cloneable {
         }
         return useHttpsDomains ? zone.getRsfHttps(zoneReqInfo)
                 : zone.getRsfHttp(zoneReqInfo);
+    }
+
+    public String ucHost() {
+        String scheme = "http://";
+        if (useHttpsDomains) {
+            scheme = "https://";
+        }
+        return scheme + defaultUcHost;
     }
 }

@@ -1,16 +1,16 @@
 package test.com.qiniu.storage;
 
-import com.qiniu.storage.Configuration;
-import com.qiniu.storage.ResumeUploader;
-import test.com.qiniu.TempFile;
-import test.com.qiniu.TestConfig;
 import com.qiniu.common.Constants;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.storage.Configuration;
+import com.qiniu.storage.ResumeUploader;
 import com.qiniu.storage.persistent.FileRecorder;
 import com.qiniu.util.Etag;
 import org.junit.Test;
+import test.com.qiniu.TempFile;
+import test.com.qiniu.TestConfig;
 
 import java.io.File;
 import java.io.IOException;

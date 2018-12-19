@@ -1,14 +1,16 @@
 package test.com.qiniu.streaming;
 
-import com.qiniu.streaming.StreamingManager;
-import test.com.qiniu.TestConfig;
+import com.google.gson.JsonSyntaxException;
 import com.qiniu.common.QiniuException;
+import com.qiniu.streaming.StreamingManager;
 import com.qiniu.streaming.model.ActivityRecords;
 import com.qiniu.streaming.model.StreamAttribute;
 import com.qiniu.streaming.model.StreamListing;
 import com.qiniu.streaming.model.StreamStatus;
 import com.qiniu.util.Auth;
+import com.qiniu.util.Json;
 import org.junit.Test;
+import test.com.qiniu.TestConfig;
 
 import static org.junit.Assert.*;
 
@@ -16,15 +18,7 @@ import static org.junit.Assert.*;
  * Created by bailong on 16/9/22
  */
 public class StreamingTest {
-    private Auth auth = null;
-
-    {
-        try {
-            auth = Auth.create(System.getenv("ak"), System.getenv("sk"));
-        } catch (Exception e) {
-            auth = TestConfig.testAuth;
-        }
-    }
+    private Auth auth = TestConfig.testAuth;
 
     private String hub = "pilisdktest";
     private String streamKeyPrefix = "pilijava" + System.currentTimeMillis();
@@ -123,4 +117,38 @@ public class StreamingTest {
 
         assertFalse(it.hasNext());
     }
+
+    @Test
+    public void testSaveAs() throws QiniuException {
+        try {
+            manager.saveAs("test--sd", "f\"ff.m3u8");
+        } catch (QiniuException e) {
+            // 619 , no data; 612 stream not found, 但请求正常 //
+            if (e.code() != 619 && e.code() != 612) {
+                throw e;
+            }
+        }
+    }
+
+    @Test
+    public void testCreate() throws QiniuException {
+        try {
+            String body = String.format("{\"key\":\"%s\"}", "stream\"Key");
+            System.out.println(body);
+            Json.decode(body);
+            fail("json 解析不正确");
+        } catch (JsonSyntaxException e) {
+
+        }
+        try {
+            manager.create("streamKey");
+        } catch (QiniuException e) {
+            if (e.code() != 614) {
+                throw e;
+            }
+        }
+    }
+
+
+
 }

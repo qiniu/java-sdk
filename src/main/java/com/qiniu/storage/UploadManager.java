@@ -18,7 +18,7 @@ import java.io.InputStream;
 public final class UploadManager {
     private final Client client;
     private final Recorder recorder;
-    private final Configuration configuration;
+    private Configuration configuration;
 
     /**
      * 构建一个非断点续传的上传对象
@@ -41,7 +41,11 @@ public final class UploadManager {
         configuration = config.clone();
         client = new Client(configuration);
         this.recorder = recorder;
+    }
 
+    public UploadManager(Client client, Recorder recorder) {
+        this.client = client;
+        this.recorder = recorder;
     }
 
     private static void checkArgs(final String key, byte[] data, File f, String token) {
@@ -67,7 +71,6 @@ public final class UploadManager {
         if (params == null) {
             return ret;
         }
-
         params.forEach(new StringMap.Consumer() {
             @Override
             public void accept(String key, Object value) {
@@ -75,12 +78,11 @@ public final class UploadManager {
                     return;
                 }
                 String val = value.toString();
-                if (key.startsWith("x:") && !val.equals("")) {
+                if ((key.startsWith("x:") || key.startsWith("x-qn-meta-")) && !val.equals("")) {
                     ret.put(key, val);
                 }
             }
         });
-
         return ret;
     }
 

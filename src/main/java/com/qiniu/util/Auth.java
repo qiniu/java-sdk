@@ -312,7 +312,6 @@ public final class Auth {
             }
         }
 
-        System.out.println(sb.toString());
         mac.update(StringUtils.utf8Bytes(sb.toString()));
 
         String digest = UrlSafeBase64.encodeToString(mac.doFinal());

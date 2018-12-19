@@ -5,7 +5,8 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.rtc.model.RoomAccess;
-import com.qiniu.util.*;
+import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 
 public class RtcRoomManager {
     private final Auth auth;
@@ -17,7 +18,7 @@ public class RtcRoomManager {
         this(auth, "http://rtc.qiniuapi.com");
     }
 
-    RtcRoomManager(Auth auth, String host) {
+    public RtcRoomManager(Auth auth, String host) {
         this.auth = auth;
         this.host = host;
         client = new Client();
@@ -27,7 +28,7 @@ public class RtcRoomManager {
     /**
      * @param appId    房间所属帐号的 app
      * @param roomName 操作所查询的连麦房间
-     * @return jsonString
+     * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
      * @throws QiniuException
      */
     public Response listUser(String appId, String roomName) throws QiniuException {
@@ -40,8 +41,8 @@ public class RtcRoomManager {
      * @param appId    房间所属帐号的 app
      * @param roomName 操作房间名
      * @param userId   被踢人员
+     * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
      * @throws QiniuException
-     * @returnjsonString
      */
     public Response kickUser(String appId, String roomName, String userId) throws QiniuException {
         String urlStr = getLink(appId, roomName, "users/" + userId);
@@ -54,7 +55,7 @@ public class RtcRoomManager {
      * @param prefix 所查询房间名的前缀索引，可以为空。
      * @param offset 分页查询的位移标记
      * @param limit  此次查询的最大长度
-     * @return jsonString
+     * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
      * @throws QiniuException
      */
     public Response listActiveRooms(String appId, String prefix, int offset, int limit) throws QiniuException {
@@ -81,7 +82,7 @@ public class RtcRoomManager {
      * @param expireAt   int64 类型，鉴权的有效时间，传入以秒为单位的64位Unix绝对时间，token 将在该时间后失效
      * @param permission 该用户的房间管理权限，"admin" 或 "user"，默认为 "user" 。当权限角色为 "admin" 时，拥有将其他用户移除出房
      *                   间等特权.
-     * @return
+     * @return roomToken
      * @throws Exception
      */
     public String getRoomToken(String appId, String roomName, String userId,

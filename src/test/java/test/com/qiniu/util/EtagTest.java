@@ -1,9 +1,9 @@
 package test.com.qiniu.util;
 
-import test.com.qiniu.TempFile;
 import com.qiniu.common.Constants;
 import com.qiniu.util.Etag;
 import org.junit.Test;
+import test.com.qiniu.TempFile;
 
 import java.io.File;
 import java.io.IOException;
