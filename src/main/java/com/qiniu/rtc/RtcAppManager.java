@@ -44,9 +44,7 @@ public class RtcAppManager {
         if (title != null) {
             params.put("title", title);
         }
-        if (hub != null) {
-            params.put("maxUsers", maxUsers);
-        }
+        params.put("maxUsers", maxUsers);
         params.put("noAutoKickUser", noAutoKickUser);
 
         String url = String.format("%s%s", host, "/v3/apps");
