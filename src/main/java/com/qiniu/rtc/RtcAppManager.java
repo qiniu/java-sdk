@@ -51,7 +51,7 @@ public class RtcAppManager {
         if (title != null) {
             params.put("title", title);
         }
-        if (maxUsers>0) {
+        if (maxUsers > 0) {
             params.put("maxUsers", maxUsers);
         }
         params.put("noAutoKickUser", noAutoKickUser);
