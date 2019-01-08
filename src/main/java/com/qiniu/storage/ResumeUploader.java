@@ -310,7 +310,7 @@ public final class ResumeUploader {
             long modify_time;
             // CHECKSTYLE:ON
             String[] contexts;
-            
+
             Record() {	
             }
 
