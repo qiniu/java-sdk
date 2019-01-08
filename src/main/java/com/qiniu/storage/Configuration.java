@@ -2,8 +2,9 @@ package com.qiniu.storage;
 
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
+import com.qiniu.common.Region;
+import com.qiniu.common.RegionReqInfo;
 import com.qiniu.common.Zone;
-import com.qiniu.common.ZoneReqInfo;
 import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
 
@@ -13,8 +14,11 @@ import com.qiniu.http.ProxyConfiguration;
 public final class Configuration implements Cloneable {
 
     /**
-     * 使用的Zone
+     * 使用的Region
      */
+    public Region region;
+    
+    @Deprecated
     public Zone zone;
     /**
      * 空间相关上传管理操作是否使用 https , 默认 是
@@ -77,9 +81,13 @@ public final class Configuration implements Cloneable {
     public static String defaultUcHost = "uc.qbox.me";
 
     public Configuration() {
-
+    }
+    
+    public Configuration(Region region) {
+        this.region = region;
     }
 
+    @Deprecated
     public Configuration(Zone zone) {
         this.zone = zone;
     }
@@ -94,41 +102,41 @@ public final class Configuration implements Cloneable {
     }
 
     public String upHost(String upToken) throws QiniuException {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(upToken);
-        if (zone == null) {
-            zone = Zone.autoZone();
+    	RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
+        if (region == null) {
+        	region = Region.autoRegion();
         }
-        return useHttpsDomains ? zone.getUpHttps(zoneReqInfo)
-                : zone.getUpHttp(zoneReqInfo);
+        return useHttpsDomains ? region.getUpHttps(regionReqInfo)
+                : region.getUpHttp(regionReqInfo);
     }
 
     public String upHostBackup(String upToken) throws QiniuException {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(upToken);
-        if (zone == null) {
-            zone = Zone.autoZone();
+    	RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
+        if (region == null) {
+        	region = Region.autoRegion();
         }
-        return useHttpsDomains ? zone.getUpBackupHttps(zoneReqInfo)
-                : zone.getUpBackupHttp(zoneReqInfo);
+        return useHttpsDomains ? zone.getUpBackupHttps(regionReqInfo)
+                : zone.getUpBackupHttp(regionReqInfo);
     }
 
 
     public String ioHost(String ak, String bucket) {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
-        if (zone == null) {
-            zone = Zone.autoZone();
+    	RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        if (region == null) {
+        	region = Region.autoRegion();
         }
-        return useHttpsDomains ? zone.getIovipHttps(zoneReqInfo)
-                : zone.getIovipHttp(zoneReqInfo);
+        return useHttpsDomains ? zone.getIovipHttps(regionReqInfo)
+                : zone.getIovipHttp(regionReqInfo);
     }
 
     public String apiHost(String ak, String bucket) {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
-        if (zone == null) {
-            zone = Zone.autoZone();
+    	RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        if (region == null) {
+        	region = Region.autoRegion();
         }
 
-        return useHttpsDomains ? zone.getApiHttps(zoneReqInfo)
-                : zone.getApiHttp(zoneReqInfo);
+        return useHttpsDomains ? zone.getApiHttps(regionReqInfo)
+                : zone.getApiHttp(regionReqInfo);
     }
 
     public String rsHost() {
@@ -147,24 +155,23 @@ public final class Configuration implements Cloneable {
         return scheme + defaultApiHost;
     }
 
-
     public String rsHost(String ak, String bucket) {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
-        if (zone == null) {
-            zone = Zone.autoZone();
+        RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        if (region == null) {
+        	region = Region.autoRegion();
         }
-        return useHttpsDomains ? zone.getRsHttps(zoneReqInfo)
-                : zone.getRsHttp(zoneReqInfo);
+        return useHttpsDomains ? region.getRsHttps(regionReqInfo)
+                : region.getRsHttp(regionReqInfo);
     }
 
 
     public String rsfHost(String ak, String bucket) {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
-        if (zone == null) {
-            zone = Zone.autoZone();
+    	RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        if (region == null) {
+        	region = Region.autoRegion();
         }
-        return useHttpsDomains ? zone.getRsfHttps(zoneReqInfo)
-                : zone.getRsfHttp(zoneReqInfo);
+        return useHttpsDomains ? region.getRsfHttps(regionReqInfo)
+                : region.getRsfHttp(regionReqInfo);
     }
 
     public String ucHost() {

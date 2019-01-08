@@ -310,8 +310,8 @@ public final class ResumeUploader {
             long modify_time;
             // CHECKSTYLE:ON
             String[] contexts;
-
-            Record() {
+            
+            Record() {	
             }
 
             Record(long size, long offset, long modify_time, String[] contexts) {
