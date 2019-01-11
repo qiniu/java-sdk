@@ -9,6 +9,8 @@ import com.qiniu.util.StringMap;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * 该类封装了七牛提供的表单上传机制
@@ -100,6 +102,11 @@ public final class FormUploader {
         }
         if (file != null) {
             fileName = file.getName();
+            try {
+                fileName = URLEncoder.encode(fileName, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                fileName = "fileName";
+            }
         }
         if (fileName == null || fileName.trim().length() == 0) {
             fileName = "fileName";
