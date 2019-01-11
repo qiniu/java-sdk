@@ -14,6 +14,8 @@ import test.com.qiniu.TestConfig;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -239,7 +241,7 @@ public class FormUploadTest {
     }
 
     @Test
-    public void testFname() {
+    public void testFname() throws UnsupportedEncodingException {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
             final String expectKey = "世/界";
@@ -257,7 +259,8 @@ public class FormUploadTest {
             try {
                 Response res = uploadManager.put(f, expectKey, token, null, null, true);
                 MyRet ret = res.jsonToObject(MyRet.class);
-                assertEquals(f.getName(), ret.fname);
+                assertTrue("  文件名相同，或 url encode 后相同  ",
+                        f.getName().equals(ret.fname) || URLEncoder.encode(f.getName(), "UTF-8").equals(ret.fname));
             } catch (QiniuException e) {
                 TempFile.remove(f);
                 fail(e.response.toString());
