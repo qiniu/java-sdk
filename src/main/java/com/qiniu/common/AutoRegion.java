@@ -1,5 +1,6 @@
 package com.qiniu.common;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -7,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 
-public class AutoRegion extends Zone {
+public class AutoRegion extends Region {
     public static AutoRegion instance = new AutoRegion();
     private final String ucServer;
 
@@ -34,18 +35,22 @@ public class AutoRegion extends Zone {
         this.client = new Client();
         this.regions = new ConcurrentHashMap<>();
         this.inferDomainsMap = new ConcurrentHashMap<>();
-        this.inferDomainsMap.put("http://up.qiniu.com", region0());
-        this.inferDomainsMap.put("http://up-z1.qiniu.com", region1());
-        this.inferDomainsMap.put("http://up-z2.qiniu.com", region2());
-        this.inferDomainsMap.put("http://up-na0.qiniu.com", regionNa0());
-        this.inferDomainsMap.put("http://up-as0.qiniu.com", regionAs0());
+        this.inferDomainsMap.put("up.qiniup.com", region0());
+        this.inferDomainsMap.put("up-jjh.qiniup.com", region0());
+        this.inferDomainsMap.put("up-xs.qiniup.com", region0());
+        this.inferDomainsMap.put("up-z1.qiniup.com", region1());
+        this.inferDomainsMap.put("up-z2.qiniup.com", region2());
+        this.inferDomainsMap.put("up-dg.qiniup.com", region2());
+        this.inferDomainsMap.put("up-fs.qiniup.com", region2());
+        this.inferDomainsMap.put("up-na0.qiniup.com", regionNa0());
+        this.inferDomainsMap.put("up-as0.qiniup.com", regionAs0());
     }
 
     /**
      * 通过 API 接口查询上传域名
      */
     private UCRet getRegionJson(RegionIndex index) throws QiniuException {
-        String address = ucServer + "/v1/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
+        String address = ucServer + "/v2/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
 
         Response r = client.get(address);
         return r.jsonToObject(UCRet.class);
@@ -90,201 +95,85 @@ public class AutoRegion extends Zone {
         }
         return null;
     }
-
+    
     /**
-     * 获取上传HTTP域名
+     * 获取源站直传域名
      */
-    @Override
-    public String getUpHttp(RegionReqInfo regionReqInfo) {
+    public String getSrcUpHost(RegionReqInfo regionReqInfo) {
         RegionInfo info = queryRegionInfo(regionReqInfo);
         if (info == null) {
             return "";
         }
-        return info.upHttp;
+        return info.srcUpHosts.get(0);
     }
-
+    
     /**
-     * 获取上传备用HTTP域名（Cdn加速域名）
+     * 获取加速上传域名
      */
-    @Override
-    public String getUpBackupHttp(RegionReqInfo regionReqInfo) {
+    public String getAccUpHost(RegionReqInfo regionReqInfo) {
         RegionInfo info = queryRegionInfo(regionReqInfo);
         if (info == null) {
             return "";
         }
-        return info.upBackupHttp;
+        return info.accUpHosts.get(0);
     }
 
     /**
-     * 获取上传入口IP
+     * 获取源站下载域名
      */
-    @Override
-    public String getUpIpHttp(RegionReqInfo regionReqInfo) {
+    public String getIovipHost(RegionReqInfo regionReqInfo) {
         RegionInfo info = queryRegionInfo(regionReqInfo);
         if (info == null) {
             return "";
         }
-        return info.upIpHttp;
+        return info.iovipHost;
     }
 
     /**
-     * 获取资源高级管理HTTP域名
+     * 获取资源管理域名
      */
-    @Override
-    public String getIovipHttp(RegionReqInfo regionReqInfo) {
+    public String getRsHost(RegionReqInfo regionReqInfo) {
         RegionInfo info = queryRegionInfo(regionReqInfo);
         if (info == null) {
-            return "";
+            return super.getRsHost(regionReqInfo);
         }
-        return info.iovipHttp;
-    }
-
-    /**
-     * 获取上传HTTPS域名
-     */
-    @Override
-    public String getUpHttps(RegionReqInfo regionReqInfo) {
-        RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
-            return "";
-        }
-        return info.upHttps;
-    }
-
-    /**
-     * 获取上传备用HTTPS域名（Cdn加速域名）
-     */
-    @Override
-    public String getUpBackupHttps(RegionReqInfo regionReqInfo) {
-        RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
-            return "";
-        }
-        return info.upBackupHttps;
-    }
-
-    /**
-     * 获取上传入口IP
-     */
-    @Override
-    public String getUpIpHttps(RegionReqInfo regionReqInfo) {
-        RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
-            return "";
-        }
-        return info.upIpHttps;
-    }
-
-    /**
-     * 获取资源高级管理HTTPS域名
-     */
-    @Override
-    public String getIovipHttps(RegionReqInfo regionReqInfo) {
-        RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
-            return "";
-        }
-        return info.iovipHttps;
-    }
-
-    /**
-     * 获取资源管理HTTP域名
-     */
-    @Override
-    public String getRsHttp(RegionReqInfo regionReqInfo) {
-        RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
-            return super.getRsHttp();
-        }
-        Region region = this.inferDomainsMap.get(info.upHttp);
+        Region region = this.inferDomainsMap.get(info.srcUpHosts.get(0));
         if (region != null) {
-            return region.getRsHttp();
+            return region.getRsHost(regionReqInfo);
         } else {
-            return super.getRsHttp();
+            return super.getRsHost(regionReqInfo);
         }
     }
 
     /**
-     * 获取资源管理HTTPS域名
+     * 获取资源列表域名
      */
-    @Override
-    public String getRsHttps(RegionReqInfo regionReqInfo) {
+    public String getRsfHost(RegionReqInfo regionReqInfo) {
         RegionInfo info = queryRegionInfo(regionReqInfo);
         if (info == null) {
-            return super.getRsHttps();
+            return super.getRsfHost(regionReqInfo);
         }
-        Region region = this.inferDomainsMap.get(info.upHttp);
+        Region region = this.inferDomainsMap.get(info.srcUpHosts.get(0));
         if (region != null) {
-            return region.getRsHttps();
+            return region.getRsfHost(regionReqInfo);
         } else {
-            return super.getRsHttps();
+            return super.getRsfHost(regionReqInfo);
         }
     }
-
-    /**
-     * 获取资源列表HTTP域名
-     */
-    @Override
-    public String getRsfHttp(RegionReqInfo regionReqInfo) {
-        RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
-            return super.getRsfHttp();
-        }
-        Region region = this.inferDomainsMap.get(info.upHttp);
-        if (region != null) {
-            return region.getRsfHttp();
-        } else {
-            return super.getRsfHttp();
-        }
-    }
-
-
-    /**
-     * 获取资源列表HTTP域名
-     */
-    @Override
-    public String getRsfHttps(RegionReqInfo regionReqInfo) {
-        RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
-            return super.getRsfHttps();
-        }
-        Region region = this.inferDomainsMap.get(info.upHttp);
-        if (region != null) {
-            return region.getRsfHttps();
-        } else {
-            return super.getRsfHttps();
-        }
-    }
-
-    @Override
-    public String getApiHttp(RegionReqInfo regionReqInfo) {
-        RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
-            return super.getApiHttp();
-        }
-        Region region = this.inferDomainsMap.get(info.upHttp);
-        if (region != null) {
-            return region.getApiHttp();
-        } else {
-            return super.getApiHttp();
-        }
-    }
-
 
     /**
      * 获取资源处理HTTP域名
      */
-    @Override
-    public String getApiHttps(RegionReqInfo regionReqInfo) {
+    public String getApiHost(RegionReqInfo regionReqInfo) {
         RegionInfo info = queryRegionInfo(regionReqInfo);
         if (info == null) {
-            return super.getApiHttps();
+            return super.getApiHost(regionReqInfo);
         }
-        Region region = this.inferDomainsMap.get(info.upHttp);
+        Region region = this.inferDomainsMap.get(info.srcUpHosts.get(0));
         if (region != null) {
-            return region.getApiHttps();
+            return region.getApiHost(regionReqInfo);
         } else {
-            return super.getApiHttps();
+            return super.getApiHost(regionReqInfo);
         }
     }
 
@@ -292,58 +181,42 @@ public class AutoRegion extends Zone {
      * 从接口获取的域名信息
      */
     static class RegionInfo {
-        final String upHttp;
-        final String upBackupHttp;
-        final String upIpHttp;
-        final String iovipHttp;
+    	final List<String> srcUpHosts;
+        final List<String> accUpHosts;
+        final String iovipHost;
 
-        final String upHttps;
-        final String upBackupHttps;
-        final String upIpHttps;
-        final String iovipHttps;
-
-        protected RegionInfo(String upHttp, String upBackupHttp, String upIpHttp, String iovipHttp,
-                         String upHttps, String upBackupHttps, String upIpHttps, String iovipHttps) {
-            this.upHttp = upHttp;
-            this.upBackupHttp = upBackupHttp;
-            this.upIpHttp = upIpHttp;
-            this.iovipHttp = iovipHttp;
-            this.upHttps = upHttps;
-            this.upBackupHttps = upBackupHttps;
-            this.upIpHttps = upIpHttps;
-            this.iovipHttps = iovipHttps;
+        protected RegionInfo(List<String> srcUpHosts, List<String> accUpHosts, String iovipHost) {
+        	this.srcUpHosts = srcUpHosts;
+        	this.accUpHosts = accUpHosts;
+        	this.iovipHost = iovipHost;
         }
 
-        /*
-         * {"ttl":86400,
-         *  "http":
-         *    {
-         *      "io":["http://iovip.qbox.me"],
-         *      "up":["http://up.qiniu.com","http://upload.qiniu.com",
-         *        "-H up.qiniu.com http://183.136.139.16"]
-         *    },
-         *  "https":{"io":["https://iovip.qbox.me"],"up":["https://up.qbox.me"]}}
-         * */
+        /**
+	      {
+	        "io": {"src": {"main": ["iovip.qbox.me"]}},
+	        "up": {
+	          "acc": {
+	            "main": ["upload.qiniup.com"],
+	            "backup": ["upload-jjh.qiniup.com", "upload-xs.qiniup.com"]
+	          },
+	          "src": {
+	            "main": ["up.qiniup.com"],
+	            "backup": ["up-jjh.qiniup.com", "up-xs.qiniup.com"]
+	          }
+	        }
+	      }
+         * @param ret
+         * @return
+         */
         static RegionInfo buildFromUcRet(UCRet ret) {
-            List<String> upsHttp = ret.http.get("up");
-            String upHttp = upsHttp.get(0);
-            String upBackupHttp = upsHttp.get(1);
-            String upIpHttp = upsHttp.get(2).split(" ")[2].split("//")[1];
-            String ioHttp = ret.http.get("io").get(0);
-
-            List<String> upsHttps = ret.https.get("up");
-            String upHttps = upsHttps.get(0);
-            String upBackupHttps = upHttps;
-            String upIpHttps = "";
-            if (upsHttps.size() > 1) {
-                upBackupHttps = upsHttps.get(1);
-            }
-            if (upsHttps.size() > 2) {
-                upIpHttps = upsHttps.get(2).split(" ")[2].split("//")[1];
-            }
-            String ioHttps = ret.https.get("io").get(0);
-
-            return new RegionInfo(upHttp, upBackupHttp, upIpHttp, ioHttp, upHttps, upBackupHttps, upIpHttps, ioHttps);
+        	List<String> srcUpHosts = new ArrayList<>();
+        	srcUpHosts.addAll(ret.up.src.get("main"));
+        	srcUpHosts.addAll(ret.up.src.get("backup"));
+        	List<String> accUpHosts = new ArrayList<>();
+        	accUpHosts.addAll(ret.up.acc.get("main"));
+        	accUpHosts.addAll(ret.up.acc.get("backup"));
+        	String iovipHost = ret.io.src.get("main").get(0);
+            return new RegionInfo(srcUpHosts, accUpHosts, iovipHost);
         }
     }
 
@@ -367,7 +240,17 @@ public class AutoRegion extends Zone {
     }
 
     private class UCRet {
-        Map<String, List<String>> http;
-        Map<String, List<String>> https;
+        UPRet up;
+        IORet io;
     }
+    
+    private class UPRet {
+    	Map<String, List<String>> acc;
+    	Map<String, List<String>> src;
+    }
+    
+    private class IORet {
+    	Map<String, List<String>> src;
+    }
+    
 }

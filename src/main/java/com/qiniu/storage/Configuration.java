@@ -4,7 +4,6 @@ import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Region;
 import com.qiniu.common.RegionReqInfo;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
 
@@ -18,12 +17,14 @@ public final class Configuration implements Cloneable {
      */
     public Region region;
     
-    @Deprecated
-    public Zone zone;
     /**
      * 空间相关上传管理操作是否使用 https , 默认 是
      */
     public boolean useHttpsDomains = true;
+    /**
+     * 空间相关上传管理操作是否使用vdn加速上传，默认 是
+     */
+    public boolean useAccUpHost = true;
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */
@@ -86,12 +87,7 @@ public final class Configuration implements Cloneable {
     public Configuration(Region region) {
         this.region = region;
     }
-
-    @Deprecated
-    public Configuration(Zone zone) {
-        this.zone = zone;
-    }
-
+    
     public Configuration clone() {
         try {
             return (Configuration) super.clone();
@@ -106,8 +102,8 @@ public final class Configuration implements Cloneable {
         if (region == null) {
         	region = Region.autoRegion();
         }
-        return useHttpsDomains ? region.getUpHttps(regionReqInfo)
-                : region.getUpHttp(regionReqInfo);
+        return useAccUpHost ? getScheme() + region.getAccUpHost(regionReqInfo)
+        		: getScheme() + region.getSrcUpHost(regionReqInfo);
     }
 
     public String upHostBackup(String upToken) throws QiniuException {
@@ -115,18 +111,16 @@ public final class Configuration implements Cloneable {
         if (region == null) {
         	region = Region.autoRegion();
         }
-        return useHttpsDomains ? zone.getUpBackupHttps(regionReqInfo)
-                : zone.getUpBackupHttp(regionReqInfo);
+        return useAccUpHost ? getScheme() + region.getAccUpHostBackup(regionReqInfo)
+        		: getScheme() + region.getSrcUpHostBackup(regionReqInfo);
     }
-
 
     public String ioHost(String ak, String bucket) {
     	RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
         if (region == null) {
         	region = Region.autoRegion();
         }
-        return useHttpsDomains ? zone.getIovipHttps(regionReqInfo)
-                : zone.getIovipHttp(regionReqInfo);
+        return getScheme() + region.getIovipHost(regionReqInfo);
     }
 
     public String apiHost(String ak, String bucket) {
@@ -134,25 +128,7 @@ public final class Configuration implements Cloneable {
         if (region == null) {
         	region = Region.autoRegion();
         }
-
-        return useHttpsDomains ? zone.getApiHttps(regionReqInfo)
-                : zone.getApiHttp(regionReqInfo);
-    }
-
-    public String rsHost() {
-        String scheme = "http://";
-        if (useHttpsDomains) {
-            scheme = "https://";
-        }
-        return scheme + defaultRsHost;
-    }
-
-    public String apiHost() {
-        String scheme = "http://";
-        if (useHttpsDomains) {
-            scheme = "https://";
-        }
-        return scheme + defaultApiHost;
+        return getScheme() + region.getApiHost(regionReqInfo);
     }
 
     public String rsHost(String ak, String bucket) {
@@ -160,25 +136,31 @@ public final class Configuration implements Cloneable {
         if (region == null) {
         	region = Region.autoRegion();
         }
-        return useHttpsDomains ? region.getRsHttps(regionReqInfo)
-                : region.getRsHttp(regionReqInfo);
+        return getScheme() + region.getRsHost(regionReqInfo);
     }
-
 
     public String rsfHost(String ak, String bucket) {
     	RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
         if (region == null) {
         	region = Region.autoRegion();
         }
-        return useHttpsDomains ? region.getRsfHttps(regionReqInfo)
-                : region.getRsfHttp(regionReqInfo);
+        return getScheme() + region.getRsfHost(regionReqInfo);
+    }
+    
+    public String rsHost() {
+        return getScheme() + defaultRsHost;
+    }
+
+    public String apiHost() {
+        return getScheme() + defaultApiHost;
     }
 
     public String ucHost() {
-        String scheme = "http://";
-        if (useHttpsDomains) {
-            scheme = "https://";
-        }
-        return scheme + defaultUcHost;
+        return getScheme() + defaultUcHost;
     }
+    
+    String getScheme() {
+    	return useHttpsDomains ? "https://" : "http://";
+    }
+    
 }

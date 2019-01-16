@@ -26,77 +26,67 @@ public class Zone extends Region {
 
 		@Deprecated
         public Builder upHttp(String upHttp) {
-        	return (Builder) super.upHttp(upHttp);
+        	return (Builder) super.accUpHost(upHttp);
         }
         
 		@Deprecated
         public Builder upHttps(String upHttps) {
-        	return (Builder) super.upHttps(upHttps);
+        	return (Builder) super.accUpHost(upHttps);
         }
 
 		@Deprecated
         public Builder upBackupHttp(String upBackupHttp) {
-        	return (Builder) super.upBackupHttp(upBackupHttp);
+        	return (Builder) super.accUpHost(upBackupHttp);
         }
 
 		@Deprecated
         public Builder upBackupHttps(String upBackupHttps) {
-        	return (Builder) super.upBackupHttps(upBackupHttps);
-        }
-
-		@Deprecated
-        public Builder upIpHttp(String upIpHttp) {
-        	return (Builder) super.upHttp(upIpHttp);
-        }
-
-		@Deprecated
-        public Builder upIpHttps(String upIpHttps) {
-        	return (Builder) super.upIpHttps(upIpHttps);
+        	return (Builder) super.accUpHost(upBackupHttps);
         }
 
 		@Deprecated
         public Builder iovipHttp(String iovipHttp) {
-        	return (Builder) super.iovipHttp(iovipHttp);
+        	return (Builder) super.iovipHost(iovipHttp);
         }
 
 		@Deprecated
         public Builder iovipHttps(String iovipHttps) {
-        	return (Builder) super.iovipHttps(iovipHttps);
+        	return (Builder) super.iovipHost(iovipHttps);
         }
 
 		@Deprecated
         public Builder rsHttp(String rsHttp) {
-        	return (Builder) super.rsHttp(rsHttp);
+        	return (Builder) super.rsHost(rsHttp);
         }
 
 		@Deprecated
         public Builder rsHttps(String rsHttps) {
-        	return (Builder) super.rsHttps(rsHttps);
+        	return (Builder) super.rsHost(rsHttps);
         }
 
 		@Deprecated
         public Builder rsfHttp(String rsfHttp) {
-        	return (Builder) super.rsfHttp(rsfHttp);
+        	return (Builder) super.rsfHost(rsfHttp);
         }
 
 		@Deprecated
         public Builder rsfHttps(String rsfHttps) {
-        	return (Builder) super.rsfHttps(rsfHttps);
+        	return (Builder) super.rsfHost(rsfHttps);
         }
 
 		@Deprecated
         public Builder apiHttp(String apiHttp) {
-        	return (Builder) super.apiHttp(apiHttp);
+        	return (Builder) super.apiHost(apiHttp);
         }
 
 		@Deprecated
         public Builder apiHttps(String apiHttps) {
-        	return (Builder) super.apiHttps(apiHttps);
+        	return (Builder) super.apiHost(apiHttps);
         }
 
 		@Deprecated
-        public Zone autoZone() {
-            return AutoZone.instance;
+        public Region autoZone() {
+            return AutoRegion.instance;
         }
 		
 		@Deprecated
@@ -176,8 +166,8 @@ public class Zone extends Region {
     }
 
 	@Deprecated
-    public static Zone autoZone() {
-        return (Zone) Region.autoRegion();
+    public static Region autoZone() {
+        return (Region) Region.autoRegion();
     }
     
 }
