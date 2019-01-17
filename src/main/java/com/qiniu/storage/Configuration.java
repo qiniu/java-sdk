@@ -74,11 +74,14 @@ public final class Configuration implements Cloneable {
      */
     public ProxyConfiguration proxy;
 
-    /**
+    /*
      * 特殊默认域名
      */
+    @Deprecated
     public static String defaultRsHost = "rs.qiniu.com";
+    @Deprecated
     public static String defaultApiHost = "api.qiniu.com";
+    @Deprecated
     public static String defaultUcHost = "uc.qbox.me";
 
     public Configuration() {

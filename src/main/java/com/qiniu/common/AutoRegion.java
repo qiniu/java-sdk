@@ -9,19 +9,26 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 
 public class AutoRegion extends Region {
-    public static AutoRegion instance = new AutoRegion();
+	
+	/**
+	 * uc接口域名
+	 */
     private final String ucServer;
 
     /**
      * 空间机房，域名信息缓存
      */
     private Map<RegionIndex, RegionInfo> regions;
+    
     /**
      * 根据API返回的上传域名推导出其他资源管理域名
      */
     private Map<String, Region> inferDomainsMap;
+    
+    /**
+     * 定义HTTP请求管理相关方法
+     */
     private Client client;
-
 
     /**
      * 构建默认的域名接口获取对象

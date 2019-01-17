@@ -115,7 +115,7 @@ public class Region {
          * 自动选择,其它参数设置无效
          */
         public Region autoRegion() {
-            return AutoRegion.instance;
+        	return new AutoRegion();
         }
 
         /**

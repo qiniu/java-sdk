@@ -15,15 +15,4 @@ public class ZoneReqInfo extends RegionReqInfo {
     public ZoneReqInfo(String accessKey, String bucket) {
     	super(accessKey, bucket);
     }
-	
-	@Deprecated
-    public String getAccessKey() {
-        return super.getAccessKey();
-    }
-
-	@Deprecated
-    public String getBucket() {
-        return super.getBucket();
-    }
-    
 }

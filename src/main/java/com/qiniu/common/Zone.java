@@ -86,7 +86,7 @@ public class Zone extends Region {
 
 		@Deprecated
         public Region autoZone() {
-            return AutoRegion.instance;
+			return super.autoRegion();
         }
 		
 		@Deprecated
