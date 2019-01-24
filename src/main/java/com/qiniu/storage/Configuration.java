@@ -28,7 +28,7 @@ public final class Configuration implements Cloneable {
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */
-    public int putThreshold = Constants.BLOCK_SIZE;
+    public long putThreshold = Constants.BLOCK_SIZE;
     /**
      * 连接超时时间 单位秒(默认10s)
      */
