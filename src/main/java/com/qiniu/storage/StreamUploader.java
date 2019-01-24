@@ -134,6 +134,9 @@ public final class StreamUploader {
                 }
             }
             ResumeBlockInfo blockInfo = response.jsonToObject(ResumeBlockInfo.class);
+            if (blockInfo.crc32 != crc) {
+                throw new QiniuException(new Exception("block's crc32 is not match"));
+            }
             contexts.add(blockInfo.ctx);
             uploaded += bufferIndex;
         }

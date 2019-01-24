@@ -170,6 +170,28 @@ public class Zone {
         return zone0();
     }
 
+
+    /**
+     * 华东机房内网上传相关域名
+     */
+    public static Zone qvmZone0() {
+        return new Builder().region("z0").upHttp("http://free-qvm-z0-xs.qiniup.com").
+                upHttps("https://free-qvm-z0-xs.qiniup.com").
+                upBackupHttp("http://free-qvm-z0-xs.qiniup.com").upBackupHttps("https://free-qvm-z0-xs.qiniup.com").
+                iovipHttp("http://iovip.qbox.me").iovipHttps("https://iovip.qbox.me").
+                rsHttp("http://rs.qiniu.com").rsHttps("https://rs.qbox.me")
+                .rsfHttp("http://rsf.qiniu.com").rsfHttps("https://rsf.qbox.me")
+                .apiHttp("http://api.qiniu.com").apiHttps("https://api.qiniu.com").build();
+    }
+
+    /**
+     * 华东机房内网上传相关域名
+     */
+    public static Zone qvmHuadong() {
+        return qvmZone0();
+    }
+
+
     /**
      * 华北机房相关域名
      */
@@ -187,6 +209,27 @@ public class Zone {
      */
     public static Zone huabei() {
         return zone1();
+    }
+
+
+    /**
+     * 华北机房内网上传相关域名
+     */
+    public static Zone qvmZone1() {
+        return new Builder().region("z1").upHttp("http://free-qvm-z1-zz.qiniup.com").
+                upHttps("https://free-qvm-z1-zz.qiniup.com").
+                upBackupHttp("http://free-qvm-z1-zz.qiniup.com").upBackupHttps("https://free-qvm-z1-zz.qiniup.com").
+                iovipHttp("http://iovip-z1.qbox.me").iovipHttps("https://iovip-z1.qbox.me").
+                rsHttp("http://rs-z1.qiniu.com").rsHttps("https://rs-z1.qbox.me")
+                .rsfHttp("http://rsf-z1.qiniu.com").rsfHttps("https://rsf-z1.qbox.me")
+                .apiHttp("http://api-z1.qiniu.com").apiHttps("https://api-z1.qiniu.com").build();
+    }
+
+    /**
+     * 华北机房内网上传相关域名
+     */
+    public static Zone qvmHuabei() {
+        return qvmZone1();
     }
 
     /**
