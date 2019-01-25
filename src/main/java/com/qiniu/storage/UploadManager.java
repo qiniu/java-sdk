@@ -44,6 +44,7 @@ public final class UploadManager {
     }
 
     public UploadManager(Client client, Recorder recorder) {
+        configuration = new Configuration();
         this.client = client;
         this.recorder = recorder;
     }
