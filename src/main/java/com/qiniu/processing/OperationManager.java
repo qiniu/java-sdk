@@ -43,7 +43,7 @@ public final class OperationManager {
     public OperationManager(Auth auth, Configuration cfg) {
         this.auth = auth;
         this.configuration = cfg.clone();
-        this.client = new Client(cfg);
+        this.client = new Client(configuration);
     }
 
     public OperationManager(Auth auth, Client client) {
