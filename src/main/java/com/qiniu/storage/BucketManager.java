@@ -44,12 +44,13 @@ public final class BucketManager {
     public BucketManager(Auth auth, Configuration cfg) {
         this.auth = auth;
         this.configuration = cfg.clone();
-        client = new Client(this.configuration);
+        client = new Client(configuration);
     }
 
     public BucketManager(Auth auth, Client client) {
         this.auth = auth;
         this.client = client;
+        this.configuration = new Configuration();
     }
 
     /**
