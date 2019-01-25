@@ -44,7 +44,7 @@ public final class BucketManager {
     public BucketManager(Auth auth, Configuration cfg) {
         this.auth = auth;
         this.configuration = cfg.clone();
-        client = new Client(cfg);
+        client = new Client(configuration);
     }
 
     public BucketManager(Auth auth, Client client) {
