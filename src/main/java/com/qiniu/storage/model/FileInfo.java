@@ -37,4 +37,8 @@ public final class FileInfo {
      * 文件的状态，0表示启用，1表示禁用
      */
     public int status;
+    /**
+     * 文件的md5值
+     */
+    public int md5;
 }
