@@ -34,7 +34,7 @@ public class AutoRegion extends Region {
      * 构建默认的域名接口获取对象
      */
     public AutoRegion() {
-        this("https://uc.qbox.me");
+        this("https://api.qiniu.com");
     }
 
     public AutoRegion(String ucServer) {

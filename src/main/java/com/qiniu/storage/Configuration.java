@@ -82,7 +82,7 @@ public final class Configuration implements Cloneable {
     @Deprecated
     public static String defaultApiHost = "api.qiniu.com";
     @Deprecated
-    public static String defaultUcHost = "uc.qbox.me";
+    public static String defaultUcHost = "api.qiniu.com";
 
     public Configuration() {
     }
