@@ -172,10 +172,10 @@ public final class OperationManager {
         byte[] data = StringUtils.utf8Bytes(params.formString());
         String apiHost;
 
-        if (this.configuration.zone != null) {
-            apiHost = this.configuration.zone.getApiHttp();
+        if (this.configuration.region != null) {
+            apiHost = this.configuration.region.getApiHost();
             if (this.configuration.useHttpsDomains) {
-                apiHost = this.configuration.zone.getApiHttps();
+                apiHost = this.configuration.region.getApiHost();
             }
         } else {
             apiHost = "http://api.qiniu.com";

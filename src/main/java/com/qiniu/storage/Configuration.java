@@ -2,8 +2,8 @@ package com.qiniu.storage;
 
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
-import com.qiniu.common.ZoneReqInfo;
+import com.qiniu.common.Region;
+import com.qiniu.common.RegionReqInfo;
 import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
 
@@ -13,17 +13,22 @@ import com.qiniu.http.ProxyConfiguration;
 public final class Configuration implements Cloneable {
 
     /**
-     * 使用的Zone
+     * 使用的Region
      */
-    public Zone zone;
+    public Region region;
+    
     /**
      * 空间相关上传管理操作是否使用 https , 默认 是
      */
     public boolean useHttpsDomains = true;
     /**
+     * 空间相关上传管理操作是否使用vdn加速上传，默认 是
+     */
+    public boolean useAccUpHost = true;
+    /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */
-    public int putThreshold = Constants.BLOCK_SIZE;
+    public long putThreshold = Constants.BLOCK_SIZE;
     /**
      * 连接超时时间 单位秒(默认10s)
      */
@@ -69,21 +74,23 @@ public final class Configuration implements Cloneable {
      */
     public ProxyConfiguration proxy;
 
-    /**
+    /*
      * 特殊默认域名
      */
+    @Deprecated
     public static String defaultRsHost = "rs.qiniu.com";
+    @Deprecated
     public static String defaultApiHost = "api.qiniu.com";
-    public static String defaultUcHost = "uc.qbox.me";
+    @Deprecated
+    public static String defaultUcHost = "api.qiniu.com";
 
     public Configuration() {
-
     }
-
-    public Configuration(Zone zone) {
-        this.zone = zone;
+    
+    public Configuration(Region region) {
+        this.region = region;
     }
-
+    
     public Configuration clone() {
         try {
             return (Configuration) super.clone();
@@ -94,84 +101,69 @@ public final class Configuration implements Cloneable {
     }
 
     public String upHost(String upToken) throws QiniuException {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(upToken);
-        if (zone == null) {
-            zone = Zone.autoZone();
+    	RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
+        if (region == null) {
+        	region = Region.autoRegion();
         }
-        return useHttpsDomains ? zone.getUpHttps(zoneReqInfo)
-                : zone.getUpHttp(zoneReqInfo);
+        return useAccUpHost ? getScheme() + region.getAccUpHost(regionReqInfo)
+        		: getScheme() + region.getSrcUpHost(regionReqInfo);
     }
 
     public String upHostBackup(String upToken) throws QiniuException {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(upToken);
-        if (zone == null) {
-            zone = Zone.autoZone();
+    	RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
+        if (region == null) {
+        	region = Region.autoRegion();
         }
-        return useHttpsDomains ? zone.getUpBackupHttps(zoneReqInfo)
-                : zone.getUpBackupHttp(zoneReqInfo);
+        return useAccUpHost ? getScheme() + region.getAccUpHostBackup(regionReqInfo)
+        		: getScheme() + region.getSrcUpHostBackup(regionReqInfo);
     }
 
-
     public String ioHost(String ak, String bucket) {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
-        if (zone == null) {
-            zone = Zone.autoZone();
+    	RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        if (region == null) {
+        	region = Region.autoRegion();
         }
-        return useHttpsDomains ? zone.getIovipHttps(zoneReqInfo)
-                : zone.getIovipHttp(zoneReqInfo);
+        return getScheme() + region.getIovipHost(regionReqInfo);
     }
 
     public String apiHost(String ak, String bucket) {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
-        if (zone == null) {
-            zone = Zone.autoZone();
+    	RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        if (region == null) {
+        	region = Region.autoRegion();
         }
-
-        return useHttpsDomains ? zone.getApiHttps(zoneReqInfo)
-                : zone.getApiHttp(zoneReqInfo);
+        return getScheme() + region.getApiHost(regionReqInfo);
     }
 
-    public String rsHost() {
-        String scheme = "http://";
-        if (useHttpsDomains) {
-            scheme = "https://";
+    public String rsHost(String ak, String bucket) {
+        RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        if (region == null) {
+        	region = Region.autoRegion();
         }
-        return scheme + defaultRsHost;
+        return getScheme() + region.getRsHost(regionReqInfo);
+    }
+
+    public String rsfHost(String ak, String bucket) {
+    	RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        if (region == null) {
+        	region = Region.autoRegion();
+        }
+        return getScheme() + region.getRsfHost(regionReqInfo);
+    }
+    
+    public String rsHost() {
+        return getScheme() + defaultRsHost;
     }
 
     public String apiHost() {
-        String scheme = "http://";
-        if (useHttpsDomains) {
-            scheme = "https://";
-        }
-        return scheme + defaultApiHost;
-    }
-
-
-    public String rsHost(String ak, String bucket) {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
-        if (zone == null) {
-            zone = Zone.autoZone();
-        }
-        return useHttpsDomains ? zone.getRsHttps(zoneReqInfo)
-                : zone.getRsHttp(zoneReqInfo);
-    }
-
-
-    public String rsfHost(String ak, String bucket) {
-        ZoneReqInfo zoneReqInfo = new ZoneReqInfo(ak, bucket);
-        if (zone == null) {
-            zone = Zone.autoZone();
-        }
-        return useHttpsDomains ? zone.getRsfHttps(zoneReqInfo)
-                : zone.getRsfHttp(zoneReqInfo);
+        return getScheme() + defaultApiHost;
     }
 
     public String ucHost() {
-        String scheme = "http://";
-        if (useHttpsDomains) {
-            scheme = "https://";
-        }
-        return scheme + defaultUcHost;
+        return getScheme() + defaultUcHost;
     }
+    
+    String getScheme() {
+    	return useHttpsDomains ? "https://" : "http://";
+    }
+    
 }
