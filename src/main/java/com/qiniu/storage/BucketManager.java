@@ -87,7 +87,6 @@ public final class BucketManager {
      * @return 空间名称列表
      */
     public String[] buckets() throws QiniuException {
-        // 获取 bucket 列表 写死用rs.qiniu.com or rs.qbox.me @冯立元
         String url = String.format("%s/buckets", configuration.rsHost());
         Response res = get(url);
         if (!res.isOK()) {
@@ -101,15 +100,6 @@ public final class BucketManager {
     public void createBucket(String bucketName, String region) throws QiniuException {
         String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(),
                 UrlSafeBase64.encodeToString(bucketName), region);
-        Response res = post(url, null);
-        if (!res.isOK()) {
-            throw new QiniuException(res);
-        }
-        res.close();
-    }
-
-    public void deleteBucket(String bucketname) throws QiniuException {
-        String url = String.format("%s/drop/%s", configuration.rsHost(), bucketname);
         Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
