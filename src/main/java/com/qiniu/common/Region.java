@@ -23,8 +23,8 @@ public class Region {
     private String rsHost = "rs.qbox.me";
     private String rsfHost = "rsf.qbox.me";
     private String apiHost = "api.qiniu.com";
-
-	/*
+    
+    /*
      * 获取成员变量
      */
     public String getRegion() {
@@ -59,14 +59,14 @@ public class Region {
      * 域名构造器
      */
     static class Builder {
-        private Region region;
+        protected Region region;
 
         public Builder() {
-        	region = new Region();
+            init();
         }
 
         public Builder(Region originRegion) {
-            this();
+            init();
             region.region = originRegion.region;
             region.srcUpHosts = originRegion.srcUpHosts;
             region.accUpHosts = originRegion.accUpHosts;
@@ -74,6 +74,10 @@ public class Region {
             region.rsHost = originRegion.rsHost;
             region.rsfHost = originRegion.rsfHost;
             region.apiHost = originRegion.apiHost;
+        }
+
+        protected void init() {
+            region = new Region();
         }
 
         public Builder region(String region) {
