@@ -24,7 +24,19 @@ public class Region {
     private String rsfHost = "rsf.qbox.me";
     private String apiHost = "api.qiniu.com";
     
-    /*
+    public Region() {
+    	super();
+    }
+    
+    public Region(String region, List<String> srcUpHosts, List<String> accUpHosts, String iovipHost) {
+		super();
+		this.region = region;
+		this.srcUpHosts = srcUpHosts;
+		this.accUpHosts = accUpHosts;
+		this.iovipHost = iovipHost;
+	}
+
+	/*
      * 获取成员变量
      */
     public String getRegion() {

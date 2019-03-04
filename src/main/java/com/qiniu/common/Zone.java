@@ -1,11 +1,13 @@
 package com.qiniu.common;
 
+import java.util.List;
+
 /**
  * 建议用Region
  */
 @Deprecated
 public class Zone extends Region {
-	
+
 	@Deprecated
 	public static class Builder extends Region.Builder {
 		
@@ -94,10 +96,18 @@ public class Zone extends Region {
 			return (Zone) super.build();
 		}
 	}
+	
+	public Zone(Region region) {
+		super(region.getRegion(), region.getSrcUpHosts(), region.getAccUpHosts(), region.getIovipHost());
+	}
+	
+	public Zone(String region, List<String> srcUpHosts, List<String> accUpHosts, String iovipHost) {
+		super(region, srcUpHosts, accUpHosts, iovipHost);
+	}
 
 	@Deprecated
     public static Zone zone0() {
-        return (Zone) Region.region0();
+        return new Zone(Region.region0());
     }
     
 	@Deprecated
@@ -107,7 +117,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone qvmZone0() {
-        return (Zone) Region.qvmRegion0();
+		return new Zone(Region.qvmRegion0());
     }
 
 	@Deprecated
@@ -117,7 +127,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone zone1() {
-        return (Zone) Region.region1();
+		return new Zone(Region.region1());
     }
 
 	@Deprecated
@@ -127,7 +137,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone qvmZone1() {
-        return (Zone) Region.qvmRegion1();
+		return new Zone(Region.qvmRegion1());
     }
 
 	@Deprecated
@@ -137,7 +147,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone zone2() {
-        return (Zone) Region.region2();
+		return new Zone(Region.region2());
     }
 
 	@Deprecated
@@ -147,7 +157,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone zoneNa0() {
-        return (Zone) Region.regionNa0();
+		return new Zone(Region.regionNa0());
     }
 
 	@Deprecated
@@ -157,7 +167,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone zoneAs0() {
-        return (Zone) Region.regionAs0();
+		return new Zone(Region.regionAs0());
     }
 
 	@Deprecated
