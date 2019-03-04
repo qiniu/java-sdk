@@ -15,7 +15,7 @@ public class Zone extends Region {
 		}
 		
 		@Deprecated
-		public Builder(Zone originZone) {
+		public Builder(Region originZone) {
 			super(originZone);
 		}
 		
@@ -94,14 +94,10 @@ public class Zone extends Region {
 			return (Zone) super.build();
 		}
 	}
-	
-	public Zone(Region region) {
-		super(region);
-	}
 
 	@Deprecated
     public static Zone zone0() {
-        return new Zone(Region.region0());
+		return new Builder(Region.region0()).build();
     }
     
 	@Deprecated
@@ -111,7 +107,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone qvmZone0() {
-		return new Zone(Region.qvmRegion0());
+		return new Builder(Region.qvmRegion0()).build();
     }
 
 	@Deprecated
@@ -121,7 +117,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone zone1() {
-		return new Zone(Region.region1());
+		return new Builder(Region.region1()).build();
     }
 
 	@Deprecated
@@ -131,7 +127,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone qvmZone1() {
-		return new Zone(Region.qvmRegion1());
+		return new Builder(Region.qvmRegion1()).build();
     }
 
 	@Deprecated
@@ -141,7 +137,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone zone2() {
-		return new Zone(Region.region2());
+		return new Builder(Region.region2()).build();
     }
 
 	@Deprecated
@@ -151,7 +147,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone zoneNa0() {
-		return new Zone(Region.regionNa0());
+		return new Builder(Region.regionNa0()).build();
     }
 
 	@Deprecated
@@ -161,7 +157,7 @@ public class Zone extends Region {
 
 	@Deprecated
     public static Zone zoneAs0() {
-		return new Zone(Region.regionAs0());
+		return new Builder(Region.regionAs0()).build();
     }
 
 	@Deprecated
