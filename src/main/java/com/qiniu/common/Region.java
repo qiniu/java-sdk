@@ -28,12 +28,12 @@ public class Region {
     	super();
     }
     
-    public Region(String region, List<String> srcUpHosts, List<String> accUpHosts, String iovipHost) {
+    public Region(Region region) {
 		super();
-		this.region = region;
-		this.srcUpHosts = srcUpHosts;
-		this.accUpHosts = accUpHosts;
-		this.iovipHost = iovipHost;
+		this.region = region.region;
+		this.srcUpHosts = region.srcUpHosts;
+		this.accUpHosts = region.accUpHosts;
+		this.iovipHost = region.iovipHost;
 	}
 
 	/*

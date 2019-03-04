@@ -1,7 +1,5 @@
 package com.qiniu.common;
 
-import java.util.List;
-
 /**
  * 建议用Region
  */
@@ -98,11 +96,7 @@ public class Zone extends Region {
 	}
 	
 	public Zone(Region region) {
-		super(region.getRegion(), region.getSrcUpHosts(), region.getAccUpHosts(), region.getIovipHost());
-	}
-	
-	public Zone(String region, List<String> srcUpHosts, List<String> accUpHosts, String iovipHost) {
-		super(region, srcUpHosts, accUpHosts, iovipHost);
+		super(region);
 	}
 
 	@Deprecated
