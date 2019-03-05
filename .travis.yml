@@ -1,7 +1,17 @@
 # using docker container
-sudo: required
 
 language: java
+
+sudo: required
+
+os:
+  - linux
+  - osx
+
+java:
+  - 1.8
+  - 1.9.x
+  - 1.10.x
 
 jdk:
   - oraclejdk8
