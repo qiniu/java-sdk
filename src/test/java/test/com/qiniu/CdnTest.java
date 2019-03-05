@@ -27,9 +27,9 @@ public class CdnTest {
 
     @Test
     public void testRefresh() {
+        CdnManager c = new CdnManager(TestConfig.testAuth);
+        CdnResult.RefreshResult r = null;
         try {
-            CdnManager c = new CdnManager(TestConfig.testAuth);
-            CdnResult.RefreshResult r = null;
             r = c.refreshUrls(new String[]{"http://javasdk.qiniudn.com/gopher.jpg"});
             Assert.assertEquals(200, r.code);
         } catch (QiniuException e) {
