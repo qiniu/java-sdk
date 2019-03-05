@@ -13,9 +13,6 @@ java:
   - 1.9.x
   - 1.10.x
 
-jdk:
-  - oraclejdk8
-
 env:
   global:
     - secure: N3qxkTMAhlclCMtfOB9xLBrFI/OgUg208gMMwQPqwTOsTiZDQnuUBaS7lVZuI0zg6RsuXS/JGi2lp3MXIqKjcl7L5KoTXGKdU19f8H6z3N579kMM+C2WcXRVKWehIDaKXEWQz4BEfIorZKGA07J2SITMozll3KlHAx+K2wxpmyI=
