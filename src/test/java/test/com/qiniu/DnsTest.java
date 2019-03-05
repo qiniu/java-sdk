@@ -54,7 +54,7 @@ public class DnsTest {
         uploadManager = new UploadManager(config);
     }
 
-    @Test
+    //@Test
     public void testSome() {
         // uploadManager.xxxxx
     }

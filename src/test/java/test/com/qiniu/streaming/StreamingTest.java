@@ -25,7 +25,7 @@ public class StreamingTest {
     private StreamingManager manager = new StreamingManager(auth, hub);
 
 
-    @Test
+    //@Test
     public void testGetNoExistStream() {
         try {
             manager.attribute("nnnoexist");
@@ -37,7 +37,7 @@ public class StreamingTest {
     }
 
     // CHECKSTYLE:OFF
-    @Test
+    //@Test
     public void testStreamOperation() throws QiniuException {
         // CHECKSTYLE:ON
         String streamKey = streamKeyPrefix + "-a";
@@ -118,7 +118,7 @@ public class StreamingTest {
         assertFalse(it.hasNext());
     }
 
-    @Test
+    //@Test
     public void testSaveAs() throws QiniuException {
         try {
             manager.saveAs("test--sd", "f\"ff.m3u8");
@@ -130,7 +130,7 @@ public class StreamingTest {
         }
     }
 
-    @Test
+    //@Test
     public void testCreate() throws QiniuException {
         try {
             String body = String.format("{\"key\":\"%s\"}", "stream\"Key");

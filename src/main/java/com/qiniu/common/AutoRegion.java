@@ -34,7 +34,7 @@ public class AutoRegion extends Region {
      * 构建默认的域名接口获取对象
      */
     public AutoRegion() {
-        this("https://api.qiniu.com");
+        this("https://uc.qbox.me");
     }
 
     public AutoRegion(String ucServer) {
@@ -217,13 +217,19 @@ public class AutoRegion extends Region {
          */
         static RegionInfo buildFromUcRet(UCRet ret) {
         	List<String> srcUpHosts = new ArrayList<>();
-        	srcUpHosts.addAll(ret.up.src.get("main"));
-        	srcUpHosts.addAll(ret.up.src.get("backup"));
+        	addAll(srcUpHosts, ret.up.src.get("main"));
+        	addAll(srcUpHosts, ret.up.src.get("backup"));
         	List<String> accUpHosts = new ArrayList<>();
-        	accUpHosts.addAll(ret.up.acc.get("main"));
-        	accUpHosts.addAll(ret.up.acc.get("backup"));
+        	addAll(accUpHosts, ret.up.acc.get("main"));
+        	addAll(accUpHosts, ret.up.acc.get("backup"));
         	String iovipHost = ret.io.src.get("main").get(0);
             return new RegionInfo(srcUpHosts, accUpHosts, iovipHost);
+        }
+        
+        static void addAll(List<String> s, List<String> p) {
+        	if (p != null) {
+        		s.addAll(p);
+        	}
         }
     }
 
