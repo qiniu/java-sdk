@@ -1,4 +1,3 @@
-# using docker container
 sudo: false
 
 language: java
