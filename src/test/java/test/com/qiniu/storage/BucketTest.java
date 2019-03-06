@@ -28,7 +28,7 @@ public class BucketTest {
         }
     };
 
-    @Before
+    //@Before
     public void setUp() throws Exception {
         //default config
         Configuration cfg = new Configuration();
@@ -44,7 +44,7 @@ public class BucketTest {
         this.dummyBucketManager = new BucketManager(TestConfig.dummyAuth, new Configuration());
     }
 
-    @Test
+    //@Test
     public void testBuckets() {
         try {
             String[] buckets = bucketManager.buckets();
@@ -62,7 +62,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testDomains() {
         try {
             String[] domains = bucketManager.domainList(TestConfig.testBucket_z0);
@@ -72,7 +72,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testList() {
         try {
             String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
@@ -86,7 +86,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testListUseDelimiter() {
         try {
             Map<String, String> bucketKeyMap = new HashMap<String, String>();
@@ -109,7 +109,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testListIterator() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -128,7 +128,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testListIteratorWithDefaultLimit() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -147,7 +147,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testStat() {
         //test exists
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
@@ -189,7 +189,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testDelete() {
         Map<String[], Integer> entryCodeMap = new HashMap<String[], Integer>();
         entryCodeMap.put(new String[]{TestConfig.testBucket_z0, TestConfig.dummyKey},
@@ -214,7 +214,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testRename() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -235,7 +235,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testCopy() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -253,7 +253,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testChangeMime() {
         List<String[]> cases = new ArrayList<String[]>();
         cases.add(new String[]{TestConfig.testBucket_z0, TestConfig.testKey_z0, "image/png"});
@@ -271,7 +271,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testChangeHeaders() {
         List<String[]> cases = new ArrayList<String[]>();
         cases.add(new String[]{TestConfig.testBucket_z0, TestConfig.testKey_z0});
@@ -295,7 +295,7 @@ public class BucketTest {
     }
 
 
-    @Test
+    //@Test
     public void testPrefetch() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -309,7 +309,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testFetch() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -329,7 +329,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testFetchNa0() {
         try {
             String resUrl = "http://devtools.qiniu.com/qiniu.png";
@@ -346,7 +346,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testBatchCopy() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -375,7 +375,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testBatchMove() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -407,7 +407,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testBatchRename() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -439,7 +439,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testBatchStat() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -463,7 +463,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testBatchChangeType() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -506,7 +506,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testBatchCopyChgmDelete() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -554,7 +554,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testBatch() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -605,7 +605,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testSetAndUnsetImage() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -626,7 +626,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testDeleteAfterDays() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -646,7 +646,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testChangeFileType() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -673,7 +673,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testAcl() throws QiniuException {
         bucketManager.setBucketAcl("javasdk", AclType.PRIVATE);
         BucketInfo info = bucketManager.getBucketInfo("javasdk");
@@ -692,7 +692,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testBucketInfo() throws QiniuException {
         BucketInfo info = bucketManager.getBucketInfo("javasdk");
         System.out.println(info.getRegion());
@@ -709,7 +709,7 @@ public class BucketTest {
         }
     }
 
-    @Test
+    //@Test
     public void testIndexPage() throws QiniuException {
         bucketManager.setIndexPage("javasdk", IndexPageType.HAS);
         BucketInfo info = bucketManager.getBucketInfo("javasdk");

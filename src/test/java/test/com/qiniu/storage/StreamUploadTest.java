@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
  */
 public class StreamUploadTest {
 
-    @Test
+    //@Test
     public void testXVar() throws IOException {
         Map<String, Zone> bucketZoneMap = new HashMap<String, Zone>();
         bucketZoneMap.put(TestConfig.testBucket_z0, Zone.zone0());
@@ -102,22 +102,22 @@ public class StreamUploadTest {
         }
     }
 
-    @Test
+    //@Test
     public void test1K() throws Throwable {
         template(1, false);
     }
 
-    @Test
+    //@Test
     public void test600k() throws Throwable {
         template(600, true);
     }
 
-    @Test
+    //@Test
     public void test600k2() throws IOException {
         template(600, false);
     }
 
-    @Test
+    //@Test
     public void test4M() throws Throwable {
         if (TestConfig.isTravis()) {
             return;
@@ -125,7 +125,7 @@ public class StreamUploadTest {
         template(1024 * 4, false);
     }
 
-    @Test
+    //@Test
     public void test8M1k() throws Throwable {
         if (TestConfig.isTravis()) {
             return;
@@ -133,7 +133,7 @@ public class StreamUploadTest {
         template(1024 * 8 + 1, false);
     }
 
-    @Test
+    //@Test
     public void test8M1k2() throws Throwable {
         if (TestConfig.isTravis()) {
             return;

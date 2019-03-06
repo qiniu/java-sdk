@@ -6,6 +6,7 @@ import com.qiniu.common.Region;
 import com.qiniu.common.RegionReqInfo;
 import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
+import com.qiniu.util.StringUtils;
 
 /**
  * 该类封装了SDK相关配置参数
@@ -77,11 +78,8 @@ public final class Configuration implements Cloneable {
     /*
      * 特殊默认域名
      */
-    @Deprecated
     public static String defaultRsHost = "rs.qiniu.com";
-    @Deprecated
     public static String defaultApiHost = "api.qiniu.com";
-    @Deprecated
     public static String defaultUcHost = "uc.qbox.me";
 
     public Configuration() {

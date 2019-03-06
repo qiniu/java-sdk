@@ -38,7 +38,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testPrefetch() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.PrefetchResult r = null;
@@ -51,7 +51,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testGetBandwidth() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.BandwidthResult r = null;
@@ -68,7 +68,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testGetFlux() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.FluxResult r = null;
@@ -86,7 +86,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testGetCdnLogList() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.LogListResult r = null;
@@ -102,7 +102,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testCreateTimestampAntiLeechUrlSimple1() {
         String host = "http://video.example.com";
         String fileName = "2017/01/07/test.png";
@@ -120,7 +120,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testCreateTimestampAntiLeechUrlSimple2() {
         String host = "http://video.example.com";
         String fileName = "基本概括.mp4";
@@ -138,7 +138,7 @@ public class CdnTest {
     }
 
 
-    @Test
+    //@Test
     public void testCreateTimestampAntiLeechUrlWithQueryString1() {
         String host = "http://video.example.com";
         String fileName = "2017/01/07/test.png";
@@ -159,7 +159,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testCreateTimestampAntiLeechUrlWithQueryString2() {
         String host = "http://video.example.com";
         String fileName = "基本概括.mp4";
@@ -180,7 +180,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testCreateTimestampAntiLeechUrlSimple3() throws MalformedURLException {
         String host = "http://xxx.yyy.com";
         String fileName = "DIR1/dir2/vodfile.mp4";
@@ -201,7 +201,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testCreateTimestampAntiLeechUrlSimple4() throws MalformedURLException {
         String host = "http://xxx.yyy.com";
         String fileName = "DIR1/中文/vodfile.mp4";
@@ -222,7 +222,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testCreateTimestampAntiLeechUrlSimple5() throws MalformedURLException {
         URL url = new URL("http://xxx.yyy.com/DIR1/dir2/vodfile.mp4");
         long deadline = 1438358400;
@@ -238,7 +238,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testCreateTimestampAntiLeechUrlSimple6() throws MalformedURLException {
         URL url = new URL("http://xxx.yyy.com/DIR1/dir2/vodfile.mp4?v=1.1");
         long deadline = 1438358400;
@@ -256,7 +256,7 @@ public class CdnTest {
         }
     }
 
-    @Test
+    //@Test
     public void testCreateTimestampAntiLeechUrlSimple7() throws MalformedURLException {
         URL url = new URL("http://xxx.yyy.com/DIR1/中文/vodfile.mp4?v=1.2");
         long deadline = 1438358400;

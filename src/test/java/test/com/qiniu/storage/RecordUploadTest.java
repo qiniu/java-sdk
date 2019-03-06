@@ -155,17 +155,17 @@ public class RecordUploadTest {
         }
     }
 
-    @Test
+    //@Test
     public void test1K() throws Throwable {
         template(1);
     }
 
-    @Test
+    //@Test
     public void test600k() throws Throwable {
         template(600);
     }
 
-    @Test
+    //@Test
     public void test4M() throws Throwable {
         if (TestConfig.isTravis()) {
             return;
@@ -173,7 +173,7 @@ public class RecordUploadTest {
         template(1024 * 4);
     }
 
-    @Test
+    //@Test
     public void test4M1K() throws Throwable {
         if (TestConfig.isTravis()) {
             return;
@@ -181,7 +181,7 @@ public class RecordUploadTest {
         template(1024 * 4 + 1);
     }
 
-    @Test
+    //@Test
     public void test8M1k() throws Throwable {
         if (TestConfig.isTravis()) {
             return;
@@ -189,7 +189,7 @@ public class RecordUploadTest {
         template(1024 * 8 + 1);
     }
 
-    @Test
+    //@Test
     public void test25M1k() throws Throwable {
         if (TestConfig.isTravis()) {
             return;
@@ -197,7 +197,7 @@ public class RecordUploadTest {
         template(1024 * 25 + 1);
     }
 
-    @Test
+    //@Test
     public void testLastModify() throws IOException {
         File f = File.createTempFile("qiniutest", "b");
         String folder = f.getParent();
