@@ -1,7 +1,7 @@
 package test.com.qiniu.processing;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
+import com.qiniu.common.Region;
 import com.qiniu.processing.OperationManager;
 import com.qiniu.processing.OperationStatus;
 import com.qiniu.storage.Configuration;
@@ -30,15 +30,15 @@ public class PfopTest extends TestCase {
 
     @Test
     public void testAvthumb() {
-        Map<String, Zone> cases = new HashMap<String, Zone>();
-        cases.put(TestConfig.testBucket_z0, Zone.zone0());
-        cases.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        cases.put(TestConfig.testBucket_z0, Zone.autoZone());
-        cases.put(TestConfig.testBucket_na0, Zone.autoZone());
+        Map<String, Region> cases = new HashMap<String, Region>();
+        cases.put(TestConfig.testBucket_z0, Region.region0());
+        cases.put(TestConfig.testBucket_na0, Region.regionNa0());
+        cases.put(TestConfig.testBucket_z0, Region.autoRegion());
+        cases.put(TestConfig.testBucket_na0, Region.autoRegion());
 
-        for (Map.Entry<String, Zone> entry : cases.entrySet()) {
+        for (Map.Entry<String, Region> entry : cases.entrySet()) {
             String bucket = entry.getKey();
-            Zone zone = entry.getValue();
+            Region region = entry.getValue();
 
             String notifyURL = "";
             boolean force = true;
@@ -55,7 +55,7 @@ public class PfopTest extends TestCase {
             String fops = StringUtils.join(new String[]{fopM3u8, fopMp4}, ";");
 
             try {
-                Configuration cfg = new Configuration(zone);
+                Configuration cfg = new Configuration(region);
                 OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
                 String id = operationManager.pfop(bucket, this.testMp4FileKey, fops, testPipeline, notifyURL, force);
                 assertNotNull(id);

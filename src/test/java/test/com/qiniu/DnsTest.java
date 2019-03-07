@@ -1,6 +1,6 @@
 package test.com.qiniu;
 
-import com.qiniu.common.Zone;
+import com.qiniu.common.Region;
 import com.qiniu.http.Dns;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
@@ -30,7 +30,7 @@ public class DnsTest {
         final DnsClient dnsClient = new DnsClient(resolvers);
 
         config = new Configuration();
-        config.zone = Zone.zone0();
+        config.region = Region.region0();
         config.dns = new Dns() {
             @Override
             public List<InetAddress> lookup(String hostname) throws UnknownHostException {

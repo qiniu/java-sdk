@@ -18,7 +18,7 @@ public final class TempFile {
         f.delete();
     }
 
-    public static File createFile(int kiloSize) throws IOException {
+    public static File createFile(long kiloSize) throws IOException {
         FileOutputStream fos = null;
         try {
             long size = (long) (1024 * kiloSize);

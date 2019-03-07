@@ -44,12 +44,13 @@ public final class BucketManager {
     public BucketManager(Auth auth, Configuration cfg) {
         this.auth = auth;
         this.configuration = cfg.clone();
-        client = new Client(this.configuration);
+        client = new Client(configuration);
     }
 
     public BucketManager(Auth auth, Client client) {
         this.auth = auth;
         this.client = client;
+        this.configuration = new Configuration();
     }
 
     /**
@@ -87,7 +88,6 @@ public final class BucketManager {
      * @return 空间名称列表
      */
     public String[] buckets() throws QiniuException {
-        // 获取 bucket 列表 写死用rs.qiniu.com or rs.qbox.me @冯立元
         String url = String.format("%s/buckets", configuration.rsHost());
         Response res = get(url);
         if (!res.isOK()) {
@@ -101,15 +101,6 @@ public final class BucketManager {
     public void createBucket(String bucketName, String region) throws QiniuException {
         String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(),
                 UrlSafeBase64.encodeToString(bucketName), region);
-        Response res = post(url, null);
-        if (!res.isOK()) {
-            throw new QiniuException(res);
-        }
-        res.close();
-    }
-
-    public void deleteBucket(String bucketname) throws QiniuException {
-        String url = String.format("%s/drop/%s", configuration.rsHost(), bucketname);
         Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
@@ -507,7 +498,7 @@ public final class BucketManager {
      */
     public Response asynFetch(String url, String bucket, String key, String md5, String etag,
                               String callbackurl, String callbackbody, String callbackbodytype,
-                              String callbackhost, String fileType) throws QiniuException {
+                              String callbackhost, int fileType) throws QiniuException {
         String requesturl = configuration.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
         StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).
                 putNotNull("key", key).putNotNull("md5", md5).putNotNull("etag", etag).
