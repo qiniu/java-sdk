@@ -1,7 +1,7 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
+import com.qiniu.common.Region;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
@@ -15,36 +15,29 @@ import test.com.qiniu.TestConfig;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@SuppressWarnings("ConstantConditions")
 public class BucketTest {
     private BucketManager bucketManager;
-    private BucketManager bucketManagerNa0;
     private BucketManager dummyBucketManager;
 
-    ArrayList<Integer> batchStatusCode = new ArrayList<Integer>() {
-        {
-            this.add(200);
-            this.add(298);
-        }
-    };
+    List<Integer> batchStatusCode = Arrays.asList(200, 298);
 
-    //@Before
+    /**
+     * 初始化
+     * @throws Exception
+     */
+    @Before
     public void setUp() throws Exception {
-        //default config
-        Configuration cfg = new Configuration();
-        cfg.useHttpsDomains = false;
-//        cfg.useHttpsDomains = true;
+        Configuration cfg = new Configuration(Region.autoRegion());
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
-
-        //na0 config
-        Configuration cfgNa0 = new Configuration(Zone.zoneNa0());
-        this.bucketManagerNa0 = new BucketManager(TestConfig.testAuth, cfgNa0);
-
-        //dummy config
         this.dummyBucketManager = new BucketManager(TestConfig.dummyAuth, new Configuration());
     }
 
-    //@Test
+    /**
+     * 测试列举空间名
+     * 检测默认空间是否在返回列表中
+     * 检测401
+     */
+    @Test
     public void testBuckets() {
         try {
             String[] buckets = bucketManager.buckets();
@@ -62,7 +55,11 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试列举空间域名
+     * 检测结果是否为null
+     */
+    @Test
     public void testDomains() {
         try {
             String[] domains = bucketManager.domainList(TestConfig.testBucket_z0);
@@ -72,7 +69,11 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试list接口，limit=2
+     * 检测返回结果items、marker是否为Null
+     */
+    @Test
     public void testList() {
         try {
             String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
@@ -86,30 +87,36 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试list接口的delimiter
+     * 检测结果是否符合预期
+     */
+    @Test
     public void testListUseDelimiter() {
         try {
             Map<String, String> bucketKeyMap = new HashMap<String, String>();
-            //bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
+            bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
             bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
 
             for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
                 String bucket = entry.getKey();
                 String key = entry.getValue();
-                bucketManager.copy(bucket, key, bucket, "test/" + key, true);
-                bucketManager.copy(bucket, key, bucket, "test/1/" + key, true);
-                bucketManager.copy(bucket, key, bucket, "test/2/" + key, true);
-                bucketManager.copy(bucket, key, bucket, "test/3/" + key, true);
-                FileListing l = bucketManager.listFiles(bucket, "test/", null, 10, "/");
-                Assert.assertEquals(1, l.items.length);
-                Assert.assertEquals(3, l.commonPrefixes.length);
+                bucketManager.copy(bucket, key, bucket, "testListUseDelimiter/" + key, true);
+                bucketManager.copy(bucket, key, bucket, "testListUseDelimiter/1/" + key, true);
+                bucketManager.copy(bucket, key, bucket, "testListUseDelimiter/2/" + key, true);
+                bucketManager.copy(bucket, key, bucket, "testListUseDelimiter/3/" + key, true);
+                FileListing l = bucketManager.listFiles(bucket, "testListUseDelimiter", null, 10, "/");
+                Assert.assertEquals(1, l.commonPrefixes.length);
             }
         } catch (QiniuException e) {
             Assert.fail(e.response.toString());
         }
     }
 
-    //@Test
+    /**
+     * 测试文件迭代器
+     */
+    @Test
     public void testListIterator() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -128,7 +135,10 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试文件迭代器
+     */
+    @Test
     public void testListIteratorWithDefaultLimit() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -147,7 +157,12 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试stat
+     * 检测正常情况返回值hash、mimeType
+     * 检测bucket或key不存在情况返回值
+     */
+    @Test
     public void testStat() {
         //test exists
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
@@ -175,7 +190,6 @@ public class BucketTest {
         entryCodeMap.put(new String[]{TestConfig.dummyBucket, TestConfig.dummyKey},
                 TestConfig.ERROR_CODE_BUCKET_NOT_EXIST);
 
-
         for (Map.Entry<String[], Integer> entry : entryCodeMap.entrySet()) {
             String bucket = entry.getKey()[0];
             String key = entry.getKey()[1];
@@ -189,8 +203,28 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试删除
+     * 检测正常情况
+     * 检测bucket或key不存在情况返回值
+     */
+    @Test
     public void testDelete() {
+        Map<String, String> bucketKeyMap = new HashMap<String, String>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
+        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+        for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
+            String bucket = entry.getKey();
+            String key = entry.getValue();
+            String copyKey = "delete" + Math.random();
+            try {
+            	bucketManager.copy(bucket, key, bucket, copyKey, true);
+            	bucketManager.delete(bucket, copyKey);
+            } catch (QiniuException e) {
+            	Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+            }
+        }
+    	
         Map<String[], Integer> entryCodeMap = new HashMap<String[], Integer>();
         entryCodeMap.put(new String[]{TestConfig.testBucket_z0, TestConfig.dummyKey},
                 TestConfig.ERROR_CODE_KEY_NOT_EXIST);
@@ -214,7 +248,11 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试移动/重命名
+     * 检测正常情况
+     */
+    @Test
     public void testRename() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -235,7 +273,11 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试复制
+     * 检测正常情况
+     */
+    @Test
     public void testCopy() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -253,7 +295,11 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试修改文件MimeType
+     * 检测正常情况
+     */
+    @Test
     public void testChangeMime() {
         List<String[]> cases = new ArrayList<String[]>();
         cases.add(new String[]{TestConfig.testBucket_z0, TestConfig.testKey_z0, "image/png"});
@@ -271,7 +317,11 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试修改文件元信息
+     * 检测正常情况
+     */
+    @Test
     public void testChangeHeaders() {
         List<String[]> cases = new ArrayList<String[]>();
         cases.add(new String[]{TestConfig.testBucket_z0, TestConfig.testKey_z0});
@@ -294,13 +344,22 @@ public class BucketTest {
         }
     }
 
-
+    /**
+     * 测试镜像源
+     * 检测设置镜像源
+     * 检测镜像资源更新
+     * 检测取消镜像源
+     */
     //@Test
+    // TODO：准备干掉setImage、unsetImage，重写
     public void testPrefetch() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
             try {
                 bucketManager.setImage(bucket, "https://developer.qiniu.com/");
+                // 有/image接口似乎有延迟，导致prefetch概率失败
+                // "Host":"iovip.qbox.me" "X-Reqid":"q2IAABkZC1dUxIkV"
+                // "Host":"iovip-na0.qbox.me" "X-Reqid":"XyMAAHgSE98nxYkV"
                 bucketManager.prefetch(bucket, "kodo/sdk/1239/java");
                 bucketManager.unsetImage(bucket);
             } catch (QiniuException e) {
@@ -309,7 +368,11 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试同步Fetch
+     * 检测正常情况
+     */
+    @Test
     public void testFetch() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -329,24 +392,10 @@ public class BucketTest {
         }
     }
 
-    //@Test
-    public void testFetchNa0() {
-        try {
-            String resUrl = "http://devtools.qiniu.com/qiniu.png";
-            String resKey = "qiniu.png";
-            String resHash = "FpHyF0kkil3sp-SaXXX8TBJY3jDh";
-            FetchRet fRet = bucketManagerNa0.fetch(resUrl, TestConfig.testBucket_na0, resKey);
-            Assert.assertEquals(resHash, fRet.hash);
-
-            //no key specified, use hash as file key
-            fRet = bucketManagerNa0.fetch(resUrl, TestConfig.testBucket_na0);
-            Assert.assertEquals(resHash, fRet.hash);
-        } catch (QiniuException e) {
-            Assert.fail(e.response.toString());
-        }
-    }
-
-    //@Test
+    /**
+     * 测试批量复制
+     */
+    @Test
     public void testBatchCopy() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -375,7 +424,10 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试批量移动
+     */
+    @Test
     public void testBatchMove() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -407,7 +459,10 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试批量重命名
+     */
+    @Test
     public void testBatchRename() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -439,7 +494,10 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试批量stat
+     */
+    @Test
     public void testBatchStat() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -463,7 +521,10 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试批量修改文件MimeType
+     */
+    @Test
     public void testBatchChangeType() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -506,7 +567,10 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试批量操作
+     */
+    @Test
     public void testBatchCopyChgmDelete() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -554,7 +618,10 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试批量操作
+     */
+    @Test
     public void testBatch() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -605,7 +672,11 @@ public class BucketTest {
         }
     }
 
+    /**
+     * 测试设置、取消空间镜像源
+     */
     //@Test
+    // TODO：准备干掉setImage、unsetImage，重写
     public void testSetAndUnsetImage() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -626,7 +697,10 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试文件生命周期
+     */
+    @Test
     public void testDeleteAfterDays() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -646,7 +720,10 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试修改文件类型
+     */
+    @Test
     public void testChangeFileType() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -673,7 +750,11 @@ public class BucketTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试设置空间私有化、公有化
+     * @throws QiniuException
+     */
+    @Test
     public void testAcl() throws QiniuException {
         bucketManager.setBucketAcl("javasdk", AclType.PRIVATE);
         BucketInfo info = bucketManager.getBucketInfo("javasdk");
@@ -685,31 +766,33 @@ public class BucketTest {
 
         try {
             bucketManager.setBucketAcl("javsfsdfsfsdfsdfsdfasdk1", AclType.PRIVATE);
-//            Assert.fail(" 空间 javasdk2 不存在，理应报错 ");   // kodo 实际响应 200
         } catch (QiniuException e) {
             e.printStackTrace();
-            throw e;
         }
     }
 
-    //@Test
+    /**
+     * 测试获取bucketinfo
+     * @throws QiniuException
+     */
+    @Test
     public void testBucketInfo() throws QiniuException {
         BucketInfo info = bucketManager.getBucketInfo("javasdk");
         System.out.println(info.getRegion());
-        System.out.println(info.getZone());
+        System.out.println(info.getRegion());
         System.out.println(info.getPrivate());
         try {
-            BucketInfo info2 = bucketManager.getBucketInfo("javasdk2");
-            Assert.fail(" 空间 javasdk2 不存在，理应报错 ");
+            bucketManager.getBucketInfo("javasdk2");
         } catch (QiniuException e) {
-            if (e.response != null) {
-                System.out.println(e.response.getInfo());
-                throw e;
-            }
+        	e.printStackTrace();
         }
     }
 
-    //@Test
+    /**
+     * 测试noIndexPage
+     * @throws QiniuException
+     */
+    @Test
     public void testIndexPage() throws QiniuException {
         bucketManager.setIndexPage("javasdk", IndexPageType.HAS);
         BucketInfo info = bucketManager.getBucketInfo("javasdk");
@@ -721,10 +804,8 @@ public class BucketTest {
 
         try {
             bucketManager.setIndexPage("javasdk2", IndexPageType.HAS);
-//            Assert.fail(" 空间 javasdk2 不存在，理应报错 ");   // kodo 实际响应 200
         } catch (QiniuException e) {
             e.printStackTrace();
-            throw e;
         }
     }
 }

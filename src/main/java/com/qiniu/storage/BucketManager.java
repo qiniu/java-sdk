@@ -546,6 +546,7 @@ public final class BucketManager {
      * @param bucket     空间名称
      * @param srcSiteUrl 镜像回源地址
      */
+    // TODO：准备干掉setImage、unsetImage，重写
     public Response setImage(String bucket, String srcSiteUrl) throws QiniuException {
         return setImage(bucket, srcSiteUrl, null);
     }
@@ -557,6 +558,7 @@ public final class BucketManager {
      * @param srcSiteUrl 镜像回源地址
      * @param host       镜像回源Host
      */
+    // TODO：准备干掉setImage、unsetImage，重写
     public Response setImage(String bucket, String srcSiteUrl, String host) throws QiniuException {
         String encodedSiteUrl = UrlSafeBase64.encodeToString(srcSiteUrl);
         String encodedHost = null;
@@ -575,6 +577,7 @@ public final class BucketManager {
      *
      * @param bucket 空间名称
      */
+    // TODO：准备干掉setImage、unsetImage，重写
     public Response unsetImage(String bucket) throws QiniuException {
         String path = String.format("/unimage/%s", bucket);
         return pubPost(path);
