@@ -1,7 +1,7 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
+import com.qiniu.common.Region;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UpCompletionHandler;
@@ -22,30 +22,41 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 
 public class FormUploadTest {
+	
     UploadManager uploadManager = new UploadManager(new Configuration());
 
-    //@Test
+    /**
+     * hello上传测试
+     */
+    @Test
     public void testSimple() {
         hello(uploadManager, TestConfig.testBucket_z0);
         hello(uploadManager, TestConfig.testBucket_na0);
     }
 
-    //@Test
+    /**
+     * hello上传测试2
+     */
+    @Test
     public void testHello2() {
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
+        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, Region.region0());
+        bucketKeyMap.put(TestConfig.testBucket_na0, Region.regionNa0());
+        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            Zone zone = entry.getValue();
-            Configuration c = new Configuration(zone);
+            Region region = entry.getValue();
+            Configuration c = new Configuration(region);
             c.useHttpsDomains = true;
             UploadManager uploadManager = new UploadManager(c);
             hello(uploadManager, bucket);
         }
     }
 
-
+    /**
+     * hello上传，scope:<bucket:key>
+     * 检测是否请求200
+     * 检测返回值hash、key是否匹配
+     */
     public void hello(UploadManager up, String bucket) {
         final String expectKey = "你好?&=\r\n";
         StringMap params = new StringMap().put("x:foo", "foo_val");
@@ -69,7 +80,12 @@ public class FormUploadTest {
         assertEquals(expectKey, map.get("key"));
     }
 
-    //@Test
+    /**
+     * 无key上传，scope:<bucket>
+     * 检测是否返回200
+     * 检测返回值hash、key是否匹配
+     */
+    @Test
     public void testNoKey() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -94,7 +110,12 @@ public class FormUploadTest {
         }
     }
 
-    //@Test
+    /**
+     * 错误token上传
+     * 检测是否返回401
+     * 检测reqid是否不为null
+     */
+    @Test
     public void testInvalidToken() {
         final String expectKey = "你好";
 
@@ -110,8 +131,12 @@ public class FormUploadTest {
             }
         }
     }
-
-    //@Test
+    
+    /**
+     * 空data上传
+     * 检测Exception是否为IllegalArgumentException一类
+     */
+    @Test
     public void testNoData() {
         final String expectKey = "你好";
         try {
@@ -122,7 +147,12 @@ public class FormUploadTest {
         }
     }
 
-    //@Test
+    /**
+     * NULL token上传
+     * 检测Exception是否为IllegalArgumentException一类
+     * @throws Throwable
+     */
+    @Test
     public void testNoToken() throws Throwable {
         final String expectKey = "你好";
         try {
@@ -133,7 +163,11 @@ public class FormUploadTest {
         }
     }
 
-    //@Test
+    /**
+     * 空token上传
+     * 检测Exception是否为IllegalArgumentException一类
+     */
+    @Test
     public void testEmptyToken() {
         final String expectKey = "你好";
         try {
@@ -144,7 +178,11 @@ public class FormUploadTest {
         }
     }
 
-    //@Test
+    /**
+     * 文件上传
+     * 检测是否有Exception
+     */
+    @Test
     public void testFile() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -168,7 +206,12 @@ public class FormUploadTest {
         }
     }
 
-    //@Test
+    /**
+     * 异步上传
+     * 检测是否返回200
+     * 检测返回值hash、key是否匹配
+     */
+    @Test
     public void testAsync() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -177,7 +220,6 @@ public class FormUploadTest {
 
             String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
             final CountDownLatch signal = new CountDownLatch(1);
-            Response r = null;
             try {
                 uploadManager.asyncPut("hello".getBytes(), expectKey, token, params,
                         null, false, new UpCompletionHandler() {
@@ -208,7 +250,10 @@ public class FormUploadTest {
         }
     }
 
-    //@Test
+    /**
+     * 检测自定义参数foo是否生效
+     */
+    @Test
     public void testXVar() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -238,7 +283,10 @@ public class FormUploadTest {
         }
     }
 
-    //@Test
+    /**
+     * 检测fname是否生效
+     */
+    @Test
     public void testFname() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -266,6 +314,10 @@ public class FormUploadTest {
         }
     }
 
+    /**
+     * 检测fsizeMin是否生效
+     */
+    @Test
     public void testSizeMin() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -281,8 +333,7 @@ public class FormUploadTest {
             String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600,
                     new StringMap().put("fsizeMin", 1024 * 1025));
             try {
-                Response res = uploadManager.put(f, expectKey, token, params, null, true);
-
+                uploadManager.put(f, expectKey, token, params, null, true);
             } catch (QiniuException e) {
                 Response res = e.response;
                 try {
@@ -296,7 +347,10 @@ public class FormUploadTest {
         }
     }
 
-    //@Test
+    /**
+     * 检测fsizeMin是否生效
+     */
+    @Test
     public void testSizeMin2() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -321,17 +375,20 @@ public class FormUploadTest {
         }
     }
 
-    //@Test
+    /**
+     * 检测putThreshold是否生效
+     */
+    @Test
     public void testFormLargeSize() {
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
+        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, Region.region0());
+        bucketKeyMap.put(TestConfig.testBucket_na0, Region.regionNa0());
+        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            Zone zone = entry.getValue();
-            Configuration c = new Configuration(zone);
+            Region region = entry.getValue();
+            Configuration c = new Configuration(region);
             c.putThreshold = 25 * 1024 * 1024;
-            UploadManager uploadManager = new UploadManager(new Configuration(Zone.zone0()));
+            UploadManager uploadManager = new UploadManager(c);
 
             final String expectKey = "yyyyyy";
             File f = null;
@@ -341,9 +398,8 @@ public class FormUploadTest {
                 e.printStackTrace();
             }
             String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
-            Response r = null;
             try {
-                r = uploadManager.put(f, expectKey, token, null, null, false);
+            	uploadManager.put(f, expectKey, token, null, null, false);
             } catch (QiniuException e) {
                 try {
                     assertEquals("_", e.response.bodyString());
@@ -354,17 +410,21 @@ public class FormUploadTest {
         }
     }
 
-    //@Test
+    /**
+     * 检测putThreshold是否生效
+     */
+    @SuppressWarnings("resource")
+	@Test
     public void testFormLargeSize2() {
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
+        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, Region.region0());
+        bucketKeyMap.put(TestConfig.testBucket_na0, Region.regionNa0());
+        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            Zone zone = entry.getValue();
-            Configuration c = new Configuration(zone);
+            Region region = entry.getValue();
+            Configuration c = new Configuration(region);
             c.putThreshold = 25 * 1024 * 1024;
-            UploadManager uploadManager = new UploadManager(new Configuration(Zone.zone0()));
+            UploadManager uploadManager = new UploadManager(c);
 
             final String expectKey = "xxxxxxx";
             byte[] bb = null;
@@ -379,9 +439,8 @@ public class FormUploadTest {
             }
 
             String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
-            Response r = null;
             try {
-                r = uploadManager.put(bb, expectKey, token, null, null, false);
+            	uploadManager.put(bb, expectKey, token, null, null, false);
             } catch (QiniuException e) {
                 try {
                     assertEquals("_", e.response.bodyString());
@@ -391,7 +450,6 @@ public class FormUploadTest {
             }
         }
     }
-
 
     class MyRet {
         public String hash;

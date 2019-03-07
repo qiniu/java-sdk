@@ -3,19 +3,26 @@ package test.com.qiniu;
 import com.qiniu.cdn.CdnManager;
 import com.qiniu.cdn.CdnResult;
 import com.qiniu.common.QiniuException;
+import com.qiniu.http.Client;
+import com.qiniu.http.Response;
 import com.qiniu.util.StringMap;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
 
 /**
- * Created by bailong on 16/9/21.
+ * Created by bailong on 16/09/21.
+ * Updated by panyuan on 19/03/07
  */
 public class CdnTest {
-
+	
+	/**
+	 * 获取日期
+	 * @param daysBefore
+	 * @return
+	 */
     private String getDate(int daysBefore) {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_MONTH, -daysBefore);
@@ -25,12 +32,15 @@ public class CdnTest {
         return String.format("%04d-%02d-%02d", year, month + 1, day);
     }
 
+    /**
+     * 测试刷新，只检查是否返回200
+     */
     @Test
     public void testRefresh() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.RefreshResult r = null;
         try {
-            r = c.refreshUrls(new String[]{"http://javasdk.qiniudn.com/gopher.jpg"});
+            r = c.refreshUrls(new String[]{TestConfig.testUrl_z0});
             Assert.assertEquals(200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -38,12 +48,15 @@ public class CdnTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试预取，只检测是否返回200
+     */
+    @Test
     public void testPrefetch() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.PrefetchResult r = null;
         try {
-            r = c.prefetchUrls(new String[]{"http://javasdk.qiniudn.com/gopher.jpg"});
+            r = c.prefetchUrls(new String[]{TestConfig.testUrl_na0});
             Assert.assertEquals(200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -51,7 +64,10 @@ public class CdnTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试获取域名带宽，只检测是否返回200
+     */
+    @Test
     public void testGetBandwidth() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.BandwidthResult r = null;
@@ -68,14 +84,16 @@ public class CdnTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试获取域名流量，只检测是否返回200
+     */
+    @Test
     public void testGetFlux() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.FluxResult r = null;
         String[] domains = {TestConfig.testDomain_z0};
         String startDate = getDate(3);
         String endDate = getDate(1);
-
         String granularity = "day";
         try {
             r = c.getFluxData(domains, startDate, endDate, granularity);
@@ -86,7 +104,11 @@ public class CdnTest {
         }
     }
 
-    //@Test
+    /**
+     * 测试获取CDN域名访问日志的下载链接
+     * 检测日志信息列表长度是否>=0
+     */
+    @Test
     public void testGetCdnLogList() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.LogListResult r = null;
@@ -102,175 +124,59 @@ public class CdnTest {
         }
     }
 
-    //@Test
-    public void testCreateTimestampAntiLeechUrlSimple1() {
-        String host = "http://video.example.com";
-        String fileName = "2017/01/07/test.png";
-
-        long deadline = System.currentTimeMillis() / 1000 + 3600;
-        String encryptKey = "xxx";
-        String signedUrl;
-        try {
-            signedUrl = CdnManager.createTimestampAntiLeechUrl(host, fileName,
-                    null, encryptKey, deadline);
-            System.out.println(signedUrl);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Assert.fail();
-        }
-    }
-
-    //@Test
-    public void testCreateTimestampAntiLeechUrlSimple2() {
-        String host = "http://video.example.com";
-        String fileName = "基本概括.mp4";
-        long deadline = System.currentTimeMillis() / 1000 + 3600;
-        String encryptKey = "xxx";
-        String signedUrl;
-        try {
-            signedUrl = CdnManager.createTimestampAntiLeechUrl(host, fileName,
-                    null, encryptKey, deadline);
-            System.out.println(signedUrl);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Assert.fail();
-        }
-    }
-
-
-    //@Test
-    public void testCreateTimestampAntiLeechUrlWithQueryString1() {
-        String host = "http://video.example.com";
-        String fileName = "2017/01/07/test.png";
+    /**
+     * 测试时间戳防盗链
+     * 检测url是否请求403
+     * 检测signedUrl1是否返回200
+     * 检测signedUrl2是否返回200
+     * 检测signedUrl3是否返回403
+     * 检测signedUrl3与预期结果是否一致
+     */
+    @Test
+    public void testCreateTimestampAntiLeechUrlSimple() {
+        String host = "http://" + TestConfig.testDomain_z0_timeStamp;
+        String fileName = TestConfig.testKey_z0;
         StringMap queryStringMap = new StringMap();
-        queryStringMap.put("name", "七牛");
-        queryStringMap.put("year", 2017);
-        queryStringMap.put("年龄", 28);
-        long deadline = System.currentTimeMillis() / 1000 + 3600;
-        String encryptKey = "xxx";
-        String signedUrl;
+        queryStringMap.put("qiniu", "七牛");
+        queryStringMap.put("test", "Test");
+        String encryptKey1 = "10992a8a688900b89ab9f58a6899cb8bb1b924ab";
+        String encryptKey2 = "64b89c989cb97cbb6a9b6c9a4ca93498b69974ab";
+        long deadline1 = System.currentTimeMillis() / 1000 + 3600;
+        long deadline2 = deadline1;
+        long deadline3 = 1551966091; // 2019-03-07 21:41:31 +0800 CST
+        String testUrl_z0_timeStamp_outdate = "http://javasdk-timestamp.peterpy.cn/peter/1.png?sign=00500d45e6fe0bf62b9814e3959841d1&t=5c811f8b";
         try {
-            signedUrl = CdnManager.createTimestampAntiLeechUrl(host, fileName,
-                    queryStringMap, encryptKey, deadline);
-            System.out.println(signedUrl);
+        	URL url = new URL(TestConfig.testUrl_z0_timeStamp);
+        	Assert.assertEquals(403, getResponse(url.toString()).statusCode);
+        	String signedUrl1 = CdnManager.createTimestampAntiLeechUrl(host, fileName, queryStringMap, encryptKey1, deadline1);
+        	String signedUrl2 = CdnManager.createTimestampAntiLeechUrl(url, encryptKey2, deadline2);
+        	String signedUrl3 = CdnManager.createTimestampAntiLeechUrl(host, fileName, null, encryptKey1, deadline3);
+        	System.out.println(signedUrl1);
+        	System.out.println(signedUrl2);
+        	System.out.println(signedUrl3);
+            Assert.assertEquals(200, getResponse(signedUrl1).statusCode);
+            Assert.assertEquals(200, getResponse(signedUrl2).statusCode);
+            Assert.assertEquals(403, getResponse(signedUrl3).statusCode);
+            Assert.assertEquals(testUrl_z0_timeStamp_outdate, signedUrl3);
         } catch (Exception ex) {
             ex.printStackTrace();
             Assert.fail();
         }
+    }
+    
+    /**
+     * 获取Response
+     * @param url
+     * @return
+     */
+    public static Response getResponse(String url) {
+    	try {
+    		Client client = new Client();
+    		Response response = client.get(url);
+    		return response;
+    	} catch (QiniuException ex) {
+    		return ex.response;
+    	}
     }
 
-    //@Test
-    public void testCreateTimestampAntiLeechUrlWithQueryString2() {
-        String host = "http://video.example.com";
-        String fileName = "基本概括.mp4";
-        StringMap queryStringMap = new StringMap();
-        queryStringMap.put("name", "七牛");
-        queryStringMap.put("year", 2017);
-        queryStringMap.put("年龄", 28);
-        long deadline = System.currentTimeMillis() / 1000 + 3600;
-        String encryptKey = "xxx";
-        String signedUrl;
-        try {
-            signedUrl = CdnManager.createTimestampAntiLeechUrl(host, fileName,
-                    queryStringMap, encryptKey, deadline);
-            System.out.println(signedUrl);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Assert.fail();
-        }
-    }
-
-    //@Test
-    public void testCreateTimestampAntiLeechUrlSimple3() throws MalformedURLException {
-        String host = "http://xxx.yyy.com";
-        String fileName = "DIR1/dir2/vodfile.mp4";
-        StringMap queryStringMap = new StringMap();
-        queryStringMap.put("name", "七牛");
-        queryStringMap.put("year", 2017);
-        queryStringMap.put("年龄", 28);
-        long deadline = 1438358400;
-        String encryptKey = "12345678";
-        String signedUrl;
-        try {
-            signedUrl = CdnManager.createTimestampAntiLeechUrl(host, fileName,
-                    queryStringMap, encryptKey, deadline);
-            Assert.assertTrue(signedUrl, signedUrl.indexOf("19eb212771e87cc3d478b9f32d6c7bf9&t=55bb9b80") > -1);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Assert.fail();
-        }
-    }
-
-    //@Test
-    public void testCreateTimestampAntiLeechUrlSimple4() throws MalformedURLException {
-        String host = "http://xxx.yyy.com";
-        String fileName = "DIR1/中文/vodfile.mp4";
-        StringMap queryStringMap = new StringMap();
-        queryStringMap.put("name", "七牛");
-        queryStringMap.put("year", 2017);
-        queryStringMap.put("年龄", 28);
-        long deadline = 1438358400;
-        String encryptKey = "12345678";
-        String signedUrl;
-        try {
-            signedUrl = CdnManager.createTimestampAntiLeechUrl(host, fileName,
-                    queryStringMap, encryptKey, deadline);
-            Assert.assertTrue(signedUrl, signedUrl.indexOf("sign=6356bca0d2aecf7211003e468861f5ea&t=55bb9b80") > -1);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Assert.fail();
-        }
-    }
-
-    //@Test
-    public void testCreateTimestampAntiLeechUrlSimple5() throws MalformedURLException {
-        URL url = new URL("http://xxx.yyy.com/DIR1/dir2/vodfile.mp4");
-        long deadline = 1438358400;
-        String encryptKey = "12345678";
-        String signedUrl;
-        String ret = "http://xxx.yyy.com/DIR1/dir2/vodfile.mp4?sign=19eb212771e87cc3d478b9f32d6c7bf9&t=55bb9b80";
-        try {
-            signedUrl = CdnManager.createTimestampAntiLeechUrl(url, encryptKey, deadline);
-            Assert.assertEquals(ret, signedUrl);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Assert.fail();
-        }
-    }
-
-    //@Test
-    public void testCreateTimestampAntiLeechUrlSimple6() throws MalformedURLException {
-        URL url = new URL("http://xxx.yyy.com/DIR1/dir2/vodfile.mp4?v=1.1");
-        long deadline = 1438358400;
-        String encryptKey = "12345678";
-        String signedUrl;
-        // CHECKSTYLE:OFF
-        String ret = "http://xxx.yyy.com/DIR1/dir2/vodfile.mp4?v=1.1&sign=19eb212771e87cc3d478b9f32d6c7bf9&t=55bb9b80";
-        // CHECKSTYLE:ON
-        try {
-            signedUrl = CdnManager.createTimestampAntiLeechUrl(url, encryptKey, deadline);
-            Assert.assertEquals(ret, signedUrl);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Assert.fail();
-        }
-    }
-
-    //@Test
-    public void testCreateTimestampAntiLeechUrlSimple7() throws MalformedURLException {
-        URL url = new URL("http://xxx.yyy.com/DIR1/中文/vodfile.mp4?v=1.2");
-        long deadline = 1438358400;
-        String encryptKey = "12345678";
-        String signedUrl;
-        // CHECKSTYLE:OFF
-        String ret = "http://xxx.yyy.com/DIR1/%E4%B8%AD%E6%96%87/vodfile.mp4?v=1.2&sign=6356bca0d2aecf7211003e468861f5ea&t=55bb9b80";
-        // CHECKSTYLE:ON
-        try {
-            signedUrl = CdnManager.createTimestampAntiLeechUrl(url, encryptKey, deadline);
-            Assert.assertEquals(ret, signedUrl);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Assert.fail();
-        }
-    }
 }

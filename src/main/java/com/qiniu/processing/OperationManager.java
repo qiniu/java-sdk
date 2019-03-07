@@ -105,7 +105,7 @@ public final class OperationManager {
      */
     public String pfop(String bucket, String key, String fops, String pipeline, String notifyURL)
             throws QiniuException {
-        StringMap params = new StringMap().put("pipeline", pipeline).putNotEmpty("notifyURL", notifyURL);
+        StringMap params = new StringMap().putNotEmpty("pipeline", pipeline).putNotEmpty("notifyURL", notifyURL);
         return pfop(bucket, key, fops, params);
     }
 
@@ -123,7 +123,7 @@ public final class OperationManager {
      */
     public String pfop(String bucket, String key, String fops, String pipeline, boolean force)
             throws QiniuException {
-        StringMap params = new StringMap().put("pipeline", pipeline).putWhen("force", 1, force);
+        StringMap params = new StringMap().putNotEmpty("pipeline", pipeline).putWhen("force", 1, force);
         return pfop(bucket, key, fops, params);
     }
 
@@ -142,8 +142,8 @@ public final class OperationManager {
      */
     public String pfop(String bucket, String key, String fops, String pipeline, String notifyURL, boolean force)
             throws QiniuException {
-        StringMap params = new StringMap().put("pipeline", pipeline).
-                put("notifyURL", notifyURL).putWhen("force", 1, force);
+        StringMap params = new StringMap().putNotEmpty("pipeline", pipeline).
+        		putNotEmpty("notifyURL", notifyURL).putWhen("force", 1, force);
         return pfop(bucket, key, fops, params);
     }
 

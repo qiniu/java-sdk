@@ -6,7 +6,6 @@ import com.qiniu.common.Region;
 import com.qiniu.common.RegionReqInfo;
 import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
-import com.qiniu.util.StringUtils;
 
 /**
  * 该类封装了SDK相关配置参数
@@ -19,7 +18,7 @@ public final class Configuration implements Cloneable {
     public Region region;
     
     /**
-     * 空间相关上传管理操作是否使用 https , 默认 是
+     * 空间相关上传管理操作是否优先使用 https , 默认 是
      */
     public boolean useHttpsDomains = true;
     /**
@@ -27,7 +26,7 @@ public final class Configuration implements Cloneable {
      */
     public boolean useAccUpHost = true;
     /**
-     * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
+     * 如果文件大小大于此值则使用分片上传, 否则使用Form上传
      */
     public long putThreshold = Constants.BLOCK_SIZE;
     /**

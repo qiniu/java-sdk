@@ -9,19 +9,19 @@ import static org.junit.Assert.*;
 
 
 public class AuthTest {
-    //@Test
+    @Test
     public void testSign() {
         String token = TestConfig.dummyAuth.sign("test");
         assertEquals("abcdefghklmnopq:mSNBTR7uS2crJsyFr2Amwv1LaYg=", token);
     }
 
-    //@Test
+    @Test
     public void testSignWithData() {
         String token = TestConfig.dummyAuth.signWithData("test");
         assertEquals("abcdefghklmnopq:-jP8eEV9v48MkYiBGs81aDxl60E=:dGVzdA==", token);
     }
 
-    //@Test
+    @Test
     public void testSignRequest() {
         String token = TestConfig.dummyAuth.signRequest("http://www.qiniu.com?go=1", "test".getBytes(), "");
         assertEquals("abcdefghklmnopq:cFyRVoWrE3IugPIMP5YJFTO-O-Y=", token);
@@ -29,7 +29,7 @@ public class AuthTest {
         assertEquals("abcdefghklmnopq:svWRNcacOE-YMsc70nuIYdaa1e4=", token);
     }
 
-    //@Test
+    @Test
     public void testPrivateDownloadUrl() {
         String url = TestConfig.dummyAuth.privateDownloadUrlWithDeadline("http://www.qiniu.com?go=1",
                 1234567890 + 3600);
@@ -37,7 +37,7 @@ public class AuthTest {
         assertEquals(expect, url);
     }
 
-    //@Test
+    @Test
     public void testDeprecatedPolicy() {
         StringMap policy = new StringMap().put("asyncOps", 1);
         try {
@@ -48,7 +48,7 @@ public class AuthTest {
         }
     }
 
-    //@Test
+    @Test
     public void testUploadToken() {
         StringMap policy = new StringMap().put("endUser", "y");
         String token = TestConfig.dummyAuth.uploadTokenWithDeadline("1", "2", 1234567890L + 3600, policy, false);
@@ -58,7 +58,7 @@ public class AuthTest {
         assertEquals(exp, token);
     }
 
-    //@Test
+    @Test
     public void testUploadToken2() {
         Policy p = new Policy();
         p.endUser = "y";

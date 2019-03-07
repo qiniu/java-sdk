@@ -11,7 +11,7 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 
 public class EtagTest {
-    //@Test
+    @Test
     public void testData() {
         String m = Etag.data(new byte[0]);
         assertEquals("Fto5o-5ea0sNMlW_75VgGJCv2AcJ", m);
@@ -20,7 +20,7 @@ public class EtagTest {
         assertEquals("FpLiADEaVoALPkdb8tJEJyRTXoe_", etag);
     }
 
-    //@Test
+    @Test
     public void testFile() throws IOException {
         File f = TempFile.createFileOld(1024);
         assertEquals("Foyl8onxBLWeRLL5oItRJphv6i4b", Etag.file(f));

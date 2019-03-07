@@ -8,7 +8,6 @@ import com.qiniu.http.Response;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 public class HttpTest {
     private Client httpManager = new Client();
 

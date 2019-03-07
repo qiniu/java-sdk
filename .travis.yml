@@ -2,9 +2,9 @@ language: java
 
 env:
   global:
-    - secure: N3qxkTMAhlclCMtfOB9xLBrFI/OgUg208gMMwQPqwTOsTiZDQnuUBaS7lVZuI0zg6RsuXS/JGi2lp3MXIqKjcl7L5KoTXGKdU19f8H6z3N579kMM+C2WcXRVKWehIDaKXEWQz4BEfIorZKGA07J2SITMozll3KlHAx+K2wxpmyI=
+    - QINIU_ACCESS_KEY=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5
+    - secure: "khCbQFPFoQpvN9l48yYnK/FTyYhrbtYgYBDNwG1o0a0sZHpjFyFkSqVNvQf97cQdEZXZ+URKZjt2COcw90JzMotpH22k1QnY9CgwEng4rVhJcGPv8kPlJLH7cAOzhhCQjB5tN2JJtuJEX/ZI+ZhwLD6ck5LcXYTuSJLoZxmGDus="
     - QINIU_TEST_ENV=travis
-    - accessKey=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5
 
 script:
     - ./gradlew test -d
