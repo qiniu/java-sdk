@@ -122,7 +122,7 @@ public class RecordUploadTest {
                 assertNotNull(response);
                 assertTrue(response.isOK());
                 assertEquals(etag, hash);
-                doSleep(500);
+                doSleep(2000);
                 showRecord("nodata: " + size + " :", recorder, recordKey);
                 assertNull("文件上传成功,但断点记录文件未清理", recorder.get(recordKey));
             } finally {

@@ -49,6 +49,7 @@ public final class OperationManager {
     public OperationManager(Auth auth, Client client) {
         this.auth = auth;
         this.client = client;
+        this.configuration = new Configuration();
     }
 
     /**
@@ -84,7 +85,11 @@ public final class OperationManager {
         String url = configuration.apiHost(auth.accessKey, bucket) + "/pfop/";
         StringMap headers = auth.authorization(url, data, Client.FormMime);
         Response response = client.post(url, data, headers, Client.FormMime);
+        if (!response.isOK()) {
+            throw new QiniuException(response);
+        }
         PfopResult status = response.jsonToObject(PfopResult.class);
+        response.close();
         if (status != null) {
             return status.persistentId;
         }
@@ -167,6 +172,11 @@ public final class OperationManager {
         byte[] data = StringUtils.utf8Bytes(params.formString());
         String url = String.format("%s/status/get/prefop", configuration.apiHost());
         Response response = this.client.post(url, data, null, Client.FormMime);
-        return response.jsonToObject(retClass);
+        if (!response.isOK()) {
+            throw new QiniuException(response);
+        }
+        T object = response.jsonToObject(retClass);
+        response.close();
+        return object;
     }
 }

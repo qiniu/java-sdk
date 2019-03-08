@@ -46,6 +46,7 @@ public final class UploadManager {
     public UploadManager(Client client, Recorder recorder) {
         this.client = client;
         this.recorder = recorder;
+        configuration = new Configuration();
     }
 
     private static void checkArgs(final String key, byte[] data, File f, String token) {
