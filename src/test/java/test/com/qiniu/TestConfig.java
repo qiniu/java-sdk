@@ -44,6 +44,11 @@ public final class TestConfig {
     }
     
     public static void main(String[] args) {
+    	try {
+			System.out.println("done");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
     
 }

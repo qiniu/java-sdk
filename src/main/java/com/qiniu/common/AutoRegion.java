@@ -55,6 +55,11 @@ public class AutoRegion extends Region {
 
     /**
      * 通过 API 接口查询上传域名
+     * z0: http://uc.qbox.me/v2/query?ak=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5&bucket=sdk-z0
+     * z1: http://uc.qbox.me/v2/query?ak=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5&bucket=sdk-z1
+     * z2: http://uc.qbox.me/v2/query?ak=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5&bucket=sdk-z2
+     * as0: http://uc.qbox.me/v2/query?ak=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5&bucket=sdk-as0
+     * na0: http://uc.qbox.me/v2/query?ak=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5&bucket=sdk-na0
      */
     private UCRet getRegionJson(RegionIndex index) throws QiniuException {
         String address = ucServer + "/v2/query?ak=" + index.accessKey + "&bucket=" + index.bucket;

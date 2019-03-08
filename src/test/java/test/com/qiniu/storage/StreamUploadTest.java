@@ -119,16 +119,25 @@ public class StreamUploadTest {
 
     @Test
     public void test4M() throws Throwable {
+        if (TestConfig.isTravis()) {	
+            return;	
+        }
         template(1024 * 4, false);
     }
 
     @Test
     public void test8M1k() throws Throwable {
+        if (TestConfig.isTravis()) {	
+            return;	
+        }
         template(1024 * 8 + 1, false);
     }
 
     @Test
     public void test8M1k2() throws Throwable {
+        if (TestConfig.isTravis()) {	
+            return;	
+        }
         template(1024 * 8 + 1, true);
     }
 
