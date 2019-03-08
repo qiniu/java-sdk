@@ -16,7 +16,7 @@ public final class Configuration implements Cloneable {
      * 使用的Region
      */
     public Region region;
-    
+
     /**
      * 空间相关上传管理操作是否使用 https , 默认 是
      */
@@ -86,11 +86,11 @@ public final class Configuration implements Cloneable {
 
     public Configuration() {
     }
-    
+
     public Configuration(Region region) {
         this.region = region;
     }
-    
+
     public Configuration clone() {
         try {
             return (Configuration) super.clone();
@@ -101,35 +101,35 @@ public final class Configuration implements Cloneable {
     }
 
     public String upHost(String upToken) throws QiniuException {
-    	RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
+        RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
         if (region == null) {
-        	region = Region.autoRegion();
+            region = Region.autoRegion();
         }
         return useAccUpHost ? getScheme() + region.getAccUpHost(regionReqInfo)
-        		: getScheme() + region.getSrcUpHost(regionReqInfo);
+                : getScheme() + region.getSrcUpHost(regionReqInfo);
     }
 
     public String upHostBackup(String upToken) throws QiniuException {
-    	RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
+        RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
         if (region == null) {
-        	region = Region.autoRegion();
+            region = Region.autoRegion();
         }
         return useAccUpHost ? getScheme() + region.getAccUpHostBackup(regionReqInfo)
-        		: getScheme() + region.getSrcUpHostBackup(regionReqInfo);
+                : getScheme() + region.getSrcUpHostBackup(regionReqInfo);
     }
 
     public String ioHost(String ak, String bucket) {
-    	RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
         if (region == null) {
-        	region = Region.autoRegion();
+            region = Region.autoRegion();
         }
         return getScheme() + region.getIovipHost(regionReqInfo);
     }
 
     public String apiHost(String ak, String bucket) {
-    	RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
         if (region == null) {
-        	region = Region.autoRegion();
+            region = Region.autoRegion();
         }
         return getScheme() + region.getApiHost(regionReqInfo);
     }
@@ -137,19 +137,19 @@ public final class Configuration implements Cloneable {
     public String rsHost(String ak, String bucket) {
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
         if (region == null) {
-        	region = Region.autoRegion();
+            region = Region.autoRegion();
         }
         return getScheme() + region.getRsHost(regionReqInfo);
     }
 
     public String rsfHost(String ak, String bucket) {
-    	RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
         if (region == null) {
-        	region = Region.autoRegion();
+            region = Region.autoRegion();
         }
         return getScheme() + region.getRsfHost(regionReqInfo);
     }
-    
+
     public String rsHost() {
         return getScheme() + defaultRsHost;
     }
@@ -161,9 +161,9 @@ public final class Configuration implements Cloneable {
     public String ucHost() {
         return getScheme() + defaultUcHost;
     }
-    
+
     String getScheme() {
-    	return useHttpsDomains ? "https://" : "http://";
+        return useHttpsDomains ? "https://" : "http://";
     }
-    
+
 }

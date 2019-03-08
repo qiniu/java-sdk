@@ -5,169 +5,169 @@ package com.qiniu.common;
  */
 @Deprecated
 public class Zone extends Region {
-	
-	@Deprecated
-	public static class Builder extends Region.Builder {
-		
-		@Deprecated
-		public Builder() {
-			super();
-		}
-		
-		@Deprecated
-		public Builder(Zone originZone) {
-			super(originZone);
-		}
-		
-		@Deprecated
+
+    @Deprecated
+    public static class Builder extends Region.Builder {
+
+        @Deprecated
+        public Builder() {
+            super();
+        }
+
+        @Deprecated
+        public Builder(Zone originZone) {
+            super(originZone);
+        }
+
+        @Deprecated
         public Builder region(String region) {
-        	return (Builder) super.region(region);
+            return (Builder) super.region(region);
         }
 
-		@Deprecated
+        @Deprecated
         public Builder upHttp(String upHttp) {
-        	return (Builder) super.accUpHost(upHttp);
+            return (Builder) super.accUpHost(upHttp);
         }
-        
-		@Deprecated
+
+        @Deprecated
         public Builder upHttps(String upHttps) {
-        	return (Builder) super.accUpHost(upHttps);
+            return (Builder) super.accUpHost(upHttps);
         }
 
-		@Deprecated
+        @Deprecated
         public Builder upBackupHttp(String upBackupHttp) {
-        	return (Builder) super.accUpHost(upBackupHttp);
+            return (Builder) super.accUpHost(upBackupHttp);
         }
 
-		@Deprecated
+        @Deprecated
         public Builder upBackupHttps(String upBackupHttps) {
-        	return (Builder) super.accUpHost(upBackupHttps);
+            return (Builder) super.accUpHost(upBackupHttps);
         }
 
-		@Deprecated
+        @Deprecated
         public Builder iovipHttp(String iovipHttp) {
-        	return (Builder) super.iovipHost(iovipHttp);
+            return (Builder) super.iovipHost(iovipHttp);
         }
 
-		@Deprecated
+        @Deprecated
         public Builder iovipHttps(String iovipHttps) {
-        	return (Builder) super.iovipHost(iovipHttps);
+            return (Builder) super.iovipHost(iovipHttps);
         }
 
-		@Deprecated
+        @Deprecated
         public Builder rsHttp(String rsHttp) {
-        	return (Builder) super.rsHost(rsHttp);
+            return (Builder) super.rsHost(rsHttp);
         }
 
-		@Deprecated
+        @Deprecated
         public Builder rsHttps(String rsHttps) {
-        	return (Builder) super.rsHost(rsHttps);
+            return (Builder) super.rsHost(rsHttps);
         }
 
-		@Deprecated
+        @Deprecated
         public Builder rsfHttp(String rsfHttp) {
-        	return (Builder) super.rsfHost(rsfHttp);
+            return (Builder) super.rsfHost(rsfHttp);
         }
 
-		@Deprecated
+        @Deprecated
         public Builder rsfHttps(String rsfHttps) {
-        	return (Builder) super.rsfHost(rsfHttps);
+            return (Builder) super.rsfHost(rsfHttps);
         }
 
-		@Deprecated
+        @Deprecated
         public Builder apiHttp(String apiHttp) {
-        	return (Builder) super.apiHost(apiHttp);
+            return (Builder) super.apiHost(apiHttp);
         }
 
-		@Deprecated
+        @Deprecated
         public Builder apiHttps(String apiHttps) {
-        	return (Builder) super.apiHost(apiHttps);
+            return (Builder) super.apiHost(apiHttps);
         }
 
-		@Deprecated
+        @Deprecated
         public Region autoZone() {
-			return super.autoRegion();
+            return super.autoRegion();
         }
-		
-		@Deprecated
-		public Zone build() {
-			return (Zone) super.build();
-		}
-	}
 
-	@Deprecated
+        @Deprecated
+        public Zone build() {
+            return (Zone) super.build();
+        }
+    }
+
+    @Deprecated
     public static Zone zone0() {
         return (Zone) Region.region0();
     }
-    
-	@Deprecated
+
+    @Deprecated
     public static Zone huadong() {
         return zone0();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone qvmZone0() {
         return (Zone) Region.qvmRegion0();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone qvmHuadong() {
         return qvmZone0();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone zone1() {
         return (Zone) Region.region1();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone huabei() {
         return zone1();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone qvmZone1() {
         return (Zone) Region.qvmRegion1();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone qvmHuabei() {
         return qvmZone1();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone zone2() {
         return (Zone) Region.region2();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone huanan() {
         return zone2();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone zoneNa0() {
         return (Zone) Region.regionNa0();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone beimei() {
         return zoneNa0();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone zoneAs0() {
         return (Zone) Region.regionAs0();
     }
 
-	@Deprecated
+    @Deprecated
     public static Zone xinjiapo() {
         return zoneAs0();
     }
 
-	@Deprecated
+    @Deprecated
     public static Region autoZone() {
         return (Region) Region.autoRegion();
     }
-    
+
 }
