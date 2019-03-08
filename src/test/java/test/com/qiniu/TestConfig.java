@@ -17,8 +17,8 @@ public final class TestConfig {
     public static final String dummyInvalidUptoken = "invalidtoken";
     
     //test: ak, sk, auth
-    public static final String testAccessKey = "vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5";//System.getenv("QINIU_ACCESS_KEY");
-    public static final String testSecretKey = "qDUzapzO_gI7Q2OW_1c7UKctHTOyHPrR-bBWsYvC";//System.getenv("QINIU_SECRET_KEY");
+    public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
+    public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
     public static Auth testAuth = Auth.create(testAccessKey, testSecretKey);
     //z0
     public static final String testBucket_z0 = "javasdk";
@@ -47,9 +47,6 @@ public final class TestConfig {
     
     public static void main(String[] args) {
     	try {
-    		BucketTest bucketTest = new BucketTest();
-			bucketTest.setUp();
-			bucketTest.testStat();
 			System.out.println("done");
 		} catch (Exception e) {
 			e.printStackTrace();
