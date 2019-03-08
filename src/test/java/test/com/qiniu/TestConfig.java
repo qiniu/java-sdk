@@ -2,8 +2,6 @@ package test.com.qiniu;
 
 import com.qiniu.util.Auth;
 
-import test.com.qiniu.storage.BucketTest;
-
 public final class TestConfig {
 	
     //dummy: ak, sk, ...
