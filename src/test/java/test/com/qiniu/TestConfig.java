@@ -43,12 +43,4 @@ public final class TestConfig {
         return "travis".equals(System.getenv("QINIU_TEST_ENV"));
     }
     
-    public static void main(String[] args) {
-    	try {
-			System.out.println("done");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    }
-    
 }
