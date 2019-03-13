@@ -88,33 +88,6 @@ public final class UploadManager {
         return ret;
     }
     
-    /**
-     * 上传字节流，默认分片上传
-     * @param inputStream
-     * @param key
-     * @param token
-     * @return
-     * @throws QiniuException
-     * @throws IOException
-     */
-    public Response put(InputStream inputStream, String key, String token) throws QiniuException, IOException {
-    	return put(inputStream, -1, key, token, null, null, false);
-    }
-    
-    /**
-     * 上传字节流，小文件走表单，大文件走分片
-     * @param inputStream
-     * @param size
-     * @param key
-     * @param token
-     * @return
-     * @throws QiniuException
-     * @throws IOException
-     */
-    public Response put(InputStream inputStream, long size, String key, String token) throws QiniuException, IOException {
-    	return put(inputStream, size, key, token, null, null, false);
-    }
-    
 	/**
 	 * 上传字节流，小文件走表单，大文件走分片
 	 * @param inputStream

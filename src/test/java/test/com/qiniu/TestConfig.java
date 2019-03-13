@@ -2,7 +2,7 @@ package test.com.qiniu;
 
 import com.qiniu.util.Auth;
 
-import test.com.qiniu.storage.FormUploadTest2;
+import test.com.qiniu.storage.FormUploadTest;
 
 public final class TestConfig {
 	
@@ -46,10 +46,9 @@ public final class TestConfig {
     }
     
     public static void main(String[] args) {
-    	FormUploadTest2 t = new FormUploadTest2();
     	try {
+    		FormUploadTest t = new FormUploadTest();
     		t.testFormUploadWithInputStream();
-    		t.testFormUploadWithInputStreamWithPolicy();
 			System.out.println("done");
 		} catch (Exception e) {
 			e.printStackTrace();
