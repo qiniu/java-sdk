@@ -10,7 +10,6 @@ import test.com.qiniu.TestConfig;
 
 
 public class RtcTest {
-	
     private Auth auth = TestConfig.testAuth;
     private RtcAppManager manager = new RtcAppManager(auth);
     private RtcRoomManager rmanager = new RtcRoomManager(auth);

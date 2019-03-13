@@ -9,8 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
-
 /**
  * 七牛文件上传管理器，通过该类上传文件时，会自动根据定义的{@link Configuration#putThreshold}
  * 来判断是采用表单上传还是分片上传的方法，超过了定义的{@link Configuration#putThreshold}就会采用
@@ -87,37 +85,6 @@ public final class UploadManager {
             }
         });
         return ret;
-    }
-    
-    /**
-     * 上传字节流，表单形式
-     * 合适小文件，大文件请用流式上传
-     * @param inputStream
-     * @param key
-     * @param token
-     * @return
-     * @throws QiniuException
-     */
-    public Response putWithForm(InputStream inputStream, String key, String token) throws QiniuException, IOException {
-    	return putWithForm(inputStream, key, token, null, null, false);
-    }
-    
-    /**
-     * 上传字节流，表单形式
-     * 合适小文件，大文件请用流式上传
-     * @param inputStream
-     * @param key
-     * @param token
-     * @param params
-     * @param mime
-     * @param checkCrc
-     * @return
-     * @throws QiniuException
-     */
-    public Response putWithForm(InputStream inputStream, String key, String token, StringMap params,
-    					String mime, boolean checkCrc) throws QiniuException, IOException {
-    	byte[] data = IOUtils.toByteArray(inputStream);
-    	return put(data, key, token, params, mime, checkCrc);
     }
 
     /**
