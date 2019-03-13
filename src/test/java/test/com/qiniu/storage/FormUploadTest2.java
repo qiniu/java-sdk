@@ -33,7 +33,7 @@ public class FormUploadTest2 {
 		
 		try {
 			InputStream inputStream = new FileInputStream(TempFile.createFile(11));
-			Response response = uploadManager.putWithForm(inputStream, TestConfig.testBucket_z0, token);
+			Response response = uploadManager.put(inputStream, TestConfig.testBucket_z0, token);
 			System.out.println(response.reqId);
 			System.out.println(response.statusCode);
 			System.out.println(response.bodyString());
@@ -59,7 +59,7 @@ public class FormUploadTest2 {
 		
 		try {
 			InputStream inputStream = new FileInputStream(TempFile.createFile(11));
-			uploadManager.putWithForm(inputStream, TestConfig.testBucket_z0, token);
+			uploadManager.put(inputStream, TestConfig.testBucket_z0, token);
 		} catch (Exception e) {
 			if (e instanceof QiniuException) {
 				QiniuException ex = (QiniuException) e;
