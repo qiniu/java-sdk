@@ -3,6 +3,7 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.util.IOUtils;
 import com.qiniu.util.StringMap;
 
 import java.io.File;
@@ -85,6 +86,37 @@ public final class UploadManager {
             }
         });
         return ret;
+    }
+    
+    /**
+     * 上传字节流，表单形式
+     * 合适小文件，大文件请用流式上传
+     * @param inputStream
+     * @param key
+     * @param token
+     * @return
+     * @throws QiniuException
+     */
+    public Response putWithForm(InputStream inputStream, String key, String token) throws QiniuException, IOException {
+    	return putWithForm(inputStream, key, token, null, null, false);
+    }
+    
+    /**
+     * 上传字节流，表单形式
+     * 合适小文件，大文件请用流式上传
+     * @param inputStream
+     * @param key
+     * @param token
+     * @param params
+     * @param mime
+     * @param checkCrc
+     * @return
+     * @throws QiniuException
+     */
+    public Response putWithForm(InputStream inputStream, String key, String token, StringMap params,
+    					String mime, boolean checkCrc) throws QiniuException, IOException {
+    	byte[] data = IOUtils.toByteArray(inputStream);
+    	return put(data, key, token, params, mime, checkCrc);
     }
 
     /**
