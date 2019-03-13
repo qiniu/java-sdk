@@ -58,7 +58,7 @@ public class Region {
     /**
      * 域名构造器
      */
-    public static class Builder {
+    static class Builder {
         protected Region region;
 
         public Builder() {
