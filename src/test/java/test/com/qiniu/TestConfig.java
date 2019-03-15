@@ -37,6 +37,8 @@ public final class TestConfig {
     //code
     public static final int ERROR_CODE_BUCKET_NOT_EXIST = 631;
     public static final int ERROR_CODE_KEY_NOT_EXIST = 612;
+
+    public static final String testLinkingAppid = System.getenv("QINIU_LINKING_APPID");
     
     private TestConfig() {
     }
