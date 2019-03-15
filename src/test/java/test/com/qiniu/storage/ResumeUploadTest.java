@@ -23,10 +23,11 @@ import static org.junit.Assert.fail;
 
 public class ResumeUploadTest {
 
-	/**
-	 * 检测自定义变量foo是否生效
-	 * @throws IOException
-	 */
+    /**
+     * 检测自定义变量foo是否生效
+     *
+     * @throws IOException
+     */
     @Test
     public void testXVar() throws IOException {
 
@@ -67,6 +68,7 @@ public class ResumeUploadTest {
     /**
      * 分片上传
      * 检测key、hash、fszie、fname是否符合预期
+     *
      * @param size
      * @param https
      * @throws IOException
@@ -122,24 +124,24 @@ public class ResumeUploadTest {
 
     @Test
     public void test4M() throws Throwable {
-        if (TestConfig.isTravis()) {	
-            return;	
+        if (TestConfig.isTravis()) {
+            return;
         }
         template(1024 * 4, false);
     }
 
     @Test
     public void test8M1k() throws Throwable {
-        if (TestConfig.isTravis()) {	
-            return;	
+        if (TestConfig.isTravis()) {
+            return;
         }
         template(1024 * 8 + 1, false);
     }
 
     @Test
     public void test8M1k2() throws Throwable {
-        if (TestConfig.isTravis()) {	
-            return;	
+        if (TestConfig.isTravis()) {
+            return;
         }
         template(1024 * 8 + 1, true);
     }
