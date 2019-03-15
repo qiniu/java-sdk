@@ -8,7 +8,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.security.Timestamp;
 import java.util.Date;
 
 public final class Auth {
@@ -377,7 +376,8 @@ public final class Auth {
         return signWithData(StringUtils.utf8Bytes(s));
     }
 
-    public String generateLinkingDeviceTokenWithExpires(String appid, String deviceName, long expires, String[] actions) {
+    public String generateLinkingDeviceTokenWithExpires(String appid, String deviceName,
+                                                        long expires, String[] actions) {
         long deadline = (new Date().getTime() / 1000) + expires;
         return generateLinkingDeviceToken(appid, deviceName, deadline, actions);
     }

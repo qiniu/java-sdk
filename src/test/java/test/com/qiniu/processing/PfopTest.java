@@ -14,14 +14,14 @@ import test.com.qiniu.TestConfig;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public class PfopTest {
-	
-	/**
-	 * 测试pfop
-	 * 检测jobid是否不为空
-	 */
+
+    /**
+     * 测试pfop
+     * 检测jobid是否不为空
+     */
     @Test
     public void testPfop() {
         Map<String, Region> cases = new HashMap<String, Region>();
@@ -36,10 +36,12 @@ public class PfopTest {
             boolean force = true;
 
             String m3u8SaveEntry = String.format("%s:%s", bucket, TestConfig.testMp4FileKey + "_320x240.m3u8");
-            String fopM3u8 = String.format("avthumb/m3u8/segtime/10/vcodec/libx264/s/320x240|saveas/%s", UrlSafeBase64.encodeToString(String.format(m3u8SaveEntry)));
+            String fopM3u8 = String.format("avthumb/m3u8/segtime/10/vcodec/libx264/s/320x240|saveas/%s",
+                    UrlSafeBase64.encodeToString(String.format(m3u8SaveEntry)));
 
             String mp4SaveEntry = String.format("%s:%s", bucket, TestConfig.testMp4FileKey + "_320x240.mp4");
-            String fopMp4 = String.format("avthumb/mp4/vcodec/libx264/s/320x240|saveas/%s", UrlSafeBase64.encodeToString(mp4SaveEntry));
+            String fopMp4 = String.format("avthumb/mp4/vcodec/libx264/s/320x240|saveas/%s",
+                    UrlSafeBase64.encodeToString(mp4SaveEntry));
 
             String fops = StringUtils.join(new String[]{fopM3u8, fopMp4}, ";");
             System.out.println(fops);
@@ -47,7 +49,8 @@ public class PfopTest {
             try {
                 Configuration cfg = new Configuration(region);
                 OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
-                String jobid = operationManager.pfop(bucket, TestConfig.testMp4FileKey, fops, null, notifyURL, force);
+                String jobid = operationManager.pfop(bucket, TestConfig.testMp4FileKey, fops, null,
+                        notifyURL, force);
                 Assert.assertNotNull(jobid);
                 Assert.assertNotEquals("", jobid);
                 String purl = "https://api.qiniu.com/status/get/prefop?id=" + jobid;
@@ -65,7 +68,7 @@ public class PfopTest {
     @Test
     public void testPrefop() {
         try {
-        	String jobid = "z0.5c81361a38b9f349c8bb5288";
+            String jobid = "z0.5c81361a38b9f349c8bb5288";
             Configuration cfg = new Configuration(Region.autoRegion());
             OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
             OperationStatus status = operationManager.prefop(jobid);

@@ -23,6 +23,7 @@ public class BucketTest {
 
     /**
      * 初始化
+     *
      * @throws Exception
      */
     @Before
@@ -218,13 +219,13 @@ public class BucketTest {
             String key = entry.getValue();
             String copyKey = "delete" + Math.random();
             try {
-            	bucketManager.copy(bucket, key, bucket, copyKey, true);
-            	bucketManager.delete(bucket, copyKey);
+                bucketManager.copy(bucket, key, bucket, copyKey, true);
+                bucketManager.delete(bucket, copyKey);
             } catch (QiniuException e) {
-            	Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
             }
         }
-    	
+
         Map<String[], Integer> entryCodeMap = new HashMap<String[], Integer>();
         entryCodeMap.put(new String[]{TestConfig.testBucket_z0, TestConfig.dummyKey},
                 TestConfig.ERROR_CODE_KEY_NOT_EXIST);
@@ -752,6 +753,7 @@ public class BucketTest {
 
     /**
      * 测试设置空间私有化、公有化
+     *
      * @throws QiniuException
      */
     @Test
@@ -773,6 +775,7 @@ public class BucketTest {
 
     /**
      * 测试获取bucketinfo
+     *
      * @throws QiniuException
      */
     @Test
@@ -784,12 +787,13 @@ public class BucketTest {
         try {
             bucketManager.getBucketInfo("javasdk2");
         } catch (QiniuException e) {
-        	e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
     /**
      * 测试noIndexPage
+     *
      * @throws QiniuException
      */
     @Test

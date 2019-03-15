@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
  * Updated by panyuan on 19/3/12
  */
 public class StreamingTest {
-	
+
     private Auth auth = TestConfig.testAuth;
     private String hub = "pilisdktest";
     private String stream = "javasdk";
@@ -40,6 +40,7 @@ public class StreamingTest {
 
     /**
      * 测试创建、禁用、启用、获取流信息、列举
+     *
      * @throws QiniuException
      */
     @Test
@@ -121,6 +122,7 @@ public class StreamingTest {
     /**
      * 测试saveas
      * 检测返回状态码是否是404
+     *
      * @throws QiniuException
      */
     @Test
@@ -128,13 +130,14 @@ public class StreamingTest {
         try {
             manager.saveAs(streamNoExist, "f\"ff.m3u8");
         } catch (QiniuException e) {
-        	assertEquals(404, e.response.statusCode);
+            assertEquals(404, e.response.statusCode);
         }
     }
 
     /**
      * 测试创建流
      * 检测返回状态码是否为614
+     *
      * @throws QiniuException
      */
     @Test
@@ -142,7 +145,7 @@ public class StreamingTest {
         try {
             manager.create(stream);
         } catch (QiniuException e) {
-        	assertEquals(614, e.code());
+            assertEquals(614, e.code());
         }
     }
 

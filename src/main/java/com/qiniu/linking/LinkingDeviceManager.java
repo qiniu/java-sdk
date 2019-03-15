@@ -5,7 +5,10 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.linking.model.*;
-import com.qiniu.util.*;
+import com.qiniu.util.Auth;
+import com.qiniu.util.Json;
+import com.qiniu.util.StringMap;
+import com.qiniu.util.UrlSafeBase64;
 
 public class LinkingDeviceManager {
 
@@ -53,8 +56,8 @@ public class LinkingDeviceManager {
                 .putNotEmpty("prefix", prefix).putWhen("limit", limit, limit > 0)
                 .putWhen("online", online, online);
         String queryString = map.formString();
-        if (map.size()>0){
-            queryString="?"+queryString;
+        if (map.size() > 0) {
+            queryString = "?" + queryString;
         }
         String url = String.format("%s/v1/apps/%s/devices%s", host, appid, queryString);
         Response res = get(url);
@@ -106,7 +109,8 @@ public class LinkingDeviceManager {
     }
 
     public DeviceHistoryListing listDeviceHistory(String appid, String deviceName,
-                                                  long start, long end, String marker, int limit) throws QiniuException {
+                                                  long start, long end, String marker,
+                                                  int limit) throws QiniuException {
         String encodedDeviceName = UrlSafeBase64.encodeToString(deviceName);
         StringMap map = new StringMap().putNotEmpty("marker", marker).
                 put("start", start).put("end", end).putWhen("limit", limit, limit > 0);
