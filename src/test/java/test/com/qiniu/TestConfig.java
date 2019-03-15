@@ -2,6 +2,8 @@ package test.com.qiniu;
 
 import com.qiniu.util.Auth;
 
+import test.com.qiniu.storage.FormUploadTest;
+
 public final class TestConfig {
 	
     //dummy: ak, sk, ...
@@ -45,6 +47,8 @@ public final class TestConfig {
     
     public static void main(String[] args) {
     	try {
+    		FormUploadTest t = new FormUploadTest();
+    		t.testFormUploadWithInputStream();
 			System.out.println("done");
 		} catch (Exception e) {
 			e.printStackTrace();
