@@ -236,6 +236,54 @@ public final class Client {
         return send(requestBuilder, headers);
     }
 
+    public Response patch(String url, byte[] body, StringMap headers) throws QiniuException {
+        return patch(url, body, headers, DefaultMime);
+    }
+
+    public Response patch(String url, String body, StringMap headers) throws QiniuException {
+        return patch(url, StringUtils.utf8Bytes(body), headers, DefaultMime);
+    }
+
+    public Response patch(String url, StringMap params, StringMap headers) throws QiniuException {
+        final FormBody.Builder f = new FormBody.Builder();
+        params.forEach(new StringMap.Consumer() {
+            @Override
+            public void accept(String key, Object value) {
+                f.add(key, value.toString());
+            }
+        });
+        return patch(url, f.build(), headers);
+    }
+
+    public Response patch(String url, byte[] body, StringMap headers, String contentType) throws QiniuException {
+        RequestBody rbody;
+        if (body != null && body.length > 0) {
+            MediaType t = MediaType.parse(contentType);
+            rbody = RequestBody.create(t, body);
+        } else {
+            rbody = RequestBody.create(null, new byte[0]);
+        }
+        return patch(url, rbody, headers);
+    }
+
+    public Response patch(String url, byte[] body, int offset, int size,
+                          StringMap headers, String contentType) throws QiniuException {
+        RequestBody rbody;
+        if (body != null && body.length > 0) {
+            MediaType t = MediaType.parse(contentType);
+            rbody = create(t, body, offset, size);
+        } else {
+            rbody = RequestBody.create(null, new byte[0]);
+        }
+        return patch(url, rbody, headers);
+    }
+
+    private Response patch(String url, RequestBody body, StringMap headers) throws QiniuException {
+        Request.Builder requestBuilder = new Request.Builder().url(url).patch(body);
+        return send(requestBuilder, headers);
+    }
+
+
     public Response send(final Request.Builder requestBuilder, StringMap headers) throws QiniuException {
         if (headers != null) {
             headers.forEach(new StringMap.Consumer() {
