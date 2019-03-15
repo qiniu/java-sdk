@@ -5,7 +5,10 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.linking.model.*;
-import com.qiniu.util.*;
+import com.qiniu.util.Auth;
+import com.qiniu.util.Json;
+import com.qiniu.util.StringMap;
+import com.qiniu.util.UrlSafeBase64;
 
 public class LinkingDeviceManager {
 
@@ -53,8 +56,8 @@ public class LinkingDeviceManager {
                 .putNotEmpty("prefix", prefix).putWhen("limit", limit, limit > 0)
                 .putWhen("online", online, online);
         String queryString = map.formString();
-        if (map.size()>0){
-            queryString="?"+queryString;
+        if (map.size() > 0) {
+            queryString = "?" + queryString;
         }
         String url = String.format("%s/v1/apps/%s/devices%s", host, appid, queryString);
         Response res = get(url);

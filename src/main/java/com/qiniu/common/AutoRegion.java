@@ -1,30 +1,30 @@
 package com.qiniu.common;
 
+import com.qiniu.http.Client;
+import com.qiniu.http.Response;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.qiniu.http.Client;
-import com.qiniu.http.Response;
-
 public class AutoRegion extends Region {
-	
-	/**
-	 * uc接口域名
-	 */
+
+    /**
+     * uc接口域名
+     */
     private final String ucServer;
 
     /**
      * 空间机房，域名信息缓存
      */
     private Map<RegionIndex, RegionInfo> regions;
-    
+
     /**
      * 根据API返回的上传域名推导出其他资源管理域名
      */
     private Map<String, Region> inferDomainsMap;
-    
+
     /**
      * 定义HTTP请求管理相关方法
      */
@@ -107,7 +107,7 @@ public class AutoRegion extends Region {
         }
         return null;
     }
-    
+
     /**
      * 获取源站直传域名
      */
@@ -118,7 +118,7 @@ public class AutoRegion extends Region {
         }
         return info.srcUpHosts.get(0);
     }
-    
+
     /**
      * 获取加速上传域名
      */
@@ -193,48 +193,49 @@ public class AutoRegion extends Region {
      * 从接口获取的域名信息
      */
     static class RegionInfo {
-    	final List<String> srcUpHosts;
+        final List<String> srcUpHosts;
         final List<String> accUpHosts;
         final String iovipHost;
 
         protected RegionInfo(List<String> srcUpHosts, List<String> accUpHosts, String iovipHost) {
-        	this.srcUpHosts = srcUpHosts;
-        	this.accUpHosts = accUpHosts;
-        	this.iovipHost = iovipHost;
+            this.srcUpHosts = srcUpHosts;
+            this.accUpHosts = accUpHosts;
+            this.iovipHost = iovipHost;
         }
 
         /**
-	      {
-	        "io": {"src": {"main": ["iovip.qbox.me"]}},
-	        "up": {
-	          "acc": {
-	            "main": ["upload.qiniup.com"],
-	            "backup": ["upload-jjh.qiniup.com", "upload-xs.qiniup.com"]
-	          },
-	          "src": {
-	            "main": ["up.qiniup.com"],
-	            "backup": ["up-jjh.qiniup.com", "up-xs.qiniup.com"]
-	          }
-	        }
-	      }
+         * {
+         *   "io": {"src": {"main": ["iovip.qbox.me"]}},
+         *   "up": {
+         *     "acc": {
+         *       "main": ["upload.qiniup.com"],
+         *       "backup": ["upload-jjh.qiniup.com", "upload-xs.qiniup.com"]
+         *     },
+         *     "src": {
+         *       "main": ["up.qiniup.com"],
+         *       "backup": ["up-jjh.qiniup.com", "up-xs.qiniup.com"]
+         *     }
+         *   }
+         * }
+         *
          * @param ret
          * @return
          */
         static RegionInfo buildFromUcRet(UCRet ret) {
-        	List<String> srcUpHosts = new ArrayList<>();
-        	addAll(srcUpHosts, ret.up.src.get("main"));
-        	addAll(srcUpHosts, ret.up.src.get("backup"));
-        	List<String> accUpHosts = new ArrayList<>();
-        	addAll(accUpHosts, ret.up.acc.get("main"));
-        	addAll(accUpHosts, ret.up.acc.get("backup"));
-        	String iovipHost = ret.io.src.get("main").get(0);
+            List<String> srcUpHosts = new ArrayList<>();
+            addAll(srcUpHosts, ret.up.src.get("main"));
+            addAll(srcUpHosts, ret.up.src.get("backup"));
+            List<String> accUpHosts = new ArrayList<>();
+            addAll(accUpHosts, ret.up.acc.get("main"));
+            addAll(accUpHosts, ret.up.acc.get("backup"));
+            String iovipHost = ret.io.src.get("main").get(0);
             return new RegionInfo(srcUpHosts, accUpHosts, iovipHost);
         }
-        
+
         static void addAll(List<String> s, List<String> p) {
-        	if (p != null) {
-        		s.addAll(p);
-        	}
+            if (p != null) {
+                s.addAll(p);
+            }
         }
     }
 
@@ -261,14 +262,14 @@ public class AutoRegion extends Region {
         UPRet up;
         IORet io;
     }
-    
+
     private class UPRet {
-    	Map<String, List<String>> acc;
-    	Map<String, List<String>> src;
+        Map<String, List<String>> acc;
+        Map<String, List<String>> src;
     }
-    
+
     private class IORet {
-    	Map<String, List<String>> src;
+        Map<String, List<String>> src;
     }
-    
+
 }

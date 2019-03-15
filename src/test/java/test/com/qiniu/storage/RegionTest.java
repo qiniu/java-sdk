@@ -2,9 +2,8 @@ package test.com.qiniu.storage;
 
 import com.qiniu.common.Region;
 import com.qiniu.common.Zone;
-import org.junit.Test;
-
 import org.junit.Assert;
+import org.junit.Test;
 
 public class RegionTest {
     @Test

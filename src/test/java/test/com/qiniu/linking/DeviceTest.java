@@ -3,24 +3,23 @@ package test.com.qiniu.linking;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.linking.*;
+import com.qiniu.linking.LinkingDeviceManager;
 import com.qiniu.linking.model.*;
 import com.qiniu.util.Auth;
-
-import java.util.Date;
-
 import com.qiniu.util.StringMap;
-import com.qiniu.util.UrlSafeBase64;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import test.com.qiniu.TestConfig;
+
+import java.util.Date;
 
 public class DeviceTest {
 
     private final static String testDeviceName1 = "test1";
     private final static String testDeviceName2 = "test2";
     private final static Client client = new Client();
+
     @Test
     @Ignore
     public void testDevice() throws QiniuException {
@@ -37,24 +36,24 @@ public class DeviceTest {
             {
                 //添加dak
                 DeviceKey[] keys = deviceManager.addDeviceKey(testAppid, testDeviceName1);
-                Assert.assertNotEquals(keys.length,0);
+                Assert.assertNotEquals(keys.length, 0);
             }
 
             {
                 //查询设备
                 DeviceKey[] keys = deviceManager.queryDeviceKey(testAppid, testDeviceName1);
-                Assert.assertEquals(keys.length,1);
+                Assert.assertEquals(keys.length, 1);
 
                 //删除设备
                 deviceManager.deleteDeviceKey(testAppid, testDeviceName1, keys[0].getAccessKey());
                 keys = deviceManager.queryDeviceKey(testAppid, testDeviceName1);
-                Assert.assertEquals(keys.length,0);
+                Assert.assertEquals(keys.length, 0);
             }
 
-             {
+            {
                 //列出设备
                 DeviceListing deviceslist = deviceManager.listDevice(testAppid, "", "", 1, false);
-                Assert.assertNotEquals(deviceslist.items.length,0);
+                Assert.assertNotEquals(deviceslist.items.length, 0);
             }
 
 
@@ -62,7 +61,7 @@ public class DeviceTest {
                 //修改设备字段
                 PatchOperation[] operations = {new PatchOperation("replace", "segmentExpireDays", 9)};
                 Device device = deviceManager.updateDevice(testAppid, testDeviceName1, operations);
-                Assert.assertEquals(device.getSegmentExpireDays(),9);
+                Assert.assertEquals(device.getSegmentExpireDays(), 9);
             }
 
             {
@@ -122,14 +121,14 @@ public class DeviceTest {
         LinkingDeviceManager deviceManager = new LinkingDeviceManager(TestConfig.testAuth);
         try {
             deviceManager.createDevice(testAppid, testDeviceName1);
-            StringMap map = new StringMap().put("dtoken",statusToken);
+            StringMap map = new StringMap().put("dtoken", statusToken);
             String queryString = map.formString();
             String url = String.format("%s/v1/device/resource/status?%s",
                     "http://linking.qiniuapi.com", queryString);
             Response res = client.get(url);
             int code = res.statusCode;
             res.close();
-            Assert.assertNotEquals(code,401);
+            Assert.assertNotEquals(code, 401);
         } finally {
             deviceManager.deleteDevice(testAppid, testDeviceName1);
         }

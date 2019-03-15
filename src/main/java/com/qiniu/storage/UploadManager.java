@@ -87,27 +87,28 @@ public final class UploadManager {
         });
         return ret;
     }
-    
-	/**
-	 * 上传字节流，小文件走表单，大文件走分片
-	 * @param inputStream
-	 * @param size
-	 * @param key
-	 * @param token
-	 * @param params
-	 * @param mime
-	 * @param checkCrc
-	 * @return
-	 * @throws QiniuException
-	 * @throws IOException
-	 */
+
+    /**
+     * 上传字节流，小文件走表单，大文件走分片
+     *
+     * @param inputStream
+     * @param size
+     * @param key
+     * @param token
+     * @param params
+     * @param mime
+     * @param checkCrc
+     * @return
+     * @throws QiniuException
+     * @throws IOException
+     */
     public Response put(InputStream inputStream, long size, String key, String token, StringMap params,
-    					String mime, boolean checkCrc) throws QiniuException, IOException {
-    	if (size < 0 || size > configuration.putThreshold) {
-    		return put(inputStream, key, token, params, mime);
-    	}
-    	byte[] data = IOUtils.toByteArray(inputStream);
-    	return put(data, key, token, params, mime, checkCrc);
+                        String mime, boolean checkCrc) throws QiniuException, IOException {
+        if (size < 0 || size > configuration.putThreshold) {
+            return put(inputStream, key, token, params, mime);
+        }
+        byte[] data = IOUtils.toByteArray(inputStream);
+        return put(data, key, token, params, mime, checkCrc);
     }
 
     /**

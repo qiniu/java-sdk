@@ -8,7 +8,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.security.Timestamp;
 import java.util.Date;
 
 public final class Auth {

@@ -14,14 +14,14 @@ import test.com.qiniu.TestConfig;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public class PfopTest {
-	
-	/**
-	 * 测试pfop
-	 * 检测jobid是否不为空
-	 */
+
+    /**
+     * 测试pfop
+     * 检测jobid是否不为空
+     */
     @Test
     public void testPfop() {
         Map<String, Region> cases = new HashMap<String, Region>();
@@ -65,7 +65,7 @@ public class PfopTest {
     @Test
     public void testPrefop() {
         try {
-        	String jobid = "z0.5c81361a38b9f349c8bb5288";
+            String jobid = "z0.5c81361a38b9f349c8bb5288";
             Configuration cfg = new Configuration(Region.autoRegion());
             OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
             OperationStatus status = operationManager.prefop(jobid);
