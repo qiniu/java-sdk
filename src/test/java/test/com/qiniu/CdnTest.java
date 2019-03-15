@@ -145,13 +145,16 @@ public class CdnTest {
         long deadline1 = System.currentTimeMillis() / 1000 + 3600;
         long deadline2 = deadline1;
         long deadline3 = 1551966091; // 2019-03-07 21:41:31 +0800 CST
-        String testUrl_z0_timeStamp_outdate = "http://javasdk-timestamp.peterpy.cn/peter/1.png?sign=00500d45e6fe0bf62b9814e3959841d1&t=5c811f8b";
+        String testUrl_z0_timeStamp_outdate =
+                "http://javasdk-timestamp.peterpy.cn/peter/1.png?sign=00500d45e6fe0bf62b9814e3959841d1&t=5c811f8b";
         try {
             URL url = new URL(TestConfig.testUrl_z0_timeStamp);
             Assert.assertEquals(403, getResponse(url.toString()).statusCode);
-            String signedUrl1 = CdnManager.createTimestampAntiLeechUrl(host, fileName, queryStringMap, encryptKey1, deadline1);
+            String signedUrl1 = CdnManager.createTimestampAntiLeechUrl(host, fileName, queryStringMap,
+                    encryptKey1, deadline1);
             String signedUrl2 = CdnManager.createTimestampAntiLeechUrl(url, encryptKey2, deadline2);
-            String signedUrl3 = CdnManager.createTimestampAntiLeechUrl(host, fileName, null, encryptKey1, deadline3);
+            String signedUrl3 = CdnManager.createTimestampAntiLeechUrl(host, fileName, null,
+                    encryptKey1, deadline3);
             System.out.println(signedUrl1);
             System.out.println(signedUrl2);
             System.out.println(signedUrl3);

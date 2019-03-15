@@ -103,11 +103,16 @@ public final class UploadManager {
      * @throws IOException
      */
     public Response put(InputStream inputStream, long size, String key, String token, StringMap params,
-                        String mime, boolean checkCrc) throws QiniuException, IOException {
+                        String mime, boolean checkCrc) throws QiniuException {
         if (size < 0 || size > configuration.putThreshold) {
             return put(inputStream, key, token, params, mime);
         }
-        byte[] data = IOUtils.toByteArray(inputStream);
+        byte[] data = null;
+        try {
+            data = IOUtils.toByteArray(inputStream);
+        } catch (IOException e) {
+            throw new QiniuException(e);
+        }
         return put(data, key, token, params, mime, checkCrc);
     }
 

@@ -16,9 +16,9 @@ import java.util.Date;
 
 public class DeviceTest {
 
-    private final static String testDeviceName1 = "test1";
-    private final static String testDeviceName2 = "test2";
-    private final static Client client = new Client();
+    private static final String testDeviceName1 = "test1";
+    private static final String testDeviceName2 = "test2";
+    private static final Client client = new Client();
 
     @Test
     @Ignore
@@ -27,6 +27,7 @@ public class DeviceTest {
         String testAppid = TestConfig.testLinkingAppid;
         LinkingDeviceManager deviceManager = new LinkingDeviceManager(auth);
         try {
+            // CHECKSTYLE:OFF
 
             {
                 //创建设备
@@ -69,6 +70,8 @@ public class DeviceTest {
                 DeviceHistoryListing history = deviceManager.listDeviceHistory(testAppid, testDeviceName1,
                         0, (new Date().getTime()) / 1000, "", 0);
             }
+
+            // CHECKSTYLE:ON
         } finally {
             //删除设备信息
             deviceManager.deleteDevice(testAppid, testDeviceName1);

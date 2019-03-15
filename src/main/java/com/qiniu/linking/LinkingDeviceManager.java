@@ -109,7 +109,8 @@ public class LinkingDeviceManager {
     }
 
     public DeviceHistoryListing listDeviceHistory(String appid, String deviceName,
-                                                  long start, long end, String marker, int limit) throws QiniuException {
+                                                  long start, long end, String marker,
+                                                  int limit) throws QiniuException {
         String encodedDeviceName = UrlSafeBase64.encodeToString(deviceName);
         StringMap map = new StringMap().putNotEmpty("marker", marker).
                 put("start", start).put("end", end).putWhen("limit", limit, limit > 0);

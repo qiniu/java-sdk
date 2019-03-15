@@ -8,6 +8,10 @@ public class IOUtils {
 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
+    private IOUtils() {
+
+    }
+
     /**
      * 输入InputSteam，返回byte[].
      * 参考：https://github.com/apache/commons-io/blob/master/src/main/java/org/apache/commons/io/IOUtils.java<br>

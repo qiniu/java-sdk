@@ -475,7 +475,8 @@ public class FormUploadTest {
      */
     public void testFormUploadWithInputStream(long kiloSize, long size) {
 
-        String token = TestConfig.testAuth.uploadToken(TestConfig.testBucket_z0, TestConfig.testBucket_z0, 3600, null);
+        String token = TestConfig.testAuth.uploadToken(TestConfig.testBucket_z0, TestConfig.testBucket_z0,
+                3600, null);
         System.out.println("token=" + token);
 
         try {
@@ -483,7 +484,8 @@ public class FormUploadTest {
             InputStream inputStream = new FileInputStream(file);
             System.out.println("length=" + file.length());
             System.out.println("size=" + size);
-            Response response = uploadManager.put(inputStream, size, TestConfig.testBucket_z0, token, null, null, false);
+            Response response = uploadManager.put(inputStream, size, TestConfig.testBucket_z0, token, null,
+                    null, false);
             System.out.println("code=" + response.statusCode);
             System.out.println("reqid=" + response.reqId);
             System.out.println(response.bodyString());
