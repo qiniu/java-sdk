@@ -5,7 +5,6 @@ import com.qiniu.http.Response;
 import com.qiniu.rtc.RtcAppManager;
 import com.qiniu.rtc.RtcRoomManager;
 import com.qiniu.util.Auth;
-import org.junit.Test;
 import test.com.qiniu.TestConfig;
 
 

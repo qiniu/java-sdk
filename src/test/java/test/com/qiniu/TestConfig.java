@@ -2,10 +2,8 @@ package test.com.qiniu;
 
 import com.qiniu.util.Auth;
 
-import test.com.qiniu.storage.BucketTest;
-
 public final class TestConfig {
-	
+
     //dummy: ak, sk, ...
     public static final String dummyAccessKey = "abcdefghklmnopq";
     public static final String dummySecretKey = "1234567890";
@@ -15,7 +13,7 @@ public final class TestConfig {
     public static final String dummyDomain = "dummy.qiniudn.com";
     public static final String dummyUptoken = "ak:token:putpolicy";
     public static final String dummyInvalidUptoken = "invalidtoken";
-    
+
     //test: ak, sk, auth
     public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
     public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
@@ -37,23 +35,14 @@ public final class TestConfig {
     //code
     public static final int ERROR_CODE_BUCKET_NOT_EXIST = 631;
     public static final int ERROR_CODE_KEY_NOT_EXIST = 612;
-    
+
+    public static final String testLinkingAppid = System.getenv("QINIU_LINKING_APPID");
+
     private TestConfig() {
     }
-    
+
     public static boolean isTravis() {
         return "travis".equals(System.getenv("QINIU_TEST_ENV"));
     }
-    
-    public static void main(String[] args) {
-    	try {
-    		BucketTest t = new BucketTest();
-    		t.setUp();
-    		t.testBucketInfo();
-    		System.out.println("done");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    }
-    
+
 }

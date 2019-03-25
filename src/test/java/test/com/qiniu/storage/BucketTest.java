@@ -30,6 +30,7 @@ public class BucketTest {
 
     /**
      * 初始化
+     *
      * @throws Exception
      */
     @Before
@@ -225,13 +226,13 @@ public class BucketTest {
             String key = entry.getValue();
             String copyKey = "delete" + Math.random();
             try {
-            	bucketManager.copy(bucket, key, bucket, copyKey, true);
-            	bucketManager.delete(bucket, copyKey);
+                bucketManager.copy(bucket, key, bucket, copyKey, true);
+                bucketManager.delete(bucket, copyKey);
             } catch (QiniuException e) {
-            	Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
             }
         }
-    	
+
         Map<String[], Integer> entryCodeMap = new HashMap<String[], Integer>();
         entryCodeMap.put(new String[]{TestConfig.testBucket_z0, TestConfig.dummyKey},
                 TestConfig.ERROR_CODE_KEY_NOT_EXIST);
@@ -983,7 +984,32 @@ public class BucketTest {
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * 测试设置空间私有化、公有化
+     *
+     * @throws QiniuException
+     */
+    @Test
+    public void testAcl() throws QiniuException {
+        bucketManager.setBucketAcl("javasdk", AclType.PRIVATE);
+        BucketInfo info = bucketManager.getBucketInfo("javasdk");
+        Assert.assertEquals(1, info.getPrivate());
+
+        bucketManager.setBucketAcl("javasdk", AclType.PUBLIC);
+        info = bucketManager.getBucketInfo("javasdk");
+        Assert.assertEquals(0, info.getPrivate());
+
+        try {
+            bucketManager.setBucketAcl("javsfsdfsfsdfsdfsdfasdk1", AclType.PRIVATE);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 测试noIndexPage
+     *
      * @throws QiniuException
      */
     @Test

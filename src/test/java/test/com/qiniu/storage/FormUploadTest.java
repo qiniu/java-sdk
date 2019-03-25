@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 
 public class FormUploadTest {
-	
+
     UploadManager uploadManager = new UploadManager(new Configuration());
 
     /**
@@ -132,7 +132,7 @@ public class FormUploadTest {
             }
         }
     }
-    
+
     /**
      * 空data上传
      * 检测Exception是否为IllegalArgumentException一类
@@ -151,6 +151,7 @@ public class FormUploadTest {
     /**
      * NULL token上传
      * 检测Exception是否为IllegalArgumentException一类
+     *
      * @throws Throwable
      */
     @Test
@@ -400,7 +401,7 @@ public class FormUploadTest {
             }
             String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
             try {
-            	uploadManager.put(f, expectKey, token, null, null, false);
+                uploadManager.put(f, expectKey, token, null, null, false);
             } catch (QiniuException e) {
                 try {
                     assertEquals("_", e.response.bodyString());
@@ -415,7 +416,7 @@ public class FormUploadTest {
      * 检测putThreshold是否生效
      */
     @SuppressWarnings("resource")
-	@Test
+    @Test
     public void testFormLargeSize2() {
         Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
         bucketKeyMap.put(TestConfig.testBucket_z0, Region.region0());
@@ -441,7 +442,7 @@ public class FormUploadTest {
 
             String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
             try {
-            	uploadManager.put(bb, expectKey, token, null, null, false);
+                uploadManager.put(bb, expectKey, token, null, null, false);
             } catch (QiniuException e) {
                 try {
                     assertEquals("_", e.response.bodyString());
@@ -451,47 +452,49 @@ public class FormUploadTest {
             }
         }
     }
-    
-	/**
-	 * 测试inputStream 表单上传
-	 * 检测reqid是否为Null
-	 * 检测状态码是否为200
-	 */
-	@Test
-	public void testFormUploadWithInputStream() {
-		testFormUploadWithInputStream(1, -1);
-		testFormUploadWithInputStream(1, 0);
-		testFormUploadWithInputStream(1, 1000);
-		testFormUploadWithInputStream(4 * 1024, 4 * 1024 * 1024);
-		testFormUploadWithInputStream(5 * 1024, -1);
-		testFormUploadWithInputStream(5 * 1024, 5 * 1024 * 1024);
-	}
-	
-	/**
-	 * 测试inputStream 表单上传
-	 * 检测reqid是否为Null
-	 * 检测状态码是否为200
-	 */
-	public void testFormUploadWithInputStream(long kiloSize, long size) {
-		
-		String token = TestConfig.testAuth.uploadToken(TestConfig.testBucket_z0, TestConfig.testBucket_z0, 3600, null);
-		System.out.println("token="+token);
-		
-		try {
-			File file = TempFile.createFile(kiloSize);
-			InputStream inputStream = new FileInputStream(file);
-			System.out.println("length=" + file.length());
-			System.out.println("size=" + size);
-			Response response = uploadManager.put(inputStream, size, TestConfig.testBucket_z0, token, null, null, false);
-			System.out.println("code="+response.statusCode);
-			System.out.println("reqid="+response.reqId);
-			System.out.println(response.bodyString());
-			assertNotNull(response.reqId);
-			assertEquals(200, response.statusCode);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+
+    /**
+     * 测试inputStream 表单上传
+     * 检测reqid是否为Null
+     * 检测状态码是否为200
+     */
+    @Test
+    public void testFormUploadWithInputStream() {
+        testFormUploadWithInputStream(1, -1);
+        testFormUploadWithInputStream(1, 0);
+        testFormUploadWithInputStream(1, 1000);
+        testFormUploadWithInputStream(4 * 1024, 4 * 1024 * 1024);
+        testFormUploadWithInputStream(5 * 1024, -1);
+        testFormUploadWithInputStream(5 * 1024, 5 * 1024 * 1024);
+    }
+
+    /**
+     * 测试inputStream 表单上传
+     * 检测reqid是否为Null
+     * 检测状态码是否为200
+     */
+    public void testFormUploadWithInputStream(long kiloSize, long size) {
+
+        String token = TestConfig.testAuth.uploadToken(TestConfig.testBucket_z0, TestConfig.testBucket_z0,
+                3600, null);
+        System.out.println("token=" + token);
+
+        try {
+            File file = TempFile.createFile(kiloSize);
+            InputStream inputStream = new FileInputStream(file);
+            System.out.println("length=" + file.length());
+            System.out.println("size=" + size);
+            Response response = uploadManager.put(inputStream, size, TestConfig.testBucket_z0, token, null,
+                    null, false);
+            System.out.println("code=" + response.statusCode);
+            System.out.println("reqid=" + response.reqId);
+            System.out.println(response.bodyString());
+            assertNotNull(response.reqId);
+            assertEquals(200, response.statusCode);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     class MyRet {
         public String hash;

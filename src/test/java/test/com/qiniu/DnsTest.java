@@ -4,7 +4,6 @@ import com.qiniu.common.Region;
 import com.qiniu.http.Dns;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
-import org.junit.Test;
 import qiniu.happydns.DnsClient;
 import qiniu.happydns.Domain;
 import qiniu.happydns.IResolver;

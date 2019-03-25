@@ -6,13 +6,13 @@ package com.qiniu.common;
 @Deprecated
 public class ZoneReqInfo extends RegionReqInfo {
 
-	@Deprecated
-	public ZoneReqInfo(String token) throws QiniuException {
-		super(token);
-	}
-	
-	@Deprecated
+    @Deprecated
+    public ZoneReqInfo(String token) throws QiniuException {
+        super(token);
+    }
+
+    @Deprecated
     public ZoneReqInfo(String accessKey, String bucket) {
-    	super(accessKey, bucket);
+        super(accessKey, bucket);
     }
 }
