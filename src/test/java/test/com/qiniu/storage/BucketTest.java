@@ -2,16 +2,23 @@ package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Region;
+import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.model.*;
 import com.qiniu.util.StringUtils;
+
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import test.com.qiniu.TestConfig;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -350,8 +357,8 @@ public class BucketTest {
      * 检测镜像资源更新
      * 检测取消镜像源
      */
+    // TODO
     //@Test
-    // TODO：准备干掉setImage、unsetImage，重写
     public void testPrefetch() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -390,6 +397,231 @@ public class BucketTest {
                 Assert.fail(e.response.toString());
             }
         }
+    }
+    
+    /**
+     * 测试获取bucketinfo
+     * @throws QiniuException
+     */
+    @Test
+    public void testBucketInfo() throws QiniuException {
+        try {
+            BucketInfo info = bucketManager.getBucketInfo(TestConfig.testBucket_z0);
+            System.out.println(info.getRegion());
+            System.out.println(info.getPrivate());
+            Assert.assertNotNull("info.getRegion() is not null.", info.getRegion());
+            Assert.assertNotNull("info.getPrivate() is not null.", info.getPrivate());
+            
+            bucketManager.getBucketInfo(TestConfig.dummyBucket);
+            
+        } catch (QiniuException e) {
+        	e.printStackTrace();
+        	Assert.assertEquals(612, e.response.statusCode);
+        }
+    }
+    
+    /**
+     * 测试设置空间referer防盗链
+     */
+    @Test
+ // TODO
+    public void testPutReferAntiLeech() {
+    	BucketReferAntiLeech leech = new BucketReferAntiLeech();
+    	Response response;
+    	try {
+    		System.out.println(leech.asQueryString());
+    		response = bucketManager.putReferAntiLeech(TestConfig.testBucket_z0, leech);
+    		Assert.assertEquals(200, response.statusCode);
+    		
+    		leech.setAllowEmptyReferer(false);
+    		System.out.println(leech.asQueryString());
+    		response = bucketManager.putReferAntiLeech(TestConfig.testBucket_z0, leech);
+    		Assert.assertEquals(200, response.statusCode);
+    		
+    		leech.setAllowEmptyReferer(false);
+    		leech.setMode(1);
+    		leech.setPattern("www.qiniu.com");
+    		System.out.println(leech.asQueryString());
+    		response = bucketManager.putReferAntiLeech(TestConfig.testBucket_z0, leech);
+    		Assert.assertEquals(200, response.statusCode);
+    		System.out.println(response.url());
+    		System.out.println(response.reqId);
+    		
+		} catch (Exception e) {
+			if (e instanceof QiniuException) {
+				QiniuException ex = (QiniuException) e;
+				Assert.fail(ex.response.toString());
+			}
+		}
+    }
+    
+    /**
+     * 测试设置空间生命周期规则
+     */
+    @Test
+    // TODO
+    public void testBucketLifeCycleRule() {
+    	try {
+    		
+    	} catch (Exception e) {
+    		
+    	}
+    }
+    
+    /**
+     * 测试设置事件通知
+     */
+    @Test
+    // TODO
+    public void testBucketEvent() {
+    	try {
+    		
+    	} catch (Exception e) {
+    		
+    	}
+    }
+    
+    /**
+     * 测试跨域规则
+     */
+    @Test
+    // TODO
+    public void testCorsRules() {
+    	try {
+    		
+    	} catch (Exception e) {
+    		
+    	}
+    }
+    
+    /**
+     * 测试设置回源规则
+     */
+    @Test
+    // TODO
+    public void testPutBucketSourceConfig() {
+    	try {
+    		
+    	} catch (Exception e) {
+    		
+    	}
+    }
+    
+    /**
+     * 测试设置原图保护模式
+     * 检测开启原图保护能否200，检测主页能否返回401
+     * 检测关闭原图保护能否200，检测主页能否返回200
+     */
+    @Test
+    public void testPutBucketAccessStyleMode() {
+    	Client client = new Client();
+    	Response response;
+    	try {
+    		response = bucketManager.putBucketAccessStyleMode(TestConfig.testBucket_z0, AccessStyleMode.OPEN);
+    		Assert.assertEquals(200, response.statusCode);
+    		
+    		try {
+        		client.get(TestConfig.testUrl_z0);
+    		} catch (QiniuException e) {
+    			e.printStackTrace();
+    			Assert.assertEquals(401, e.response.statusCode);
+    		}
+    		
+    		response = bucketManager.putBucketAccessStyleMode(TestConfig.testBucket_z0, AccessStyleMode.CLOSE);
+    		Assert.assertEquals(200, response.statusCode);
+    		
+    		response = client.get(TestConfig.testUrl_z0);
+    		Assert.assertEquals(200, response.statusCode);
+    		
+    	} catch (QiniuException e) {
+    		Assert.fail(e.response.toString());
+		}
+    }
+    
+    /**
+     * 测试设置max-age属性
+     */
+    @Test
+    // TODO
+    public void testPutBucketMaxAge() {
+    	Client client = new Client();
+    	Response response;
+    	try {
+    		long maxAges[] = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, Integer.MAX_VALUE};
+    		for (int i = 0; i < maxAges.length; i ++) {
+    			long maxAge = maxAges[i];
+    			System.out.println("maxAge=" + maxAge);
+    			response = bucketManager.putBucketMaxAge(TestConfig.testBucket_z0, maxAge);
+    			Assert.assertEquals(200, response.statusCode);
+    			
+        		response = client.get(TestConfig.testUrl_z0);
+        		String value = respHeader(TestConfig.testUrl_z0, "Cache-Control");
+        		System.out.println(value);
+//        		if (maxAge <= 0) {
+//        			Assert.assertEquals(31536000, value);
+//        		} else {
+//        			Assert.assertEquals(maxAge, value);
+//        		}
+    		}
+    	} catch (IOException e) {
+    		if (e instanceof QiniuException) {
+    			Assert.fail(((QiniuException) e).response.toString());
+    		}
+    	}
+    }
+    
+    /**
+     * 测试设置空间私有化、公有化
+     */
+    @Test
+    public void testPutBucketAccessMode() {
+    	Response response;
+        try {
+        	response = bucketManager.putBucketAccessMode(TestConfig.testBucket_z0, AclType.PRIVATE);
+        	Assert.assertEquals(200, response.statusCode);
+            BucketInfo info = bucketManager.getBucketInfo(TestConfig.testBucket_z0);
+            Assert.assertEquals(1, info.getPrivate());
+
+            response = bucketManager.putBucketAccessMode(TestConfig.testBucket_z0, AclType.PUBLIC);
+            Assert.assertEquals(200, response.statusCode);
+            info = bucketManager.getBucketInfo(TestConfig.testBucket_z0);
+            Assert.assertEquals(0, info.getPrivate());
+        } catch (QiniuException e) {
+        	Assert.fail(e.response.toString());
+        }
+        try {
+        	bucketManager.putBucketAccessMode(TestConfig.dummyBucket, AclType.PRIVATE);
+        } catch (QiniuException e) {
+            Assert.assertEquals(631, e.response.statusCode);
+        }
+    }
+    
+    /**
+     * 测试设置、获取空间配额
+     */
+    @Test
+    public void testBucketQuota() {
+    	BucketQuota bucketQuota;
+    	Response response;
+    	try {
+    		response = bucketManager.putBucketQuota(TestConfig.testBucket_z0, new BucketQuota(-1, -1));
+    		Assert.assertEquals(200, response.statusCode);
+    		bucketQuota = bucketManager.getBucketQuota(TestConfig.testBucket_z0);
+    		Assert.assertEquals(-1, bucketQuota.getSize());
+    		Assert.assertEquals(-1, bucketQuota.getCount());
+    		
+    		// TODO
+    		
+    		/**
+    		 * https://jira.qiniu.io/browse/KODO-7233
+    		 * 修复BUG ing
+    		 */
+    		//response = bucketManager.putBucketQuota(TestConfig.testBucket_z0, new BucketQuota(0, 0));
+    		//Assert.assertEquals(200, response.statusCode);
+    		
+    	} catch (QiniuException e) {
+    		Assert.fail(e.response.toString());
+		}
     }
 
     /**
@@ -675,8 +907,8 @@ public class BucketTest {
     /**
      * 测试设置、取消空间镜像源
      */
+    //TODO
     //@Test
-    // TODO：准备干掉setImage、unsetImage，重写
     public void testSetAndUnsetImage() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
@@ -751,61 +983,42 @@ public class BucketTest {
     }
 
     /**
-     * 测试设置空间私有化、公有化
-     * @throws QiniuException
-     */
-    @Test
-    public void testAcl() throws QiniuException {
-        bucketManager.setBucketAcl("javasdk", AclType.PRIVATE);
-        BucketInfo info = bucketManager.getBucketInfo("javasdk");
-        Assert.assertEquals(1, info.getPrivate());
-
-        bucketManager.setBucketAcl("javasdk", AclType.PUBLIC);
-        info = bucketManager.getBucketInfo("javasdk");
-        Assert.assertEquals(0, info.getPrivate());
-
-        try {
-            bucketManager.setBucketAcl("javsfsdfsfsdfsdfsdfasdk1", AclType.PRIVATE);
-        } catch (QiniuException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 测试获取bucketinfo
-     * @throws QiniuException
-     */
-    @Test
-    public void testBucketInfo() throws QiniuException {
-        BucketInfo info = bucketManager.getBucketInfo("javasdk");
-        System.out.println(info.getRegion());
-        System.out.println(info.getRegion());
-        System.out.println(info.getPrivate());
-        try {
-            bucketManager.getBucketInfo("javasdk2");
-        } catch (QiniuException e) {
-        	e.printStackTrace();
-        }
-    }
-
-    /**
      * 测试noIndexPage
      * @throws QiniuException
      */
     @Test
     public void testIndexPage() throws QiniuException {
-        bucketManager.setIndexPage("javasdk", IndexPageType.HAS);
-        BucketInfo info = bucketManager.getBucketInfo("javasdk");
+        bucketManager.setIndexPage(TestConfig.testBucket_z0, IndexPageType.HAS);
+        BucketInfo info = bucketManager.getBucketInfo(TestConfig.testBucket_z0);
         Assert.assertEquals(0, info.getNoIndexPage());
 
-        bucketManager.setIndexPage("javasdk", IndexPageType.NO);
-        info = bucketManager.getBucketInfo("javasdk");
+        bucketManager.setIndexPage(TestConfig.testBucket_z0, IndexPageType.NO);
+        info = bucketManager.getBucketInfo(TestConfig.testBucket_z0);
         Assert.assertEquals(1, info.getNoIndexPage());
 
         try {
-            bucketManager.setIndexPage("javasdk2", IndexPageType.HAS);
+            bucketManager.setIndexPage(TestConfig.dummyBucket, IndexPageType.HAS);
         } catch (QiniuException e) {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * 获得响应头中key字段的值
+     * @param url
+     * @param key
+     * @return
+     * @throws IOException
+     */
+	String respHeader(String url, String key) throws IOException {
+	    Request.Builder builder = new Request.Builder();
+	    Request request = builder.url(url).build();
+	    
+	    OkHttpClient client = new OkHttpClient();
+	    Call call = client.newCall(request);
+	    okhttp3.Response response = call.execute();
+	    List<String> values = response.headers().values(key);
+	    return values.toString();
+	}
+	
 }
