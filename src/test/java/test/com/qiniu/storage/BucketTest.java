@@ -984,8 +984,6 @@ public class BucketTest {
     }
 
     /**
-<<<<<<< HEAD
-=======
      * 测试设置空间私有化、公有化
      *
      * @throws QiniuException
