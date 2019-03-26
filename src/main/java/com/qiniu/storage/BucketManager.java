@@ -1,5 +1,7 @@
 package com.qiniu.storage;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.qiniu.common.Constants;
@@ -98,6 +100,13 @@ public final class BucketManager {
         return buckets;
     }
 
+    /**
+     * 创建空间
+     * @param bucketName
+     * @param region
+     * @return
+     * @throws QiniuException
+     */
     public Response createBucket(String bucketName, String region) throws QiniuException {
         String url = String.format("%s/mkbucketv2/%s/region/%s", configuration.rsHost(),
                 UrlSafeBase64.encodeToString(bucketName), region);
@@ -105,7 +114,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
 
@@ -226,7 +234,6 @@ public final class BucketManager {
         }
         fileListing.items = fileInfoList.toArray(new FileInfo[]{});
         fileListing.commonPrefixes = commonPrefixSet.toArray(new String[]{});
-
         return fileListing;
     }
 
@@ -390,7 +397,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
 
@@ -540,7 +546,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
 
@@ -611,7 +616,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
 
@@ -644,7 +648,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
     
@@ -656,14 +659,11 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public Response putBucketLifecycleRule(String bucket, BucketLifeCycleRule rule) throws QiniuException {
-    	String url = String.format("%s/rules/add?bucket=%s&name=%s&prefix=%s&delete_after_days=%d&to_line_after_days=%d",
-    			configuration.ucHost(), bucket, rule.getName(), rule.getPrefix(),
-    			rule.getDeleteAfterDays(), rule.getToLineAfterDays());
+    	String url = String.format("%s/rules/add?bucket=%s&%s", configuration.ucHost(), bucket, rule.asQueryString());
     	Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
     
@@ -680,7 +680,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
     
@@ -692,14 +691,11 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public Response updateBucketLifeCycleRule(String bucket, BucketLifeCycleRule rule) throws QiniuException {
-    	String url = String.format("%s/rules/update?bucket=%s&name=%s&delete_after_days=%d&to_line_after_days=%d",
-    			configuration.ucHost(), bucket, rule.getName(), rule.getPrefix(),
-    			rule.getDeleteAfterDays(), rule.getToLineAfterDays());
+    	String url = String.format("%s/rules/update?bucket=%s&%s", configuration.ucHost(), bucket, rule.asQueryString());
     	Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
     
@@ -709,15 +705,25 @@ public final class BucketManager {
      * @return
      * @throws QiniuException
      */
-    // TODO : List<BucketLifeCycleRule>
-    public Response getBucketLifeCycleRule(String bucket) throws QiniuException {
+    public BucketLifeCycleRule[] getBucketLifeCycleRule(String bucket) throws QiniuException {
     	String url = String.format("%s/rules/get?bucket=%s", configuration.ucHost(), bucket);
     	Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
+        BucketLifeCycleRule[] rules;
+        JsonElement element = Json.decode(res.bodyString(), JsonElement.class);
+        if (element instanceof JsonNull) {
+        	rules = new BucketLifeCycleRule[0];
+        } else {
+        	JsonArray array = (JsonArray) element;
+        	rules = new BucketLifeCycleRule[array.size()];
+            for (int i = 0; i < array.size(); i ++) {
+            	rules[i] = Json.decode(array.get(i), BucketLifeCycleRule.class);
+            }
+        }
         res.close();
-        return res;
+        return rules;
     }
     
     /**
@@ -733,7 +739,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
     
@@ -750,7 +755,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
     
@@ -767,7 +771,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
     
@@ -777,15 +780,58 @@ public final class BucketManager {
      * @return
      * @throws QiniuException
      */
-    // TODO : List<BucketEventRule>
-    public Response getBucketEvents(String bucket) throws QiniuException {
+    public BucketEventRule[] getBucketEvents(String bucket) throws QiniuException {
     	String url = String.format("%s/events/get?bucket=%s", configuration.ucHost(), bucket);
     	Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
+        BucketEventRule[] rules;
+        JsonElement element = Json.decode(res.bodyString(), JsonElement.class);
+        if (element instanceof JsonNull) {
+        	rules = new BucketEventRule[0];
+        } else {
+        	JsonArray array = (JsonArray) element;
+        	rules = new BucketEventRule[array.size()];
+            for (int i = 0; i < array.size(); i ++) {
+            	rules[i] = Json.decode(array.get(i), BucketEventRule.class);
+            }
+        }
         res.close();
+        return rules;
+    }
+    
+    /**
+     * 设置bucket的cors（跨域）规则
+     * @param bucket
+     * @param rule
+     * @return
+     * @throws QiniuException
+     */
+    public Response putCorsRules(String bucket, CorsRule rule) throws QiniuException {
+    	String url = String.format("%s/corsRules/set/%s", configuration.ucHost(), "bucket");
+    	Response res = post(url, rule.asJsonString().getBytes());
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
         return res;
+    }
+    
+    /**
+     * 获取bucket的cors（跨域）规则
+     * @param bucket
+     * @return
+     * @throws QiniuException
+     */
+    public CorsRule getCorsRules(String bucket) throws QiniuException {
+    	String url = String.format("%s/corsRules/get/%s", configuration.ucHost(), "bucket");
+    	Response res = post(url, null);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        CorsRule corsRule = res.jsonToObject(CorsRule.class);
+        res.close();
+        return corsRule;
     }
     
     /**
@@ -801,7 +847,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
     
@@ -819,7 +864,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
     
@@ -835,12 +879,12 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
     
     /**
-     * 设置bucket私有属性，0公有空间，1私有空间
+     * 设置bucket私有属性，0公有空间，1私有空间<br>
+     * 推荐使用putBucketAccessMode
      * @param bucket
      * @param acl
      * @throws QiniuException
@@ -864,7 +908,6 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        res.close();
         return res;
     }
     

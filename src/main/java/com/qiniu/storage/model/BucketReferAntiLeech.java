@@ -24,7 +24,7 @@ public class BucketReferAntiLeech {
 	 * 一种是完全通配符, 即一个 *;<br>
 	 * 多个规则之间用;隔开, 比如: foo.com;*.bar.com;sub.foo.com;*.sub.bar.com
 	 */
-	String pattern = "";
+	String pattern;
 	
 	/**
 	 * 是否开启源站的防盗链，默认为开启，且不可变<br>
@@ -98,6 +98,10 @@ public class BucketReferAntiLeech {
 		final int allowEmptyReferer = this.allowEmptyReferer ? 1 : 0;
 		final int enableSource = this.enableSource ? 1 : 0;
 		return String.format("mode=%d&norefer=%d&pattern=%s&source_enabled=%d", 
-				this.mode, allowEmptyReferer, this.pattern, enableSource);
+				this.mode,
+				allowEmptyReferer, 
+				null == this.pattern ? "" : this.pattern,
+				enableSource
+		);
 	}
 }
