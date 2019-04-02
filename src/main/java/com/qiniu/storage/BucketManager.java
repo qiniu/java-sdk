@@ -90,14 +90,19 @@ public final class BucketManager {
      * @return 空间名称列表
      */
     public String[] buckets() throws QiniuException {
+        Response res = bucketsResponse();
+        String[] buckets = res.jsonToObject(String[].class);
+        res.close();
+        return buckets;
+    }
+    
+    public Response bucketsResponse() throws QiniuException {
         String url = String.format("%s/buckets", configuration.rsHost());
         Response res = get(url);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        String[] buckets = res.jsonToObject(String[].class);
-        res.close();
-        return buckets;
+        return res;
     }
 
     /**
@@ -125,14 +130,19 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public String[] domainList(String bucket) throws QiniuException {
+        Response res = domainListResponse(bucket);
+        String[] domains = res.jsonToObject(String[].class);
+        res.close();
+        return domains;
+    }
+    
+    public Response domainListResponse(String bucket) throws QiniuException {
         String url = String.format("%s/v6/domain/list?tbl=%s", configuration.apiHost(), bucket);
         Response res = get(url);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        String[] domains = res.jsonToObject(String[].class);
-        res.close();
-        return domains;
+        return res;
     }
 
     /**
@@ -237,7 +247,6 @@ public final class BucketManager {
         return fileListing;
     }
 
-
     /**
      * 获取空间中文件的属性
      *
@@ -248,13 +257,18 @@ public final class BucketManager {
      * @link http://developer.qiniu.com/kodo/api/stat
      */
     public FileInfo stat(String bucket, String fileKey) throws QiniuException {
+        Response res = statResponse(bucket, fileKey);
+        FileInfo fileInfo = res.jsonToObject(FileInfo.class);
+        res.close();
+        return fileInfo;
+    }
+    
+    public Response statResponse(String bucket, String fileKey) throws QiniuException {
         Response res = rsGet(bucket, String.format("/stat/%s", encodedEntry(bucket, fileKey)));
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        FileInfo fileInfo = res.jsonToObject(FileInfo.class);
-        res.close();
-        return fileInfo;
+        return res;
     }
 
     /**
@@ -455,6 +469,13 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public FetchRet fetch(String url, String bucket, String key) throws QiniuException {
+        Response res = fetchResponse(url, bucket, key);
+        FetchRet fetchRet = res.jsonToObject(FetchRet.class);
+        res.close();
+        return fetchRet;
+    }
+    
+    public Response fetchResponse(String url, String bucket, String key) throws QiniuException {
         String resource = UrlSafeBase64.encodeToString(url);
         String to = encodedEntry(bucket, key);
         String path = String.format("/fetch/%s/to/%s", resource, to);
@@ -462,9 +483,7 @@ public final class BucketManager {
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        FetchRet fetchRet = res.jsonToObject(FetchRet.class);
-        res.close();
-        return fetchRet;
+        return res;
     }
 
     /**
@@ -626,14 +645,20 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public BucketInfo getBucketInfo(String bucket) throws QiniuException {
+        Response res = getBucketInfoResponse(bucket);
+        BucketInfo info = res.jsonToObject(BucketInfo.class);
+        res.close();
+        return info;
+    }
+    
+    public Response getBucketInfoResponse(String bucket) throws QiniuException {
         String url = String.format("%s/v2/bucketInfo?bucket=%s", configuration.ucHost(), bucket);
         Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        BucketInfo info = res.jsonToObject(BucketInfo.class);
         res.close();
-        return info;
+        return res;
     }
 
     /**
@@ -706,11 +731,7 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public BucketLifeCycleRule[] getBucketLifeCycleRule(String bucket) throws QiniuException {
-    	String url = String.format("%s/rules/get?bucket=%s", configuration.ucHost(), bucket);
-    	Response res = post(url, null);
-        if (!res.isOK()) {
-            throw new QiniuException(res);
-        }
+    	Response res = getBucketLifeCycleRuleResponse(bucket);
         BucketLifeCycleRule[] rules;
         JsonElement element = Json.decode(res.bodyString(), JsonElement.class);
         if (element instanceof JsonNull) {
@@ -724,6 +745,15 @@ public final class BucketManager {
         }
         res.close();
         return rules;
+    }
+    
+    public Response getBucketLifeCycleRuleResponse(String bucket) throws QiniuException {
+        String url = String.format("%s/rules/get?bucket=%s", configuration.ucHost(), bucket);
+        Response res = post(url, null);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        return res;
     }
     
     /**
@@ -781,11 +811,7 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public BucketEventRule[] getBucketEvents(String bucket) throws QiniuException {
-    	String url = String.format("%s/events/get?bucket=%s", configuration.ucHost(), bucket);
-    	Response res = post(url, null);
-        if (!res.isOK()) {
-            throw new QiniuException(res);
-        }
+    	Response res = getBucketEventsResponse(bucket);
         BucketEventRule[] rules;
         JsonElement element = Json.decode(res.bodyString(), JsonElement.class);
         if (element instanceof JsonNull) {
@@ -799,6 +825,15 @@ public final class BucketManager {
         }
         res.close();
         return rules;
+    }
+    
+    public Response getBucketEventsResponse(String bucket) throws QiniuException {
+        String url = String.format("%s/events/get?bucket=%s", configuration.ucHost(), bucket);
+        Response res = post(url, null);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        return res;
     }
     
     /**
@@ -824,11 +859,7 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public CorsRule[] getCorsRules(String bucket) throws QiniuException {
-    	String url = String.format("%s/corsRules/get/%s", configuration.ucHost(), bucket);
-    	Response res = post(url, null);
-        if (!res.isOK()) {
-            throw new QiniuException(res);
-        }
+    	Response res = getCorsRulesResponse(bucket);
         CorsRule[] rules;
         JsonElement element = Json.decode(res.bodyString(), JsonElement.class);
         if (element instanceof JsonNull) {
@@ -842,6 +873,15 @@ public final class BucketManager {
         }
         res.close();
         return rules;
+    }
+    
+    public Response getCorsRulesResponse(String bucket) throws QiniuException {
+        String url = String.format("%s/corsRules/get/%s", configuration.ucHost(), bucket);
+        Response res = post(url, null);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        return res;
     }
     
     /**
@@ -927,14 +967,19 @@ public final class BucketManager {
      * @return
      */
     public BucketQuota getBucketQuota(String bucket) throws QiniuException {
-    	String url = String.format("%s/getbucketquota/%s", configuration.apiHost(), bucket);
-    	Response res = post(url, null);
-        if (!res.isOK()) {
-            throw new QiniuException(res);
-        }
+    	Response res = getBucketQuotaResponse(bucket);
         BucketQuota bucketQuota = res.jsonToObject(BucketQuota.class);
         res.close();
         return bucketQuota;
+    }
+    
+    public Response getBucketQuotaResponse(String bucket) throws QiniuException {
+        String url = String.format("%s/getbucketquota/%s", configuration.apiHost(), bucket);
+        Response res = post(url, null);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        return res;
     }
 
     /*
