@@ -385,7 +385,9 @@ public class BucketTest {
                 Assert.assertEquals(resHash, fRet.hash);
             } catch (QiniuException e) {
                 e.printStackTrace();
-                Assert.fail(e.response.toString());
+                // use e.response.toString() may get NullPointException
+                // when java.net.SocketTimeoutException: timeout
+                Assert.fail(e.getMessage());
             }
         }
     }
