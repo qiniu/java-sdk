@@ -216,28 +216,28 @@ public class BucketInfo {
     	this.antiLeechMode = antiLeechMode;
     }
 
-	public String[] getReferWhite() {
-		return referWhite;
-	}
+    public String[] getReferWhite() {
+        return referWhite;
+    }
 
 	public void setReferWhite(String[] referWhite) {
 		this.referWhite = referWhite;
 	}
 
-	public String[] getReferBlack() {
-		return referBlack;
-	}
+    public String[] getReferBlack() {
+        return referBlack;
+    }
 
-	public void setReferBlack(String[] referBlack) {
-		this.referBlack = referBlack;
-	}
+    public void setReferBlack(String[] referBlack) {
+        this.referBlack = referBlack;
+    }
 
-	public boolean isNoRefer() {
-		return noRefer;
-	}
+    public boolean isNoRefer() {
+        return noRefer;
+    }
 
-	public void setNoRefer(boolean noRefer) {
-		this.noRefer = noRefer;
-	}
-    
+    public void setNoRefer(boolean noRefer) {
+        this.noRefer = noRefer;
+    }
+
 }

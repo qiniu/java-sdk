@@ -21,31 +21,44 @@ public class CorsRule {
 	 * 规则："abc.com" 请求："http://abc.com" 结果：不通过<br>
 	 */
 	@SerializedName("allowed_origin")
-	String[] allowedOrigin;
+	String[] allowedOrigin = new String[] {};
 	
 	/**
 	 * allowed_method: 允许的方法。必填；不支持通配符；大小写不敏感；
 	 */
 	@SerializedName("allowed_method")
-	String[] allowedMethod;
+	String[] allowedMethod = new String[] {};
 	
 	/**
 	 * allowed_header: 允许的header。选填；支持通配符*，但只能是单独的*，表示允许全部header，其他*不生效；空则不允许任何header；大小写不敏感；
 	 */
 	@SerializedName("allowed_header")
-	String[] allowedHeader;
+	String[] allowedHeader = new String[] {};
 	
 	/**
 	 * exposed_header: 暴露的header。选填；不支持通配符；X-Log, X-Reqid是默认会暴露的两个header；其他的header如果没有设置，则不会暴露；大小写不敏感；
 	 */
 	@SerializedName("exposed_header")
-	String[] exposedHeader;
+	String[] exposedHeader = new String[] {};
 	
 	/**
 	 * max_age: 结果可以缓存的时间。选填；空则不缓存；
 	 */
 	@SerializedName("max_age")
-	long maxAge;
+	long maxAge = 0;
+	
+	public CorsRule(String[] allowedOrigin, String[] allowedMethod) {
+		this.allowedOrigin = allowedOrigin;
+		this.allowedMethod = allowedMethod;
+	}
+	
+	public CorsRule(String[] allowedOrigin, String[] allowedMethod, String[] allowedHeader, String[] exposedHeader, long maxAge) {
+		this.allowedOrigin = allowedOrigin;
+		this.allowedMethod = allowedMethod;
+		this.allowedHeader = allowedHeader;
+		this.exposedHeader = exposedHeader;
+		this.maxAge = maxAge;
+	}
 
 	public String[] getAllowedOrigin() {
 		return allowedOrigin;
@@ -85,15 +98,6 @@ public class CorsRule {
 
 	public void setMaxAge(long maxAge) {
 		this.maxAge = maxAge;
-	}
-	
-	/**
-	 * 编码成json body格式
-	 * @return
-	 */
-	// TODO
-	public String asJsonString() {
-		return "";
 	}
 	
 }

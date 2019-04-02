@@ -2,8 +2,6 @@ package test.com.qiniu;
 
 import com.qiniu.util.Auth;
 
-import test.com.qiniu.storage.BucketTest;
-
 public final class TestConfig {
 
     //dummy: ak, sk, ...
@@ -45,25 +43,6 @@ public final class TestConfig {
 
     public static boolean isTravis() {
         return "travis".equals(System.getenv("QINIU_TEST_ENV"));
-    }
-    
-    public static void main(String[] args) {
-    	try {
-    		BucketTest bucketTest = new BucketTest();
-    		bucketTest.setUp();
-    		//bucketTest.testBucketInfo();
-    		//bucketTest.testPutReferAntiLeech();
-    		//bucketTest.testBucketLifeCycleRule();
-    		//bucketTest.testBucketEvent();
-    		//bucketTest.testCorsRules();
-    		//bucketTest.testPutBucketSourceConfig();
-    		//bucketTest.testPutBucketAccessStyleMode();
-    		//bucketTest.testPutBucketMaxAge();
-    		//bucketTest.testPutBucketAccessMode();
-    		//bucketTest.testBucketQuota();
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    	}
     }
 
 }

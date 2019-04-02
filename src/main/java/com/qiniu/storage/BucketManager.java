@@ -808,9 +808,9 @@ public final class BucketManager {
      * @return
      * @throws QiniuException
      */
-    public Response putCorsRules(String bucket, CorsRule rule) throws QiniuException {
-    	String url = String.format("%s/corsRules/set/%s", configuration.ucHost(), "bucket");
-    	Response res = post(url, rule.asJsonString().getBytes());
+    public Response putCorsRules(String bucket, CorsRule[] rules) throws QiniuException {
+    	String url = String.format("%s/corsRules/set/%s", configuration.ucHost(), bucket);
+    	Response res = post(url, Json.encode(rules).getBytes());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -823,15 +823,25 @@ public final class BucketManager {
      * @return
      * @throws QiniuException
      */
-    public CorsRule getCorsRules(String bucket) throws QiniuException {
-    	String url = String.format("%s/corsRules/get/%s", configuration.ucHost(), "bucket");
+    public CorsRule[] getCorsRules(String bucket) throws QiniuException {
+    	String url = String.format("%s/corsRules/get/%s", configuration.ucHost(), bucket);
     	Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
-        CorsRule corsRule = res.jsonToObject(CorsRule.class);
+        CorsRule[] rules;
+        JsonElement element = Json.decode(res.bodyString(), JsonElement.class);
+        if (element instanceof JsonNull) {
+        	rules = new CorsRule[0];
+        } else {
+        	JsonArray array = (JsonArray) element;
+        	rules = new CorsRule[array.size()];
+            for (int i = 0; i < array.size(); i ++) {
+            	rules[i] = Json.decode(array.get(i), CorsRule.class);
+            }
+        }
         res.close();
-        return corsRule;
+        return rules;
     }
     
     /**

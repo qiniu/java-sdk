@@ -7,6 +7,7 @@ import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.model.*;
+import com.qiniu.util.Json;
 import com.qiniu.util.StringUtils;
 
 import okhttp3.Call;
@@ -38,6 +39,7 @@ public class BucketTest {
     @Before
     public void setUp() throws Exception {
         Configuration cfg = new Configuration(Region.autoRegion());
+        //cfg.useHttpsDomains = false;
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
         this.dummyBucketManager = new BucketManager(TestConfig.dummyAuth, new Configuration());
     }
@@ -382,6 +384,7 @@ public class BucketTest {
                 fRet = bucketManager.fetch(resUrl, bucket);
                 Assert.assertEquals(resHash, fRet.hash);
             } catch (QiniuException e) {
+                e.printStackTrace();
                 Assert.fail(e.response.toString());
             }
         }
@@ -695,16 +698,39 @@ public class BucketTest {
      * 测试跨域规则
      */
     @Test
-    // TODO
     public void testCorsRules() {
     	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
     	for (String bucket : buckets) {
+    		CorsRule rule1 = new CorsRule(new String[] {"*"}, new String[] {""});
+    		CorsRule rule2 = new CorsRule(new String[] {"*"}, new String[] {"GET", "POST"});
+    		CorsRule rule3 = new CorsRule(new String[] {""}, new String[] {"GET", "POST"});
+    		List<CorsRule[]> rulesList = new ArrayList<>();
+    		rulesList.add(corsRules(rule1));
+    		rulesList.add(corsRules(rule2));
+    		rulesList.add(corsRules(rule3));
         	try {
-        		
-        	} catch (Exception e) {
-        		
+        		for (CorsRule[] rules : rulesList) {
+            		Response response;
+            		String bodyString, bodyString2;
+            		// 设置跨域规则
+            		bodyString = Json.encode(rules);
+            		System.out.println(bodyString);
+            		response = bucketManager.putCorsRules(bucket, rules);
+            		Assert.assertEquals(200, response.statusCode);
+            		// 获取跨域规则
+            		rules = bucketManager.getCorsRules(bucket);
+            		bodyString2 = Json.encode(rules);
+            		System.out.println(bodyString2);
+            		Assert.assertEquals(bodyString, bodyString2);
+        		}
+        	} catch (QiniuException e) {
+        		Assert.fail(e.response.toString());
         	}
     	}
+    }
+    
+    private CorsRule[] corsRules(CorsRule... rules) {
+    	return rules.clone();
     }
     
     /**
@@ -864,19 +890,19 @@ public class BucketTest {
     public void testBucketQuota() {
     	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
     	for (String bucket : buckets) {
+            try {
+                testBucketQuota(bucket, -2, -2);
+            } catch (QiniuException e) {
+                Assert.assertEquals(400, e.response.statusCode);
+            }
         	try {
-        		testBucketQuota(bucket, -1, -1);
         		testBucketQuota(bucket, 0, 0);
         		testBucketQuota(bucket, 100, 100);
         		testBucketQuota(bucket, 0, 100);
         		testBucketQuota(bucket, 100, -1);
+        		testBucketQuota(bucket, -1, -1);
         	} catch (QiniuException e) {
         		Assert.fail(e.response.toString());
-    		}
-        	try {
-        		testBucketQuota(bucket, -2, -2);
-        	} catch (QiniuException e) {
-        		Assert.assertEquals(400, e.response.statusCode);
     		}
     	}
     }
