@@ -1,14 +1,7 @@
-import java.util.HashMap;
-import java.util.Map;
-
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.sms.SmsManager;
-import com.qiniu.sms.model.SignatureInfo;
-import com.qiniu.storage.Configuration;
 import com.qiniu.util.Auth;
-import com.qiniu.util.StringMap;
 
 public class SendMessageDemo {
 	 public static void main(String args[]) {
@@ -26,10 +19,10 @@ public class SendMessageDemo {
 	        try {
 //	        	Map<String,String> map = new HashMap<String,String>();
 //	        	Response resp = smsManager.sendMessage("templateId", new String[] {"10086"}, map);
-	        	Response resp = smsManager.describeSignature("passed",0,0);
+//	        	Response resp = smsManager.describeSignature("passed",0,0);
 //	        	SignatureInfo sinfo =  smsManager.describeSignatureItems("rejected",0,0);
 //	            Response resp = smsManager.createSignature("signature", "app", new String[] {"data:image/gif;base64,xxxxxxxxxx"});
-//	        	Response resp = smsManager.describeTemplate("passed",0,0);
+	        	Response resp = smsManager.describeTemplate("passed",0,0);
 //	            Response resp = smsManager.createTemplate("name","template","notification","test","signatureId");
 //	        	Response resp = smsManager.modifyTemplate("templateId","name","template","test","signatureId");
 //	        	Response resp = smsManager.modifySignature("SignatureId","signature");
@@ -39,6 +32,7 @@ public class SendMessageDemo {
 	        } catch (QiniuException e) {
 	        	System.out.println(e);
 	        }
+	        
 
 	    }
 }

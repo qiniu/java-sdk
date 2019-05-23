@@ -19,6 +19,10 @@ public final class TestConfig {
     public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
     public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
     public static Auth testAuth = Auth.create(testAccessKey, testSecretKey);
+    
+  //sms: ak, sk, auth
+    public static final String smsAccessKey = "test";
+    public static final String smsSecretKey = "test";
     //z0
     public static final String testBucket_z0 = "javasdk";
     public static final String testKey_z0 = "peter/1.png";

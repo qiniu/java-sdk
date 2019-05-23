@@ -3,8 +3,6 @@ package com.qiniu.sms;
 import com.qiniu.common.Constants;
 
 public class Configuration implements Cloneable{
-	
-	public boolean useHttpsDomains = false;
 	 /**
      * 连接超时时间 单位秒(默认10s)
      */
@@ -41,7 +39,7 @@ public class Configuration implements Cloneable{
     /*
      * 特殊默认域名
      */
-    public static String defaultSmsHost = "sms.qiniuapi.com";
+    public static String defaultSmsHost = "https://sms.qiniuapi.com";
     
     public Configuration() {
     }
@@ -56,11 +54,7 @@ public class Configuration implements Cloneable{
     }
     
     public String smsHost() {
-        return getScheme() + defaultSmsHost;
-    }
-    
-    String getScheme() {
-        return useHttpsDomains ? "https://" : "http://";
+        return defaultSmsHost;
     }
 
 }
