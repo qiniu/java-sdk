@@ -41,7 +41,7 @@ public class Configuration implements Cloneable{
     /*
      * 特殊默认域名
      */
-    public static String defaultSmsHost = "10.200.20.22:22230";
+    public static String defaultSmsHost = "sms.qiniuapi.com";
     
     public Configuration() {
     }
