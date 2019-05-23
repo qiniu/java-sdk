@@ -175,17 +175,6 @@ public final class Client {
         }
         return post(url, rbody, headers);
     }
-    
-    public Response put(String url, byte[] body, StringMap headers, String contentType) throws QiniuException {
-        RequestBody rbody;
-        if (body != null && body.length > 0) {
-            MediaType t = MediaType.parse(contentType);
-            rbody = RequestBody.create(t, body);
-        } else {
-            rbody = RequestBody.create(null, new byte[0]);
-        }
-        return put(url, rbody, headers);
-    }
 
     public Response post(String url, byte[] body, int offset, int size,
                          StringMap headers, String contentType) throws QiniuException {
@@ -201,11 +190,6 @@ public final class Client {
 
     private Response post(String url, RequestBody body, StringMap headers) throws QiniuException {
         Request.Builder requestBuilder = new Request.Builder().url(url).post(body);
-        return send(requestBuilder, headers);
-    }
-    
-    private Response put(String url, RequestBody body, StringMap headers) throws QiniuException {
-        Request.Builder requestBuilder = new Request.Builder().url(url).put(body);
         return send(requestBuilder, headers);
     }
 
@@ -322,7 +306,6 @@ public final class Client {
             e.printStackTrace();
             throw new QiniuException(e);
         }
-     
         r = Response.create(res, tag.ip, duration);
         if (r.statusCode >= 300) {
             throw new QiniuException(r);

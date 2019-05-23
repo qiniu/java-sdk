@@ -314,7 +314,9 @@ public final class Auth {
                 sb.append(new String(body));
             }
         }
+
         mac.update(StringUtils.utf8Bytes(sb.toString()));
+
         String digest = UrlSafeBase64.encodeToString(mac.doFinal());
         return this.accessKey + ":" + digest;
     }
