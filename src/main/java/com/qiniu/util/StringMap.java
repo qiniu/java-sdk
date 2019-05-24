@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public final class StringMap {
     private Map<String, Object> map;
@@ -71,6 +72,9 @@ public final class StringMap {
         return map.get(key);
     }
 
+    public Set<String> keySet() {
+    	return map.keySet();
+    }
     public String formString() {
         final StringBuilder b = new StringBuilder();
         forEach(new Consumer() {
