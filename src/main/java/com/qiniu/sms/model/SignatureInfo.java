@@ -4,102 +4,115 @@ import java.util.List;
 
 
 public final class SignatureInfo {
-	private List<Item> items;
-	
-	private int total;
-	
-	private int page;
+    private List<Item> items;
 
-	private int page_size;
-	
-	public class Item{
-		private String id;
-		private String signature;
-		private String source;
-		private String audit_status;
-		private String reject_reason;
-		private Long created_at;
-		private Long updated_at;
-		
-		public String getId() {
-			return id;
-		}
-		public void setId(String id) {
-			this.id = id;
-		}
-		public String getSignature() {
-			return signature;
-		}
-		public void setSignature(String signature) {
-			this.signature = signature;
-		}
-		public String getSource() {
-			return source;
-		}
-		public void setSource(String source) {
-			this.source = source;
-		}
-		public String getAuditStatus() {
-			return audit_status;
-		}
-		public void setAuditStatus(String auditStatus) {
-			this.audit_status = auditStatus;
-		}
-		public String getRejectReason() {
-			return reject_reason;
-		}
-		public void setRejectReason(String rejectReason) {
-			this.reject_reason = rejectReason;
-		}
-		public Long getCreatedAt() {
-			return created_at;
-		}
-		public void setCreatedAt(Long createdAt) {
-			this.created_at = createdAt;
-		}
-		public Long getUpdatedAt() {
-			return updated_at;
-		}
-		public void setUpdatedAt(Long updatedAt) {
-			this.updated_at = updatedAt;
-		}	
-		
-	}
-	
-	public List<Item> getItems() {
-		return items;
-	}
+    private int total;
 
-	public static Class<Item> getItemClass(){
-		return Item.class;
-	}
+    private int page;
 
-	public void setItems(List<Item> items) {
-		this.items = items;
-	}
+    private int pageSize;
 
-	public int getTotal() {
-		return total;
-	}
+    public static Class<Item> getItemClass() {
+        return Item.class;
+    }
 
-	public void setTotal(int total) {
-		this.total = total;
-	}
+    public List<Item> getItems() {
+        return items;
+    }
 
-	public int getPage() {
-		return page;
-	}
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
 
-	public void setPage(int page) {
-		this.page = page;
-	}
+    public int getTotal() {
+        return total;
+    }
 
-	public int getPageSize() {
-		return page_size;
-	}
+    public void setTotal(int total) {
+        this.total = total;
+    }
 
-	public void setPageSize(int pageSize) {
-		this.page_size = pageSize;
-	}
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public class Item {
+        private String id;
+        private String signature;
+        private String source;
+        private String auditStatus;
+        private String rejectReason;
+        private Long createdAt;
+        private Long updatedAt;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getSignature() {
+            return signature;
+        }
+
+        public void setSignature(String signature) {
+            this.signature = signature;
+        }
+
+        public String getSource() {
+            return source;
+        }
+
+        public void setSource(String source) {
+            this.source = source;
+        }
+
+        public String getAuditStatus() {
+            return auditStatus;
+        }
+
+        public void setAuditStatus(String auditStatus) {
+            this.auditStatus = auditStatus;
+        }
+
+        public String getRejectReason() {
+            return rejectReason;
+        }
+
+        public void setRejectReason(String rejectReason) {
+            this.rejectReason = rejectReason;
+        }
+
+        public Long getCreatedAt() {
+            return createdAt;
+        }
+
+        public void setCreatedAt(Long createdAt) {
+            this.createdAt = createdAt;
+        }
+
+        public Long getUpdatedAt() {
+            return updatedAt;
+        }
+
+        public void setUpdatedAt(Long updatedAt) {
+            this.updatedAt = updatedAt;
+        }
+
+    }
 
 }

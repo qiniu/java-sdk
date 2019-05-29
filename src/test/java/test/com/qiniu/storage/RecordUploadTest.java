@@ -34,6 +34,23 @@ public class RecordUploadTest {
     FileRecorder recorder = null;
     private Response response = null;
 
+    // copied from FileRecorder
+    private static String hash(String base) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            byte[] hash = digest.digest(base.getBytes());
+            StringBuffer hexString = new StringBuffer();
+
+            for (int i = 0; i < hash.length; i++) {
+                hexString.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            return hexString.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * 断点续传
      *
@@ -249,23 +266,6 @@ public class RecordUploadTest {
         assertTrue(m4 > m1);
     }
 
-    // copied from FileRecorder
-    private static String hash(String base) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] hash = digest.digest(base.getBytes());
-            StringBuffer hexString = new StringBuffer();
-
-            for (int i = 0; i < hash.length; i++) {
-                hexString.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
-            }
-            return hexString.toString();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
-
     class Up {
         private final File file;
         private final String key;
@@ -282,9 +282,9 @@ public class RecordUploadTest {
             System.out.println("UP going to close");
             // 调用 uploader 私有方法 close()
             try {
-                Method m_close = ResumeUploader.class.getDeclaredMethod("close", new Class[]{});
+                Method m_close = ResumeUploader.class.getDeclaredMethod("close");
                 m_close.setAccessible(true);
-                m_close.invoke(uploader, new Object[]{});
+                m_close.invoke(uploader);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {

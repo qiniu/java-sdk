@@ -44,14 +44,14 @@ public final class Client {
                 cfg.dispatcherMaxRequests, cfg.dispatcherMaxRequestsPerHost,
                 cfg.connectionPoolMaxIdleCount, cfg.connectionPoolMaxIdleMinutes);
     }
-    
+
     public Client(com.qiniu.sms.Configuration cfg) {
         this(null, false, null,
                 cfg.connectTimeout, cfg.readTimeout, cfg.writeTimeout,
                 cfg.dispatcherMaxRequests, cfg.dispatcherMaxRequestsPerHost,
                 cfg.connectionPoolMaxIdleCount, cfg.connectionPoolMaxIdleMinutes);
     }
-    
+
     /**
      * 构建一个自定义配置的 HTTP Client 类
      */
@@ -182,7 +182,7 @@ public final class Client {
         }
         return post(url, rbody, headers);
     }
-    
+
     public Response put(String url, byte[] body, StringMap headers, String contentType) throws QiniuException {
         RequestBody rbody;
         if (body != null && body.length > 0) {
@@ -210,7 +210,7 @@ public final class Client {
         Request.Builder requestBuilder = new Request.Builder().url(url).post(body);
         return send(requestBuilder, headers);
     }
-    
+
     private Response put(String url, RequestBody body, StringMap headers) throws QiniuException {
         Request.Builder requestBuilder = new Request.Builder().url(url).put(body);
         return send(requestBuilder, headers);
@@ -329,7 +329,7 @@ public final class Client {
             e.printStackTrace();
             throw new QiniuException(e);
         }
-     
+
         r = Response.create(res, tag.ip, duration);
         if (r.statusCode >= 300) {
             throw new QiniuException(r);
