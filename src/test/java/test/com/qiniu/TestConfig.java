@@ -17,7 +17,9 @@ public final class TestConfig {
     //test: ak, sk, auth
     public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
     public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
-    public static Auth testAuth = Auth.create(testAccessKey, testSecretKey);
+    //sms: ak, sk, auth
+    public static final String smsAccessKey = "test";
+    public static final String smsSecretKey = "test";
     //z0
     public static final String testBucket_z0 = "javasdk";
     public static final String testKey_z0 = "peter/1.png";
@@ -35,8 +37,8 @@ public final class TestConfig {
     //code
     public static final int ERROR_CODE_BUCKET_NOT_EXIST = 631;
     public static final int ERROR_CODE_KEY_NOT_EXIST = 612;
-
     public static final String testLinkingAppid = System.getenv("QINIU_LINKING_APPID");
+    public static Auth testAuth = Auth.create(testAccessKey, testSecretKey);
 
     private TestConfig() {
     }

@@ -19,6 +19,22 @@ import java.util.Calendar;
 public class CdnTest {
 
     /**
+     * 获取Response
+     *
+     * @param url
+     * @return
+     */
+    public static Response getResponse(String url) {
+        try {
+            Client client = new Client();
+            Response response = client.get(url);
+            return response;
+        } catch (QiniuException ex) {
+            return ex.response;
+        }
+    }
+
+    /**
      * 获取日期
      *
      * @param daysBefore
@@ -165,22 +181,6 @@ public class CdnTest {
         } catch (Exception ex) {
             ex.printStackTrace();
             Assert.fail();
-        }
-    }
-
-    /**
-     * 获取Response
-     *
-     * @param url
-     * @return
-     */
-    public static Response getResponse(String url) {
-        try {
-            Client client = new Client();
-            Response response = client.get(url);
-            return response;
-        } catch (QiniuException ex) {
-            return ex.response;
         }
     }
 

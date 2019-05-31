@@ -26,10 +26,9 @@ import java.util.*;
 
 public class BucketTest {
 	
+    List<Integer> batchStatusCode = Arrays.asList(200, 298);
     private BucketManager bucketManager;
     private BucketManager dummyBucketManager;
-
-    List<Integer> batchStatusCode = Arrays.asList(200, 298);
 
     /**
      * 初始化
