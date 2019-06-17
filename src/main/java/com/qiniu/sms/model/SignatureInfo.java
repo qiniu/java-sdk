@@ -2,116 +2,127 @@ package com.qiniu.sms.model;
 
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
+
 public final class SignatureInfo {
-	private List<Item> items;
+    private List<Item> items;
 
-	private int total;
+    private int total;
 
-	private int page;
+    private int page;
 
-	private int page_size;
+    @SerializedName("page_size")
+    private int pageSize;
 
-	public class Item {
-		private String id;
-		private String signature;
-		private String source;
-		private String audit_status;
-		private String reject_reason;
-		private Long created_at;
-		private Long updated_at;
+    public class Item {
+        private String id;
+        private String signature;
+        private String source;
 
-		public String getId() {
-			return id;
-		}
+        @SerializedName("audit_status")
+        private String auditStatus;
 
-		public void setId(String id) {
-			this.id = id;
-		}
+        @SerializedName("reject_reason")
+        private String rejectReason;
 
-		public String getSignature() {
-			return signature;
-		}
+        @SerializedName("created_at")
+        private Long createdAt;
 
-		public void setSignature(String signature) {
-			this.signature = signature;
-		}
+        @SerializedName("updated_at")
+        private Long updatedAt;
 
-		public String getSource() {
-			return source;
-		}
+        public String getId() {
+            return id;
+        }
 
-		public void setSource(String source) {
-			this.source = source;
-		}
+        public void setId(String id) {
+            this.id = id;
+        }
 
-		public String getAuditStatus() {
-			return audit_status;
-		}
+        public String getSignature() {
+            return signature;
+        }
 
-		public void setAuditStatus(String auditStatus) {
-			this.audit_status = auditStatus;
-		}
+        public void setSignature(String signature) {
+            this.signature = signature;
+        }
 
-		public String getRejectReason() {
-			return reject_reason;
-		}
+        public String getSource() {
+            return source;
+        }
 
-		public void setRejectReason(String rejectReason) {
-			this.reject_reason = rejectReason;
-		}
+        public void setSource(String source) {
+            this.source = source;
+        }
 
-		public Long getCreatedAt() {
-			return created_at;
-		}
+        public String getAuditStatus() {
+            return auditStatus;
+        }
 
-		public void setCreatedAt(Long createdAt) {
-			this.created_at = createdAt;
-		}
+        public void setAuditStatus(String auditStatus) {
+            this.auditStatus = auditStatus;
+        }
 
-		public Long getUpdatedAt() {
-			return updated_at;
-		}
+        public String getRejectReason() {
+            return rejectReason;
+        }
 
-		public void setUpdatedAt(Long updatedAt) {
-			this.updated_at = updatedAt;
-		}
+        public void setRejectReason(String rejectReason) {
+            this.rejectReason = rejectReason;
+        }
 
-	}
+        public Long getCreatedAt() {
+            return createdAt;
+        }
 
-	public List<Item> getItems() {
-		return items;
-	}
+        public void setCreatedAt(Long createdAt) {
+            this.createdAt = createdAt;
+        }
 
-	public static Class<Item> getItemClass() {
-		return Item.class;
-	}
+        public Long getUpdatedAt() {
+            return updatedAt;
+        }
 
-	public void setItems(List<Item> items) {
-		this.items = items;
-	}
+        public void setUpdatedAt(Long updatedAt) {
+            this.updatedAt = updatedAt;
+        }
 
-	public int getTotal() {
-		return total;
-	}
+    }
 
-	public void setTotal(int total) {
-		this.total = total;
-	}
+    public List<Item> getItems() {
+        return items;
+    }
 
-	public int getPage() {
-		return page;
-	}
+    public static Class<Item> getItemClass() {
+        return Item.class;
+    }
 
-	public void setPage(int page) {
-		this.page = page;
-	}
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
 
-	public int getPageSize() {
-		return page_size;
-	}
+    public int getTotal() {
+        return total;
+    }
 
-	public void setPageSize(int pageSize) {
-		this.page_size = pageSize;
-	}
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
 
 }
