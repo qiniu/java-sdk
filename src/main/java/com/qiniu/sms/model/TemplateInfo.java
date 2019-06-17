@@ -2,140 +2,156 @@ package com.qiniu.sms.model;
 
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
+
 public class TemplateInfo {
 
-	private int total;
+    private int total;
 
-	private int page;
+    private int page;
 
-	private int page_size;
+    @SerializedName("page_size")
+    private int pageSize;
 
-	private List<Item> items;
+    private List<Item> items;
 
-	public class Item {
-		private String id;
-		private String name;
-		private String template;
-		private String audit_status;
-		private String reject_reason;
-		private String type;
-		private String signature_id;
-		private String signature_text;
-		private int created_at;
-		private int updated_at;
+    public class Item {
+        private String id;
+        private String name;
+        private String template;
 
-		public String getId() {
-			return id;
-		}
+        @SerializedName("audit_status")
+        private String auditStatus;
 
-		public void setId(String id) {
-			this.id = id;
-		}
+        @SerializedName("reject_reason")
+        private String rejectReason;
 
-		public String getName() {
-			return name;
-		}
+        private String type;
 
-		public void setName(String name) {
-			this.name = name;
-		}
+        @SerializedName("signature_id")
+        private String signatureId;
 
-		public String getTemplate() {
-			return template;
-		}
+        @SerializedName("signature_text")
+        private String signatureText;
 
-		public void setTemplate(String template) {
-			this.template = template;
-		}
+        @SerializedName("created_at")
+        private int createdAt;
 
-		public String getAuditStatus() {
-			return audit_status;
-		}
+        @SerializedName("updated_at")
+        private int updatedAt;
 
-		public void setAuditStatus(String auditStatus) {
-			this.audit_status = auditStatus;
-		}
+        public String getId() {
+            return id;
+        }
 
-		public String getRejectReason() {
-			return reject_reason;
-		}
+        public void setId(String id) {
+            this.id = id;
+        }
 
-		public void setRejectReason(String rejectReason) {
-			this.reject_reason = rejectReason;
-		}
+        public String getName() {
+            return name;
+        }
 
-		public String getType() {
-			return type;
-		}
+        public void setName(String name) {
+            this.name = name;
+        }
 
-		public void setType(String type) {
-			this.type = type;
-		}
+        public String getTemplate() {
+            return template;
+        }
 
-		public String getSignatureId() {
-			return signature_id;
-		}
+        public void setTemplate(String template) {
+            this.template = template;
+        }
 
-		public void setSignatureId(String signatureId) {
-			this.signature_id = signatureId;
-		}
+        public String getAuditStatus() {
+            return auditStatus;
+        }
 
-		public String getSignatureText() {
-			return signature_text;
-		}
+        public void setAuditStatus(String auditStatus) {
+            this.auditStatus = auditStatus;
+        }
 
-		public void setSignatureText(String signatureText) {
-			this.signature_text = signatureText;
-		}
+        public String getRejectReason() {
+            return rejectReason;
+        }
 
-		public int getCreatedAt() {
-			return created_at;
-		}
+        public void setRejectReason(String rejectReason) {
+            this.rejectReason = rejectReason;
+        }
 
-		public void setCreatedAt(int createdAt) {
-			this.created_at = createdAt;
-		}
+        public String getType() {
+            return type;
+        }
 
-		public int getUpdatedAt() {
-			return updated_at;
-		}
+        public void setType(String type) {
+            this.type = type;
+        }
 
-		public void setUpdatedAt(int updated_at) {
-			this.updated_at = updated_at;
-		}
+        public String getSignatureId() {
+            return signatureId;
+        }
 
-	}
+        public void setSignatureId(String signatureId) {
+            this.signatureId = signatureId;
+        }
 
-	public int getTotal() {
-		return total;
-	}
+        public String getSignatureText() {
+            return signatureText;
+        }
 
-	public void setTotal(int total) {
-		this.total = total;
-	}
+        public void setSignatureText(String signatureText) {
+            this.signatureText = signatureText;
+        }
 
-	public int getPage() {
-		return page;
-	}
+        public int getCreatedAt() {
+            return createdAt;
+        }
 
-	public void setPage(int page) {
-		this.page = page;
-	}
+        public void setCreatedAt(int createdAt) {
+            this.createdAt = createdAt;
+        }
 
-	public int getPageSize() {
-		return page_size;
-	}
+        public int getUpdatedAt() {
+            return updatedAt;
+        }
 
-	public void setPageSize(int pageSize) {
-		this.page_size = pageSize;
-	}
+        public void setUpdatedAt(int updated_at) {
+            this.updatedAt = updated_at;
+        }
 
-	public List<Item> getItems() {
-		return items;
-	}
+    }
 
-	public void setItems(List<Item> items) {
-		this.items = items;
-	}
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
 
 }

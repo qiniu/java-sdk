@@ -7,101 +7,101 @@ import java.util.Map;
 import java.util.Set;
 
 public final class StringMap {
-	private Map<String, Object> map;
+    private Map<String, Object> map;
 
-	public StringMap() {
-		this(new HashMap<String, Object>());
-	}
+    public StringMap() {
+        this(new HashMap<String, Object>());
+    }
 
-	public StringMap(Map<String, Object> map) {
-		this.map = map;
-	}
+    public StringMap(Map<String, Object> map) {
+        this.map = map;
+    }
 
-	public StringMap put(String key, Object value) {
-		map.put(key, value);
-		return this;
-	}
+    public StringMap put(String key, Object value) {
+        map.put(key, value);
+        return this;
+    }
 
-	public StringMap putNotEmpty(String key, String value) {
-		if (!StringUtils.isNullOrEmpty(value)) {
-			map.put(key, value);
-		}
-		return this;
-	}
+    public StringMap putNotEmpty(String key, String value) {
+        if (!StringUtils.isNullOrEmpty(value)) {
+            map.put(key, value);
+        }
+        return this;
+    }
 
-	public StringMap putNotNull(String key, Object value) {
-		if (value != null) {
-			map.put(key, value);
-		}
-		return this;
-	}
+    public StringMap putNotNull(String key, Object value) {
+        if (value != null) {
+            map.put(key, value);
+        }
+        return this;
+    }
 
-	public StringMap putWhen(String key, Object val, boolean when) {
-		if (when) {
-			map.put(key, val);
-		}
-		return this;
-	}
+    public StringMap putWhen(String key, Object val, boolean when) {
+        if (when) {
+            map.put(key, val);
+        }
+        return this;
+    }
 
-	public StringMap putAll(Map<String, Object> map) {
-		this.map.putAll(map);
-		return this;
-	}
+    public StringMap putAll(Map<String, Object> map) {
+        this.map.putAll(map);
+        return this;
+    }
 
-	public StringMap putAll(StringMap map) {
-		this.map.putAll(map.map);
-		return this;
-	}
+    public StringMap putAll(StringMap map) {
+        this.map.putAll(map.map);
+        return this;
+    }
 
-	public void forEach(Consumer imp) {
-		for (Map.Entry<String, Object> i : map.entrySet()) {
-			imp.accept(i.getKey(), i.getValue());
-		}
-	}
+    public void forEach(Consumer imp) {
+        for (Map.Entry<String, Object> i : map.entrySet()) {
+            imp.accept(i.getKey(), i.getValue());
+        }
+    }
 
-	public int size() {
-		return map.size();
-	}
+    public int size() {
+        return map.size();
+    }
 
-	public Map<String, Object> map() {
-		return this.map;
-	}
+    public Map<String, Object> map() {
+        return this.map;
+    }
 
-	public Object get(String key) {
-		return map.get(key);
-	}
+    public Object get(String key) {
+        return map.get(key);
+    }
 
-	public Set<String> keySet() {
-		return map.keySet();
-	}
+    public Set<String> keySet() {
+        return map.keySet();
+    }
 
-	public String formString() {
-		final StringBuilder b = new StringBuilder();
-		forEach(new Consumer() {
-			private boolean notStart = false;
+    public String formString() {
+        final StringBuilder b = new StringBuilder();
+        forEach(new Consumer() {
+            private boolean notStart = false;
 
-			@Override
-			public void accept(String key, Object value) {
-				if (notStart) {
-					b.append("&");
-				}
-				try {
-					b.append(URLEncoder.encode(key, "UTF-8")).append('=')
-							.append(URLEncoder.encode(value.toString(), "UTF-8"));
-				} catch (UnsupportedEncodingException e) {
-					throw new AssertionError(e);
-				}
-				notStart = true;
-			}
-		});
-		return b.toString();
-	}
+            @Override
+            public void accept(String key, Object value) {
+                if (notStart) {
+                    b.append("&");
+                }
+                try {
+                    b.append(URLEncoder.encode(key, "UTF-8")).append('=')
+                            .append(URLEncoder.encode(value.toString(), "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new AssertionError(e);
+                }
+                notStart = true;
+            }
+        });
+        return b.toString();
+    }
 
-	public String jsonString() {
-		return Json.encode(this);
-	}
+    public String jsonString() {
+        return Json.encode(this);
+    }
 
-	public interface Consumer {
-		void accept(String key, Object value);
-	}
+    public interface Consumer {
+        void accept(String key, Object value);
+    }
 }
