@@ -2,13 +2,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.sms.SmsManager;
-import com.qiniu.sms.model.SignatureInfo;
-import com.qiniu.storage.Configuration;
 import com.qiniu.util.Auth;
-import com.qiniu.util.StringMap;
 
 public class SendMessageDemo {
 	public static void main(String args[]) {

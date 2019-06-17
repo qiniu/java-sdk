@@ -1,7 +1,5 @@
 package com.qiniu.util;
 
-import java.util.Map;
-
 public class UrlUtils {
 	public static String composeUrlWithQueries(String url, StringMap queries) {
 		StringBuilder queryStr = new StringBuilder();

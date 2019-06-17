@@ -6,7 +6,6 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
 import com.qiniu.http.Response;
-import com.qiniu.sms.Configuration;
 import com.qiniu.sms.model.SignatureInfo;
 import com.qiniu.sms.model.TemplateInfo;
 import com.qiniu.util.Auth;
@@ -51,7 +50,7 @@ public class SmsManager {
 
 	/**
 	 * 发送短信
-	 * 
+	 *
 	 * @param templateId 模板Id，必填
 	 * @param mobiles    手机号码数组，必填
 	 * @param parameter  参数,必填
@@ -68,7 +67,7 @@ public class SmsManager {
 
 	/**
 	 * 查询签名
-	 * 
+	 *
 	 * @param auditStatus 审核状态,非必填 取值范围为: "passed"(通过), "rejected"(未通过),
 	 *                    "reviewing"(审核中)。
 	 * @param page        页码。默认为 1,非必填
@@ -92,7 +91,7 @@ public class SmsManager {
 
 	/**
 	 * 创建签名
-	 * 
+	 *
 	 * @param signature 签名，必填
 	 * @param source    签名来源，申请签名时必须指定签名来源。必填 取值范围为： enterprises_and_institutions
 	 *                  企事业单位的全称或简称 website 工信部备案网站的全称或简称 app APP应用的全称或简称
@@ -111,7 +110,7 @@ public class SmsManager {
 
 	/**
 	 * 编辑签名 审核不通过的情况下才可以重新编辑签名，已经审核通过的签名无法重新编辑。
-	 * 
+	 *
 	 * @param signatureId 签名Id, 必填
 	 * @param signature   签名,必填
 	 */
@@ -124,7 +123,7 @@ public class SmsManager {
 
 	/**
 	 * 删除签名 审核不通过的情况下才可以重新编辑签名，已经审核通过的签名无法重新编辑。
-	 * 
+	 *
 	 * @param signatureId 签名Id, 必填
 	 */
 	public Response deleteSignature(String signatureId) throws QiniuException {
@@ -134,7 +133,7 @@ public class SmsManager {
 
 	/**
 	 * 查询模板
-	 * 
+	 *
 	 * @param auditStatus 审核状态, 非必填 取值范围为: "passed"(通过), "rejected"(未通过),
 	 *                    "reviewing"(审核中)。
 	 * @param page        页码。默认为 1,非必填
@@ -158,7 +157,7 @@ public class SmsManager {
 
 	/**
 	 * 创建模板
-	 * 
+	 *
 	 * @param name        模板名称,必填
 	 * @param template    模板内容,必填
 	 * @param type        模板类型,必填 取值范围为: notification (通知类短信), verification (验证码短信),
@@ -180,7 +179,7 @@ public class SmsManager {
 
 	/**
 	 * 编辑模板 审核不通过的情况下才可以重新编辑模板，已经审核通过的模板无法重新编辑。
-	 * 
+	 *
 	 * @param templateId  模板Id,必填
 	 * @param name        模板名称,必填
 	 * @param template    模板内容,必填
@@ -200,7 +199,7 @@ public class SmsManager {
 
 	/**
 	 * 删除模板
-	 * 
+	 *
 	 * @param templateId 模板Id, 必填
 	 */
 	public Response deleteTemplate(String templateId) throws QiniuException {
