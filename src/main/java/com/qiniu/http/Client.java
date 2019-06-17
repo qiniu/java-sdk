@@ -40,7 +40,8 @@ public final class Client {
      * 构建一个默认配置的 HTTP Client 类
      */
     public Client() {
-        this(null, false, null, Constants.CONNECT_TIMEOUT, Constants.READ_TIMEOUT, Constants.WRITE_TIMEOUT,
+        this(null, false, null,
+                Constants.CONNECT_TIMEOUT, Constants.READ_TIMEOUT, Constants.WRITE_TIMEOUT,
                 Constants.DISPATCHER_MAX_REQUESTS, Constants.DISPATCHER_MAX_REQUESTS_PER_HOST,
                 Constants.CONNECTION_POOL_MAX_IDLE_COUNT, Constants.CONNECTION_POOL_MAX_IDLE_MINUTES);
     }
@@ -49,27 +50,32 @@ public final class Client {
      * 构建一个自定义配置的 HTTP Client 类
      */
     public Client(Configuration cfg) {
-        this(cfg.dns, cfg.useDnsHostFirst, cfg.proxy, cfg.connectTimeout, cfg.readTimeout, cfg.writeTimeout,
-                cfg.dispatcherMaxRequests, cfg.dispatcherMaxRequestsPerHost, cfg.connectionPoolMaxIdleCount,
+        this(cfg.dns, cfg.useDnsHostFirst, cfg.proxy,
+                cfg.connectTimeout, cfg.readTimeout, cfg.writeTimeout,
+                cfg.dispatcherMaxRequests, cfg.dispatcherMaxRequestsPerHost,
+                cfg.connectionPoolMaxIdleCount,
                 cfg.connectionPoolMaxIdleMinutes);
     }
 
     public Client(com.qiniu.sms.Configuration cfg) {
-        this(null, false, null, cfg.connectTimeout, cfg.readTimeout, cfg.writeTimeout, cfg.dispatcherMaxRequests,
-                cfg.dispatcherMaxRequestsPerHost, cfg.connectionPoolMaxIdleCount, cfg.connectionPoolMaxIdleMinutes);
+        this(null, false, null,
+                cfg.connectTimeout, cfg.readTimeout, cfg.writeTimeout,
+                cfg.dispatcherMaxRequests,cfg.dispatcherMaxRequestsPerHost,
+                cfg.connectionPoolMaxIdleCount, cfg.connectionPoolMaxIdleMinutes);
     }
 
     /**
      * 构建一个自定义配置的 HTTP Client 类
      */
-    public Client(final Dns dns, final boolean hostFirst, final ProxyConfiguration proxy, int connTimeout,
-            int readTimeout, int writeTimeout, int dispatcherMaxRequests, int dispatcherMaxRequestsPerHost,
-            int connectionPoolMaxIdleCount, int connectionPoolMaxIdleMinutes) {
+    public Client(final Dns dns, final boolean hostFirst, final ProxyConfiguration proxy,
+            int connTimeout, int readTimeout, int writeTimeout, int dispatcherMaxRequests,
+            int dispatcherMaxRequestsPerHost,int connectionPoolMaxIdleCount,
+            int connectionPoolMaxIdleMinutes) {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequests(dispatcherMaxRequests);
         dispatcher.setMaxRequestsPerHost(dispatcherMaxRequestsPerHost);
-        ConnectionPool connectionPool = new ConnectionPool(connectionPoolMaxIdleCount, connectionPoolMaxIdleMinutes,
-                TimeUnit.MINUTES);
+        ConnectionPool connectionPool = new ConnectionPool(connectionPoolMaxIdleCount,
+                connectionPoolMaxIdleMinutes,TimeUnit.MINUTES);
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
         builder.dispatcher(dispatcher);
@@ -117,16 +123,15 @@ public final class Client {
 
     private static String userAgent() {
         String javaVersion = "Java/" + System.getProperty("java.version");
-        String os = System.getProperty("os.name") + " " + System.getProperty("os.arch") + " "
-                + System.getProperty("os.version");
+        String os = System.getProperty("os.name") + " "
+        + System.getProperty("os.arch") + " "+ System.getProperty("os.version");
         String sdk = "QiniuJava/" + Constants.VERSION;
         return sdk + " (" + os + ") " + javaVersion;
     }
 
-    private static RequestBody create(final MediaType contentType, final byte[] content, final int offset,
-            final int size) {
-        if (content == null)
-            throw new NullPointerException("content == null");
+    private static RequestBody create(final MediaType contentType,
+                                      final byte[] content, final int offset,final int size) {
+        if (content == null) throw new NullPointerException("content == null");
 
         return new RequestBody() {
             @Override
@@ -201,8 +206,8 @@ public final class Client {
         return put(url, rbody, headers);
     }
 
-    public Response post(String url, byte[] body, int offset, int size, StringMap headers, String contentType)
-            throws QiniuException {
+    public Response post(String url, byte[] body, int offset, int size,
+            StringMap headers, String contentType) throws QiniuException {
         RequestBody rbody;
         if (body != null && body.length > 0) {
             MediaType t = MediaType.parse(contentType);
@@ -223,20 +228,34 @@ public final class Client {
         return send(requestBuilder, headers);
     }
 
-    public Response multipartPost(String url, StringMap fields, String name, String fileName, byte[] fileBody,
-            String mimeType, StringMap headers) throws QiniuException {
+    public Response multipartPost(String url,
+                                  StringMap fields,
+                                  String name,
+                                  String fileName,
+                                  byte[] fileBody,
+                                  String mimeType,
+                                  StringMap headers) throws QiniuException {
         RequestBody file = RequestBody.create(MediaType.parse(mimeType), fileBody);
         return multipartPost(url, fields, name, fileName, file, headers);
     }
 
-    public Response multipartPost(String url, StringMap fields, String name, String fileName, File fileBody,
-            String mimeType, StringMap headers) throws QiniuException {
+    public Response multipartPost(String url,
+                                  StringMap fields,
+                                  String name,
+                                  String fileName,
+                                  File fileBody,
+                                  String mimeType,
+                                  StringMap headers) throws QiniuException {
         RequestBody file = RequestBody.create(MediaType.parse(mimeType), fileBody);
         return multipartPost(url, fields, name, fileName, file, headers);
     }
 
-    private Response multipartPost(String url, StringMap fields, String name, String fileName, RequestBody file,
-            StringMap headers) throws QiniuException {
+    private Response multipartPost(String url,
+                                   StringMap fields,
+                                   String name,
+                                   String fileName,
+                                   RequestBody file,
+                                   StringMap headers) throws QiniuException {
         final MultipartBody.Builder mb = new MultipartBody.Builder();
         mb.addFormDataPart(name, fileName, file);
 
@@ -359,8 +378,8 @@ public final class Client {
         });
     }
 
-    public void asyncPost(String url, byte[] body, int offset, int size, StringMap headers, String contentType,
-            AsyncCallback cb) {
+    public void asyncPost(String url, byte[] body, int offset, int size,
+                          StringMap headers, String contentType,AsyncCallback cb) {
         RequestBody rbody;
         if (body != null && body.length > 0) {
             MediaType t = MediaType.parse(contentType);
@@ -373,20 +392,37 @@ public final class Client {
         asyncSend(requestBuilder, headers, cb);
     }
 
-    public void asyncMultipartPost(String url, StringMap fields, String name, String fileName, byte[] fileBody,
-            String mimeType, StringMap headers, AsyncCallback cb) {
+    public void asyncMultipartPost(String url,
+                                   StringMap fields,
+                                   String name,
+                                   String fileName,
+                                   byte[] fileBody,
+                                   String mimeType,
+                                   StringMap headers,
+                                   AsyncCallback cb) {
         RequestBody file = RequestBody.create(MediaType.parse(mimeType), fileBody);
         asyncMultipartPost(url, fields, name, fileName, file, headers, cb);
     }
 
-    public void asyncMultipartPost(String url, StringMap fields, String name, String fileName, File fileBody,
-            String mimeType, StringMap headers, AsyncCallback cb) throws QiniuException {
+    public void asyncMultipartPost(String url,
+                                   StringMap fields,
+                                   String name,
+                                   String fileName,
+                                   File fileBody,
+                                   String mimeType,
+                                   StringMap headers,
+                                   AsyncCallback cb) throws QiniuException {
         RequestBody file = RequestBody.create(MediaType.parse(mimeType), fileBody);
         asyncMultipartPost(url, fields, name, fileName, file, headers, cb);
     }
 
-    private void asyncMultipartPost(String url, StringMap fields, String name, String fileName, RequestBody file,
-            StringMap headers, AsyncCallback cb) {
+    private void asyncMultipartPost(String url,
+                                    StringMap fields,
+                                    String name,
+                                    String fileName,
+                                    RequestBody file,
+                                    StringMap headers,
+                                    AsyncCallback cb) {
         final MultipartBody.Builder mb = new MultipartBody.Builder();
         mb.addFormDataPart(name, fileName, file);
 
