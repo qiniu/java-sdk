@@ -34,7 +34,6 @@ public class SmsManager {
      * 构建一个新的 SmsManager 对象
      *
      * @param auth Auth对象
-     * @param cfg  Configuration对象
      */
     public SmsManager(Auth auth) {
         this.auth = auth;
@@ -42,6 +41,12 @@ public class SmsManager {
         client = new Client(this.configuration);
     }
 
+    /**
+     * 构建一个新的 SmsManager 对象
+     *
+     * @param auth Auth对象
+     * @param cfg  Configuration对象
+     */
     public SmsManager(Auth auth, Configuration cfg) {
         this.auth = auth;
         this.configuration = cfg.clone();
@@ -53,7 +58,7 @@ public class SmsManager {
      *
      * @param templateId 模板Id，必填
      * @param mobiles    手机号码数组，必填
-     * @param parameter  参数,必填
+     * @param parameters  参数,必填
      */
     public Response sendMessage(String templateId, String[] mobiles, Map<String, String> parameters)
             throws QiniuException {
