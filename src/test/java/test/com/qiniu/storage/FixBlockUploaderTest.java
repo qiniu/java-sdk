@@ -1,7 +1,6 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Region;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
@@ -34,12 +33,11 @@ public class FixBlockUploaderTest {
     }
 
     private void init2(boolean useHttpsDomains) {
-        Region r = new Region.Builder().srcUpHost("up.qiniup.com:5010").accUpHost("upload.qiniup.com:5010").build();
-        config = new Configuration(r);
+        config = new Configuration();
         config.useHttpsDomains = useHttpsDomains;
         client = new Client(config);
         up = new FixBlockUploader(client, blockSize, null, config);
-        bucket = "publicbucket_z0";
+        bucket = TestConfig.testBucket_z0;
     }
 
 
