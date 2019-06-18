@@ -1,7 +1,6 @@
 package test.com.qiniu;
 
 import com.qiniu.util.Auth;
-import test.com.qiniu.storage.FormUploadTest;
 
 public final class TestConfig {
 
@@ -18,9 +17,7 @@ public final class TestConfig {
     //test: ak, sk, auth
     public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
     public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
-    public static Auth testAuth = Auth.create(testAccessKey, testSecretKey);
-    
-  //sms: ak, sk, auth
+    //sms: ak, sk, auth
     public static final String smsAccessKey = "test";
     public static final String smsSecretKey = "test";
     //z0
@@ -40,24 +37,14 @@ public final class TestConfig {
     //code
     public static final int ERROR_CODE_BUCKET_NOT_EXIST = 631;
     public static final int ERROR_CODE_KEY_NOT_EXIST = 612;
-
     public static final String testLinkingAppid = System.getenv("QINIU_LINKING_APPID");
+    public static Auth testAuth = Auth.create(testAccessKey, testSecretKey);
 
     private TestConfig() {
     }
 
     public static boolean isTravis() {
         return "travis".equals(System.getenv("QINIU_TEST_ENV"));
-    }
-
-    public static void main(String[] args) {
-        try {
-            FormUploadTest t = new FormUploadTest();
-            t.testFormUploadWithInputStream();
-            System.out.println("done");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 }

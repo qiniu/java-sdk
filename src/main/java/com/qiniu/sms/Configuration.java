@@ -2,8 +2,12 @@ package com.qiniu.sms;
 
 import com.qiniu.common.Constants;
 
-public class Configuration implements Cloneable{
-	 /**
+public class Configuration implements Cloneable {
+    /*
+     * 特殊默认域名
+     */
+    public static String defaultSmsHost = "https://sms.qiniuapi.com";
+    /**
      * 连接超时时间 单位秒(默认10s)
      */
     public int connectTimeout = Constants.CONNECT_TIMEOUT;
@@ -35,15 +39,10 @@ public class Configuration implements Cloneable{
      * 上传失败重试次数
      */
     public int retryMax = 5;
-    
-    /*
-     * 特殊默认域名
-     */
-    public static String defaultSmsHost = "https://sms.qiniuapi.com";
-    
+
     public Configuration() {
     }
-    
+
     public Configuration clone() {
         try {
             return (Configuration) super.clone();
@@ -52,7 +51,7 @@ public class Configuration implements Cloneable{
         }
         return null;
     }
-    
+
     public String smsHost() {
         return defaultSmsHost;
     }

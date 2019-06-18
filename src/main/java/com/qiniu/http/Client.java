@@ -78,7 +78,6 @@ public final class Client {
                 try {
                     tag.ip = chain.connection().socket().getRemoteSocketAddress().toString();
                 } catch (Exception e) {
-                    e.printStackTrace();
                     tag.ip = "";
                 }
                 return response;
@@ -91,7 +90,6 @@ public final class Client {
                     try {
                         return dns.lookup(hostname);
                     } catch (Exception e) {
-                        e.printStackTrace();
                     }
                     return okhttp3.Dns.SYSTEM.lookup(hostname);
                 }
@@ -182,7 +180,6 @@ public final class Client {
         }
         return post(url, rbody, headers);
     }
-
 
     public Response put(String url, byte[] body, StringMap headers, String contentType) throws QiniuException {
         int len = body == null ? 0 : body.length;
@@ -333,7 +330,6 @@ public final class Client {
         try {
             res = httpClient.newCall(requestBuilder.tag(tag).build()).execute();
         } catch (IOException e) {
-            e.printStackTrace();
             throw new QiniuException(e);
         }
 
@@ -361,7 +357,6 @@ public final class Client {
         httpClient.newCall(requestBuilder.tag(tag).build()).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
                 long duration = (System.currentTimeMillis() - start) / 1000;
                 cb.complete(Response.createError(null, "", duration, e.getMessage()));
             }
