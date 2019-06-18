@@ -69,15 +69,11 @@ public class FixBlockUploaderWithRecorderTest {
 
         final String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600, p);
 
-        final StringMap metaParams = new StringMap().put("X-Qn-Meta-liubin", "sb").
-                put("X-Qn-Meta-Content-Type", "text/liubin").
-                put("X-Qn-Meta-!Cache-Control", "public, max-age=1984");
-
         new Thread() {
             @Override
             public void run() {
                 try {
-                    Response r = up.upload(fbd, new FixBlockUploader.StaticToken(token), expectKey, metaParams);
+                    Response r = up.upload(fbd, new FixBlockUploader.StaticToken(token), expectKey, null);
                     System.out.println("first upload: " + r.getInfo());
                 } catch (QiniuException e) {
                     e.printStackTrace();
@@ -137,7 +133,7 @@ public class FixBlockUploaderWithRecorderTest {
             @Override
             public void run() {
                 try {
-                    Response r = up.upload(fbd2, new FixBlockUploader.StaticToken(token), expectKey, metaParams);
+                    Response r = up.upload(fbd2, new FixBlockUploader.StaticToken(token), expectKey, null);
                     System.out.println("2nd upload: " + r.getInfo());
                 } catch (QiniuException e) {
                     e.printStackTrace();
@@ -159,7 +155,7 @@ public class FixBlockUploaderWithRecorderTest {
         doSleep(5000);
 
         try {
-            Response r = up.upload(f, token, expectKey, metaParams);
+            Response r = up.upload(f, token, expectKey);
 
             System.out.println(r.getInfo());
             ResumeUploadTest.MyRet ret = r.jsonToObject(ResumeUploadTest.MyRet.class);

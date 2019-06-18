@@ -3,6 +3,7 @@ package test.com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.FixBlockUploader;
 import com.qiniu.util.Etag;
@@ -26,6 +27,7 @@ public class FixBlockUploaderTest {
     Client client;
     FixBlockUploader up;
     String bucket;
+    BucketManager bm;
 
     @Before
     public void init() {
@@ -38,6 +40,7 @@ public class FixBlockUploaderTest {
         client = new Client(config);
         up = new FixBlockUploader(client, blockSize, null, config);
         bucket = TestConfig.testBucket_z0;
+        bm = new BucketManager(TestConfig.testAuth, config);
     }
 
 
@@ -145,14 +148,16 @@ public class FixBlockUploaderTest {
             p.put("insertOnly", 1);
         }
         String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600, p);
-
+        final StringMap metaParams = new StringMap().put("X-Qn-Meta-liubin", "sb").
+                put("X-Qn-Meta-!Content-Type", "text/liubin").
+                put("X-Qn-Meta-Cache-Control", "public, max-age=1984");
         try {
             System.out.println("Start uploading " + new Date());
             Response r = null;
             if (isStream) {
-                r = up.upload(new FileInputStream(f), f.length(), token, expectKey);
+                r = up.upload(new FileInputStream(f), f.length(), token, expectKey, metaParams);
             } else {
-                r = up.upload(f, token, expectKey);
+                r = up.upload(f, token, expectKey, metaParams);
             }
             System.out.println(r.getInfo());
             ResumeUploadTest.MyRet ret = r.jsonToObject(ResumeUploadTest.MyRet.class);
@@ -160,8 +165,14 @@ public class FixBlockUploaderTest {
 //            assertEquals(f.getName(), ret.fname);
             assertEquals(String.valueOf(f.length()), ret.fsize);
             assertEquals(etag, ret.hash);
+
+            Response res = bm.statResponse(bucket, ret.key);
+            System.out.println(res.getInfo());
+            assertTrue("// 要有额外设置的元信息 //" + metaParams.formString(), res.bodyString().indexOf("text/liubin") > -1);
         } catch (QiniuException e) {
-            System.out.println(e.response.getInfo());
+            if (e.response != null) {
+                System.out.println(e.response.getInfo());
+            }
             throw e;
         } finally {
             TempFile.remove(f);
