@@ -91,11 +91,12 @@ public class FixBlockUploaderWithRecorderTest {
         String base64Key = UrlSafeBase64.encodeToString(expectKey);
         String contentUUID = f.lastModified() + "_._" + f.getAbsolutePath();
 
-        final boolean[] ch = new boolean[]{true};
         final UploadRecordHelper helper = new UploadRecordHelper(recorder, bucket, base64Key, contentUUID);
         final String recordKey = helper.recordFileKey;
 
+        final boolean[] ch = new boolean[]{true};
         final String[] msg = new String[1];
+        final long[] recordSize = new long[]{0};
 
         // 显示断点记录文件
         Thread showRecord = new Thread() {
@@ -107,6 +108,7 @@ public class FixBlockUploaderWithRecorderTest {
                     long s = helper.reloadRecord().size;
                     if (s >= lastSize) {
                         lastSize = s;
+                        recordSize[0] = lastSize;
                     } else {
                         msg[0] = "// 记录文件被回滚了 // r.size: " + s + ", lastSize: " + lastSize;
                         fail("// 记录文件被回滚了 // r.size: " + s + ", lastSize: " + lastSize);
@@ -170,10 +172,14 @@ public class FixBlockUploaderWithRecorderTest {
             if (msg[0] != null) {
                 fail(msg[0]);
             }
+            if (recordSize[0] == 0) {
+                fail("//断点记录的大小应该大于 0 //" + recordSize[0]);
+            }
         } catch (QiniuException e) {
             System.out.println(e.response.getInfo());
             throw e;
         } finally {
+            ch[0] = false;
             TempFile.remove(f);
         }
     }
