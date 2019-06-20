@@ -90,7 +90,9 @@ public class FixBlockUploader {
 
     public Response upload(BlockData blockData, Token token, String key, StringMap metaParams) throws QiniuException {
         assert !StringUtils.isNullOrEmpty(key) : "key must not be null or empty";
-
+        if (key == null) { // assert may not be enabled. we do not like null pointer exception//
+            key = "";
+        }
         String bucket = parseBucket(token.getUpToken());
         String base64Key = UrlSafeBase64.encodeToString(key);
         if (host == null) {
