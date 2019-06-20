@@ -38,8 +38,8 @@ public class FixBlockUploaderTest {
         config = new Configuration();
         config.useHttpsDomains = useHttpsDomains;
         client = new Client(config);
-        up = new FixBlockUploader(client, blockSize, null, config);
-        bucket = TestConfig.testBucket_as0;
+        up = new FixBlockUploader(blockSize, config, client, null);
+        bucket = TestConfig.testBucket_z0;
         bm = new BucketManager(TestConfig.testAuth, config);
     }
 

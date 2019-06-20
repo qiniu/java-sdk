@@ -22,10 +22,20 @@ public class FixBlockUploader {
 
     private String host;
 
+    /**
+     * @param blockSize must be multiples of 4M.
+     * @param configuration Nullable, if null, then create a new one.
+     * @param client    Nullable, if null, then create a new one with configuration.
+     * @param recorder  Nullable.
+     */
+    public FixBlockUploader(int blockSize, Configuration configuration, Client client, Recorder recorder) {
+        assert blockSize > 0 && blockSize % (4 * 1024 * 1024) == 0 : "blockSize must be multiples of 4M ";
 
-    public FixBlockUploader(Client client, int blockSize, Recorder recorder, Configuration configuration) {
         if (configuration == null) {
             configuration = new Configuration();
+        }
+        if (client == null) {
+            client = new Client(configuration);
         }
         this.configuration = configuration;
         this.client = client;
@@ -79,9 +89,8 @@ public class FixBlockUploader {
 
 
     public Response upload(BlockData blockData, Token token, String key, StringMap metaParams) throws QiniuException {
-        if (key == null) {
-            key = "";
-        }
+        assert !StringUtils.isNullOrEmpty(key) : "key must not be null or empty";
+
         String bucket = parseBucket(token.getUpToken());
         String base64Key = UrlSafeBase64.encodeToString(key);
         if (host == null) {

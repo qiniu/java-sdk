@@ -49,7 +49,7 @@ public class FixBlockUploaderWithRecorderTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        up = new FixBlockUploader(client, blockSize, recorder, config);
+        up = new FixBlockUploader(blockSize, config, client, recorder);
         bucket = TestConfig.testBucket_as0;
     }
 
