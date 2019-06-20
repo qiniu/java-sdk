@@ -294,7 +294,7 @@ public final class AutoZone extends Zone {
     /**
      * 从接口获取的域名信息
      */
-    public static class ZoneInfo {
+    static class ZoneInfo {
         final String upHttp;
         final String upBackupHttp;
         final String upIpHttp;
