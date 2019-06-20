@@ -21,7 +21,7 @@ public final class TempFile {
     public static File createFile(long kiloSize) throws IOException {
         FileOutputStream fos = null;
         try {
-            long size = (long) (1024 * kiloSize);
+            long size = 1024 * kiloSize;
             File f = File.createTempFile("qiniu_" + kiloSize + "k", ".tmp");
             f.createNewFile();
             fos = new FileOutputStream(f);
@@ -77,7 +77,7 @@ public final class TempFile {
     public static File createFileOld(long kiloSize) throws IOException {
         FileOutputStream fos = null;
         try {
-            long size = (long) (1024 * kiloSize);
+            long size = 1024 * kiloSize;
             File f = File.createTempFile("qiniu_" + kiloSize + "k", "tmp");
             f.createNewFile();
             fos = new FileOutputStream(f);
