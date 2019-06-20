@@ -1,7 +1,7 @@
 package test.com.qiniu.processing;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Region;
+import com.qiniu.common.Zone;
 import com.qiniu.processing.OperationManager;
 import com.qiniu.processing.OperationStatus;
 import com.qiniu.storage.Configuration;
@@ -24,13 +24,13 @@ public class PfopTest {
      */
     @Test
     public void testPfop() {
-        Map<String, Region> cases = new HashMap<String, Region>();
-        cases.put(TestConfig.testBucket_z0, Region.autoRegion());
-        cases.put(TestConfig.testBucket_na0, Region.autoRegion());
+        Map<String, Zone> cases = new HashMap<String, Zone>();
+        cases.put(TestConfig.testBucket_z0, Zone.autoZone());
+        cases.put(TestConfig.testBucket_na0, Zone.autoZone());
 
-        for (Map.Entry<String, Region> entry : cases.entrySet()) {
+        for (Map.Entry<String, Zone> entry : cases.entrySet()) {
             String bucket = entry.getKey();
-            Region region = entry.getValue();
+            Zone region = entry.getValue();
 
             String notifyURL = null;
             boolean force = true;
@@ -69,7 +69,7 @@ public class PfopTest {
     public void testPrefop() {
         try {
             String jobid = "z0.5c81361a38b9f349c8bb5288";
-            Configuration cfg = new Configuration(Region.autoRegion());
+            Configuration cfg = new Configuration(Zone.autoZone());
             OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
             OperationStatus status = operationManager.prefop(jobid);
             Assert.assertEquals(0, status.code);

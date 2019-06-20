@@ -1,7 +1,7 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Region;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
@@ -37,7 +37,7 @@ public class BucketTest {
      */
     @Before
     public void setUp() throws Exception {
-        Configuration cfg = new Configuration(Region.autoRegion());
+        Configuration cfg = new Configuration(Zone.autoZone());
         //cfg.useHttpsDomains = false;
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
         this.dummyBucketManager = new BucketManager(TestConfig.dummyAuth, new Configuration());

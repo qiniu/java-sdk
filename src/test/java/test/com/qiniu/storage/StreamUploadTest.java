@@ -1,7 +1,7 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Region;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
@@ -29,13 +29,13 @@ public class StreamUploadTest {
 
     //@Test
     public void testXVar() throws IOException {
-        Map<String, Region> bucketRegionMap = new HashMap<String, Region>();
-        bucketRegionMap.put(TestConfig.testBucket_z0, Region.region0());
-        bucketRegionMap.put(TestConfig.testBucket_na0, Region.regionNa0());
+        Map<String, Zone> bucketZoneMap = new HashMap<String, Zone>();
+        bucketZoneMap.put(TestConfig.testBucket_z0, Zone.zone0());
+        bucketZoneMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
 
-        for (Map.Entry<String, Region> entry : bucketRegionMap.entrySet()) {
+        for (Map.Entry<String, Zone> entry : bucketZoneMap.entrySet()) {
             String bucket = entry.getKey();
-            Region region = entry.getValue();
+            Zone zone = entry.getValue();
 
             final String expectKey = "世/界";
             File f = null;
@@ -52,7 +52,7 @@ public class StreamUploadTest {
                     new StringMap().put("returnBody", returnBody));
 
             try {
-                UploadManager uploadManager = new UploadManager(new Configuration(region));
+                UploadManager uploadManager = new UploadManager(new Configuration(zone));
                 Response res = uploadManager.put(new FileInputStream(f), expectKey, token, params, null);
                 StringMap m = res.jsonToMap();
                 assertEquals("foo_val", m.get("foo"));
@@ -66,15 +66,15 @@ public class StreamUploadTest {
     }
 
     private void template(int size, boolean https) throws IOException {
-        Map<String, Region> bucketRegionMap = new HashMap<String, Region>();
-        bucketRegionMap.put(TestConfig.testBucket_z0, Region.region0());
-        bucketRegionMap.put(TestConfig.testBucket_na0, Region.regionNa0());
+        Map<String, Zone> bucketZoneMap = new HashMap<String, Zone>();
+        bucketZoneMap.put(TestConfig.testBucket_z0, Zone.zone0());
+        bucketZoneMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
 
-        for (Map.Entry<String, Region> entry : bucketRegionMap.entrySet()) {
+        for (Map.Entry<String, Zone> entry : bucketZoneMap.entrySet()) {
             String bucket = entry.getKey();
-            Region region = entry.getValue();
+            Zone zone = entry.getValue();
 
-            Configuration c = new Configuration(region);
+            Configuration c = new Configuration(zone);
             c.useHttpsDomains = https;
             final String expectKey = "\r\n?&r=" + size + "k";
             final File f = TempFile.createFile(size);

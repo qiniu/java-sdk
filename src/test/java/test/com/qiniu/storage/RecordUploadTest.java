@@ -1,7 +1,7 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.Constants;
-import com.qiniu.common.Region;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
@@ -58,12 +58,12 @@ public class RecordUploadTest {
      * @throws IOException
      */
     private void template(final int size) throws IOException {
-        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Region.region0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Region.regionNa0());
-        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
+        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
+        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
+        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            final Region region = entry.getValue();
+            final Zone zone = entry.getValue();
             response = null;
             final String expectKey = "\r\n?&r=" + size + "k";
             final File f = TempFile.createFile(size);
@@ -80,7 +80,7 @@ public class RecordUploadTest {
                         int i = r.nextInt(10000);
                         try {
                             System.out.println("UP: " + i + ",  enter run");
-                            response = up.up(region);
+                            response = up.up(zone);
                             System.out.println("UP:  " + i + ", left run");
                         } catch (Exception e) {
                             System.out.println("UP:  " + i + ", exception run");
@@ -122,7 +122,7 @@ public class RecordUploadTest {
                 // 若第一部分上传部分未全部成功,再次上传
                 if (response == null) {
                     try {
-                        response = new Up(f, expectKey, token).up(region);
+                        response = new Up(f, expectKey, token).up(zone);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -295,7 +295,7 @@ public class RecordUploadTest {
             System.out.println("UP closed");
         }
 
-        public Response up(Region region) throws Exception {
+        public Response up(Zone zone) throws Exception {
             int i = r.nextInt(10000);
             try {
                 System.out.println("UP: " + i + ",  enter up");
@@ -304,7 +304,7 @@ public class RecordUploadTest {
                 }
 
                 uploader = new ResumeUploader(client, token, key, file,
-                        null, Client.DefaultMime, recorder, new Configuration(region));
+                        null, Client.DefaultMime, recorder, new Configuration(zone));
                 Response res = uploader.upload();
                 System.out.println("UP:  " + i + ", left up");
                 return res;
