@@ -30,7 +30,7 @@ public class PfopTest {
 
         for (Map.Entry<String, Zone> entry : cases.entrySet()) {
             String bucket = entry.getKey();
-            Zone region = entry.getValue();
+            Zone zone = entry.getValue();
 
             String notifyURL = null;
             boolean force = true;
@@ -47,7 +47,7 @@ public class PfopTest {
             System.out.println(fops);
 
             try {
-                Configuration cfg = new Configuration(region);
+                Configuration cfg = new Configuration(zone);
                 OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
                 String jobid = operationManager.pfop(bucket, TestConfig.testMp4FileKey, fops, null,
                         notifyURL, force);
