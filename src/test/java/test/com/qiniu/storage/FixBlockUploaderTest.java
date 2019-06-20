@@ -39,7 +39,7 @@ public class FixBlockUploaderTest {
         config.useHttpsDomains = useHttpsDomains;
         client = new Client(config);
         up = new FixBlockUploader(client, blockSize, null, config);
-        bucket = TestConfig.testBucket_z0;
+        bucket = TestConfig.testBucket_as0;
         bm = new BucketManager(TestConfig.testAuth, config);
     }
 
@@ -168,7 +168,11 @@ public class FixBlockUploaderTest {
 
             Response res = bm.statResponse(bucket, ret.key);
             System.out.println(res.getInfo());
-            assertTrue("// 要有额外设置的元信息 //" + metaParams.formString(), res.bodyString().indexOf("text/liubin") > -1);
+            String resStr = res.bodyString();
+            assertTrue("// 要有额外设置的元信息 //" + metaParams.formString(),
+//                    resStr.indexOf("text/liubin") > -1 &&
+                            resStr.indexOf("sb") > -1 &&
+                            resStr.indexOf("1984") > -1);
         } catch (QiniuException e) {
             if (e.response != null) {
                 System.out.println(e.response.getInfo());

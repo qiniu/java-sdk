@@ -34,6 +34,8 @@ public final class TestConfig {
     public static final String testKey_na0 = "peter/1.png";
     public static final String testDomain_na0 = "javasdk-na0.peterpy.cn";
     public static final String testUrl_na0 = "http://" + testDomain_na0 + "/" + testKey_na0;
+    //sg
+    public static final String testBucket_as0 = "sdk-as0";
     //code
     public static final int ERROR_CODE_BUCKET_NOT_EXIST = 631;
     public static final int ERROR_CODE_KEY_NOT_EXIST = 612;
