@@ -84,9 +84,9 @@ public class FixBlockUploaderWithRecorderTest {
         t1.start();
 
         String base64Key = UrlSafeBase64.encodeToString(expectKey);
-        String contentUUID = fbd.getContentUUID();
 
-        final UploadRecordHelper helper = new UploadRecordHelper(recorder, bucket, base64Key, contentUUID);
+        final UploadRecordHelper helper = new UploadRecordHelper(recorder, bucket, base64Key,
+                fbd.getContentUUID(), this.blockSize + "_.-^ \b" + FixBlockUploader.class.getName());
         final String recordKey = helper.recordFileKey;
 
         final boolean[] ch = new boolean[]{true};
@@ -217,11 +217,11 @@ public class FixBlockUploaderWithRecorderTest {
         Recorder recorder;
         String recordFileKey;
 
-        public UploadRecordHelper(Recorder recorder, String bucket, String base64Key, String contentUUID) {
+        public UploadRecordHelper(Recorder recorder, String bucket, String base64Key,
+                                  String contentUUID, String uploaderSUID) {
             if (recorder != null) {
                 this.recorder = recorder;
-                recordFileKey = recorder.recorderKeyGenerate(bucket, base64Key, contentUUID,
-                        blockSize + "_-" + FixBlockUploader.class.getName());
+                recordFileKey = recorder.recorderKeyGenerate(bucket, base64Key, contentUUID, uploaderSUID);
             }
         }
 
@@ -230,9 +230,7 @@ public class FixBlockUploaderWithRecorderTest {
             if (recorder != null) {
                 try {
                     byte[] data = recorder.get(recordFileKey);
-                    String d = new String(data, Charset.forName("UTF-8"));
-//                    System.out.println(d);
-                    record = new Gson().fromJson(d, Record.class);
+                    record = new Gson().fromJson(new String(data, Charset.forName("UTF-8")), Record.class);
                 } catch (Exception e) {
                     // do nothing
                 }

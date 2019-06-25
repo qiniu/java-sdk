@@ -108,19 +108,25 @@ public class FixBlockUploader {
         Record record = null;
 
         UploadRecordHelper helper = new UploadRecordHelper(recorder, bucket, base64Key,
-                blockData.getContentUUID(), this.blockSize + "_-" + this.getClass().getName());
+                blockData.getContentUUID(), this.blockSize + "_.-^ \b" + this.getClass().getName());
 
         if (blockData.isRetryable()) {
             record = helper.reloadRecord();
             if (helper.isActiveRecord(record, blockData)) {
                 // 有效的 record 才拿来用 //
                 try {
-                    blockData.skipByte(record.size);
+                    blockData.skipByte(record.size); // may throw exception
                     blockData.skipBlock(record.etagIdxes.size());
-                    uploadId = record.uploadId;
                     etags = record.etagIdxes;
-                } catch (Exception e) {
-                    uploadId = null;
+                    uploadId = record.uploadId;
+                } catch (IOException e) {
+                    // need reset blockData ? how ?
+                    // mark(int readlimit) readlimit is not big enough, it's useless for large entity.
+                    // fileinputstream does not support mark and reset.
+                    // be simple, only delete record file, then throw an exception. the invoker maybe need to retry.
+                    helper.delRecord();
+                    throw new QiniuException(e, "blockData skip failed. " +
+                            "record file is already deleted, please retry if needed.");
                 }
             }
         }
