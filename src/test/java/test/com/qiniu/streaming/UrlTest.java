@@ -1,7 +1,6 @@
 package test.com.qiniu.streaming;
 
 import com.qiniu.streaming.UrlFactory;
-import org.junit.Test;
 import test.com.qiniu.TestConfig;
 
 import static org.junit.Assert.assertTrue;
@@ -11,7 +10,7 @@ import static org.junit.Assert.assertTrue;
  * Created by bailong on 16/9/22.
  */
 public class UrlTest {
-    @Test
+    //@Test
     public void testUrl() {
         String hubName = "test";
         String pubDomain = "publish-rtmp.test.com";

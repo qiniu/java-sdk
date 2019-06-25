@@ -23,6 +23,11 @@ import static org.junit.Assert.fail;
 
 public class ResumeUploadTest {
 
+    /**
+     * 检测自定义变量foo是否生效
+     *
+     * @throws IOException
+     */
     @Test
     public void testXVar() throws IOException {
 
@@ -60,6 +65,14 @@ public class ResumeUploadTest {
         }
     }
 
+    /**
+     * 分片上传
+     * 检测key、hash、fszie、fname是否符合预期
+     *
+     * @param size
+     * @param https
+     * @throws IOException
+     */
     private void template(int size, boolean https) throws IOException {
         Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
         bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
