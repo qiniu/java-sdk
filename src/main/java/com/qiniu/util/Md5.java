@@ -15,11 +15,11 @@ public class Md5 {
     }
 
     public static String md5(byte[] data, int offset, int len) {
-        MessageDigest md = null;
+        MessageDigest md;
         try {
             md = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         md.update(data, offset, len);
         byte[] secretBytes = md.digest();
@@ -32,21 +32,32 @@ public class Md5 {
     }
 
 
-    public static String md5(InputStream in, long len) throws IOException {
-        MessageDigest md = null;
+    public static String md5(InputStream in, final long length) throws IOException {
+        MessageDigest md;
         try {
             md = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         byte[] buffer = new byte[1024 * 4];
         int buffSize = buffer.length;
+        long len = length;
         while (len != 0) {
             int next = (int) (buffSize > len ? len : buffSize);
-            //noinspection ResultOfMethodCallIgnored
-            in.read(buffer, 0, next);
-            md.update(buffer, 0, next);
-            len -= next;
+            next = in.read(buffer, 0, next);
+            if (next == -1) {
+                throw new IOException("input stream length: " + len + " does not match the argument: " + length);
+            }
+            if (next != 0) {
+                md.update(buffer, 0, next);
+                len -= next;
+            } else {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    // do nothing
+                }
+            }
         }
         byte[] secretBytes = md.digest();
         return getFormattedText(secretBytes);
@@ -55,10 +66,10 @@ public class Md5 {
 
 
     private static String getFormattedText(byte[] src) {
-        StringBuilder stringBuilder = new StringBuilder(32);
         if (src == null || src.length == 0) {
             return "";
         }
+        StringBuilder stringBuilder = new StringBuilder(32);
         for (int i = 0; i < src.length; i++) {
             int v = src[i] & 0xFF;
             String hv = Integer.toHexString(v);

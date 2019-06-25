@@ -45,7 +45,8 @@ public interface Recorder {
      * @param bucket  空间名或其变换的值
      * @param key  文件名或其变换的值
      * @param contentDataSUID 上传内容的标识字符串
+     * @param uploaderSUID 上传方式的标识字符串
      * @return 持久化上传纪录的key
      */
-    String recorderKeyGenerate(String bucket, String key, String contentDataSUID);
+    String recorderKeyGenerate(String bucket, String key, String contentDataSUID, String uploaderSUID);
 }

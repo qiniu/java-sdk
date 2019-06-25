@@ -1,6 +1,7 @@
 package test.com.qiniu.util;
 
 import com.qiniu.util.Md5;
+import com.qiniu.util.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import test.com.qiniu.TempFile;
@@ -8,6 +9,8 @@ import test.com.qiniu.TempFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
 import static org.junit.Assert.assertEquals;
 
 public class Md5Test {
@@ -19,7 +22,7 @@ public class Md5Test {
     }
 
     @Test
-    public void test1() throws IOException {
+    public void test1() throws IOException, NoSuchAlgorithmException {
         System.out.println(f.getAbsolutePath());
         String md5 = Md5.md5(f);
         System.out.println(md5);
@@ -32,5 +35,11 @@ public class Md5Test {
 
         assertEquals(md5, md5_data);
         assertEquals(md5, "543757d0e58f2f581df42529d50baa4a");
+        String src = "FileInputStream fis = new FileInputStream(f);";
+
+        String md5Str = StringUtils.md5Lower(src);
+        System.out.println(md5Str);
+
+        assertEquals(md5Str, Md5.md5(src.getBytes()));
     }
 }

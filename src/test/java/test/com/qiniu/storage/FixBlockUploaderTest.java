@@ -110,6 +110,12 @@ public class FixBlockUploaderTest {
         template(true, 1024 * 12 + 1027, false, false);
     }
 
+    @Test
+    public void test24M() throws IOException {
+        template(true, 1024 * 24, false, false);
+        template(true, 1024 * 24 + 1027, false, false);
+    }
+
 
     @Test
     public void test26M1K() throws IOException {
@@ -155,8 +161,10 @@ public class FixBlockUploaderTest {
             System.out.println("Start uploading " + new Date());
             Response r = null;
             if (isStream) {
+                System.out.println("upload input stream");
                 r = up.upload(new FileInputStream(f), f.length(), token, expectKey, metaParams);
             } else {
+                System.out.println("upload file");
                 r = up.upload(f, token, expectKey, metaParams);
             }
             System.out.println(r.getInfo());
@@ -171,8 +179,8 @@ public class FixBlockUploaderTest {
             String resStr = res.bodyString();
             assertTrue("// 要有额外设置的元信息 //" + metaParams.formString(),
 //                    resStr.indexOf("text/liubin") > -1 &&
-                            resStr.indexOf("sb") > -1 &&
-                            resStr.indexOf("1984") > -1);
+                            resStr.indexOf("sb") > -1
+                                    && resStr.indexOf("1984") > -1);
         } catch (QiniuException e) {
             if (e.response != null) {
                 System.out.println(e.response.getInfo());

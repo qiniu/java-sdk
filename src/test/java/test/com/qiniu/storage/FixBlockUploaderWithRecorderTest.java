@@ -69,7 +69,7 @@ public class FixBlockUploaderWithRecorderTest {
 
         final String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600, p);
 
-        new Thread() {
+        Thread t1 = new Thread() {
             @Override
             public void run() {
                 try {
@@ -79,11 +79,12 @@ public class FixBlockUploaderWithRecorderTest {
                     e.printStackTrace();
                 }
             }
-        }.start();
+        };
+        t1.setDaemon(true);
+        t1.start();
 
-        // copy from FixBlockUploader  FileBlockData
         String base64Key = UrlSafeBase64.encodeToString(expectKey);
-        String contentUUID = f.lastModified() + "_._" + f.getAbsolutePath();
+        String contentUUID = fbd.getContentUUID();
 
         final UploadRecordHelper helper = new UploadRecordHelper(recorder, bucket, base64Key, contentUUID);
         final String recordKey = helper.recordFileKey;
@@ -115,21 +116,23 @@ public class FixBlockUploaderWithRecorderTest {
         showRecord.setDaemon(true);
         showRecord.start();
 
-        for ( ; ; ) {
-            doSleep(1000);
+        // 400s
+        for (int i = 0 ; i < 800 ; i++) {
+            doSleep(500);
             Record r = helper.reloadRecord();
-            System.out.println("r.size: " + r.size + "       blockSize:" + blockSize);
+            System.out.println("1 r.size: " + r.size + "       blockSize:" + blockSize);
             if (r.size > blockSize - 1) {
-                fbd.close();
                 fbd.close();
                 break;
             }
         }
+        // 关闭，多次关闭问题不大 //
+        fbd.close();
 
         doSleep(5000);
 
         final FixBlockUploader.FileBlockData fbd2 = new FixBlockUploader.FileBlockData(blockSize, f);
-        new Thread() {
+        Thread t2 = new Thread() {
             @Override
             public void run() {
                 try {
@@ -139,18 +142,22 @@ public class FixBlockUploaderWithRecorderTest {
                     e.printStackTrace();
                 }
             }
-        }.start();
+        };
+        t2.setDaemon(true);
+        t2.start();
 
-        for ( ; ; ) {
-            doSleep(1000);
+        // 400s
+        for (int i = 0 ; i < 800 ; i++) {
+            doSleep(500);
             Record r = helper.reloadRecord();
-            System.out.println("r.size: " + r.size + "       blockSize:" + blockSize);
+            System.out.println("2 r.size: " + r.size + "       blockSize:" + blockSize);
             if (r.size > blockSize * 2) {
-                fbd2.close();
                 fbd2.close();
                 break;
             }
         }
+        // 关闭，多次关闭问题不大 //
+        fbd2.close();
 
         doSleep(5000);
 
@@ -213,7 +220,8 @@ public class FixBlockUploaderWithRecorderTest {
         public UploadRecordHelper(Recorder recorder, String bucket, String base64Key, String contentUUID) {
             if (recorder != null) {
                 this.recorder = recorder;
-                recordFileKey = recorder.recorderKeyGenerate(bucket, base64Key, contentUUID);
+                recordFileKey = recorder.recorderKeyGenerate(bucket, base64Key, contentUUID,
+                        blockSize + "_-" + FixBlockUploader.class.getName());
             }
         }
 

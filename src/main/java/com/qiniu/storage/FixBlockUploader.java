@@ -107,7 +107,8 @@ public class FixBlockUploader {
         List<EtagIdx> etags = null;
         Record record = null;
 
-        UploadRecordHelper helper = new UploadRecordHelper(recorder, bucket, base64Key, blockData.getContentUUID());
+        UploadRecordHelper helper = new UploadRecordHelper(recorder, bucket, base64Key,
+                blockData.getContentUUID(), this.blockSize + "_-" + this.getClass().getName());
 
         if (blockData.isRetryable()) {
             record = helper.reloadRecord();
@@ -295,11 +296,6 @@ public class FixBlockUploader {
     }
 
 
-    static EtagIdx loadFromJson(String json) {
-        return new Gson().fromJson(json, EtagIdx.class);
-    }
-
-
     class EtagIdxPart {
         List<EtagIdx> parts;
 
@@ -356,10 +352,11 @@ public class FixBlockUploader {
         Recorder recorder;
         String recordFileKey;
 
-        public UploadRecordHelper(Recorder recorder, String bucket, String base64Key, String contentUUID) {
+        public UploadRecordHelper(Recorder recorder, String bucket, String base64Key,
+                                  String contentUUID, String uploaderSUID) {
             if (recorder != null) {
                 this.recorder = recorder;
-                recordFileKey = recorder.recorderKeyGenerate(bucket, base64Key, contentUUID);
+                recordFileKey = recorder.recorderKeyGenerate(bucket, base64Key, contentUUID, uploaderSUID);
             }
         }
 
@@ -418,10 +415,10 @@ public class FixBlockUploader {
 
 
     public abstract static class BlockData {
-        public final int blockSize;
+        public final int blockDataSize;
 
-        BlockData(int blockSize) {
-            this.blockSize = blockSize;
+        BlockData(int blockDataSize) {
+            this.blockDataSize = blockDataSize;
         }
 
         public abstract int getCurrentIndex();
@@ -479,12 +476,12 @@ public class FixBlockUploader {
 
         long alreadyReadSize = 0;
 
-        public FileBlockData(int blockSize, File file) throws FileNotFoundException {
-            super(blockSize);
+        public FileBlockData(int blockDataSize, File file) throws FileNotFoundException {
+            super(blockDataSize);
             fis = new FileInputStream(file);
             totalLength = file.length();
-            data = new byte[blockSize];
-            contentUUID = file.lastModified() + "_._" + file.getAbsolutePath();
+            data = new byte[blockDataSize];
+            contentUUID = file.lastModified() + "_.-^ \b" + file.getAbsolutePath();
         }
 
         @Override
@@ -567,21 +564,21 @@ public class FixBlockUploader {
 
         long alreadyReadSize = 0;
 
-        public InputStreamBlockData(int blockSize, InputStream is, long totalLength) {
-            this(blockSize, is, totalLength, true);
+        public InputStreamBlockData(int blockDataSize, InputStream is, long totalLength) {
+            this(blockDataSize, is, totalLength, true);
         }
 
-        public InputStreamBlockData(int blockSize, InputStream is, long totalLength, boolean closedAfterUpload) {
-            this(blockSize, is, totalLength, closedAfterUpload, false, null);
+        public InputStreamBlockData(int blockDataSize, InputStream is, long totalLength, boolean closedAfterUpload) {
+            this(blockDataSize, is, totalLength, closedAfterUpload, false, "");
         }
 
-        public InputStreamBlockData(int blockSize, InputStream is, long totalLength, boolean closedAfterUpload,
+        public InputStreamBlockData(int blockDataSize, InputStream is, long totalLength, boolean closedAfterUpload,
                                     boolean retryable, String contentUUID) {
-            super(blockSize);
+            super(blockDataSize);
             this.is = is;
             this.totalLength = totalLength;
             this.closedAfterUpload = closedAfterUpload;
-            this.data = new byte[blockSize];
+            this.data = new byte[blockDataSize];
             this.retryable = retryable;
             this.contentUUID = contentUUID;
         }
@@ -614,44 +611,47 @@ public class FixBlockUploader {
 
         @Override
         public void nextBlock() throws IOException {
-            try {
-                if (is.available() <= 0) {
-                    sleep(100);
+            readLength = 0;
+            int rl = is.read(data);
+            int rlt = rl;
+            // no enough data //
+            while (rlt < blockDataSize) {
+                // eof
+                if (rl == -1) {
+                    break;
                 }
-            } catch (IOException e) {
                 sleep(100);
-                // do nothing
+                rl = is.read(data, rlt, blockDataSize - rlt);
+                if (rl > 0) {
+                    rlt += rl;
+                }
             }
 
-            readLength = is.read(data);
-            // 没有读到数据，重试一次 //
-            if (readLength == 0) {
-                sleep(100);
-                readLength = is.read(data);
+            if (rlt != -1) {
+                readLength = rlt;
+                alreadyReadSize += readLength;
+                index++;
             }
-
-            alreadyReadSize += readLength;
-            index++;
         }
 
-        @Override
-        public void skipByte(long n) throws IOException {
-            try {
-                if (is.available() <= 0) {
-                    sleep(100);
-                }
-            } catch (IOException e) {
-                sleep(100);
-                // do nothing
-            }
 
-            long rn = is.skip(n);
-            if (rn < n) {
+        @Override
+        public void skipByte(final long n) throws IOException {
+            long sn = is.skip(n);
+            long snt = sn;
+            while (snt < n) {
+                if (sn == -1) {
+                    throw new IOException("input stream does not have enough content: " + n);
+                }
                 sleep(100);
-                is.skip(n - rn);
+                sn = is.skip(n - snt);
+                if (sn > 0) {
+                    snt += sn;
+                }
             }
             alreadyReadSize += n;
         }
+
 
         @Override
         public void skipBlock(int blockCount) {

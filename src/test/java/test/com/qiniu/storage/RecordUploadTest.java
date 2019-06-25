@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.MessageDigest;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,22 +33,6 @@ public class RecordUploadTest {
     FileRecorder recorder = null;
     private Response response = null;
 
-    // copied from FileRecorder
-    private static String hash(String base) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] hash = digest.digest(base.getBytes());
-            StringBuffer hexString = new StringBuffer();
-
-            for (int i = 0; i < hash.length; i++) {
-                hexString.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
-            }
-            return hexString.toString();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
 
     /**
      * 断点续传
@@ -226,7 +209,7 @@ public class RecordUploadTest {
         String folder = f.getParent();
         FileRecorder fr = new FileRecorder(folder);
 
-        String key = "test_profile_";
+        String key = fr.recorderKeyGenerate("b", "k", "c", "test_profile_");
         byte[] data = new byte[3];
         data[0] = 'a';
         data[1] = '8';
@@ -235,26 +218,26 @@ public class RecordUploadTest {
         fr.set(key, data);
         byte[] data2 = fr.get(key);
 
-        File recoderFile = new File(folder, hash(key));
+        File recoderFile = new File(folder, key);
 
         long m1 = recoderFile.lastModified();
 
         assertEquals(3, data2.length);
         assertEquals('8', data2[1]);
 
-        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 48 + 2300);
+        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 24 * 5 + 2300);
         data2 = fr.get(key);
         assertEquals(3, data2.length);
         assertEquals('8', data2[1]);
 
-        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 48 - 2300);
+        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 24 * 5 - 2300);
 
         long m2 = recoderFile.lastModified();
 
         byte[] data3 = fr.get(key);
 
         assertNull(data3);
-        assertTrue(m1 - m2 > 1000 * 3600 * 48 && m1 - m2 < 1000 * 3600 * 48 + 5500);
+        assertTrue(m1 - m2 > 1000 * 3600 * 24 * 5 && m1 - m2 < 1000 * 3600 * 24 * 5 + 5500);
 
         try {
             Thread.sleep(2300);
