@@ -56,7 +56,7 @@ public class PfopTest {
                 String purl = "https://api.qiniu.com/status/get/prefop?id=" + jobid;
                 System.out.println(purl);
             } catch (QiniuException e) {
-                fail(e.response.toString());
+                fail(e.error());
             }
         }
     }

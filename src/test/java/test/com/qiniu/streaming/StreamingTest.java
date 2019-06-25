@@ -130,7 +130,7 @@ public class StreamingTest {
         try {
             manager.saveAs(streamNoExist, "f\"ff.m3u8");
         } catch (QiniuException e) {
-            assertEquals(404, e.response.statusCode);
+            assertEquals(404, e.code());
         }
     }
 

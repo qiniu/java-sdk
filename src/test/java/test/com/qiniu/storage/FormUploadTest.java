@@ -96,7 +96,7 @@ public class FormUploadTest {
             try {
                 r = uploadManager.put("hello".getBytes(), null, token, params, null, true);
             } catch (QiniuException e) {
-                fail(e.response.toString());
+                fail(e.error());
             }
             StringMap map = null;
             try {
@@ -202,7 +202,7 @@ public class FormUploadTest {
                 uploadManager.put(f, expectKey, token, params, null, true);
             } catch (QiniuException e) {
                 TempFile.remove(f);
-                fail(e.response.toString());
+                fail(e.error());
             }
             TempFile.remove(f);
         }
@@ -278,7 +278,7 @@ public class FormUploadTest {
                 StringMap m = res.jsonToMap();
                 assertEquals("foo_val", m.get("foo"));
             } catch (QiniuException e) {
-                fail(e.response.toString());
+                fail(e.error());
             } finally {
                 TempFile.remove(f);
             }
@@ -310,7 +310,7 @@ public class FormUploadTest {
                 assertEquals(f.getName(), ret.fname);
             } catch (QiniuException e) {
                 TempFile.remove(f);
-                fail(e.response.toString());
+                fail(e.error());
             }
             TempFile.remove(f);
         }

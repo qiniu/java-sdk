@@ -53,7 +53,7 @@ public class BucketTest {
             Assert.assertTrue(StringUtils.inStringArray(TestConfig.testBucket_z0, buckets));
             Assert.assertTrue(StringUtils.inStringArray(TestConfig.testBucket_na0, buckets));
         } catch (QiniuException e) {
-            Assert.fail(e.response.toString());
+            Assert.fail(e.error());
         }
 
         try {
@@ -73,7 +73,7 @@ public class BucketTest {
             String[] domains = bucketManager.domainList(TestConfig.testBucket_z0);
             Assert.assertNotNull(domains);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.fail(e.error());
         }
     }
 
@@ -90,7 +90,7 @@ public class BucketTest {
                 Assert.assertNotNull(l.marker);
             }
         } catch (QiniuException e) {
-            Assert.fail(e.response.toString());
+            Assert.fail(e.error());
         }
     }
 
@@ -115,7 +115,7 @@ public class BucketTest {
                 Assert.assertEquals(1, l.commonPrefixes.length);
             }
         } catch (QiniuException e) {
-            Assert.fail(e.response.toString());
+            Assert.fail(e.error());
         }
     }
 
@@ -181,7 +181,7 @@ public class BucketTest {
                 Assert.assertNotNull(info.hash);
                 Assert.assertNotNull(info.mimeType);
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + "==> " + e.error());
             }
         }
 
@@ -223,7 +223,7 @@ public class BucketTest {
                 bucketManager.copy(bucket, key, bucket, copyKey, true);
                 bucketManager.delete(bucket, copyKey);
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + "==> " + e.error());
             }
         }
 
@@ -269,7 +269,7 @@ public class BucketTest {
                 bucketManager.rename(bucket, renameFromKey, renameToKey);
                 bucketManager.delete(bucket, renameToKey);
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + "==> " + e.error());
             }
         }
     }
@@ -292,7 +292,7 @@ public class BucketTest {
             	System.out.println(response.statusCode);
                 bucketManager.delete(bucket, copyToKey);
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + "==> " + e.error());
             }
         }
     }
@@ -313,7 +313,7 @@ public class BucketTest {
             try {
                 bucketManager.changeMime(bucket, key, mime);
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + "==> " + e.error());
             }
         }
     }
@@ -339,7 +339,7 @@ public class BucketTest {
                 headers.put("Last-Modified", dateFm.format(d));
                 bucketManager.changeHeaders(bucket, key, headers);
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + "==> " + e.error());
             }
         }
     }
@@ -360,7 +360,7 @@ public class BucketTest {
                 bucketManager.prefetch(bucket, "kodo/sdk/1239/java");
                 bucketManager.unsetImage(bucket);
             } catch (QiniuException e) {
-                Assert.fail(bucket + "==>" + e.response.toString());
+                Assert.fail(bucket + "==>" + e.error());
             }
         }
     }
@@ -384,7 +384,7 @@ public class BucketTest {
                 Assert.assertEquals(resHash, fRet.hash);
             } catch (QiniuException e) {
                 e.printStackTrace();
-                // use e.response.toString() may get NullPointException
+                // use e.error() may get NullPointException
                 // when java.net.SocketTimeoutException: timeout
                 Assert.fail(e.getMessage());
             }
@@ -405,7 +405,7 @@ public class BucketTest {
                 bucketManager.getBucketInfo(TestConfig.dummyBucket);
                 
             } catch (QiniuException e) {
-            	Assert.assertEquals(612, e.response.statusCode);
+            	Assert.assertEquals(612, e.code());
             }
     	}
     }
@@ -491,7 +491,7 @@ public class BucketTest {
         			response = bucketManager.updateBucketLifeCycleRule(bucket, rule);
         			Assert.fail();
         		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
+        			Assert.assertEquals(400, e.code());
         		}
         		
         		// 更新规则
@@ -505,7 +505,7 @@ public class BucketTest {
         			bucketManager.putBucketLifecycleRule(bucket, rule);
         			Assert.fail();
         		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
+        			Assert.assertEquals(400, e.code());
         		}
         		
         		// 重复设置（name重复）
@@ -515,7 +515,7 @@ public class BucketTest {
             		response = bucketManager.putBucketLifecycleRule(bucket, rule);
             		Assert.fail();
         		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
+        			Assert.assertEquals(400, e.code());
         		}
         		
         		// 重复设置（prefix重复）
@@ -525,7 +525,7 @@ public class BucketTest {
             		response = bucketManager.putBucketLifecycleRule(bucket, rule);
             		Assert.fail();
         		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
+        			Assert.assertEquals(400, e.code());
         		}
         		
         		// 追加规则
@@ -548,7 +548,7 @@ public class BucketTest {
         		Assert.assertEquals(0, rules.length);
         		
         	} catch (QiniuException e) {
-        		Assert.fail(e.response.toString());
+        		Assert.fail(e.error());
         	}
     	}
     }
@@ -591,7 +591,7 @@ public class BucketTest {
             		response = bucketManager.putBucketEvent(bucket, rule);
             		Assert.fail();
         		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
+        			Assert.assertEquals(400, e.code());
         		}
 
         		// 追加Event（error:callbackURL must starts with http:// or https://）
@@ -601,7 +601,7 @@ public class BucketTest {
             		response = bucketManager.putBucketEvent(bucket, rule);
             		Assert.fail();
         		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
+        			Assert.assertEquals(400, e.code());
         		}
         		
         		// 追加Event
@@ -623,7 +623,7 @@ public class BucketTest {
         			response = bucketManager.putBucketEvent(bucket, rule);
         			Assert.fail();
         		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
+        			Assert.assertEquals(400, e.code());
         		}
         		
         		// 重复追加Event（error:event prefix and suffix exists）
@@ -633,7 +633,7 @@ public class BucketTest {
         			response = bucketManager.putBucketEvent(bucket, rule);
         			Assert.fail();
         		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
+        			Assert.assertEquals(400, e.code());
         		}
         		
         		// 追加Event
@@ -655,7 +655,7 @@ public class BucketTest {
             		response = bucketManager.updateBucketEvent(bucket, rule);
             		Assert.fail();
         		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
+        			Assert.assertEquals(400, e.code());
         		}
         		
         		// 更新Event
@@ -674,7 +674,7 @@ public class BucketTest {
         		Assert.assertEquals(0, rules.length);
         		
         	} catch (QiniuException e) {
-        		Assert.fail(e.response.toString());
+        		Assert.fail(e.error());
         	}
     	}
     }
@@ -725,7 +725,7 @@ public class BucketTest {
             		Assert.assertEquals(bodyString, bodyString2);
         		}
         	} catch (QiniuException e) {
-        		Assert.fail(e.response.toString());
+        		Assert.fail(e.error());
         	}
     	}
     }
@@ -769,7 +769,7 @@ public class BucketTest {
         		try {
             		client.get(url);
         		} catch (QiniuException e) {
-        			Assert.assertEquals(401, e.response.statusCode);
+        			Assert.assertEquals(401, e.code());
         		}
         		
         		// 测试关闭原图保护
@@ -779,7 +779,7 @@ public class BucketTest {
         		Assert.assertEquals(200, response.statusCode);
         		
         	} catch (QiniuException e) {
-        		Assert.fail(e.response.toString());
+        		Assert.fail(e.error());
     		}
     	}
     }
@@ -806,7 +806,7 @@ public class BucketTest {
             		Assert.assertEquals(expect, actual);
     			}
     		} catch (QiniuException e) {
-    			Assert.fail(e.response.toString());
+    			Assert.fail(e.error());
     		}
     	}
     }
@@ -873,14 +873,14 @@ public class BucketTest {
                 Assert.assertEquals(0, info.getPrivate());
                 
             } catch (QiniuException e) {
-            	Assert.fail(e.response.toString());
+            	Assert.fail(e.error());
             }
     	}
     	// 测试空间不存在情况
         try {
         	bucketManager.putBucketAccessMode(TestConfig.dummyBucket, AclType.PRIVATE);
         } catch (QiniuException e) {
-            Assert.assertEquals(631, e.response.statusCode);
+            Assert.assertEquals(631, e.code());
         }
     }
     
@@ -894,7 +894,7 @@ public class BucketTest {
             try {
                 testBucketQuota(bucket, -2, -2);
             } catch (QiniuException e) {
-                Assert.assertEquals(400, e.response.statusCode);
+                Assert.assertEquals(400, e.code());
             }
         	try {
         		testBucketQuota(bucket, 0, 0);
@@ -903,7 +903,7 @@ public class BucketTest {
         		testBucketQuota(bucket, 100, -1);
         		testBucketQuota(bucket, -1, -1);
         	} catch (QiniuException e) {
-        		Assert.fail(e.response.toString());
+        		Assert.fail(e.error());
     		}
     	}
     }
@@ -939,7 +939,7 @@ public class BucketTest {
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
             ops = new BucketManager.BatchOperations().addDeleteOp(bucket, copyToKey);
             try {
@@ -947,7 +947,7 @@ public class BucketTest {
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
         }
     }
@@ -967,7 +967,7 @@ public class BucketTest {
             try {
                 bucketManager.copy(bucket, key, bucket, moveFromKey);
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
             String moveToKey = key + "to";
             BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
@@ -977,12 +977,12 @@ public class BucketTest {
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
             try {
                 bucketManager.delete(bucket, moveToKey);
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
         }
     }
@@ -1002,7 +1002,7 @@ public class BucketTest {
             try {
                 bucketManager.copy(bucket, key, bucket, renameFromKey);
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
             String renameToKey = "renameTo" + key;
             BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
@@ -1012,12 +1012,12 @@ public class BucketTest {
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
             try {
                 bucketManager.delete(bucket, renameToKey);
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
         }
     }
@@ -1044,7 +1044,7 @@ public class BucketTest {
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
         }
     }
@@ -1073,7 +1073,7 @@ public class BucketTest {
             try {
                 bucketManager.batch(opsCopy);
             } catch (QiniuException e) {
-                Assert.fail("batch copy failed: " + e.response.toString());
+                Assert.fail("batch copy failed: " + e.error());
             }
 
             BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
@@ -1083,7 +1083,7 @@ public class BucketTest {
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             } finally {
                 try {
                     bucketManager.delete(bucket, key);
@@ -1141,7 +1141,7 @@ public class BucketTest {
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(response.statusCode));
 
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
         }
     }
@@ -1170,7 +1170,7 @@ public class BucketTest {
                 bucketManager.copy(bucket, key, bucket, moveFromKey);
                 bucketManager.copy(bucket, key, bucket, moveFromKey2);
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
 
             BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
@@ -1186,7 +1186,7 @@ public class BucketTest {
                     Assert.assertTrue("200 or 298", batchStatusCode.contains(b.code));
                 }
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
 
             BucketManager.BatchOperations opsDel = new BucketManager.BatchOperations()
@@ -1195,7 +1195,7 @@ public class BucketTest {
             try {
                 bucketManager.batch(opsDel);
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
         }
     }
@@ -1220,7 +1220,7 @@ public class BucketTest {
                 Response unsetResp = bucketManager.unsetImage(bucket);
                 Assert.assertEquals(200, unsetResp.statusCode);
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
         }
     }
@@ -1243,7 +1243,7 @@ public class BucketTest {
                 Response response = bucketManager.deleteAfterDays(bucket, key, 10);
                 Assert.assertEquals(200, response.statusCode);
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail(e.error());
             }
         }
     }
@@ -1273,7 +1273,7 @@ public class BucketTest {
                 bucketManager.delete(bucket, keyToChangeType);
             } catch (QiniuException e) {
                 Assert.fail(bucket + ":" + key + " > " + keyToChangeType + " >> "
-                        + StorageType.INFREQUENCY + " ==> " + e.response.toString());
+                        + StorageType.INFREQUENCY + " ==> " + e.error());
             }
         }
     }

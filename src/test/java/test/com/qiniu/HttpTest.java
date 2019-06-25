@@ -90,7 +90,7 @@ public class HttpTest {
             Assert.fail();
         } catch (QiniuException e) {
             Assert.assertNotNull(e.response.reqId);
-            Assert.assertEquals(e.response.statusCode, 400);
+            Assert.assertEquals(e.code(), 400);
         }
     }
 }
