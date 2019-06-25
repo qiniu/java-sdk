@@ -198,7 +198,7 @@ public class FixBlockUploader {
     Response uploadBlockWithRetry(String bucket, String base64Key, String upToken, String uploadId,
                                   byte[] data, int dataLength, int partNum, RetryCounter counter)
             throws QiniuException {
-        // 在 最多重试次数 范围内， 每个块至多上传 3 次
+        // 在 最多重试次数 范围内， 每个块至多上传 3 次 //
         // 1
         Response res = uploadBlock1(bucket, base64Key, upToken, uploadId, data, dataLength, partNum, counter);
         if (res.isOK()) {
