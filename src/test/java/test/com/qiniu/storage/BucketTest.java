@@ -73,7 +73,7 @@ public class BucketTest {
             String[] domains = bucketManager.domainList(TestConfig.testBucket_z0);
             Assert.assertNotNull(domains);
         } catch (QiniuException e) {
-            Assert.fail(e.error());
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -894,7 +894,7 @@ public class BucketTest {
             try {
                 testBucketQuota(bucket, -2, -2);
             } catch (QiniuException e) {
-                Assert.assertEquals(400, e.code());
+                Assert.assertEquals(e.getMessage(), 400, e.code());
             }
         	try {
         		testBucketQuota(bucket, 0, 0);
