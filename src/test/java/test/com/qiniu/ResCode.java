@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public class ResCode {
     public static boolean find(int code, int ...codes) {
-        System.out.println("response code is: " + code + ", expected code is in: " + Arrays.toString(codes));
+        System.out.println("response code is: " + code + ", possible code is in: " + Arrays.toString(codes));
         for (int i : codes) {
             if (code == i) {
                 return true;
