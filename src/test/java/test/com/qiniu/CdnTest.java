@@ -162,7 +162,8 @@ public class CdnTest {
         long deadline2 = deadline1;
         long deadline3 = 1551966091; // 2019-03-07 21:41:31 +0800 CST
         String testUrl_z0_timeStamp_outdate =
-                "http://javasdk-timestamp.peterpy.cn/do_not_delete/1.png?sign=50d05540eea4ea8ab905b57006edef7a&t=5c811f8b";
+                "http://javasdk-timestamp.peterpy.cn/do_not_delete/1.png?"
+                        + "sign=50d05540eea4ea8ab905b57006edef7a&t=5c811f8b";
         try {
             URL url = new URL(TestConfig.testUrl_z0_timeStamp);
             Assert.assertEquals(403, getResponse(url.toString()).statusCode);
