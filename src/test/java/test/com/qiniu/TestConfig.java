@@ -22,16 +22,16 @@ public final class TestConfig {
     public static final String smsSecretKey = "test";
     //z0
     public static final String testBucket_z0 = "javasdk";
-    public static final String testKey_z0 = "peter/1.png";
+    public static final String testKey_z0 = "do_not_delete/1.png";
     public static final String testDomain_z0 = "javasdk.peterpy.cn";
     public static final String testUrl_z0 = "http://" + testDomain_z0 + "/" + testKey_z0;
     public static final String testDomain_z0_timeStamp = "javasdk-timestamp.peterpy.cn";
     public static final String testUrl_z0_timeStamp = "http://" + testDomain_z0_timeStamp + "/" + testKey_z0;
-    public static final String testMp4FileKey = "peter/1.mp4";
-    public static final String testPipeline = "peter";
+    public static final String testMp4FileKey = "do_not_delete/1.mp4";
+    public static final String testPipeline = "sdktest";
     //na0
     public static final String testBucket_na0 = "java-sdk-na0";
-    public static final String testKey_na0 = "peter/1.png";
+    public static final String testKey_na0 = "do_not_delete/1.png";
     public static final String testDomain_na0 = "javasdk-na0.peterpy.cn";
     public static final String testUrl_na0 = "http://" + testDomain_na0 + "/" + testKey_na0;
     //sg

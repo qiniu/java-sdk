@@ -16,6 +16,7 @@ import test.com.qiniu.TestConfig;
 import javax.swing.text.html.FormSubmitEvent.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ public class SmsTest {
     }
 
     public static boolean find(int code, int ...codes) {
+        System.out.println("response code is: " + code + ", expected code is in: " + Arrays.toString(codes));
         for (int i : codes) {
             if (code == i) {
                 return true;
