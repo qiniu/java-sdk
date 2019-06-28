@@ -1,7 +1,8 @@
 package com.qiniu.sms.model;
 
-import java.util.List;
+import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
 
 public class TemplateInfo {
 
@@ -9,52 +10,34 @@ public class TemplateInfo {
 
     private int page;
 
+    @SerializedName("page_size")
     private int pageSize;
 
     private List<Item> items;
-
-    public int getTotal() {
-        return total;
-    }
-
-    public void setTotal(int total) {
-        this.total = total;
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public List<Item> getItems() {
-        return items;
-    }
-
-    public void setItems(List<Item> items) {
-        this.items = items;
-    }
 
     public class Item {
         private String id;
         private String name;
         private String template;
+
+        @SerializedName("audit_status")
         private String auditStatus;
+
+        @SerializedName("reject_reason")
         private String rejectReason;
+
         private String type;
+
+        @SerializedName("signature_id")
         private String signatureId;
+
+        @SerializedName("signature_text")
         private String signatureText;
+
+        @SerializedName("created_at")
         private int createdAt;
+
+        @SerializedName("updated_at")
         private int updatedAt;
 
         public String getId() {
@@ -137,6 +120,38 @@ public class TemplateInfo {
             this.updatedAt = updated_at;
         }
 
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
     }
 
 }
