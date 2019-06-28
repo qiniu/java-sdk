@@ -125,8 +125,8 @@ public class FixBlockUploader {
                     // fileinputstream does not support mark and reset.
                     // be simple, only delete record file, then throw an exception. the invoker maybe need to retry.
                     helper.delRecord();
-                    throw new QiniuException(e, "blockData skip failed. " +
-                            "record file is already deleted, please retry if needed.");
+                    throw new QiniuException(e, "blockData skip failed. "
+                            + "record file is already deleted, please retry if needed.");
                 }
             }
         }

@@ -9,15 +9,12 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.model.*;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringUtils;
-
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 import test.com.qiniu.TestConfig;
 
 import java.io.IOException;
@@ -25,7 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class BucketTest {
-	
+
     List<Integer> batchStatusCode = Arrays.asList(200, 298);
     private BucketManager bucketManager;
     private BucketManager dummyBucketManager;
@@ -279,7 +276,7 @@ public class BucketTest {
      */
     @Test
     public void testCopy() {
-    	Response response;
+        Response response;
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
         bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
@@ -288,8 +285,8 @@ public class BucketTest {
             String key = entry.getValue();
             String copyToKey = "copyTo" + Math.random();
             try {
-            	response = bucketManager.copy(bucket, key, bucket, copyToKey);
-            	System.out.println(response.statusCode);
+                response = bucketManager.copy(bucket, key, bucket, copyToKey);
+                System.out.println(response.statusCode);
                 bucketManager.delete(bucket, copyToKey);
             } catch (QiniuException e) {
                 Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
@@ -390,479 +387,481 @@ public class BucketTest {
             }
         }
     }
-    
+
     /**
      * 测试获取bucketinfo
      */
     @Test
     public void testBucketInfo() {
-    	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-    	for (String bucket : buckets) {
+        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        for (String bucket : buckets) {
             try {
                 BucketInfo info = bucketManager.getBucketInfo(bucket);
                 Assert.assertNotNull("info is not null.", info);
-                
+
                 bucketManager.getBucketInfo(TestConfig.dummyBucket);
-                
+
             } catch (QiniuException e) {
-            	Assert.assertEquals(612, e.response.statusCode);
+                Assert.assertEquals(612, e.response.statusCode);
             }
-    	}
+        }
     }
-    
+
     /**
      * 测试设置空间referer防盗链
      */
     @Test
     public void testPutReferAntiLeech() {
-    	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-    	for (String bucket : buckets) {
-        	BucketReferAntiLeech leech = new BucketReferAntiLeech();
-        	Response response;
-        	BucketInfo bucketInfo;
-        	try {
-        		// 测试白名单
-        		leech.setMode(1);
-        		leech.setPattern("www.qiniu.com");
-        		leech.setAllowEmptyReferer(false);
-        		System.out.println(leech.asQueryString());
-        		response = bucketManager.putReferAntiLeech(bucket, leech);
-        		Assert.assertEquals(200, response.statusCode);
-        		bucketInfo = bucketManager.getBucketInfo(bucket);
-        		Assert.assertEquals(1, bucketInfo.getAntiLeechMode());
-        		Assert.assertArrayEquals((new String[] {"www.qiniu.com"}), bucketInfo.getReferWhite());
-        		Assert.assertEquals(false, bucketInfo.isNoRefer());
-        		
-        		// 测试黑名单
-        		leech.setMode(2);
-        		leech.setPattern("www.baidu.com");
-        		leech.setAllowEmptyReferer(true);
-        		System.out.println(leech.asQueryString());
-        		response = bucketManager.putReferAntiLeech(bucket, leech);
-        		Assert.assertEquals(200, response.statusCode);
-        		bucketInfo = bucketManager.getBucketInfo(bucket);
-        		Assert.assertEquals(2, bucketInfo.getAntiLeechMode());
-        		Assert.assertArrayEquals((new String[] {"www.baidu.com"}), bucketInfo.getReferBlack());
-        		Assert.assertEquals(true, bucketInfo.isNoRefer());
-        		
-        		// 测试关闭
-        		leech = new BucketReferAntiLeech();
-        		System.out.println(leech.asQueryString());
-        		response = bucketManager.putReferAntiLeech(bucket, leech);
-        		Assert.assertEquals(200, response.statusCode);
-        		bucketInfo = bucketManager.getBucketInfo(bucket);
-        		Assert.assertEquals(0, bucketInfo.getAntiLeechMode());
-        		Assert.assertNull("ReferBlack should be Null", bucketInfo.getReferBlack());
-        		Assert.assertNull("ReferWhtie should be Null", bucketInfo.getReferWhite());
-        		Assert.assertEquals(false, bucketInfo.isNoRefer());
-        		
-    		} catch (Exception e) {
-    			if (e instanceof QiniuException) {
-    				QiniuException ex = (QiniuException) e;
-    				Assert.fail(ex.response.toString());
-    			}
-    		}
-    	}
+        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        for (String bucket : buckets) {
+            BucketReferAntiLeech leech = new BucketReferAntiLeech();
+            Response response;
+            BucketInfo bucketInfo;
+            try {
+                // 测试白名单
+                leech.setMode(1);
+                leech.setPattern("www.qiniu.com");
+                leech.setAllowEmptyReferer(false);
+                System.out.println(leech.asQueryString());
+                response = bucketManager.putReferAntiLeech(bucket, leech);
+                Assert.assertEquals(200, response.statusCode);
+                bucketInfo = bucketManager.getBucketInfo(bucket);
+                Assert.assertEquals(1, bucketInfo.getAntiLeechMode());
+                Assert.assertArrayEquals((new String[]{"www.qiniu.com"}), bucketInfo.getReferWhite());
+                Assert.assertEquals(false, bucketInfo.isNoRefer());
+
+                // 测试黑名单
+                leech.setMode(2);
+                leech.setPattern("www.baidu.com");
+                leech.setAllowEmptyReferer(true);
+                System.out.println(leech.asQueryString());
+                response = bucketManager.putReferAntiLeech(bucket, leech);
+                Assert.assertEquals(200, response.statusCode);
+                bucketInfo = bucketManager.getBucketInfo(bucket);
+                Assert.assertEquals(2, bucketInfo.getAntiLeechMode());
+                Assert.assertArrayEquals((new String[]{"www.baidu.com"}), bucketInfo.getReferBlack());
+                Assert.assertEquals(true, bucketInfo.isNoRefer());
+
+                // 测试关闭
+                leech = new BucketReferAntiLeech();
+                System.out.println(leech.asQueryString());
+                response = bucketManager.putReferAntiLeech(bucket, leech);
+                Assert.assertEquals(200, response.statusCode);
+                bucketInfo = bucketManager.getBucketInfo(bucket);
+                Assert.assertEquals(0, bucketInfo.getAntiLeechMode());
+                Assert.assertNull("ReferBlack should be Null", bucketInfo.getReferBlack());
+                Assert.assertNull("ReferWhtie should be Null", bucketInfo.getReferWhite());
+                Assert.assertEquals(false, bucketInfo.isNoRefer());
+
+            } catch (Exception e) {
+                if (e instanceof QiniuException) {
+                    QiniuException ex = (QiniuException) e;
+                    Assert.fail(ex.response.toString());
+                }
+            }
+        }
     }
-    
+
     /**
      * 测试设置空间生命周期规则
      */
     @Test
     public void testBucketLifeCycleRule() {
-    	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-    	for (String bucket : buckets) {
-        	Response response;
-        	BucketLifeCycleRule rule;
-        	BucketLifeCycleRule[] rules;
-        	try {
-        		// clear
-        		clearBucketLifeCycleRule(bucket);
-        		
-        		// 追加规则
-        		rule = new BucketLifeCycleRule("a", "x");
-        		System.out.println(rule.asQueryString());
-        		response = bucketManager.putBucketLifecycleRule(bucket, rule);
-        		Assert.assertEquals(200, response.statusCode);
-        		
-        		// 更新规则（name不存在）
-        		try {
-        			rule = new BucketLifeCycleRule("x", "a");
-        			response = bucketManager.updateBucketLifeCycleRule(bucket, rule);
-        			Assert.fail();
-        		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
-        		}
-        		
-        		// 更新规则
-        		rule = new BucketLifeCycleRule("a", null);
-        		System.out.println(rule.asQueryString());
-        		response = bucketManager.updateBucketLifeCycleRule(bucket, rule);
-        		Assert.assertEquals(200, response.statusCode);
-        		
-        		// 重复设置（name、prefix重复）
-        		try {
-        			bucketManager.putBucketLifecycleRule(bucket, rule);
-        			Assert.fail();
-        		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
-        		}
-        		
-        		// 重复设置（name重复）
-        		try {
-            		rule = new BucketLifeCycleRule("a", "b");
-            		System.out.println(rule.asQueryString());
-            		response = bucketManager.putBucketLifecycleRule(bucket, rule);
-            		Assert.fail();
-        		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
-        		}
-        		
-        		// 重复设置（prefix重复）
-        		try {
-        			rule = new BucketLifeCycleRule("b", null);
-            		System.out.println(rule.asQueryString());
-            		response = bucketManager.putBucketLifecycleRule(bucket, rule);
-            		Assert.fail();
-        		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
-        		}
-        		
-        		// 追加规则
-        		rule = new BucketLifeCycleRule("b", "ab");
-        		System.out.println(rule.asQueryString());
-        		response = bucketManager.putBucketLifecycleRule(bucket, rule);
-        		Assert.assertEquals(200, response.statusCode);
-        		
-        		// 追加规则
-        		rule = new BucketLifeCycleRule("c", "abc");
-        		System.out.println(rule.asQueryString());
-        		response = bucketManager.putBucketLifecycleRule(bucket, rule);
-        		Assert.assertEquals(200, response.statusCode);
-        		
-        		// clear
-        		clearBucketLifeCycleRule(bucket);
-        		
-        		// 再获取规则
-        		rules = bucketManager.getBucketLifeCycleRule(bucket);
-        		Assert.assertEquals(0, rules.length);
-        		
-        	} catch (QiniuException e) {
-        		Assert.fail(e.response.toString());
-        	}
-    	}
+        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        for (String bucket : buckets) {
+            Response response;
+            BucketLifeCycleRule rule;
+            BucketLifeCycleRule[] rules;
+            try {
+                // clear
+                clearBucketLifeCycleRule(bucket);
+
+                // 追加规则
+                rule = new BucketLifeCycleRule("a", "x");
+                System.out.println(rule.asQueryString());
+                response = bucketManager.putBucketLifecycleRule(bucket, rule);
+                Assert.assertEquals(200, response.statusCode);
+
+                // 更新规则（name不存在）
+                try {
+                    rule = new BucketLifeCycleRule("x", "a");
+                    response = bucketManager.updateBucketLifeCycleRule(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertEquals(400, e.response.statusCode);
+                }
+
+                // 更新规则
+                rule = new BucketLifeCycleRule("a", null);
+                System.out.println(rule.asQueryString());
+                response = bucketManager.updateBucketLifeCycleRule(bucket, rule);
+                Assert.assertEquals(200, response.statusCode);
+
+                // 重复设置（name、prefix重复）
+                try {
+                    bucketManager.putBucketLifecycleRule(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertEquals(400, e.response.statusCode);
+                }
+
+                // 重复设置（name重复）
+                try {
+                    rule = new BucketLifeCycleRule("a", "b");
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.putBucketLifecycleRule(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertEquals(400, e.response.statusCode);
+                }
+
+                // 重复设置（prefix重复）
+                try {
+                    rule = new BucketLifeCycleRule("b", null);
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.putBucketLifecycleRule(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertEquals(400, e.response.statusCode);
+                }
+
+                // 追加规则
+                rule = new BucketLifeCycleRule("b", "ab");
+                System.out.println(rule.asQueryString());
+                response = bucketManager.putBucketLifecycleRule(bucket, rule);
+                Assert.assertEquals(200, response.statusCode);
+
+                // 追加规则
+                rule = new BucketLifeCycleRule("c", "abc");
+                System.out.println(rule.asQueryString());
+                response = bucketManager.putBucketLifecycleRule(bucket, rule);
+                Assert.assertEquals(200, response.statusCode);
+
+                // clear
+                clearBucketLifeCycleRule(bucket);
+
+                // 再获取规则
+                rules = bucketManager.getBucketLifeCycleRule(bucket);
+                Assert.assertEquals(0, rules.length);
+
+            } catch (QiniuException e) {
+                Assert.fail(e.response.toString());
+            }
+        }
     }
-    
+
     private void clearBucketLifeCycleRule(String bucket) throws QiniuException {
-		// 获取规则
-    	BucketLifeCycleRule[] rules = bucketManager.getBucketLifeCycleRule(bucket);
-		for (BucketLifeCycleRule r : rules) {
-			System.out.println("name=" + r.getName());
-			System.out.println("prefix=" + r.getPrefix());
-			Assert.assertNotEquals("x", r.getPrefix());
-		}
-		// 删除规则
-		for (BucketLifeCycleRule r : rules) {
-			bucketManager.deleteBucketLifecycleRule(bucket, r.getName());
-		}
+        // 获取规则
+        BucketLifeCycleRule[] rules = bucketManager.getBucketLifeCycleRule(bucket);
+        for (BucketLifeCycleRule r : rules) {
+            System.out.println("name=" + r.getName());
+            System.out.println("prefix=" + r.getPrefix());
+            Assert.assertNotEquals("x", r.getPrefix());
+        }
+        // 删除规则
+        for (BucketLifeCycleRule r : rules) {
+            bucketManager.deleteBucketLifecycleRule(bucket, r.getName());
+        }
     }
-    
+
     /**
      * 测试事件通知
      */
     @Test
     public void testBucketEvent() {
-    	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-    	String[] keys = new String[]{TestConfig.testKey_z0, TestConfig.testKey_na0};
-    	for (int i = 0; i < buckets.length; i ++) {
-    		String bucket = buckets[i];
-    		String key = keys[i];
-    		Response response;
-    		BucketEventRule rule;
-    		BucketEventRule[] rules;
-        	try {
-        		// clear
-        		clearBucketEvent(bucket);
-        		
-        		// 追加Event（invalid events）
-        		try {
-            		rule = new BucketEventRule("a", new String[] {}, new String[] {});
-            		System.out.println(rule.asQueryString());
-            		response = bucketManager.putBucketEvent(bucket, rule);
-            		Assert.fail();
-        		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
-        		}
+        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] keys = new String[]{TestConfig.testKey_z0, TestConfig.testKey_na0};
+        for (int i = 0; i < buckets.length; i++) {
+            String bucket = buckets[i];
+            String key = keys[i];
+            Response response;
+            BucketEventRule rule;
+            BucketEventRule[] rules;
+            try {
+                // clear
+                clearBucketEvent(bucket);
 
-        		// 追加Event（error:callbackURL must starts with http:// or https://）
-        		try {
-            		rule = new BucketEventRule("a", new String[] {"put", "mkfile"}, new String[] {});
-            		System.out.println(rule.asQueryString());
-            		response = bucketManager.putBucketEvent(bucket, rule);
-            		Assert.fail();
-        		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
-        		}
-        		
-        		// 追加Event
-        		rule = new BucketEventRule(
-        				"a", 
-        				new String[] {"put", "mkfile", "delete", "copy", "move", "append", "disable", "enable", "deleteMarkerCreate"},
-        				new String[] {"https://requestbin.fullcontact.com/1dsqext1?inspect", "https://requestbin.fullcontact.com/160bunp1?inspect"}
-        		);
-        		System.out.println(rule.asQueryString());
-        		response = bucketManager.putBucketEvent(bucket, rule);
-        		Assert.assertEquals(200, response.statusCode);
-        		System.out.println(response.url());
-        		System.out.println(response.reqId);
-        		
-        		// 重复追加Event（error:event name exists）
-        		try {
-        			rule.setName("a");
-        			System.out.println(rule.asQueryString());
-        			response = bucketManager.putBucketEvent(bucket, rule);
-        			Assert.fail();
-        		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
-        		}
-        		
-        		// 重复追加Event（error:event prefix and suffix exists）
-        		try {
-        			rule.setName("b");
-        			System.out.println(rule.asQueryString());
-        			response = bucketManager.putBucketEvent(bucket, rule);
-        			Assert.fail();
-        		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
-        		}
-        		
-        		// 追加Event
-        		rule.setName("b");
-        		rule.setPrefix(key);
-        		System.out.println(rule.asQueryString());
-        		response = bucketManager.putBucketEvent(bucket, rule);
-        		Assert.assertEquals(200, response.statusCode);
-        		
-        		// 触发时间，回调成功与否 不检测
-        		response = bucketManager.copy(bucket, key, bucket, key + "CopyByEvent", true);
-        		Assert.assertEquals(200, response.statusCode);
-        		
-        		// 更新Event（error:event name not found）
-        		try {
-            		rule.setName("c");
-            		rule.setPrefix("c");
-            		System.out.println(rule.asQueryString());
-            		response = bucketManager.updateBucketEvent(bucket, rule);
-            		Assert.fail();
-        		} catch (QiniuException e) {
-        			Assert.assertEquals(400, e.response.statusCode);
-        		}
-        		
-        		// 更新Event
-        		rule.setName("b");
-        		rule.setPrefix("c");
-        		rule.setEvents(new String[]{"disable", "enable", "deleteMarkerCreate"});
-        		System.out.println(rule.asQueryString());
-        		response = bucketManager.updateBucketEvent(bucket, rule);
-        		Assert.assertEquals(200, response.statusCode);
-        		
-        		// clear
-        		clearBucketEvent(bucket);
-        		
-        		// 再获取Event
-        		rules = bucketManager.getBucketEvents(bucket);
-        		Assert.assertEquals(0, rules.length);
-        		
-        	} catch (QiniuException e) {
-        		Assert.fail(e.response.toString());
-        	}
-    	}
+                // 追加Event（invalid events）
+                try {
+                    rule = new BucketEventRule("a", new String[]{}, new String[]{});
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.putBucketEvent(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertEquals(400, e.response.statusCode);
+                }
+
+                // 追加Event（error:callbackURL must starts with http:// or https://）
+                try {
+                    rule = new BucketEventRule("a", new String[]{"put", "mkfile"}, new String[]{});
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.putBucketEvent(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertEquals(400, e.response.statusCode);
+                }
+
+                // 追加Event
+                rule = new BucketEventRule(
+                        "a",
+                        new String[]{"put", "mkfile", "delete", "copy", "move", "append", "disable",
+                                "enable", "deleteMarkerCreate"},
+                        new String[]{"https://requestbin.fullcontact.com/1dsqext1?inspect",
+                                "https://requestbin.fullcontact.com/160bunp1?inspect"}
+                );
+                System.out.println(rule.asQueryString());
+                response = bucketManager.putBucketEvent(bucket, rule);
+                Assert.assertEquals(200, response.statusCode);
+                System.out.println(response.url());
+                System.out.println(response.reqId);
+
+                // 重复追加Event（error:event name exists）
+                try {
+                    rule.setName("a");
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.putBucketEvent(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertEquals(400, e.response.statusCode);
+                }
+
+                // 重复追加Event（error:event prefix and suffix exists）
+                try {
+                    rule.setName("b");
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.putBucketEvent(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertEquals(400, e.response.statusCode);
+                }
+
+                // 追加Event
+                rule.setName("b");
+                rule.setPrefix(key);
+                System.out.println(rule.asQueryString());
+                response = bucketManager.putBucketEvent(bucket, rule);
+                Assert.assertEquals(200, response.statusCode);
+
+                // 触发时间，回调成功与否 不检测
+                response = bucketManager.copy(bucket, key, bucket, key + "CopyByEvent", true);
+                Assert.assertEquals(200, response.statusCode);
+
+                // 更新Event（error:event name not found）
+                try {
+                    rule.setName("c");
+                    rule.setPrefix("c");
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.updateBucketEvent(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertEquals(400, e.response.statusCode);
+                }
+
+                // 更新Event
+                rule.setName("b");
+                rule.setPrefix("c");
+                rule.setEvents(new String[]{"disable", "enable", "deleteMarkerCreate"});
+                System.out.println(rule.asQueryString());
+                response = bucketManager.updateBucketEvent(bucket, rule);
+                Assert.assertEquals(200, response.statusCode);
+
+                // clear
+                clearBucketEvent(bucket);
+
+                // 再获取Event
+                rules = bucketManager.getBucketEvents(bucket);
+                Assert.assertEquals(0, rules.length);
+
+            } catch (QiniuException e) {
+                Assert.fail(e.response.toString());
+            }
+        }
     }
-    
+
     private void clearBucketEvent(String bucket) throws QiniuException {
-    	// 获取Event
-    	BucketEventRule[] rules = bucketManager.getBucketEvents(bucket);
-    	for (BucketEventRule r : rules) {
-    		System.out.println("name=" + r.getName());
-    		System.out.println("prefix=" + r.getPrefix());
-    		System.out.println("suffix=" + r.getSuffix());
-    		System.out.println("event=" + Arrays.asList(r.getEvents()).toString());
-    		System.out.println("callbackUrls=" + Arrays.asList(r.getCallbackUrls()).toString());
-    	}
-    	// 删除Event
-    	for (BucketEventRule r : rules) {
-    		bucketManager.deleteBucketEvent(bucket, r.getName());
-    	}
+        // 获取Event
+        BucketEventRule[] rules = bucketManager.getBucketEvents(bucket);
+        for (BucketEventRule r : rules) {
+            System.out.println("name=" + r.getName());
+            System.out.println("prefix=" + r.getPrefix());
+            System.out.println("suffix=" + r.getSuffix());
+            System.out.println("event=" + Arrays.asList(r.getEvents()).toString());
+            System.out.println("callbackUrls=" + Arrays.asList(r.getCallbackUrls()).toString());
+        }
+        // 删除Event
+        for (BucketEventRule r : rules) {
+            bucketManager.deleteBucketEvent(bucket, r.getName());
+        }
     }
-    
+
     /**
      * 测试跨域规则
      */
     @Test
     public void testCorsRules() {
-    	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-    	for (String bucket : buckets) {
-    		CorsRule rule1 = new CorsRule(new String[] {"*"}, new String[] {""});
-    		CorsRule rule2 = new CorsRule(new String[] {"*"}, new String[] {"GET", "POST"});
-    		CorsRule rule3 = new CorsRule(new String[] {""}, new String[] {"GET", "POST"});
-    		List<CorsRule[]> rulesList = new ArrayList<>();
-    		rulesList.add(corsRules(rule1));
-    		rulesList.add(corsRules(rule2));
-    		rulesList.add(corsRules(rule3));
-        	try {
-        		for (CorsRule[] rules : rulesList) {
-            		Response response;
-            		String bodyString, bodyString2;
-            		// 设置跨域规则
-            		bodyString = Json.encode(rules);
-            		System.out.println(bodyString);
-            		response = bucketManager.putCorsRules(bucket, rules);
-            		Assert.assertEquals(200, response.statusCode);
-            		// 获取跨域规则
-            		rules = bucketManager.getCorsRules(bucket);
-            		bodyString2 = Json.encode(rules);
-            		System.out.println(bodyString2);
-            		Assert.assertEquals(bodyString, bodyString2);
-        		}
-        	} catch (QiniuException e) {
-        		Assert.fail(e.response.toString());
-        	}
-    	}
+        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        for (String bucket : buckets) {
+            CorsRule rule1 = new CorsRule(new String[]{"*"}, new String[]{""});
+            CorsRule rule2 = new CorsRule(new String[]{"*"}, new String[]{"GET", "POST"});
+            CorsRule rule3 = new CorsRule(new String[]{""}, new String[]{"GET", "POST"});
+            List<CorsRule[]> rulesList = new ArrayList<>();
+            rulesList.add(corsRules(rule1));
+            rulesList.add(corsRules(rule2));
+            rulesList.add(corsRules(rule3));
+            try {
+                for (CorsRule[] rules : rulesList) {
+                    Response response;
+                    String bodyString, bodyString2;
+                    // 设置跨域规则
+                    bodyString = Json.encode(rules);
+                    System.out.println(bodyString);
+                    response = bucketManager.putCorsRules(bucket, rules);
+                    Assert.assertEquals(200, response.statusCode);
+                    // 获取跨域规则
+                    rules = bucketManager.getCorsRules(bucket);
+                    bodyString2 = Json.encode(rules);
+                    System.out.println(bodyString2);
+                    Assert.assertEquals(bodyString, bodyString2);
+                }
+            } catch (QiniuException e) {
+                Assert.fail(e.response.toString());
+            }
+        }
     }
-    
+
     private CorsRule[] corsRules(CorsRule... rules) {
-    	return rules.clone();
+        return rules.clone();
     }
-    
+
     /**
      * 测试设置回源规则
      */
     @Test
     // TODO
     public void testPutBucketSourceConfig() {
-    	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-    	for (String bucket : buckets) {
-        	try {
-        		
-        	} catch (Exception e) {
-        		
-        	}
-    	}
+        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        for (String bucket : buckets) {
+            try {
+
+            } catch (Exception e) {
+
+            }
+        }
     }
-    
+
     /**
      * 测试设置原图保护模式
      */
     @Test
     public void testPutBucketAccessStyleMode() {
-    	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-    	String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
-    	for (int i = 0; i < buckets.length; i ++) {
-    		String bucket = buckets[i];
-    		String url = urls[i];
-        	Client client = new Client();
-        	Response response;
-        	try {
-        		// 测试开启原图保护
-        		response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.OPEN);
-        		Assert.assertEquals(200, response.statusCode);
-        		try {
-            		client.get(url);
-        		} catch (QiniuException e) {
-        			Assert.assertEquals(401, e.response.statusCode);
-        		}
-        		
-        		// 测试关闭原图保护
-        		response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
-        		Assert.assertEquals(200, response.statusCode);
-        		response = client.get(url);
-        		Assert.assertEquals(200, response.statusCode);
-        		
-        	} catch (QiniuException e) {
-        		Assert.fail(e.response.toString());
-    		}
-    	}
+        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
+        for (int i = 0; i < buckets.length; i++) {
+            String bucket = buckets[i];
+            String url = urls[i];
+            Client client = new Client();
+            Response response;
+            try {
+                // 测试开启原图保护
+                response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.OPEN);
+                Assert.assertEquals(200, response.statusCode);
+                try {
+                    client.get(url);
+                } catch (QiniuException e) {
+                    Assert.assertEquals(401, e.response.statusCode);
+                }
+
+                // 测试关闭原图保护
+                response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
+                Assert.assertEquals(200, response.statusCode);
+                response = client.get(url);
+                Assert.assertEquals(200, response.statusCode);
+
+            } catch (QiniuException e) {
+                Assert.fail(e.response.toString());
+            }
+        }
     }
-    
+
     /**
      * 测试设置max-age属性
      */
     @Test
     public void testPutBucketMaxAge() {
-    	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-    	for (String bucket : buckets) {
-    		final long maxAges[] = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
-    		try {
-    			for (long maxAge : maxAges) {
-    				// 设置max-age
-    				Response response = bucketManager.putBucketMaxAge(bucket, maxAge);
-    				Assert.assertEquals(200, response.statusCode);
-    				// 获取max-age
-    				BucketInfo bucketInfo = bucketManager.getBucketInfo(bucket);
-    				long expect = maxAge;
-    				long actual = bucketInfo.getMaxAge();
-            		System.out.println("expect=" + expect);
-            		System.out.println("actual=" + actual);
-            		Assert.assertEquals(expect, actual);
-    			}
-    		} catch (QiniuException e) {
-    			Assert.fail(e.response.toString());
-    		}
-    	}
+        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        for (String bucket : buckets) {
+            final long []maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
+            try {
+                for (long maxAge : maxAges) {
+                    // 设置max-age
+                    Response response = bucketManager.putBucketMaxAge(bucket, maxAge);
+                    Assert.assertEquals(200, response.statusCode);
+                    // 获取max-age
+                    BucketInfo bucketInfo = bucketManager.getBucketInfo(bucket);
+                    long expect = maxAge;
+                    long actual = bucketInfo.getMaxAge();
+                    System.out.println("expect=" + expect);
+                    System.out.println("actual=" + actual);
+                    Assert.assertEquals(expect, actual);
+                }
+            } catch (QiniuException e) {
+                Assert.fail(e.response.toString());
+            }
+        }
     }
-    
+
     /**
      * 测试设置max-age属性<br>
      * UC有缓存，这种方法不合适于测试
      */
     @Deprecated
     public void testPutBucketMaxAge2() {
-    	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-    	String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
-    	for (int i = 0; i < buckets.length; i ++) {
-    		String bucket = buckets[i];
-    		String url = urls[i];
-        	final long maxAges[] = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
-        	try {
-        		for (long maxAge : maxAges) {
-        			// 设置max-age
-        			System.out.println("maxAge=" + maxAge);
-        			Response response = bucketManager.putBucketMaxAge(bucket, maxAge);
-        			Assert.assertEquals(200, response.statusCode);
-        			// 有缓存时间，停几秒
-            		try {
-    					Thread.sleep(3000);
-    				} catch (InterruptedException e) {
-    					e.printStackTrace();
-    				}
-            		// 测试Cache-Control是否设置成功
-            		String actual = respHeader(url, "Cache-Control");
-            		String expect = maxAge <= 0 ? "31536000" : Long.toString(maxAge);
-            		System.out.println("url=" + url);
-            		System.out.println("expect=" + expect);
-            		System.out.println("actual=" + actual);
-            		Assert.assertEquals("[public, max-age=" + expect + "]", actual);
-        		}
-        	} catch (IOException e) {
-        		if (e instanceof QiniuException) {
-        			Assert.fail(((QiniuException) e).response.toString());
-        		}
-        	}
-    	}
+        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
+        for (int i = 0; i < buckets.length; i++) {
+            String bucket = buckets[i];
+            String url = urls[i];
+            final long []maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
+            try {
+                for (long maxAge : maxAges) {
+                    // 设置max-age
+                    System.out.println("maxAge=" + maxAge);
+                    Response response = bucketManager.putBucketMaxAge(bucket, maxAge);
+                    Assert.assertEquals(200, response.statusCode);
+                    // 有缓存时间，停几秒
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    // 测试Cache-Control是否设置成功
+                    String actual = respHeader(url, "Cache-Control");
+                    String expect = maxAge <= 0 ? "31536000" : Long.toString(maxAge);
+                    System.out.println("url=" + url);
+                    System.out.println("expect=" + expect);
+                    System.out.println("actual=" + actual);
+                    Assert.assertEquals("[public, max-age=" + expect + "]", actual);
+                }
+            } catch (IOException e) {
+                if (e instanceof QiniuException) {
+                    Assert.fail(((QiniuException) e).response.toString());
+                }
+            }
+        }
     }
-    
+
     /**
      * 测试设置空间私有化、公有化
      */
     @Test
     public void testPutBucketAccessMode() {
-    	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-    	for (String bucket : buckets) {
-        	Response response;
+        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        for (String bucket : buckets) {
+            Response response;
             try {
-            	// 测试转私有空间
-            	response = bucketManager.putBucketAccessMode(bucket, AclType.PRIVATE);
-            	Assert.assertEquals(200, response.statusCode);
+                // 测试转私有空间
+                response = bucketManager.putBucketAccessMode(bucket, AclType.PRIVATE);
+                Assert.assertEquals(200, response.statusCode);
                 BucketInfo info = bucketManager.getBucketInfo(bucket);
                 Assert.assertEquals(1, info.getPrivate());
 
@@ -871,53 +870,53 @@ public class BucketTest {
                 Assert.assertEquals(200, response.statusCode);
                 info = bucketManager.getBucketInfo(bucket);
                 Assert.assertEquals(0, info.getPrivate());
-                
+
             } catch (QiniuException e) {
-            	Assert.fail(e.response.toString());
+                Assert.fail(e.response.toString());
             }
-    	}
-    	// 测试空间不存在情况
+        }
+        // 测试空间不存在情况
         try {
-        	bucketManager.putBucketAccessMode(TestConfig.dummyBucket, AclType.PRIVATE);
+            bucketManager.putBucketAccessMode(TestConfig.dummyBucket, AclType.PRIVATE);
         } catch (QiniuException e) {
             Assert.assertEquals(631, e.response.statusCode);
         }
     }
-    
+
     /**
      * 测试设置、获取空间配额
      */
     @Test
     public void testBucketQuota() {
-    	String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-    	for (String bucket : buckets) {
+        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        for (String bucket : buckets) {
             try {
                 testBucketQuota(bucket, -2, -2);
             } catch (QiniuException e) {
                 Assert.assertEquals(400, e.response.statusCode);
             }
-        	try {
-        		testBucketQuota(bucket, 0, 0);
-        		testBucketQuota(bucket, 100, 100);
-        		testBucketQuota(bucket, 0, 100);
-        		testBucketQuota(bucket, 100, -1);
-        		testBucketQuota(bucket, -1, -1);
-        	} catch (QiniuException e) {
-        		Assert.fail(e.response.toString());
-    		}
-    	}
+            try {
+                testBucketQuota(bucket, 0, 0);
+                testBucketQuota(bucket, 100, 100);
+                testBucketQuota(bucket, 0, 100);
+                testBucketQuota(bucket, 100, -1);
+                testBucketQuota(bucket, -1, -1);
+            } catch (QiniuException e) {
+                Assert.fail(e.response.toString());
+            }
+        }
     }
-    
+
     private void testBucketQuota(String bucket, long size, long count) throws QiniuException {
-    	Response response = bucketManager.putBucketQuota(bucket, new BucketQuota(size, count));
-		Assert.assertEquals(200, response.statusCode);
-		BucketQuota bucketQuota = bucketManager.getBucketQuota(bucket);
-		if (size != 0) {
-			Assert.assertEquals(size, bucketQuota.getSize());
-		}
-		if (count != 0) {
-			Assert.assertEquals(count, bucketQuota.getCount());
-		}
+        Response response = bucketManager.putBucketQuota(bucket, new BucketQuota(size, count));
+        Assert.assertEquals(200, response.statusCode);
+        BucketQuota bucketQuota = bucketManager.getBucketQuota(bucket);
+        if (size != 0) {
+            Assert.assertEquals(size, bucketQuota.getSize());
+        }
+        if (count != 0) {
+            Assert.assertEquals(count, bucketQuota.getCount());
+        }
     }
 
     /**
@@ -1280,6 +1279,7 @@ public class BucketTest {
 
     /**
      * 测试noIndexPage
+     *
      * @throws QiniuException
      */
     @Test
@@ -1298,23 +1298,24 @@ public class BucketTest {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * 获得响应头中key字段的值
+     *
      * @param url
      * @param key
      * @return
      * @throws IOException
      */
-	String respHeader(String url, String key) throws IOException {
-	    Request.Builder builder = new Request.Builder();
-	    Request request = builder.url(url).build();
-	    
-	    OkHttpClient client = new OkHttpClient();
-	    Call call = client.newCall(request);
-	    okhttp3.Response response = call.execute();
-	    List<String> values = response.headers().values(key);
-	    return values.toString();
-	}
-	
+    String respHeader(String url, String key) throws IOException {
+        Request.Builder builder = new Request.Builder();
+        Request request = builder.url(url).build();
+
+        OkHttpClient client = new OkHttpClient();
+        Call call = client.newCall(request);
+        okhttp3.Response response = call.execute();
+        List<String> values = response.headers().values(key);
+        return values.toString();
+    }
+
 }

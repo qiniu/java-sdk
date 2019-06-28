@@ -12,7 +12,7 @@ public class ZoneTest {
         String ak = "<access key>";
         String sk = "<secret key>";
         Auth auth = Auth.create(ak, sk);
-        
+
         Configuration.defaultApiHost = "apiserver-sdfrsd-s.qiniubbo.com";
         Configuration.defaultRsHost = "rs-sdfrsd-s.qiniubbo.com";
         Zone zone = new Zone.Builder()

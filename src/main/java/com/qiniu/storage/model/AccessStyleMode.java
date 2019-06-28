@@ -4,7 +4,7 @@ package com.qiniu.storage.model;
  * 原图保护模式
  */
 public enum AccessStyleMode {
-	
+
     /**
      * 原图保护关闭
      */
