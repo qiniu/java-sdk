@@ -19,6 +19,22 @@ import java.util.Calendar;
 public class CdnTest {
 
     /**
+     * 获取Response
+     *
+     * @param url
+     * @return
+     */
+    public static Response getResponse(String url) {
+        try {
+            Client client = new Client();
+            Response response = client.get(url);
+            return response;
+        } catch (QiniuException ex) {
+            return ex.response;
+        }
+    }
+
+    /**
      * 获取日期
      *
      * @param daysBefore
@@ -146,7 +162,7 @@ public class CdnTest {
         long deadline2 = deadline1;
         long deadline3 = 1551966091; // 2019-03-07 21:41:31 +0800 CST
         String testUrl_z0_timeStamp_outdate =
-                "http://javasdk-timestamp.peterpy.cn/peter/1.png?sign=00500d45e6fe0bf62b9814e3959841d1&t=5c811f8b";
+                "http://javasdk-timestamp.peterpy.cn/do_not_delete/1.png?sign=50d05540eea4ea8ab905b57006edef7a&t=5c811f8b";
         try {
             URL url = new URL(TestConfig.testUrl_z0_timeStamp);
             Assert.assertEquals(403, getResponse(url.toString()).statusCode);
@@ -165,22 +181,6 @@ public class CdnTest {
         } catch (Exception ex) {
             ex.printStackTrace();
             Assert.fail();
-        }
-    }
-
-    /**
-     * 获取Response
-     *
-     * @param url
-     * @return
-     */
-    public static Response getResponse(String url) {
-        try {
-            Client client = new Client();
-            Response response = client.get(url);
-            return response;
-        } catch (QiniuException ex) {
-            return ex.response;
         }
     }
 

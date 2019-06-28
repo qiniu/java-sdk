@@ -1,7 +1,7 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.Constants;
-import com.qiniu.common.Region;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.MessageDigest;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +33,7 @@ public class RecordUploadTest {
     FileRecorder recorder = null;
     private Response response = null;
 
+
     /**
      * 断点续传
      *
@@ -41,12 +41,12 @@ public class RecordUploadTest {
      * @throws IOException
      */
     private void template(final int size) throws IOException {
-        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Region.region0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Region.regionNa0());
-        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
+        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
+        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
+        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            final Region region = entry.getValue();
+            final Zone zone = entry.getValue();
             response = null;
             final String expectKey = "\r\n?&r=" + size + "k";
             final File f = TempFile.createFile(size);
@@ -63,7 +63,7 @@ public class RecordUploadTest {
                         int i = r.nextInt(10000);
                         try {
                             System.out.println("UP: " + i + ",  enter run");
-                            response = up.up(region);
+                            response = up.up(zone);
                             System.out.println("UP:  " + i + ", left run");
                         } catch (Exception e) {
                             System.out.println("UP:  " + i + ", exception run");
@@ -105,7 +105,7 @@ public class RecordUploadTest {
                 // 若第一部分上传部分未全部成功,再次上传
                 if (response == null) {
                     try {
-                        response = new Up(f, expectKey, token).up(region);
+                        response = new Up(f, expectKey, token).up(zone);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -209,7 +209,7 @@ public class RecordUploadTest {
         String folder = f.getParent();
         FileRecorder fr = new FileRecorder(folder);
 
-        String key = "test_profile_";
+        String key = fr.recorderKeyGenerate("b", "k", "c", "test_profile_");
         byte[] data = new byte[3];
         data[0] = 'a';
         data[1] = '8';
@@ -218,26 +218,26 @@ public class RecordUploadTest {
         fr.set(key, data);
         byte[] data2 = fr.get(key);
 
-        File recoderFile = new File(folder, hash(key));
+        File recoderFile = new File(folder, key);
 
         long m1 = recoderFile.lastModified();
 
         assertEquals(3, data2.length);
         assertEquals('8', data2[1]);
 
-        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 48 + 2300);
+        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 24 * 5 + 2300);
         data2 = fr.get(key);
         assertEquals(3, data2.length);
         assertEquals('8', data2[1]);
 
-        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 48 - 2300);
+        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 24 * 5 - 2300);
 
         long m2 = recoderFile.lastModified();
 
         byte[] data3 = fr.get(key);
 
         assertNull(data3);
-        assertTrue(m1 - m2 > 1000 * 3600 * 48 && m1 - m2 < 1000 * 3600 * 48 + 5500);
+        assertTrue(m1 - m2 > 1000 * 3600 * 24 * 5 && m1 - m2 < 1000 * 3600 * 24 * 5 + 5500);
 
         try {
             Thread.sleep(2300);
@@ -247,23 +247,6 @@ public class RecordUploadTest {
         fr.set(key, data);
         long m4 = recoderFile.lastModified();
         assertTrue(m4 > m1);
-    }
-
-    // copied from FileRecorder
-    private static String hash(String base) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] hash = digest.digest(base.getBytes());
-            StringBuffer hexString = new StringBuffer();
-
-            for (int i = 0; i < hash.length; i++) {
-                hexString.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
-            }
-            return hexString.toString();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
     }
 
     class Up {
@@ -282,9 +265,9 @@ public class RecordUploadTest {
             System.out.println("UP going to close");
             // 调用 uploader 私有方法 close()
             try {
-                Method m_close = ResumeUploader.class.getDeclaredMethod("close", new Class[]{});
+                Method m_close = ResumeUploader.class.getDeclaredMethod("close");
                 m_close.setAccessible(true);
-                m_close.invoke(uploader, new Object[]{});
+                m_close.invoke(uploader);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
@@ -295,7 +278,7 @@ public class RecordUploadTest {
             System.out.println("UP closed");
         }
 
-        public Response up(Region region) throws Exception {
+        public Response up(Zone zone) throws Exception {
             int i = r.nextInt(10000);
             try {
                 System.out.println("UP: " + i + ",  enter up");
@@ -304,7 +287,7 @@ public class RecordUploadTest {
                 }
 
                 uploader = new ResumeUploader(client, token, key, file,
-                        null, Client.DefaultMime, recorder, new Configuration(region));
+                        null, Client.DefaultMime, recorder, new Configuration(zone));
                 Response res = uploader.upload();
                 System.out.println("UP:  " + i + ", left up");
                 return res;

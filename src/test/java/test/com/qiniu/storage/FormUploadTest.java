@@ -1,7 +1,7 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Region;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UpCompletionHandler;
@@ -40,13 +40,13 @@ public class FormUploadTest {
      */
     @Test
     public void testHello2() {
-        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Region.region0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Region.regionNa0());
-        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
+        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
+        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
+        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            Region region = entry.getValue();
-            Configuration c = new Configuration(region);
+            Zone zone = entry.getValue();
+            Configuration c = new Configuration(zone);
             c.useHttpsDomains = true;
             UploadManager uploadManager = new UploadManager(c);
             hello(uploadManager, bucket);
@@ -382,13 +382,13 @@ public class FormUploadTest {
      */
     @Test
     public void testFormLargeSize() {
-        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Region.region0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Region.regionNa0());
-        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
+        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
+        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
+        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            Region region = entry.getValue();
-            Configuration c = new Configuration(region);
+            Zone zone = entry.getValue();
+            Configuration c = new Configuration(zone);
             c.putThreshold = 25 * 1024 * 1024;
             UploadManager uploadManager = new UploadManager(c);
 
@@ -418,13 +418,13 @@ public class FormUploadTest {
     @SuppressWarnings("resource")
     @Test
     public void testFormLargeSize2() {
-        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Region.region0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Region.regionNa0());
-        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
+        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
+        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
+        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            Region region = entry.getValue();
-            Configuration c = new Configuration(region);
+            Zone zone = entry.getValue();
+            Configuration c = new Configuration(zone);
             c.putThreshold = 25 * 1024 * 1024;
             UploadManager uploadManager = new UploadManager(c);
 

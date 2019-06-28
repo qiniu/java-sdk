@@ -1,7 +1,7 @@
 package com.qiniu.http;
 
 public enum MethodType {
-	GET(false),
+    GET(false),
     PUT(true),
     POST(true),
     DELETE(false),
