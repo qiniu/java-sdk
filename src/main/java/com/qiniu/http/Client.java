@@ -45,6 +45,13 @@ public final class Client {
                 cfg.connectionPoolMaxIdleCount, cfg.connectionPoolMaxIdleMinutes);
     }
 
+    public Client(com.qiniu.sms.Configuration cfg) {
+        this(null, false, null,
+                cfg.connectTimeout, cfg.readTimeout, cfg.writeTimeout,
+                cfg.dispatcherMaxRequests, cfg.dispatcherMaxRequestsPerHost,
+                cfg.connectionPoolMaxIdleCount, cfg.connectionPoolMaxIdleMinutes);
+    }
+
     /**
      * 构建一个自定义配置的 HTTP Client 类
      */
@@ -71,7 +78,6 @@ public final class Client {
                 try {
                     tag.ip = chain.connection().socket().getRemoteSocketAddress().toString();
                 } catch (Exception e) {
-                    e.printStackTrace();
                     tag.ip = "";
                 }
                 return response;
@@ -84,7 +90,6 @@ public final class Client {
                     try {
                         return dns.lookup(hostname);
                     } catch (Exception e) {
-                        e.printStackTrace();
                     }
                     return okhttp3.Dns.SYSTEM.lookup(hostname);
                 }
@@ -176,6 +181,23 @@ public final class Client {
         return post(url, rbody, headers);
     }
 
+    public Response put(String url, byte[] body, StringMap headers, String contentType) throws QiniuException {
+        int len = body == null ? 0 : body.length;
+        return put(url, body, 0, len, headers, contentType);
+    }
+
+    public Response put(String url, byte[] body, int offset, int size,
+                        StringMap headers, String contentType) throws QiniuException {
+        RequestBody rbody;
+        if (body != null && body.length > 0) {
+            MediaType t = MediaType.parse(contentType);
+            rbody = RequestBody.create(t, body, offset, size);
+        } else {
+            rbody = RequestBody.create(null, new byte[0]);
+        }
+        return put(url, rbody, headers);
+    }
+
     public Response post(String url, byte[] body, int offset, int size,
                          StringMap headers, String contentType) throws QiniuException {
         RequestBody rbody;
@@ -190,6 +212,11 @@ public final class Client {
 
     private Response post(String url, RequestBody body, StringMap headers) throws QiniuException {
         Request.Builder requestBuilder = new Request.Builder().url(url).post(body);
+        return send(requestBuilder, headers);
+    }
+
+    private Response put(String url, RequestBody body, StringMap headers) throws QiniuException {
+        Request.Builder requestBuilder = new Request.Builder().url(url).put(body);
         return send(requestBuilder, headers);
     }
 
@@ -236,6 +263,54 @@ public final class Client {
         return send(requestBuilder, headers);
     }
 
+    public Response patch(String url, byte[] body, StringMap headers) throws QiniuException {
+        return patch(url, body, headers, DefaultMime);
+    }
+
+    public Response patch(String url, String body, StringMap headers) throws QiniuException {
+        return patch(url, StringUtils.utf8Bytes(body), headers, DefaultMime);
+    }
+
+    public Response patch(String url, StringMap params, StringMap headers) throws QiniuException {
+        final FormBody.Builder f = new FormBody.Builder();
+        params.forEach(new StringMap.Consumer() {
+            @Override
+            public void accept(String key, Object value) {
+                f.add(key, value.toString());
+            }
+        });
+        return patch(url, f.build(), headers);
+    }
+
+    public Response patch(String url, byte[] body, StringMap headers, String contentType) throws QiniuException {
+        RequestBody rbody;
+        if (body != null && body.length > 0) {
+            MediaType t = MediaType.parse(contentType);
+            rbody = RequestBody.create(t, body);
+        } else {
+            rbody = RequestBody.create(null, new byte[0]);
+        }
+        return patch(url, rbody, headers);
+    }
+
+    public Response patch(String url, byte[] body, int offset, int size,
+                          StringMap headers, String contentType) throws QiniuException {
+        RequestBody rbody;
+        if (body != null && body.length > 0) {
+            MediaType t = MediaType.parse(contentType);
+            rbody = create(t, body, offset, size);
+        } else {
+            rbody = RequestBody.create(null, new byte[0]);
+        }
+        return patch(url, rbody, headers);
+    }
+
+    private Response patch(String url, RequestBody body, StringMap headers) throws QiniuException {
+        Request.Builder requestBuilder = new Request.Builder().url(url).patch(body);
+        return send(requestBuilder, headers);
+    }
+
+
     public Response send(final Request.Builder requestBuilder, StringMap headers) throws QiniuException {
         if (headers != null) {
             headers.forEach(new StringMap.Consumer() {
@@ -255,9 +330,9 @@ public final class Client {
         try {
             res = httpClient.newCall(requestBuilder.tag(tag).build()).execute();
         } catch (IOException e) {
-            e.printStackTrace();
             throw new QiniuException(e);
         }
+
         r = Response.create(res, tag.ip, duration);
         if (r.statusCode >= 300) {
             throw new QiniuException(r);
@@ -282,7 +357,6 @@ public final class Client {
         httpClient.newCall(requestBuilder.tag(tag).build()).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
                 long duration = (System.currentTimeMillis() - start) / 1000;
                 cb.complete(Response.createError(null, "", duration, e.getMessage()));
             }

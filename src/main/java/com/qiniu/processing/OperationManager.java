@@ -49,6 +49,7 @@ public final class OperationManager {
     public OperationManager(Auth auth, Client client) {
         this.auth = auth;
         this.client = client;
+        this.configuration = new Configuration();
     }
 
     /**
@@ -84,7 +85,11 @@ public final class OperationManager {
         String url = configuration.apiHost(auth.accessKey, bucket) + "/pfop/";
         StringMap headers = auth.authorization(url, data, Client.FormMime);
         Response response = client.post(url, data, headers, Client.FormMime);
+        if (!response.isOK()) {
+            throw new QiniuException(response);
+        }
         PfopResult status = response.jsonToObject(PfopResult.class);
+        response.close();
         if (status != null) {
             return status.persistentId;
         }
@@ -105,7 +110,7 @@ public final class OperationManager {
      */
     public String pfop(String bucket, String key, String fops, String pipeline, String notifyURL)
             throws QiniuException {
-        StringMap params = new StringMap().put("pipeline", pipeline).putNotEmpty("notifyURL", notifyURL);
+        StringMap params = new StringMap().putNotEmpty("pipeline", pipeline).putNotEmpty("notifyURL", notifyURL);
         return pfop(bucket, key, fops, params);
     }
 
@@ -123,7 +128,7 @@ public final class OperationManager {
      */
     public String pfop(String bucket, String key, String fops, String pipeline, boolean force)
             throws QiniuException {
-        StringMap params = new StringMap().put("pipeline", pipeline).putWhen("force", 1, force);
+        StringMap params = new StringMap().putNotEmpty("pipeline", pipeline).putWhen("force", 1, force);
         return pfop(bucket, key, fops, params);
     }
 
@@ -142,8 +147,8 @@ public final class OperationManager {
      */
     public String pfop(String bucket, String key, String fops, String pipeline, String notifyURL, boolean force)
             throws QiniuException {
-        StringMap params = new StringMap().put("pipeline", pipeline).
-                put("notifyURL", notifyURL).putWhen("force", 1, force);
+        StringMap params = new StringMap().putNotEmpty("pipeline", pipeline).
+                putNotEmpty("notifyURL", notifyURL).putWhen("force", 1, force);
         return pfop(bucket, key, fops, params);
     }
 
@@ -165,22 +170,13 @@ public final class OperationManager {
     public <T> T prefop(String persistentId, Class<T> retClass) throws QiniuException {
         StringMap params = new StringMap().put("id", persistentId);
         byte[] data = StringUtils.utf8Bytes(params.formString());
-        String apiHost;
-
-        if (this.configuration.zone != null) {
-            apiHost = this.configuration.zone.getApiHttp();
-            if (this.configuration.useHttpsDomains) {
-                apiHost = this.configuration.zone.getApiHttps();
-            }
-        } else {
-            apiHost = "http://api.qiniu.com";
-            if (this.configuration.useHttpsDomains) {
-                apiHost = "https://api.qiniu.com";
-            }
-        }
-
-        String url = String.format("%s/status/get/prefop", apiHost);
+        String url = String.format("%s/status/get/prefop", configuration.apiHost());
         Response response = this.client.post(url, data, null, Client.FormMime);
-        return response.jsonToObject(retClass);
+        if (!response.isOK()) {
+            throw new QiniuException(response);
+        }
+        T object = response.jsonToObject(retClass);
+        response.close();
+        return object;
     }
 }
