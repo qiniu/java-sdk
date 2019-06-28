@@ -55,13 +55,13 @@ public class CdnTest {
     @Test
     public void testRefresh() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
-        CdnResult.RefreshResult r = null;
+        CdnResult.RefreshResult r;
         try {
             r = c.refreshUrls(new String[]{TestConfig.testUrl_z0});
             Assert.assertEquals(200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
-            Assert.fail();
+            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));
         }
     }
 
@@ -71,13 +71,13 @@ public class CdnTest {
     @Test
     public void testPrefetch() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
-        CdnResult.PrefetchResult r = null;
+        CdnResult.PrefetchResult r;
         try {
             r = c.prefetchUrls(new String[]{TestConfig.testUrl_na0});
             Assert.assertEquals(200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
-            Assert.fail();
+            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));
         }
     }
 
