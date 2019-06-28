@@ -108,7 +108,7 @@ public class FixBlockUploader {
         Record record = null;
 
         UploadRecordHelper helper = new UploadRecordHelper(recorder, bucket, base64Key,
-                blockData.getContentUUID(), this.blockSize + "_.-^ \b" + this.getClass().getName());
+                blockData.getContentUUID(), this.blockSize + "*:|>?^ \b" + this.getClass().getName());
 
         if (blockData.isRetryable()) {
             record = helper.reloadRecord();
@@ -404,7 +404,7 @@ public class FixBlockUploader {
             if (isOk) {
                 int p = 0; // PartNumber start with 1 and increase by 1 //
                 for (EtagIdx ei : record.etagIdxes) {
-                    if (ei.PartNumber > p) {
+                    if (ei.PartNumber == p + 1) {
                         p = ei.PartNumber;
                     } else {
                         return false;

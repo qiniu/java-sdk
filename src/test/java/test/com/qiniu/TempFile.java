@@ -78,7 +78,7 @@ public final class TempFile {
         FileOutputStream fos = null;
         try {
             long size = 1024 * kiloSize;
-            File f = File.createTempFile("qiniu_" + kiloSize + "k", "tmp");
+            File f = File.createTempFile("qiniu_" + kiloSize + "k", ".tmp");
             f.createNewFile();
             fos = new FileOutputStream(f);
             byte[] b = getByteOld();

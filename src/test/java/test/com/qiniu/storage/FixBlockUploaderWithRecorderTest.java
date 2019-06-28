@@ -86,8 +86,9 @@ public class FixBlockUploaderWithRecorderTest {
         String base64Key = UrlSafeBase64.encodeToString(expectKey);
 
         final UploadRecordHelper helper = new UploadRecordHelper(recorder, bucket, base64Key,
-                fbd.getContentUUID(), this.blockSize + "_.-^ \b" + FixBlockUploader.class.getName());
+                fbd.getContentUUID(), this.blockSize + "*:|>?^ \b" + FixBlockUploader.class.getName());
         final String recordKey = helper.recordFileKey;
+        System.out.println(recordKey);
 
         final boolean[] ch = new boolean[]{true};
         final String[] msg = new String[1];

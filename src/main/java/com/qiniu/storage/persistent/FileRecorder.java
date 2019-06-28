@@ -15,7 +15,7 @@ import java.util.Date;
  */
 public final class FileRecorder implements Recorder {
     private final File directory;
-    private static final String SPLIT = "_.-^ \b";
+    private static final String SPLIT = "*:|>?^ \b";
 
     /**
      * 断点记录文件保存的目录
@@ -137,7 +137,7 @@ public final class FileRecorder implements Recorder {
 
     @Override
     public String recorderKeyGenerate(String key, File file) {
-        return hash(key + SPLIT + file.getAbsolutePath() + SPLIT + file.lastModified());
+        return hash(key + SPLIT + file.lastModified() + SPLIT + file.getAbsolutePath());
     }
 
 
