@@ -16,6 +16,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import test.com.qiniu.TestConfig;
+import test.com.qiniu.sms.SmsTest;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -57,7 +58,7 @@ public class BucketTest {
             dummyBucketManager.buckets();
             Assert.fail();
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -70,7 +71,7 @@ public class BucketTest {
             String[] domains = bucketManager.domainList(TestConfig.testBucket_z0);
             Assert.assertNotNull(domains);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -488,7 +489,7 @@ public class BucketTest {
                     response = bucketManager.updateBucketLifeCycleRule(bucket, rule);
                     Assert.fail();
                 } catch (QiniuException e) {
-                    Assert.assertEquals(400, e.response.statusCode);
+                    Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(400)));
                 }
 
                 // 更新规则
@@ -502,7 +503,7 @@ public class BucketTest {
                     bucketManager.putBucketLifecycleRule(bucket, rule);
                     Assert.fail();
                 } catch (QiniuException e) {
-                    Assert.assertEquals(400, e.response.statusCode);
+                    Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(400)));
                 }
 
                 // 重复设置（name重复）
@@ -512,7 +513,7 @@ public class BucketTest {
                     response = bucketManager.putBucketLifecycleRule(bucket, rule);
                     Assert.fail();
                 } catch (QiniuException e) {
-                    Assert.assertEquals(400, e.response.statusCode);
+                    Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(400)));
                 }
 
                 // 重复设置（prefix重复）
@@ -522,7 +523,7 @@ public class BucketTest {
                     response = bucketManager.putBucketLifecycleRule(bucket, rule);
                     Assert.fail();
                 } catch (QiniuException e) {
-                    Assert.assertEquals(400, e.response.statusCode);
+                    Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(400)));
                 }
 
                 // 追加规则
@@ -588,7 +589,7 @@ public class BucketTest {
                     response = bucketManager.putBucketEvent(bucket, rule);
                     Assert.fail();
                 } catch (QiniuException e) {
-                    Assert.assertEquals(400, e.response.statusCode);
+                    Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(400)));
                 }
 
                 // 追加Event（error:callbackURL must starts with http:// or https://）
@@ -598,7 +599,7 @@ public class BucketTest {
                     response = bucketManager.putBucketEvent(bucket, rule);
                     Assert.fail();
                 } catch (QiniuException e) {
-                    Assert.assertEquals(400, e.response.statusCode);
+                    Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(400)));
                 }
 
                 // 追加Event
@@ -622,7 +623,7 @@ public class BucketTest {
                     response = bucketManager.putBucketEvent(bucket, rule);
                     Assert.fail();
                 } catch (QiniuException e) {
-                    Assert.assertEquals(400, e.response.statusCode);
+                    Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(400)));
                 }
 
                 // 重复追加Event（error:event prefix and suffix exists）
@@ -632,7 +633,7 @@ public class BucketTest {
                     response = bucketManager.putBucketEvent(bucket, rule);
                     Assert.fail();
                 } catch (QiniuException e) {
-                    Assert.assertEquals(400, e.response.statusCode);
+                    Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(400)));
                 }
 
                 // 追加Event
@@ -654,7 +655,7 @@ public class BucketTest {
                     response = bucketManager.updateBucketEvent(bucket, rule);
                     Assert.fail();
                 } catch (QiniuException e) {
-                    Assert.assertEquals(400, e.response.statusCode);
+                    Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(400)));
                 }
 
                 // 更新Event
@@ -893,7 +894,7 @@ public class BucketTest {
             try {
                 testBucketQuota(bucket, -2, -2);
             } catch (QiniuException e) {
-                Assert.assertEquals(400, e.response.statusCode);
+                Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(400)));
             }
             try {
                 testBucketQuota(bucket, 0, 0);

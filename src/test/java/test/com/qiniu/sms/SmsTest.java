@@ -32,6 +32,35 @@ public class SmsTest {
         this.smsManager = new SmsManager(Auth.create(TestConfig.smsAccessKey, TestConfig.smsSecretKey));
     }
 
+    public static boolean find(int code, int ...codes) {
+        for(int i : codes) {
+            if (code == i) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int[] getResCode(int ...codes) {
+        return getResCode(TestConfig.isTravis(), codes);
+    }
+
+    public static int[] getResCode(boolean isTravis, int ...codes) {
+        if (isTravis) {
+            int[] n = new int[codes.length + 1];
+            System.arraycopy(codes, 0, n, 0, codes.length);
+            n[codes.length] = -1; // add code -1 for networking failed.
+            return n;
+        }
+        return codes;
+    }
+
+    @Test
+    public void testAddCode() {
+        Assert.assertArrayEquals(new int[]{401, -1}, getResCode(true, 401));
+        Assert.assertArrayEquals(new int[]{401}, getResCode(false, 401));
+    }
+
 
     @Test
     public void testSendMessage() {
@@ -40,7 +69,7 @@ public class SmsTest {
             Response response = smsManager.sendMessage("test", new String[]{"10086"}, paramMap);
             Assert.assertNotNull(response);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -50,7 +79,7 @@ public class SmsTest {
             Response response = smsManager.describeSignature("passed", 0, 0);
             Assert.assertNotNull(response);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -60,7 +89,7 @@ public class SmsTest {
             SignatureInfo signatureInfo = smsManager.describeSignatureItems("passed", 0, 0);
             Assert.assertNotNull(signatureInfo);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -71,7 +100,7 @@ public class SmsTest {
                     new String[]{"data:image/gif;base64,xxxxxxxxxx"});
             Assert.assertNotNull(response);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -81,7 +110,7 @@ public class SmsTest {
             Response response = smsManager.modifySignature("signatureId", "signature");
             Assert.assertNotNull(response);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -91,7 +120,7 @@ public class SmsTest {
             Response response = smsManager.deleteSignature("signatureId");
             Assert.assertNotNull(response);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -101,7 +130,7 @@ public class SmsTest {
             Response response = smsManager.describeTemplate("passed", 0, 0);
             Assert.assertNotNull(response);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -111,7 +140,7 @@ public class SmsTest {
             TemplateInfo templateInfo = smsManager.describeTemplateItems("passed", 0, 0);
             Assert.assertNotNull(templateInfo);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -121,7 +150,7 @@ public class SmsTest {
             Response response = smsManager.createTemplate("name", "template", "notification", "desc", "signatureId");
             Assert.assertNotNull(response);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -131,7 +160,7 @@ public class SmsTest {
             Response response = smsManager.modifyTemplate("templateId", "name", "template", "desc", "signatureId");
             Assert.assertNotNull(response);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
@@ -141,7 +170,7 @@ public class SmsTest {
             Response response = smsManager.deleteTemplate("templateId");
             Assert.assertNotNull(response);
         } catch (QiniuException e) {
-            Assert.assertEquals(401, e.code());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode(401)));
         }
     }
 
