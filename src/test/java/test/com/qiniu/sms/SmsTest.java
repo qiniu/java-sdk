@@ -33,7 +33,7 @@ public class SmsTest {
     }
 
     public static boolean find(int code, int ...codes) {
-        for(int i : codes) {
+        for (int i : codes) {
             if (code == i) {
                 return true;
             }
