@@ -51,7 +51,7 @@ public class BucketTest {
             Assert.assertTrue(StringUtils.inStringArray(TestConfig.testBucket_z0, buckets));
             Assert.assertTrue(StringUtils.inStringArray(TestConfig.testBucket_na0, buckets));
         } catch (QiniuException e) {
-            Assert.fail(e.response.toString());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode()));
         }
 
         try {
