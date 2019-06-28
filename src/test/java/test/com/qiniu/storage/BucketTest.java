@@ -88,7 +88,7 @@ public class BucketTest {
                 Assert.assertNotNull(l.marker);
             }
         } catch (QiniuException e) {
-            Assert.fail(e.response.toString());
+            Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode()));
         }
     }
 
@@ -903,7 +903,7 @@ public class BucketTest {
                 testBucketQuota(bucket, 100, -1);
                 testBucketQuota(bucket, -1, -1);
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.assertTrue(SmsTest.find(e.code(), SmsTest.getResCode()));
             }
         }
     }
