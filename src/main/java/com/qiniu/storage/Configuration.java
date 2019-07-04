@@ -254,7 +254,7 @@ public final class Configuration implements Cloneable {
     * */
 
     private Region toRegion(Zone zone) {
-        if (zone instanceof AutoZone) {
+        if (zone == null || zone instanceof AutoZone) {
             return Region.autoRegion();
         }
         // useAccUpHost default value is true
