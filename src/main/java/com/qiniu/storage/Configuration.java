@@ -284,11 +284,13 @@ public final class Configuration implements Cloneable {
 
     private String[] getHosts(String https, String http) {
         if (useHttpsDomains) {
+            // https would not be null
             return new String[]{toDomain(https)};
         } else {
+            // http, s1 would not be null
             String s1 = toDomain(http);
             String s2 = toDomain(https);
-            if (s2 != s1) {
+            if (s2 != null && !s2.equalsIgnoreCase(s1)) {
                 return new String[]{s1, s2};
             }
             return new String[]{s1};
