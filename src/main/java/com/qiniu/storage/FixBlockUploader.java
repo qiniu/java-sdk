@@ -96,7 +96,7 @@ public class FixBlockUploader {
         String bucket = parseBucket(token.getUpToken());
         String base64Key = UrlSafeBase64.encodeToString(key);
         if (host == null) {
-            changeHost(token.getUpToken());
+            host = configuration.upHost(token.getUpToken());
         }
         if (metaParams == null) {
             metaParams = new StringMap();
@@ -279,12 +279,12 @@ public class FixBlockUploader {
     }
 
 
-    private void changeHost(String upToken) throws QiniuException {
-        String h1 = configuration.upHost(upToken);
-        if (!h1.equalsIgnoreCase(host)) {
-            this.host = h1;
-        } else {
-            this.host = configuration.upHostBackup(upToken);
+    private void changeHost(String upToken) {
+        try {
+            this.host = configuration.upHost(upToken, true);
+        } catch (QiniuException e) {
+            // ignore
+            // use the old up host //
         }
     }
 

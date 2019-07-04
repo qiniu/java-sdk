@@ -101,8 +101,8 @@ public final class StreamUploader {
             try {
                 response = makeBlock(blockBuffer, bufferIndex);
             } catch (QiniuException e) {
-                if (e.code() < 0) {
-                    host = configuration.upHostBackup(upToken);
+                if (e.code() < 0 || (e.response != null && e.response.needSwitchServer())) {
+                    changeHost(upToken);
                 }
                 if (e.response == null || e.response.needRetry()) {
                     retry = true;
@@ -152,6 +152,16 @@ public final class StreamUploader {
             }
         }
     }
+
+    private void changeHost(String upToken) {
+        try {
+            this.host = configuration.upHost(upToken, true);
+        } catch (QiniuException e) {
+            // ignore
+            // use the old up host //
+        }
+    }
+
 
     private Response makeBlock(byte[] block, int blockSize) throws QiniuException {
         String url = host + "/mkblk/" + blockSize;

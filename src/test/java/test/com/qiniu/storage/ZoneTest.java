@@ -26,7 +26,7 @@ public class ZoneTest {
         Zone zone2 = new Zone.Builder(zone)
                 .iovipHttp("http://io-sdfrsd-s.qiniubbo.com").build();
 
-        Configuration cfg = new Configuration();
+        Configuration cfg = new Configuration(Zone.autoZone());
         cfg.zone = zone2;
     }
 }
