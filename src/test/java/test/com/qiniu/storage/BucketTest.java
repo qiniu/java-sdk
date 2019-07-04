@@ -554,14 +554,17 @@ public class BucketTest {
     private void clearBucketLifeCycleRule(String bucket) throws QiniuException {
         // 获取规则
         BucketLifeCycleRule[] rules = bucketManager.getBucketLifeCycleRule(bucket);
-        for (BucketLifeCycleRule r : rules) {
-            System.out.println("name=" + r.getName());
-            System.out.println("prefix=" + r.getPrefix());
-            Assert.assertNotEquals("x", r.getPrefix());
-        }
-        // 删除规则
-        for (BucketLifeCycleRule r : rules) {
-            bucketManager.deleteBucketLifecycleRule(bucket, r.getName());
+        try {
+            for (BucketLifeCycleRule r : rules) {
+                System.out.println("name=" + r.getName());
+                System.out.println("prefix=" + r.getPrefix());
+                Assert.assertNotEquals("x", r.getPrefix());
+            }
+        } finally {
+            // 删除规则
+            for (BucketLifeCycleRule r : rules) {
+                bucketManager.deleteBucketLifecycleRule(bucket, r.getName());
+            }
         }
     }
 
