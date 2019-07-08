@@ -94,7 +94,7 @@ public final class FormUploader {
                             if (res.needSwitchServer()) {
                                 try {
                                     configuration.upHost(token, host, true);
-                                } catch (QiniuException e) {
+                                } catch (Exception e) {
                                     // ignore
                                 }
                             }
@@ -110,7 +110,7 @@ public final class FormUploader {
                         if (res.needSwitchServer()) {
                             try {
                                 configuration.upHost(token, host, true);
-                            } catch (QiniuException e) {
+                            } catch (Exception e) {
                                 // ignore
                             }
                         }

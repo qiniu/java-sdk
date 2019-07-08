@@ -175,7 +175,7 @@ public final class ResumeUploader {
     private void changeHost(String upToken) {
         try {
             this.host = configuration.upHost(upToken, host, true);
-        } catch (QiniuException e) {
+        } catch (Exception e) {
             // ignore
             // use the old up host //
         }
