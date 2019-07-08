@@ -44,7 +44,7 @@ public final class ResumeUploader {
     private final long modifyTime;
     private final RecordHelper helper;
     private FileInputStream file;
-    private String host;
+    private String host = null;
     private int retryMax;
 
     /**
@@ -174,7 +174,7 @@ public final class ResumeUploader {
 
     private void changeHost(String upToken) {
         try {
-            this.host = configuration.upHost(upToken, true);
+            this.host = configuration.upHost(upToken, host, true);
         } catch (QiniuException e) {
             // ignore
             // use the old up host //

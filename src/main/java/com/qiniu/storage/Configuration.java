@@ -125,22 +125,22 @@ public final class Configuration implements Cloneable {
 
 
     public String upHost(String upToken) throws QiniuException {
-        return upHost(upToken, false);
+        return upHost(upToken, null, false);
     }
 
-    public String upHost(String upToken, boolean changeHost) throws QiniuException {
+    public String upHost(String upToken, String lastUsedHost, boolean changeHost) throws QiniuException {
         makeSureRegion();
         RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
 
         List<String> accHosts = region.getAccUpHost(regionReqInfo);
         List<String> srcHosts = region.getSrcUpHost(regionReqInfo);
 
-        return getScheme() + getHelper().upHost(accHosts, srcHosts, changeHost);
+        return getScheme() + getHelper().upHost(accHosts, srcHosts, toDomain(lastUsedHost), changeHost);
     }
 
     @Deprecated
     public String upHostBackup(String upToken) throws QiniuException {
-        return upHost(upToken, true);
+        return upHost(upToken, null, true);
     }
 
     public String ioHost(String ak, String bucket) {

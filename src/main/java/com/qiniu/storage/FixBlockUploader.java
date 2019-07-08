@@ -20,7 +20,7 @@ public class FixBlockUploader {
 
     private final int retryMax;
 
-    private String host;
+    private String host = null;
 
     /**
      * @param blockSize must be multiples of 4M.
@@ -281,7 +281,7 @@ public class FixBlockUploader {
 
     private void changeHost(String upToken) {
         try {
-            this.host = configuration.upHost(upToken, true);
+            this.host = configuration.upHost(upToken, host, true);
         } catch (QiniuException e) {
             // ignore
             // use the old up host //

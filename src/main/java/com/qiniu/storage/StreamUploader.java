@@ -28,7 +28,7 @@ public final class StreamUploader {
     private final byte[] blockBuffer;
     private final InputStream stream;
     private long size;
-    private String host;
+    private String host = null;
     private int retryMax;
 
     public StreamUploader(Client client, String upToken, String key, InputStream stream,
@@ -155,7 +155,7 @@ public final class StreamUploader {
 
     private void changeHost(String upToken) {
         try {
-            this.host = configuration.upHost(upToken, true);
+            this.host = configuration.upHost(upToken, host, true);
         } catch (QiniuException e) {
             // ignore
             // use the old up host //

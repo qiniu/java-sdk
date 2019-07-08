@@ -21,6 +21,7 @@ public class RegionTest {
     public void testChangeHost2() throws QiniuException {
         System.out.println("\n\n2 ''");
         Configuration cfg = new Configuration();
+        cfg.useHttpsDomains = false;
         testChangeHost(cfg);
     }
 
@@ -68,29 +69,32 @@ public class RegionTest {
         System.out.println("h1\t" + h1);
         String h1_ = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0));
         System.out.println(h1_);
-        String h2 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_na0));
+        String h2 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_na0)); // na0
         System.out.println(h2);
-        String h3 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), true);
+        String h3 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h1, true);
         System.out.println(h3);
-        String h4 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), true);
+        String h4 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h3, true);
         System.out.println(h4);
-        String h5 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), true);
+        String h5 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h4, true);
         System.out.println("h5\t" + h5);
-        String h6 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), true);
+        String h6 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h5, true);
         System.out.println(h6);
 
-        String h7 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), false);
+        String h7 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h6, false);
         System.out.println(h7);
 
-        String h8 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), true);
+        String h7_ = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0));
+        System.out.println(h7_);
+
+        String h8 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h7, true);
         System.out.println(h8);
-        String h9 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), true);
+        String h9 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h8, true);
         System.out.println(h9);
-        String h10 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), true);
+        String h10 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h9, true);
         System.out.println(h10);
-        String h11 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), true);
+        String h11 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h10, true);
         System.out.println(h11);
-        String h12 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), false);
+        String h12 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h11, false);
         System.out.println(h12);
 
         Assert.assertEquals(h1, h1_);
@@ -104,6 +108,7 @@ public class RegionTest {
         Assert.assertNotEquals(h5, h6);
 
         Assert.assertEquals(h7, h6);
+        Assert.assertEquals(h7, h7_);
 
         // upload.qiniup.com,   up.qiniup.com
         Assert.assertNotEquals("" + h1.indexOf("up.") + h1.indexOf("up-"),
@@ -124,45 +129,45 @@ public class RegionTest {
         List<String> accUpHosts = cfg0.region.getAccUpHost(regionReqInfo);
         List<String> srcUpHosts = cfg0.region.getSrcUpHost(regionReqInfo);
 
-        String h1 = helper.upHost(accUpHosts, srcUpHosts, false);
+        String h1 = helper.upHost(accUpHosts, srcUpHosts, null, false);
         System.out.println("h1\t" + h1);
-        String h2 = helper.upHost(accUpHosts, srcUpHosts, false);
+        String h2 = helper.upHost(accUpHosts, srcUpHosts, h1, false);
         System.out.println(h2);
-        String h3 = helper.upHost(accUpHosts, srcUpHosts, true);
+        String h3 = helper.upHost(accUpHosts, srcUpHosts, h2, true);
         System.out.println(h3);
 //        String h4 = helper.upHost(accUpHosts, srcUpHosts, true);
 //        System.out.println(h4);
-        String h5 = helper.upHost(accUpHosts, srcUpHosts, true);
+        String h5 = helper.upHost(accUpHosts, srcUpHosts, h3, true);
         System.out.println("h5\t" + h5);
-        String h6 = helper.upHost(accUpHosts, srcUpHosts, true);
+        String h6 = helper.upHost(accUpHosts, srcUpHosts, h5, true);
         System.out.println(h6);
         try {
             Thread.sleep(21 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        String h7 = helper.upHost(accUpHosts, srcUpHosts, false);
+        String h7 = helper.upHost(accUpHosts, srcUpHosts, h6, false);
         System.out.println("h7\t" + h7);
 
-        String h8 = helper.upHost(accUpHosts, srcUpHosts, true);
+        String h8 = helper.upHost(accUpHosts, srcUpHosts, h7, true);
         System.out.println(h8);
         try {
             Thread.sleep(21 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        String h9 = helper.upHost(accUpHosts, srcUpHosts, true);
+        String h9 = helper.upHost(accUpHosts, srcUpHosts, h8, true);
         System.out.println("h9\t" + h9);
-        String h10 = helper.upHost(accUpHosts, srcUpHosts, true);
+        String h10 = helper.upHost(accUpHosts, srcUpHosts, h9, true);
         System.out.println(h10);
         try {
             Thread.sleep(11 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        String h11 = helper.upHost(accUpHosts, srcUpHosts, true);
+        String h11 = helper.upHost(accUpHosts, srcUpHosts, h10, true);
         System.out.println("h11\t" + h11);
-        String h12 = helper.upHost(accUpHosts, srcUpHosts, false);
+        String h12 = helper.upHost(accUpHosts, srcUpHosts, h11, false);
         System.out.println(h12);
 
         Assert.assertEquals(h1, h2);
@@ -172,8 +177,8 @@ public class RegionTest {
         Assert.assertNotEquals(h5, h6);
 
         // 标记过期，重来 //
-        Assert.assertEquals(h7, h1);
-        Assert.assertEquals(h9, h1);
+        Assert.assertEquals(h1, h7);
+        Assert.assertEquals(h1, h9);
 
         // 均过期 //
         Assert.assertEquals(h8, h3);
