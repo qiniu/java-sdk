@@ -114,7 +114,7 @@ public final class ResumeUploader {
                 response = makeBlock(blockBuffer, blockSize);
             } catch (QiniuException e) {
                 if (e.code() < 0 || (e.response != null && e.response.needSwitchServer())) {
-                    changeHost(upToken);
+                    changeHost(upToken, host);
                 }
                 if (e.response == null || e.response.needRetry()) {
                     retry = true;
@@ -172,7 +172,7 @@ public final class ResumeUploader {
         }
     }
 
-    private void changeHost(String upToken) {
+    private void changeHost(String upToken, String host) {
         try {
             this.host = configuration.upHost(upToken, host, true);
         } catch (Exception e) {

@@ -8,6 +8,7 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.FixBlockUploader;
 import com.qiniu.util.Etag;
 import com.qiniu.util.StringMap;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import test.com.qiniu.TempFile;
@@ -69,6 +70,7 @@ public class FixBlockUploaderTest {
         template(1024 * 3, false, true);
         try {
             template(true, 1024 * 3, false, false, true);
+            Assert.fail("file exists, can not be success.");
         }  catch (QiniuException e) {
             assertTrue("file exists", e.response.error.indexOf("file exists") > -1);
         }

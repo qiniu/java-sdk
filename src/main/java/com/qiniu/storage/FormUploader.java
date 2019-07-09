@@ -70,12 +70,8 @@ public final class FormUploader {
             res = client.multipartPost(configuration.upHost(token), params, "file", fileName, file,
                     mime, new StringMap());
         }
-        if (res.needSwitchServer()) {
-            try {
-                configuration.upHost(token, host, true);
-            } catch (Exception e) {
-                // ignore
-            }
+        if (res != null && res.needSwitchServer()) {
+            changeHost(token, host);
         }
         return res;
     }
@@ -91,12 +87,8 @@ public final class FormUploader {
                     data, mime, new StringMap(), new AsyncCallback() {
                         @Override
                         public void complete(Response res) {
-                            if (res.needSwitchServer()) {
-                                try {
-                                    configuration.upHost(token, host, true);
-                                } catch (Exception e) {
-                                    // ignore
-                                }
+                            if (res != null && res.needSwitchServer()) {
+                                changeHost(token, host);
                             }
                             handler.complete(key, res);
                         }
@@ -107,16 +99,21 @@ public final class FormUploader {
                 file, mime, new StringMap(), new AsyncCallback() {
                     @Override
                     public void complete(Response res) {
-                        if (res.needSwitchServer()) {
-                            try {
-                                configuration.upHost(token, host, true);
-                            } catch (Exception e) {
-                                // ignore
-                            }
+                        if (res != null && res.needSwitchServer()) {
+                            changeHost(token, host);
                         }
                         handler.complete(key, res);
                     }
                 });
+    }
+
+    private void changeHost(String upToken, String host) {
+        try {
+            configuration.upHost(upToken, host, true);
+        } catch (Exception e) {
+            // ignore
+            // use the old up host //
+        }
     }
 
     private void buildParams() throws QiniuException {
