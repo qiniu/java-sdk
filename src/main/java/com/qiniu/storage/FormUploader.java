@@ -61,19 +61,21 @@ public final class FormUploader {
      */
     public Response upload() throws QiniuException {
         buildParams();
-        Response res;
         String host = configuration.upHost(token);
-        if (data != null) {
-            res = client.multipartPost(configuration.upHost(token), params, "file", fileName, data,
-                    mime, new StringMap());
-        } else {
-            res = client.multipartPost(configuration.upHost(token), params, "file", fileName, file,
-                    mime, new StringMap());
+        try {
+            if (data != null) {
+                return client.multipartPost(configuration.upHost(token), params, "file", fileName, data,
+                        mime, new StringMap());
+            } else {
+                return client.multipartPost(configuration.upHost(token), params, "file", fileName, file,
+                        mime, new StringMap());
+            }
+        } catch (QiniuException e) {
+            if (e.response == null || e.response.needSwitchServer()) {
+                changeHost(token, host);
+            }
+            throw e;
         }
-        if (res != null && res.needSwitchServer()) {
-            changeHost(token, host);
-        }
-        return res;
     }
 
     /**

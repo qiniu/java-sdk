@@ -210,10 +210,14 @@ public class FixBlockUploader {
                        int dataLength, int partNum, RetryCounter counter) throws QiniuException {
         Response res = uploadBlockWithRetry(bucket, base64Key, token, uploadId, data, dataLength, partNum, counter);
         try {
-            return res.jsonToMap().get("etag").toString();
-        } catch (Exception e) { // may null
-            throw new QiniuException(res);
+            String etag = res.jsonToMap().get("etag").toString();
+            if (etag.length() > 10) {
+                return etag;
+            }
+        } catch (Exception e) {
+            // ignore, see next step
         }
+        throw new QiniuException(res);
     }
 
 
@@ -464,7 +468,7 @@ public class FixBlockUploader {
             if (isOk) {
                 int p = 0;
                 // PartNumber start with 1 and increase by 1 //
-                // 文件各块串行，若并行，需额外考虑 //
+                // 当前文件各块串行. 若并行，需额外考虑 //
                 for (EtagIdx ei : record.etagIdxes) {
                     if (ei.idx == p + 1) {
                         p = ei.idx;
