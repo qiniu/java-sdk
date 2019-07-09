@@ -116,6 +116,11 @@ public class AutoRegion extends Region {
         return null;
     }
 
+    @Override
+    public String getRegion(RegionReqInfo regionReqInfo) {
+        return "";
+    }
+
     /**
      * 获取源站直传域名
      */

@@ -5,8 +5,6 @@ import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
 import com.qiniu.util.StringUtils;
 
-import java.util.List;
-
 /**
  * 该类封装了SDK相关配置参数
  */
@@ -31,7 +29,7 @@ public final class Configuration implements Cloneable {
     /**
      * 空间相关上传管理操作是否使用代理加速上传，默认 是
      */
-    public boolean useAccUpHost = true;
+    public boolean accUpHostFirst = true;
 
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
@@ -130,12 +128,7 @@ public final class Configuration implements Cloneable {
 
     public String upHost(String upToken, String lastUsedHost, boolean changeHost) throws QiniuException {
         makeSureRegion();
-        RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
-
-        List<String> accHosts = region.getAccUpHost(regionReqInfo);
-        List<String> srcHosts = region.getSrcUpHost(regionReqInfo);
-
-        return getScheme() + getHelper().upHost(accHosts, srcHosts, toDomain(lastUsedHost), changeHost);
+        return getScheme() + getHelper().upHost(region, upToken, toDomain(lastUsedHost), changeHost);
     }
 
     @Deprecated
@@ -194,6 +187,7 @@ public final class Configuration implements Cloneable {
     }
 
     private UpHostHelper helper;
+
     private UpHostHelper getHelper() {
         if (helper == null) {
             helper = new UpHostHelper(this, 60 * 15);
@@ -257,8 +251,8 @@ public final class Configuration implements Cloneable {
         if (zone == null || zone instanceof AutoZone) {
             return Region.autoRegion();
         }
-        // useAccUpHost default value is true
-        // from the zone useAccUpHost must be true, (it is a new field)
+        // accUpHostFirst default value is true
+        // from the zone accUpHostFirst must be true, (it is a new field)
         // true, acc map the upHttp, upHttps
         // false, src map to the backs
         // non autozone, zoneRegionInfo is useless
