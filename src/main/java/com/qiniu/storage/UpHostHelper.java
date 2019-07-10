@@ -10,7 +10,7 @@ public class UpHostHelper {
     private long failedPeriod; // 毫秒 1/1000 s
     private Configuration conf;
 
-    private LinkedHashMap<String, RegionUpHost> regionHosts =
+    private LinkedHashMap<String, RegionUpHost> regionHostsLRU =
             new LinkedHashMap<String, RegionUpHost>(1, 1.0f, true) {
                 @Override
                 protected boolean removeEldestEntry(Map.Entry<String, RegionUpHost> eldest) {
@@ -32,10 +32,10 @@ public class UpHostHelper {
 
         // String regionKey = region.getRegion(null); // 此值可能错误的设置 //
         String regionKey = region.getRegion(regionReqInfo) + "_&//=_" + getRegionKey(srcHosts, accHosts);
-        RegionUpHost regionHost = regionHosts.get(regionKey);
+        RegionUpHost regionHost = regionHostsLRU.get(regionKey);
         if (regionHost == null) {
             regionHost = new RegionUpHost();
-            regionHosts.put(regionKey, regionHost);
+            regionHostsLRU.put(regionKey, regionHost);
         }
 
         String host = regionHost.upHost(accHosts, srcHosts, lastUsedHost, changeHost);

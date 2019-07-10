@@ -10,7 +10,6 @@ import com.qiniu.util.*;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class FixBlockUploader {
@@ -409,7 +408,7 @@ public class FixBlockUploader {
 
     Record initRecord(String uploadId, List<EtagIdx> etagIdxes) {
         Record record = new Record();
-        record.createdTime = new Date().getTime();
+        record.createdTime = System.currentTimeMillis();
         record.uploadId = uploadId;
         record.size = 0;
         record.etagIdxes = etagIdxes != null ? etagIdxes : new ArrayList<EtagIdx>();
@@ -461,7 +460,7 @@ public class FixBlockUploader {
 
         public boolean isActiveRecord(Record record, BlockData blockData) {
             //// 服务端 7 天内有效，设置 5 天 ////
-            boolean isOk = record.createdTime > new Date().getTime() - 1000 * 3600 * 24 * 5
+            boolean isOk = record.createdTime > System.currentTimeMillis() - 1000 * 3600 * 24 * 5
                     && !StringUtils.isNullOrEmpty(record.uploadId)
                     && record.etagIdxes != null && record.etagIdxes.size() > 0
                     && record.size > 0 && record.size <= blockData.size();
