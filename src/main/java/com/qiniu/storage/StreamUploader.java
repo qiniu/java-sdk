@@ -28,7 +28,7 @@ public final class StreamUploader {
     private final byte[] blockBuffer;
     private final InputStream stream;
     private long size;
-    private String host;
+    private String host = null;
     private int retryMax;
 
     public StreamUploader(Client client, String upToken, String key, InputStream stream,
@@ -101,8 +101,8 @@ public final class StreamUploader {
             try {
                 response = makeBlock(blockBuffer, bufferIndex);
             } catch (QiniuException e) {
-                if (e.code() < 0) {
-                    host = configuration.upHostBackup(upToken);
+                if (e.code() < 0 || (e.response != null && e.response.needSwitchServer())) {
+                    changeHost(upToken, host);
                 }
                 if (e.response == null || e.response.needRetry()) {
                     retry = true;
@@ -152,6 +152,16 @@ public final class StreamUploader {
             }
         }
     }
+
+    private void changeHost(String upToken, String host) {
+        try {
+            this.host = configuration.upHost(upToken, host, true);
+        } catch (Exception e) {
+            // ignore
+            // use the old up host //
+        }
+    }
+
 
     private Response makeBlock(byte[] block, int blockSize) throws QiniuException {
         String url = host + "/mkblk/" + blockSize;

@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 该接口主要用来根据用户提供的AccessKey和Bucket来自动获取相关域名
  */
+@Deprecated
 public final class AutoZone extends Zone {
     public static AutoZone instance = new AutoZone();
     private final String ucServer;
@@ -373,4 +374,5 @@ public final class AutoZone extends Zone {
         Map<String, List<String>> http;
         Map<String, List<String>> https;
     }
+
 }

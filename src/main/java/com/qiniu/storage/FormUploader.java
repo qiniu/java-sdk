@@ -61,12 +61,21 @@ public final class FormUploader {
      */
     public Response upload() throws QiniuException {
         buildParams();
-        if (data != null) {
-            return client.multipartPost(configuration.upHost(token), params, "file", fileName, data,
-                    mime, new StringMap());
+        String host = configuration.upHost(token);
+        try {
+            if (data != null) {
+                return client.multipartPost(configuration.upHost(token), params, "file", fileName, data,
+                        mime, new StringMap());
+            } else {
+                return client.multipartPost(configuration.upHost(token), params, "file", fileName, file,
+                        mime, new StringMap());
+            }
+        } catch (QiniuException e) {
+            if (e.response == null || e.response.needSwitchServer()) {
+                changeHost(token, host);
+            }
+            throw e;
         }
-        return client.multipartPost(configuration.upHost(token), params, "file", fileName, file,
-                mime, new StringMap());
     }
 
     /**
@@ -74,12 +83,16 @@ public final class FormUploader {
      */
     public void asyncUpload(final UpCompletionHandler handler) throws IOException {
         buildParams();
+        final String host = configuration.upHost(token);
         if (data != null) {
-            client.asyncMultipartPost(configuration.upHost(token), params, "file", fileName,
+            client.asyncMultipartPost(host, params, "file", fileName,
                     data, mime, new StringMap(), new AsyncCallback() {
                         @Override
-                        public void complete(Response r) {
-                            handler.complete(key, r);
+                        public void complete(Response res) {
+                            if (res != null && res.needSwitchServer()) {
+                                changeHost(token, host);
+                            }
+                            handler.complete(key, res);
                         }
                     });
             return;
@@ -87,10 +100,22 @@ public final class FormUploader {
         client.asyncMultipartPost(configuration.upHost(token), params, "file", fileName,
                 file, mime, new StringMap(), new AsyncCallback() {
                     @Override
-                    public void complete(Response r) {
-                        handler.complete(key, r);
+                    public void complete(Response res) {
+                        if (res != null && res.needSwitchServer()) {
+                            changeHost(token, host);
+                        }
+                        handler.complete(key, res);
                     }
                 });
+    }
+
+    private void changeHost(String upToken, String host) {
+        try {
+            configuration.upHost(upToken, host, true);
+        } catch (Exception e) {
+            // ignore
+            // use the old up host //
+        }
     }
 
     private void buildParams() throws QiniuException {

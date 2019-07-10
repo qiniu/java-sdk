@@ -45,6 +45,12 @@ public class StreamingTest {
      */
     @Test
     public void testStreamOperation() throws QiniuException {
+        try {
+            // 确保流存在 //
+            manager.create(stream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         StreamAttribute attr = manager.attribute(stream);
         assertEquals(0, attr.disabledTill);
         assertNotEquals(0, attr.createdAt);

@@ -44,7 +44,7 @@ public final class ResumeUploader {
     private final long modifyTime;
     private final RecordHelper helper;
     private FileInputStream file;
-    private String host;
+    private String host = null;
     private int retryMax;
 
     /**
@@ -113,8 +113,8 @@ public final class ResumeUploader {
             try {
                 response = makeBlock(blockBuffer, blockSize);
             } catch (QiniuException e) {
-                if (e.code() < 0) {
-                    host = configuration.upHostBackup(upToken);
+                if (e.code() < 0 || (e.response != null && e.response.needSwitchServer())) {
+                    changeHost(upToken, host);
                 }
                 if (e.response == null || e.response.needRetry()) {
                     retry = true;
@@ -169,6 +169,15 @@ public final class ResumeUploader {
             }
         } finally {
             helper.removeRecord();
+        }
+    }
+
+    private void changeHost(String upToken, String host) {
+        try {
+            this.host = configuration.upHost(upToken, host, true);
+        } catch (Exception e) {
+            // ignore
+            // use the old up host //
         }
     }
 

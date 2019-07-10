@@ -6,12 +6,11 @@ import com.qiniu.util.UrlSafeBase64;
 /**
  * 封装了 accessKey 和 bucket 的类
  */
-@Deprecated
-public class ZoneReqInfo {
+public class RegionReqInfo {
     private final String accessKey;
     private final String bucket;
 
-    public ZoneReqInfo(String token) throws QiniuException {
+    public RegionReqInfo(String token) throws QiniuException {
         // http://developer.qiniu.com/article/developer/security/upload-token.html
         // http://developer.qiniu.com/article/developer/security/put-policy.html
         try {
@@ -24,7 +23,7 @@ public class ZoneReqInfo {
         }
     }
 
-    public ZoneReqInfo(String accessKey, String bucket) {
+    public RegionReqInfo(String accessKey, String bucket) {
         this.accessKey = accessKey;
         this.bucket = bucket;
     }
@@ -37,4 +36,20 @@ public class ZoneReqInfo {
         return bucket;
     }
 
+    @Override
+    public int hashCode() {
+        return accessKey.hashCode() + bucket.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof RegionReqInfo) {
+            RegionReqInfo t = (RegionReqInfo) obj;
+            return this.accessKey.equals(t.accessKey) && this.bucket.equals(t.bucket);
+        }
+        return false;
+    }
 }
