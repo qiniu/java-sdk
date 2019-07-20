@@ -126,14 +126,18 @@ public final class Configuration implements Cloneable {
         return upHost(upToken, null, false);
     }
 
-    public String upHost(String upToken, String lastUsedHost, boolean changeHost) throws QiniuException {
+    String tryChangeUpHost(String upToken, String lastUsedHost) throws QiniuException {
+        return upHost(upToken, lastUsedHost, true);
+    }
+
+    private String upHost(String upToken, String lastUsedHost, boolean changeHost) throws QiniuException {
         makeSureRegion();
         return getScheme() + getHelper().upHost(region, upToken, toDomain(lastUsedHost), changeHost);
     }
 
     @Deprecated
     public String upHostBackup(String upToken) throws QiniuException {
-        return upHost(upToken, null, true);
+        return tryChangeUpHost(upToken, null);
     }
 
     public String ioHost(String ak, String bucket) {
@@ -217,12 +221,14 @@ public final class Configuration implements Cloneable {
             zone.apiHttps = originZone.apiHttps;
         }
 
-        return new Builder().region("z0").upHttp("http://up.qiniu.com").upHttps("https://up.qbox.me").
-                upBackupHttp("http://upload.qiniu.com").upBackupHttps("https://upload.qbox.me").
-                iovipHttp("http://iovip.qbox.me").iovipHttps("https://iovip.qbox.me").
-                rsHttp("http://rs.qiniu.com").rsHttps("https://rs.qbox.me")
+        return new Builder().region("z0")
+                .upHttp("http://upload.qiniup.com").upHttps("https://upload.qiniup.com")
+                .upBackupHttp("http://up.qiniup.com").upBackupHttps("https://up.qiniup.com")
+                .iovipHttp("http://iovip.qbox.me").iovipHttps("https://iovip.qbox.me")
+                .rsHttp("http://rs.qiniu.com").rsHttps("https://rs.qbox.me")
                 .rsfHttp("http://rsf.qiniu.com").rsfHttps("https://rsf.qbox.me")
-                .apiHttp("http://api.qiniu.com").apiHttps("https://api.qiniu.com").build();
+                .apiHttp("http://api.qiniu.com").apiHttps("https://api.qiniu.com")
+                .build();
 
     *
     * public Builder(Region originRegion) {

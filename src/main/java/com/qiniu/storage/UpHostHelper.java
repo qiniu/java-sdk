@@ -6,7 +6,7 @@ import com.qiniu.common.RegionReqInfo;
 
 import java.util.*;
 
-public class UpHostHelper {
+class UpHostHelper {
     private long failedPeriod; // 毫秒 1/1000 s
     private Configuration conf;
 
@@ -30,7 +30,7 @@ public class UpHostHelper {
         List<String> accHosts = region.getAccUpHost(regionReqInfo);
         List<String> srcHosts = region.getSrcUpHost(regionReqInfo);
 
-        // String regionKey = region.getRegion(null); // 此值可能错误的设置 //
+        // String regionKey = region.getRegion(regionReqInfo); // 此值可能错误的设置 //
         String regionKey = region.getRegion(regionReqInfo) + "_&//=_" + getRegionKey(srcHosts, accHosts);
         RegionUpHost regionHost = regionHostsLRU.get(regionKey);
         if (regionHost == null) {
@@ -162,7 +162,7 @@ public class UpHostHelper {
                         return lastHost;
                     }
                 }
-                if (!lastHost.equals(lastUsedHost) && lastUsedHost != null) {
+                if (lastUsedHost != null && !lastHost.equals(lastUsedHost)) {
                     Long el = hostMark.get(lastUsedHost);
                     if (el == null) {
                         el = 0L;

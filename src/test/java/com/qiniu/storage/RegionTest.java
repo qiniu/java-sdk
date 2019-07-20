@@ -6,7 +6,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import test.com.qiniu.TestConfig;
 
-import java.util.List;
 
 public class RegionTest {
 
@@ -71,34 +70,34 @@ public class RegionTest {
         System.out.println(h1_);
         String h2 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_na0)); // na0
         System.out.println("h2 auto region na0\t" + h2);
-        String h3 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h1, true);
+        String h3 = cfg.tryChangeUpHost(auth.uploadToken(TestConfig.testBucket_z0), h1);
         System.out.println(h3);
         String h2_ = cfg.upHost(auth.uploadToken(TestConfig.testBucket_na0)); // na0
         System.out.println("h2_ auto region na0\t" + h2_);
         String h3_ = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0));
         System.out.println("h3_ \t" + h3_);
-        String h4 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h3, true);
+        String h4 = cfg.tryChangeUpHost(auth.uploadToken(TestConfig.testBucket_z0), h3);
         System.out.println(h4);
-        String h5 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h4, true);
+        String h5 = cfg.tryChangeUpHost(auth.uploadToken(TestConfig.testBucket_z0), h4);
         System.out.println("h5\t" + h5);
-        String h6 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h5, true);
+        String h6 = cfg.tryChangeUpHost(auth.uploadToken(TestConfig.testBucket_z0), h5);
         System.out.println(h6);
 
-        String h7 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h6, false);
+        String h7 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0));
         System.out.println(h7);
 
         String h7_ = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0));
         System.out.println(h7_);
 
-        String h8 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h7, true);
+        String h8 = cfg.tryChangeUpHost(auth.uploadToken(TestConfig.testBucket_z0), h7);
         System.out.println(h8);
-        String h9 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h8, true);
+        String h9 = cfg.tryChangeUpHost(auth.uploadToken(TestConfig.testBucket_z0), h8);
         System.out.println(h9);
-        String h10 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h9, true);
+        String h10 = cfg.tryChangeUpHost(auth.uploadToken(TestConfig.testBucket_z0), h9);
         System.out.println(h10);
-        String h11 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h10, true);
+        String h11 = cfg.tryChangeUpHost(auth.uploadToken(TestConfig.testBucket_z0), h10);
         System.out.println(h11);
-        String h12 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0), h11, false);
+        String h12 = cfg.tryChangeUpHost(auth.uploadToken(TestConfig.testBucket_z0), h11);
         System.out.println(h12);
 
         Assert.assertEquals(h1, h1_);
@@ -130,10 +129,8 @@ public class RegionTest {
         UpHostHelper helper = new UpHostHelper(cfg0, 20);
         Auth auth = Auth.create(TestConfig.testAccessKey, TestConfig.testSecretKey);
         String upToken = auth.uploadToken(TestConfig.testBucket_z0);
-        RegionReqInfo regionReqInfo = new RegionReqInfo(auth.uploadToken(TestConfig.testBucket_z0));
+
         cfg0.upHost(auth.uploadToken(TestConfig.testBucket_z0)); // make sure there region is not null
-        List<String> accUpHosts = cfg0.region.getAccUpHost(regionReqInfo);
-        List<String> srcUpHosts = cfg0.region.getSrcUpHost(regionReqInfo);
 
         String h1 = helper.upHost(cfg0.region, upToken, null, false);
         System.out.println("h1\t" + h1);
