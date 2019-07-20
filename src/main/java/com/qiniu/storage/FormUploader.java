@@ -111,7 +111,7 @@ public final class FormUploader {
 
     private void changeHost(String upToken, String host) {
         try {
-            configuration.upHost(upToken, host, true);
+            configuration.tryChangeUpHost(upToken, host);
         } catch (Exception e) {
             // ignore
             // use the old up host //

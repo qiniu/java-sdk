@@ -174,7 +174,7 @@ public final class ResumeUploader {
 
     private void changeHost(String upToken, String host) {
         try {
-            this.host = configuration.upHost(upToken, host, true);
+            this.host = configuration.tryChangeUpHost(upToken, host);
         } catch (Exception e) {
             // ignore
             // use the old up host //
