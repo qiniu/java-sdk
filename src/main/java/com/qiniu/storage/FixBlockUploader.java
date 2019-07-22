@@ -199,14 +199,14 @@ public class FixBlockUploader {
             } catch (Exception e) {
                 // ignore, retry
             }
-        }
 
-        if (res == null || res.needRetry()) {
-            if (res == null || res.needSwitchServer()) {
-                changeHost(upToken, host);
+            if (res == null || res.needRetry()) {
+                if (res == null || res.needSwitchServer()) {
+                    changeHost(upToken, host);
+                }
+                // 3
+                res = client.post(url, data, headers, contentType);
             }
-            // 3
-            res = client.post(url, data, headers, contentType);
         }
 
         try {
@@ -215,7 +215,7 @@ public class FixBlockUploader {
                 return uploadId;
             }
         } catch (Exception e) {
-            // ignore, see next step
+            // ignore, see next line
         }
 
         throw new QiniuException(res);
@@ -231,7 +231,7 @@ public class FixBlockUploader {
                 return etag;
             }
         } catch (Exception e) {
-            // ignore, see next step
+            // ignore, see next line
         }
         throw new QiniuException(res);
     }
