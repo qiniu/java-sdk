@@ -1,13 +1,11 @@
 package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Region;
-import com.qiniu.common.RegionReqInfo;
 
 import java.util.*;
 
 class UpHostHelper {
-    private long failedPeriod; // 毫秒 1/1000 s
+    private long failedPeriodMillis; // 毫秒 1/1000 s
     private Configuration conf;
 
     private LinkedHashMap<String, RegionUpHost> regionHostsLRU =
@@ -21,14 +19,38 @@ class UpHostHelper {
 
     UpHostHelper(Configuration conf, int failedPeriodSeconds) {
         this.conf = conf;
-        this.failedPeriod = failedPeriodSeconds * 1000L;
+        this.failedPeriodMillis = failedPeriodSeconds * 1000L;
     }
 
 
-    String upHost(Region region, String upToken, String lastUsedHost, boolean changeHost) throws QiniuException {
+    String upHost(Region region, String upToken, String lastUsedHost, boolean changeHost, boolean mustReturnUpHost)
+            throws QiniuException {
         RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
-        List<String> accHosts = region.getAccUpHost(regionReqInfo);
-        List<String> srcHosts = region.getSrcUpHost(regionReqInfo);
+
+        // auto region may failed here.
+        List<String> accHosts;
+        List<String> srcHosts;
+        String failedGetRegion = "failed_get_region";
+
+        try {
+            accHosts = region.getAccUpHost(regionReqInfo);
+            srcHosts = region.getSrcUpHost(regionReqInfo);
+            if (conf.useDefaultUpHostIfNone) {
+                regionHostsLRU.remove(failedGetRegion); // 6 items, fast enough.
+            }
+        } catch (QiniuException e) { // it will success soon.
+            // if successful before,  regionHostsLRU.get(failedGetRegion) should be null
+            RegionUpHost regionHost = regionHostsLRU.get(failedGetRegion);
+            if (regionHost != null) {
+                return regionHost.upHost(regionHost.lastAccHosts, regionHost.lastSrcHosts,
+                        lastUsedHost, true);
+            }
+            if (mustReturnUpHost && conf.useDefaultUpHostIfNone) {
+                return failedUpHost(failedGetRegion);
+            } else {
+                throw e;
+            }
+        }
 
         // String regionKey = region.getRegion(regionReqInfo); // 此值可能错误的设置 //
         String regionKey = region.getRegion(regionReqInfo) + "_&//=_" + getRegionKey(srcHosts, accHosts);
@@ -39,6 +61,34 @@ class UpHostHelper {
         }
 
         String host = regionHost.upHost(accHosts, srcHosts, lastUsedHost, changeHost);
+        return host;
+    }
+
+    private String failedUpHost(String regionKey) {
+        List<String> srcHosts;
+        List<String> accHosts;
+
+        RegionUpHost regionHost = regionHostsLRU.get(regionKey);
+        if (regionHost == null) {
+            regionHost = new RegionUpHost();
+            regionHostsLRU.put(regionKey, regionHost);
+        }
+        if (regionHost.lastSrcHosts == null) {
+            accHosts = new ArrayList<String>() {
+                {
+                    this.add("upload.qiniup.com");
+                    this.add("upload-z1.qiniup.com");
+                    this.add("upload-z2.qiniup.com");
+                    this.add("upload-na0.qiniup.com");
+                    this.add("upload-as0.qiniup.com");
+                }
+            };
+            srcHosts = new ArrayList<>();
+        } else {
+            srcHosts = regionHost.lastSrcHosts;
+            accHosts = regionHost.lastAccHosts;
+        }
+        String host = regionHost.upHost(accHosts, srcHosts, null, false);
         return host;
     }
 
@@ -146,7 +196,7 @@ class UpHostHelper {
                 }
             }
 
-            long t = System.currentTimeMillis() - failedPeriod;
+            long t = System.currentTimeMillis() - failedPeriodMillis;
 
             // acc src 的第一个，比如(upload.qiniup.com, up.qiniup.com), //
             // 作为主上传域名，可以继续使用，不用恢复到 lastHosts.get(0) //
@@ -181,7 +231,8 @@ class UpHostHelper {
                 synchronized (hostMark) {
                     // uploader 使用的的 host 与 本地记录的 host 不一样，直接返回本地记录的 host，这也是新的 host //
                     // 减少 多个同时失败，大量同时更改 host，导致 将 host 该回到 老的无效 host //
-                    if (!lastHost.equals(lastUsedHost)) {
+                    String host = lastUsedHost != null ? lastUsedHost : lastHost;
+                    if (!lastHost.equals(host)) {
                         Long el = hostMark.get(lastHost);
                         if (el == null) {
                             el = 0L;
@@ -190,7 +241,6 @@ class UpHostHelper {
                             return lastHost;
                         }
                     }
-                    String host = lastUsedHost != null ? lastUsedHost : lastHost;
                     // 标记当前 host 不可用 //
                     hostMark.put(host, System.currentTimeMillis());
                 }

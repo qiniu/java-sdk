@@ -1,9 +1,11 @@
 package com.qiniu.storage;
 
-import com.qiniu.common.*;
+
+import com.qiniu.common.Constants;
+import com.qiniu.common.QiniuException;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
-import com.qiniu.util.StringUtils;
 
 /**
  * 该类封装了SDK相关配置参数
@@ -30,6 +32,13 @@ public final class Configuration implements Cloneable {
      * 空间相关上传管理操作是否使用代理加速上传，默认 是
      */
     public boolean accUpHostFirst = true;
+
+    /**
+     * 如果从区域信息得到上传 host 失败，使用默认的上传域名上传，默认 是
+     * upload.qiniup.com, upload-z1.qiniup.com, upload-z2.qiniup.com,
+     * upload-na0.qiniup.com, upload-as0.qiniup.com
+     */
+    public boolean useDefaultUpHostIfNone = true;
 
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
@@ -99,17 +108,22 @@ public final class Configuration implements Cloneable {
     public static String defaultApiHost = "api.qiniu.com";
     public static String defaultUcHost = "uc.qbox.me";
 
-    public Configuration() {
 
+    private ConfigHelper configHelper;
+
+    public Configuration() {
+        configHelper = new ConfigHelper(this);
     }
 
     public Configuration(Region region) {
         this.region = region;
+        configHelper = new ConfigHelper(this);
     }
 
     @Deprecated
     public Configuration(Zone zone) {
         this.zone = zone;
+        configHelper = new ConfigHelper(this);
     }
 
     public Configuration clone() {
@@ -122,190 +136,68 @@ public final class Configuration implements Cloneable {
     }
 
 
+
+
+    @Deprecated
     public String upHost(String upToken) throws QiniuException {
-        return upHost(upToken, null, false);
+        return configHelper.upHost(upToken);
     }
 
-    String tryChangeUpHost(String upToken, String lastUsedHost) throws QiniuException {
-        return upHost(upToken, lastUsedHost, true);
-    }
-
-    private String upHost(String upToken, String lastUsedHost, boolean changeHost) throws QiniuException {
-        makeSureRegion();
-        return getScheme() + getHelper().upHost(region, upToken, toDomain(lastUsedHost), changeHost);
-    }
 
     @Deprecated
     public String upHostBackup(String upToken) throws QiniuException {
-        return tryChangeUpHost(upToken, null);
+        return configHelper.tryChangeUpHost(upToken, null);
     }
 
+    @Deprecated
     public String ioHost(String ak, String bucket) {
-        makeSureRegion();
-        RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
-        return getScheme() + region.getIovipHost(regionReqInfo);
+        try {
+            return configHelper.ioHost(ak, bucket);
+        } catch (QiniuException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    @Deprecated
     public String apiHost(String ak, String bucket) {
-        makeSureRegion();
-        RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
-        return getScheme() + region.getApiHost(regionReqInfo);
+        try {
+            return configHelper.apiHost(ak, bucket);
+        } catch (QiniuException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    @Deprecated
     public String rsHost(String ak, String bucket) {
-        makeSureRegion();
-        RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
-        return getScheme() + region.getRsHost(regionReqInfo);
+        try {
+            return configHelper.rsHost(ak, bucket);
+        } catch (QiniuException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    @Deprecated
     public String rsfHost(String ak, String bucket) {
-        makeSureRegion();
-        RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
-        return getScheme() + region.getRsfHost(regionReqInfo);
+        try {
+            return configHelper.rsfHost(ak, bucket);
+        } catch (QiniuException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    @Deprecated
     public String rsHost() {
-        return getScheme() + defaultRsHost;
+        return configHelper.rsHost();
     }
 
+    @Deprecated
     public String apiHost() {
-        return getScheme() + defaultApiHost;
+        return configHelper.apiHost();
     }
 
+    @Deprecated
     public String ucHost() {
-        return getScheme() + defaultUcHost;
-    }
-
-    private String getScheme() {
-        return useHttpsDomains ? "https://" : "http://";
-    }
-
-    private void makeSureRegion() {
-        if (region == null) {
-            if (zone != null) {
-                region = toRegion(zone);
-            } else {
-                region = Region.autoRegion();
-            }
-        }
-    }
-
-    private UpHostHelper helper;
-
-    private UpHostHelper getHelper() {
-        if (helper == null) {
-            helper = new UpHostHelper(this, 60 * 15);
-        }
-        return helper;
-    }
-
-
-
-    /*
-    * public Builder(Zone originZone) {
-            this();
-            zone.region = originZone.region;
-            zone.upHttp = originZone.upHttp;
-            zone.upHttps = originZone.upHttps;
-            zone.upBackupHttp = originZone.upBackupHttp;
-            zone.upBackupHttps = originZone.upBackupHttps;
-            zone.upIpHttp = originZone.upIpHttp;
-            zone.upIpHttps = originZone.upIpHttps;
-            zone.iovipHttp = originZone.iovipHttp;
-            zone.iovipHttps = originZone.iovipHttps;
-            zone.rsHttp = originZone.rsHttp;
-            zone.rsHttps = originZone.rsHttps;
-            zone.rsfHttp = originZone.rsfHttp;
-            zone.rsfHttps = originZone.rsfHttps;
-            zone.apiHttp = originZone.apiHttp;
-            zone.apiHttps = originZone.apiHttps;
-        }
-
-        return new Builder().region("z0")
-                .upHttp("http://upload.qiniup.com").upHttps("https://upload.qiniup.com")
-                .upBackupHttp("http://up.qiniup.com").upBackupHttps("https://up.qiniup.com")
-                .iovipHttp("http://iovip.qbox.me").iovipHttps("https://iovip.qbox.me")
-                .rsHttp("http://rs.qiniu.com").rsHttps("https://rs.qbox.me")
-                .rsfHttp("http://rsf.qiniu.com").rsfHttps("https://rsf.qbox.me")
-                .apiHttp("http://api.qiniu.com").apiHttps("https://api.qiniu.com")
-                .build();
-
-    *
-    * public Builder(Region originRegion) {
-            init();
-            region.region = originRegion.region;
-            region.srcUpHosts = originRegion.srcUpHosts;
-            region.accUpHosts = originRegion.accUpHosts;
-            region.iovipHost = originRegion.iovipHost;
-            region.rsHost = originRegion.rsHost;
-            region.rsfHost = originRegion.rsfHost;
-            region.apiHost = originRegion.apiHost;
-        }
-
-        return new Builder().
-                region("z0").
-                srcUpHost("up.qiniup.com", "up-jjh.qiniup.com", "up-xs.qiniup.com").
-                accUpHost("upload.qiniup.com", "upload-jjh.qiniup.com", "upload-xs.qiniup.com").
-                iovipHost("iovip.qbox.me").
-                rsHost("rs.qbox.me").
-                rsfHost("rsf.qbox.me").
-                apiHost("api.qiniu.com").
-                build();
-    * */
-
-    private Region toRegion(Zone zone) {
-        if (zone == null || zone instanceof AutoZone) {
-            return Region.autoRegion();
-        }
-        // accUpHostFirst default value is true
-        // from the zone accUpHostFirst must be true, (it is a new field)
-        // true, acc map the upHttp, upHttps
-        // false, src map to the backs
-        // non autozone, zoneRegionInfo is useless
-        return new Region.Builder()
-                .region(zone.getRegion())
-                .accUpHost(getHosts(zone.getUpHttps(null), zone.getUpHttp(null)))
-                .srcUpHost(getHosts(zone.getUpBackupHttps(null), zone.getUpBackupHttp(null)))
-                .iovipHost(getHost(zone.getIovipHttps(null), zone.getIovipHttp(null)))
-                .rsHost(getHost(zone.getRsHttps(), zone.getRsHttp()))
-                .rsfHost(getHost(zone.getRsfHttps(), zone.getRsfHttp()))
-                .apiHost(getHost(zone.getApiHttps(), zone.getApiHttp()))
-                .build();
-    }
-
-
-    private String getHost(String https, String http) {
-        if (useHttpsDomains) {
-            return https;
-        } else {
-            return http;
-        }
-    }
-
-    private String[] getHosts(String https, String http) {
-        if (useHttpsDomains) {
-            // https would not be null
-            return new String[]{toDomain(https)};
-        } else {
-            // http, s1 would not be null
-            String s1 = toDomain(http);
-            String s2 = toDomain(https);
-            if (s2 != null && !s2.equalsIgnoreCase(s1)) {
-                return new String[]{s1, s2};
-            }
-            return new String[]{s1};
-        }
-    }
-
-    private String toDomain(String d1) {
-        if (StringUtils.isNullOrEmpty(d1)) {
-            return null;
-        }
-        int s = d1.indexOf("://");
-        if (s > -1) {
-            return d1.substring(s + 3);
-        }
-        return d1;
+        return configHelper.ucHost();
     }
 
 }

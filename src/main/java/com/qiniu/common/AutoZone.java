@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Deprecated
 public final class AutoZone extends Zone {
     public static AutoZone instance = new AutoZone();
-    private final String ucServer;
+    public final String ucServer;
 
     /**
      * 空间机房，域名信息缓存

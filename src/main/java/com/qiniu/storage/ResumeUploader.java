@@ -37,7 +37,7 @@ public final class ResumeUploader {
     private final StringMap params;
     private final String mime;
     private final String[] contexts;
-    private final Configuration configuration;
+    private final ConfigHelper configHelper;
     private final Client client;
     private final byte[] blockBuffer;
     private final Recorder recorder;
@@ -52,7 +52,7 @@ public final class ResumeUploader {
      */
     public ResumeUploader(Client client, String upToken, String key, File file,
                           StringMap params, String mime, Recorder recorder, Configuration configuration) {
-        this.configuration = configuration;
+        this.configHelper = new ConfigHelper(configuration);
         this.client = client;
         this.upToken = upToken;
         this.key = key;
@@ -82,7 +82,7 @@ public final class ResumeUploader {
 
     private Response upload0() throws QiniuException {
         if (host == null) {
-            this.host = configuration.upHost(upToken);
+            this.host = configHelper.upHost(upToken);
         }
         long uploaded = helper.recoveryFromRecord();
         try {
@@ -174,7 +174,7 @@ public final class ResumeUploader {
 
     private void changeHost(String upToken, String host) {
         try {
-            this.host = configuration.tryChangeUpHost(upToken, host);
+            this.host = configHelper.tryChangeUpHost(upToken, host);
         } catch (Exception e) {
             // ignore
             // use the old up host //

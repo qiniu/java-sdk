@@ -22,7 +22,7 @@ public final class FormUploader {
     private final byte[] data;
     private final String mime;
     private final boolean checkCrc;
-    private final Configuration configuration;
+    private final ConfigHelper configHelper;
     private StringMap params;
     private Client client;
     private String fileName;
@@ -53,7 +53,7 @@ public final class FormUploader {
         this.params = params;
         this.mime = mime;
         this.checkCrc = checkCrc;
-        this.configuration = configuration;
+        this.configHelper = new ConfigHelper(configuration);
     }
 
     /**
@@ -61,13 +61,13 @@ public final class FormUploader {
      */
     public Response upload() throws QiniuException {
         buildParams();
-        String host = configuration.upHost(token);
+        String host = configHelper.upHost(token);
         try {
             if (data != null) {
-                return client.multipartPost(configuration.upHost(token), params, "file", fileName, data,
+                return client.multipartPost(configHelper.upHost(token), params, "file", fileName, data,
                         mime, new StringMap());
             } else {
-                return client.multipartPost(configuration.upHost(token), params, "file", fileName, file,
+                return client.multipartPost(configHelper.upHost(token), params, "file", fileName, file,
                         mime, new StringMap());
             }
         } catch (QiniuException e) {
@@ -83,7 +83,7 @@ public final class FormUploader {
      */
     public void asyncUpload(final UpCompletionHandler handler) throws IOException {
         buildParams();
-        final String host = configuration.upHost(token);
+        final String host = configHelper.upHost(token);
         if (data != null) {
             client.asyncMultipartPost(host, params, "file", fileName,
                     data, mime, new StringMap(), new AsyncCallback() {
@@ -97,7 +97,7 @@ public final class FormUploader {
                     });
             return;
         }
-        client.asyncMultipartPost(configuration.upHost(token), params, "file", fileName,
+        client.asyncMultipartPost(configHelper.upHost(token), params, "file", fileName,
                 file, mime, new StringMap(), new AsyncCallback() {
                     @Override
                     public void complete(Response res) {
@@ -111,7 +111,7 @@ public final class FormUploader {
 
     private void changeHost(String upToken, String host) {
         try {
-            configuration.tryChangeUpHost(upToken, host);
+            configHelper.tryChangeUpHost(upToken, host);
         } catch (Exception e) {
             // ignore
             // use the old up host //

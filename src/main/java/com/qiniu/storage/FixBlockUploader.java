@@ -14,7 +14,7 @@ import java.util.List;
 
 public class FixBlockUploader {
     private final int blockSize;
-    private final Configuration configuration;
+    private final ConfigHelper configHelper;
     private final Client client;
     private final Recorder recorder;
 
@@ -37,7 +37,7 @@ public class FixBlockUploader {
         if (client == null) {
             client = new Client(configuration);
         }
-        this.configuration = configuration;
+        this.configHelper = new ConfigHelper(configuration);
         this.client = client;
         this.blockSize = blockSize;
         this.recorder = recorder;
@@ -96,7 +96,7 @@ public class FixBlockUploader {
         String bucket = parseBucket(token.getUpToken());
         String base64Key = UrlSafeBase64.encodeToString(key);
         if (host == null) {
-            host = configuration.upHost(token.getUpToken());
+            host = configHelper.upHost(token.getUpToken());
         }
         if (metaParams == null) {
             metaParams = new StringMap();
@@ -183,12 +183,29 @@ public class FixBlockUploader {
         } catch (Exception e) {
             // ignore, retry
         }
+
         // 重试一次，初始不计入重试次数 //
         if (res == null || res.needRetry()) {
             if (res == null || res.needSwitchServer()) {
                 changeHost(upToken, host);
             }
-            // 2
+            try {
+                // 2
+                res = client.post(url, data, headers, contentType);
+            } catch (QiniuException e) {
+                if (res == null && e.response != null) {
+                    res = e.response;
+                }
+            } catch (Exception e) {
+                // ignore, retry
+            }
+        }
+
+        if (res == null || res.needRetry()) {
+            if (res == null || res.needSwitchServer()) {
+                changeHost(upToken, host);
+            }
+            // 3
             res = client.post(url, data, headers, contentType);
         }
 
@@ -344,7 +361,7 @@ public class FixBlockUploader {
 
     private void changeHost(String upToken, String host) {
         try {
-            this.host = configuration.tryChangeUpHost(upToken, host);
+            this.host = configHelper.tryChangeUpHost(upToken, host);
         } catch (Exception e) {
             // ignore
             // use the old up host //

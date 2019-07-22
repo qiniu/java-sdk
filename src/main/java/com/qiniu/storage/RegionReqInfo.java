@@ -1,16 +1,18 @@
-package com.qiniu.common;
+package com.qiniu.storage;
 
+import com.qiniu.common.Constants;
+import com.qiniu.common.QiniuException;
 import com.qiniu.util.Json;
 import com.qiniu.util.UrlSafeBase64;
 
 /**
  * 封装了 accessKey 和 bucket 的类
  */
-public class RegionReqInfo {
+class RegionReqInfo {
     private final String accessKey;
     private final String bucket;
 
-    public RegionReqInfo(String token) throws QiniuException {
+    RegionReqInfo(String token) throws QiniuException {
         // http://developer.qiniu.com/article/developer/security/upload-token.html
         // http://developer.qiniu.com/article/developer/security/put-policy.html
         try {

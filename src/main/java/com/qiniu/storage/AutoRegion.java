@@ -1,5 +1,6 @@
-package com.qiniu.common;
+package com.qiniu.storage;
 
+import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class AutoRegion extends Region {
+class AutoRegion extends Region {
 
     /**
      * uc接口域名
@@ -30,14 +31,7 @@ public class AutoRegion extends Region {
      */
     private Client client;
 
-    /**
-     * 构建默认的域名接口获取对象
-     */
-    public AutoRegion() {
-        this("https://uc.qbox.me");
-    }
-
-    public AutoRegion(String ucServer) {
+    AutoRegion(String ucServer) {
         this.ucServer = ucServer;
         this.client = new Client();
         this.regions = new ConcurrentHashMap<>();
@@ -78,10 +72,12 @@ public class AutoRegion extends Region {
     private RegionInfo queryRegionInfo(String accessKey, String bucket) throws QiniuException {
         RegionIndex index = new RegionIndex(accessKey, bucket);
         RegionInfo info = regions.get(index);
+
+        Exception ex = null;
         // 隔一段时间重新获取 uc 信息 //
         if (info == null || info.createTime < System.currentTimeMillis() - 1000 * 3600 * 8) {
-            UCRet ret = getRegionJson(index);
             try {
+                UCRet ret = getRegionJson(index);
                 RegionInfo info2 = RegionInfo.buildFromUcRet(ret);
                 // 初次获取报错，info == null ，响应 null //
                 // 后续重新获取，正常获取则替换以前的 //
@@ -90,13 +86,12 @@ public class AutoRegion extends Region {
                     info = info2;
                 }
             } catch (Exception e) {
-                // 初次获取报错，info 为 null，没法用，报错 //
-                // 后续重新获取，报错则继续使用以前的，即忽略错误 //
-                if (info == null) {
-                    throw new QiniuException(e, "auto region get region info from uc failed.");
-                }
+                ex = e;
             }
-
+        }
+        // info 不能为 null //
+        if (info == null) {
+            throw new QiniuException(ex, "auto region get region info from uc failed.");
         }
         return info;
     }
@@ -107,17 +102,12 @@ public class AutoRegion extends Region {
      * @param regionReqInfo 封装了 accessKey 和 bucket 的对象
      * @return 机房域名信息
      */
-    private RegionInfo queryRegionInfo(RegionReqInfo regionReqInfo) {
-        try {
-            return queryRegionInfo(regionReqInfo.getAccessKey(), regionReqInfo.getBucket());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    private RegionInfo queryRegionInfo(RegionReqInfo regionReqInfo) throws QiniuException {
+        return queryRegionInfo(regionReqInfo.getAccessKey(), regionReqInfo.getBucket());
     }
 
     @Override
-    public String getRegion(RegionReqInfo regionReqInfo) {
+    String getRegion(RegionReqInfo regionReqInfo) {
         return "";
     }
 
@@ -125,11 +115,8 @@ public class AutoRegion extends Region {
      * 获取源站直传域名
      */
     @Override
-    public List<String> getSrcUpHost(RegionReqInfo regionReqInfo) {
+    List<String> getSrcUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
-            return null;
-        }
         return info.srcUpHosts;
     }
 
@@ -137,11 +124,8 @@ public class AutoRegion extends Region {
      * 获取加速上传域名
      */
     @Override
-    public List<String> getAccUpHost(RegionReqInfo regionReqInfo) {
+    List<String> getAccUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
-            return null;
-        }
         return info.accUpHosts;
     }
 
@@ -149,11 +133,8 @@ public class AutoRegion extends Region {
      * 获取源站下载域名
      */
     @Override
-    public String getIovipHost(RegionReqInfo regionReqInfo) {
+    String getIovipHost(RegionReqInfo regionReqInfo) throws QiniuException {
         RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
-            return "";
-        }
         return info.iovipHost;
     }
 
@@ -161,9 +142,11 @@ public class AutoRegion extends Region {
      * 获取资源管理域名
      */
     @Override
-    public String getRsHost(RegionReqInfo regionReqInfo) {
-        RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
+    String getRsHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        RegionInfo info;
+        try {
+            info = queryRegionInfo(regionReqInfo);
+        } catch (QiniuException e) {
             return super.getRsHost(regionReqInfo);
         }
         Region region = this.inferDomainsMap.get(info.srcUpHosts.get(0));
@@ -178,9 +161,11 @@ public class AutoRegion extends Region {
      * 获取资源列表域名
      */
     @Override
-    public String getRsfHost(RegionReqInfo regionReqInfo) {
-        RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
+    String getRsfHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        RegionInfo info;
+        try {
+            info = queryRegionInfo(regionReqInfo);
+        } catch (QiniuException e) {
             return super.getRsfHost(regionReqInfo);
         }
         Region region = this.inferDomainsMap.get(info.srcUpHosts.get(0));
@@ -195,9 +180,11 @@ public class AutoRegion extends Region {
      * 获取资源处理HTTP域名
      */
     @Override
-    public String getApiHost(RegionReqInfo regionReqInfo) {
-        RegionInfo info = queryRegionInfo(regionReqInfo);
-        if (info == null) {
+    String getApiHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        RegionInfo info;
+        try {
+            info = queryRegionInfo(regionReqInfo);
+        } catch (QiniuException e) {
             return super.getApiHost(regionReqInfo);
         }
         Region region = this.inferDomainsMap.get(info.srcUpHosts.get(0));
