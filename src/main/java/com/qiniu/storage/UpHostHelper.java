@@ -7,6 +7,7 @@ import java.util.*;
 class UpHostHelper {
     private long failedPeriodMillis; // 毫秒 1/1000 s
     private Configuration conf;
+    private boolean useGetFailedRegion = false;
 
     private LinkedHashMap<String, RegionUpHost> regionHostsLRU =
             new LinkedHashMap<String, RegionUpHost>(1, 1.0f, true) {
@@ -30,23 +31,25 @@ class UpHostHelper {
         // auto region may failed here.
         List<String> accHosts;
         List<String> srcHosts;
-        String failedGetRegion = "failed_get_region";
+        String getFailedRegion = "failed_get_region";
 
         try {
             accHosts = region.getAccUpHost(regionReqInfo);
             srcHosts = region.getSrcUpHost(regionReqInfo);
-            if (conf.useDefaultUpHostIfNone) {
-                regionHostsLRU.remove(failedGetRegion); // 6 items, fast enough.
+            if (useGetFailedRegion) {
+                useGetFailedRegion = false;
+                regionHostsLRU.remove(getFailedRegion);
             }
         } catch (QiniuException e) { // it will success soon.
             // if successful before,  regionHostsLRU.get(failedGetRegion) should be null
-            RegionUpHost regionHost = regionHostsLRU.get(failedGetRegion);
+            RegionUpHost regionHost = regionHostsLRU.get(getFailedRegion);
             if (regionHost != null) {
                 return regionHost.upHost(regionHost.lastAccHosts, regionHost.lastSrcHosts,
                         lastUsedHost, true);
             }
             if (mustReturnUpHost && conf.useDefaultUpHostIfNone) {
-                return failedUpHost(failedGetRegion);
+                useGetFailedRegion = true;
+                return failedUpHost(getFailedRegion);
             } else {
                 throw e;
             }
