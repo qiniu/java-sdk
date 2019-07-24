@@ -200,6 +200,10 @@ public class BucketTest {
                 bucketManager.stat(bucket, key);
                 Assert.fail();
             } catch (QiniuException e) {
+                if (e.response != null) {
+                    System.out.println(e.code() + "\n" + e.response.getInfo());
+                }
+                System.out.println(code + ",  " + e.code());
                 Assert.assertEquals(code, e.code());
             }
         }
@@ -782,7 +786,14 @@ public class BucketTest {
                 Assert.assertEquals(200, response.statusCode);
 
             } catch (QiniuException e) {
+                e.printStackTrace();
                 Assert.fail(e.response.toString());
+            } finally {
+                try {
+                    bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
+                } catch (QiniuException e) {
+                    // do nothing
+                }
             }
         }
     }
@@ -1243,7 +1254,7 @@ public class BucketTest {
             String keyForDelete = "keyForDelete" + Math.random();
             try {
                 bucketManager.copy(bucket, key, bucket, keyForDelete);
-                Response response = bucketManager.deleteAfterDays(bucket, key, 10);
+                Response response = bucketManager.deleteAfterDays(bucket, keyForDelete, 10);
                 Assert.assertEquals(200, response.statusCode);
             } catch (QiniuException e) {
                 Assert.fail(e.response.toString());

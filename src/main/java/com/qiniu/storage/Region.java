@@ -1,5 +1,6 @@
-package com.qiniu.common;
+package com.qiniu.storage;
 
+import com.qiniu.common.QiniuException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -89,8 +90,8 @@ public class Region {
         /**
          * 自动选择,其它参数设置无效
          */
-        public Region autoRegion() {
-            return new AutoRegion();
+        public Region autoRegion(String ucServer) {
+            return new AutoRegion(ucServer);
         }
 
         /**
@@ -263,34 +264,44 @@ public class Region {
      * 空间所在的对应机房可以在空间创建的时候选择，或者创建完毕之后，从后台查看
      */
     public static Region autoRegion() {
-        return new Builder().autoRegion();
+        return autoRegion("https://uc.qbox.me");
     }
 
-    public String getRegion(RegionReqInfo regionReqInfo) {
+    /*
+     * 自动根据AccessKey和Bucket来判断所在机房，并获取相关的域名
+     * 空间所在的对应机房可以在空间创建的时候选择，或者创建完毕之后，从后台查看
+     */
+    public static Region autoRegion(String ucServer) {
+        return new Builder().autoRegion(ucServer);
+    }
+
+
+
+    String getRegion(RegionReqInfo regionReqInfo) {
         return this.region;
     }
 
-    public List<String> getSrcUpHost(RegionReqInfo regionReqInfo) {
+    List<String> getSrcUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return this.srcUpHosts;
     }
 
-    public List<String> getAccUpHost(RegionReqInfo regionReqInfo) {
+    List<String> getAccUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return this.accUpHosts;
     }
 
-    public String getIovipHost(RegionReqInfo regionReqInfo) {
+    String getIovipHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return iovipHost;
     }
 
-    public String getRsHost(RegionReqInfo regionReqInfo) {
+    String getRsHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return rsHost;
     }
 
-    public String getRsfHost(RegionReqInfo regionReqInfo) {
+    String getRsfHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return rsfHost;
     }
 
-    public String getApiHost(RegionReqInfo regionReqInfo) {
+    String getApiHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return apiHost;
     }
 

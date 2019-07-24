@@ -62,8 +62,9 @@ public class RegionTest {
         testChangeHost(cfg);
     }
 
-    public void testChangeHost(Configuration cfg) throws QiniuException {
+    public void testChangeHost(Configuration cfg0) throws QiniuException {
         Auth auth = Auth.create(TestConfig.testAccessKey, TestConfig.testSecretKey);
+        ConfigHelper cfg = new ConfigHelper(cfg0);
         String h1 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0));
         System.out.println("h1\t" + h1);
         String h1_ = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0));
@@ -101,7 +102,7 @@ public class RegionTest {
         System.out.println(h12);
 
         Assert.assertEquals(h1, h1_);
-        if (cfg.region instanceof AutoRegion) {
+        if (cfg0.region instanceof AutoRegion) {
             Assert.assertNotEquals(h1, h2); // 不同region //
             Assert.assertNotEquals(h1, h3_); // 切回 region 后，继续保持状态 //
         }
@@ -124,6 +125,27 @@ public class RegionTest {
 
 
     @Test
+    public void testGetFailedUpHost() throws QiniuException {
+        Configuration cfg0 = new Configuration();
+        ConfigHelper configHelper = new ConfigHelper(cfg0);
+        Auth auth = Auth.create(TestConfig.testAccessKey, TestConfig.testSecretKey);
+        String upToken = auth.uploadToken(TestConfig.testBucket_z0 + "notexitbucket38_-4rfjiu4r3u4t83d");
+        String h1 = configHelper.upHost(upToken);
+        String h2 = configHelper.upHost(upToken);
+
+        System.out.println(h1);
+        System.out.println(h2);
+        String h3 = configHelper.tryChangeUpHost(upToken, h2);
+        String h4 = configHelper.tryChangeUpHost(upToken, h3);
+        System.out.println(h3);
+        System.out.println(h4);
+        Assert.assertNotEquals(h1, h2);
+        Assert.assertNotEquals(h3, h2);
+        Assert.assertNotEquals(h3, h4);
+    }
+
+
+    @Test
     public void testChangeHostPeriod() throws QiniuException {
         Configuration cfg0 = new Configuration();
         UpHostHelper helper = new UpHostHelper(cfg0, 20);
@@ -132,45 +154,45 @@ public class RegionTest {
 
         cfg0.upHost(auth.uploadToken(TestConfig.testBucket_z0)); // make sure there region is not null
 
-        String h1 = helper.upHost(cfg0.region, upToken, null, false);
+        String h1 = helper.upHost(cfg0.region, upToken, null, false, false);
         System.out.println("h1\t" + h1);
-        String h2 = helper.upHost(cfg0.region, upToken, h1, false);
+        String h2 = helper.upHost(cfg0.region, upToken, h1, false, false);
         System.out.println(h2);
-        String h3 = helper.upHost(cfg0.region, upToken, h2, true);
+        String h3 = helper.upHost(cfg0.region, upToken, h2, true, false);
         System.out.println(h3);
 //        String h4 = helper.upHost(cfg0.region, upToken, true);
 //        System.out.println(h4);
-        String h5 = helper.upHost(cfg0.region, upToken, h3, true);
+        String h5 = helper.upHost(cfg0.region, upToken, h3, true, false);
         System.out.println("h5\t" + h5);
-        String h6 = helper.upHost(cfg0.region, upToken, h5, true);
+        String h6 = helper.upHost(cfg0.region, upToken, h5, true, false);
         System.out.println(h6);
         try {
             Thread.sleep(21 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        String h7 = helper.upHost(cfg0.region, upToken, h6, false);
+        String h7 = helper.upHost(cfg0.region, upToken, h6, false, false);
         System.out.println("h7\t" + h7);
 
-        String h8 = helper.upHost(cfg0.region, upToken, h7, true);
+        String h8 = helper.upHost(cfg0.region, upToken, h7, true, false);
         System.out.println(h8);
         try {
             Thread.sleep(21 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        String h9 = helper.upHost(cfg0.region, upToken, h8, true);
+        String h9 = helper.upHost(cfg0.region, upToken, h8, true, false);
         System.out.println("h9\t" + h9);
-        String h10 = helper.upHost(cfg0.region, upToken, h9, true);
+        String h10 = helper.upHost(cfg0.region, upToken, h9, true, false);
         System.out.println(h10);
         try {
             Thread.sleep(11 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        String h11 = helper.upHost(cfg0.region, upToken, h10, true);
+        String h11 = helper.upHost(cfg0.region, upToken, h10, true, false);
         System.out.println("h11\t" + h11);
-        String h12 = helper.upHost(cfg0.region, upToken, h11, false);
+        String h12 = helper.upHost(cfg0.region, upToken, h11, false, false);
         System.out.println(h12);
 
         Assert.assertEquals(h1, h2);
