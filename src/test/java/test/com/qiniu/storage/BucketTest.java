@@ -792,7 +792,11 @@ public class BucketTest {
                 try {
                     bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
                 } catch (QiniuException e) {
-                    // do nothing
+                    try {
+                        bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
+                    } catch (QiniuException e1) {
+                        // do nothing
+                    }
                 }
             }
         }

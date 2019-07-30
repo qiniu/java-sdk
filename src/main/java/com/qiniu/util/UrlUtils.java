@@ -25,7 +25,7 @@ public class UrlUtils {
     public static final String ALWAYS_NON_ENCODING = "abcdefghijklmnopqrstuvwxyz"
                                                       + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                                       + "0123456789"
-                                                      + "+-.";
+                                                      + "-_.";
 
 
     // http://asfd.clouddn.com//s共df/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;"/=/ /
