@@ -25,43 +25,25 @@ public class UrlUtils {
     public static final String ALWAYS_NON_ENCODING = "abcdefghijklmnopqrstuvwxyz"
                                                       + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                                       + "0123456789"
-                                                      + "+-.";
+                                                      + "-_.";
 
+    // CHECKSTYLE:OFF
+    // http://asfd.clouddn.com//s共df/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;"/=/ /sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;"/=/ /?sdfr=34sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;"/=/ /
 
-    // http://asfd.clouddn.com//s共df/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;"/=/ /
-    //      sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;"/=/ /?sdfr=34sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;"/=/ /
+    // Request URL: http://asfd.clouddn.com//s%E5%85%B1df/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;%22/=/%20/sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;%22/=/%20/?sdfr=34sdf/*/~/@/:/!/$/&/&amp;/%27/(/)/*/+/-/_/,/;%22/=/%20/
+    // Request Method: GET
 
-    // GET //s%E5%85%B1df/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;%22/=/%20/
-    //      sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;%22/=/%20/?
-    //      sdfr=34sdf/*/~/@/:/!/$/&/&amp;/%27/(/)/*/+/,/;%22/=/%20/ HTTP/1.1
-    // Host: asfd.clouddn.com
-    // Connection: keep-alive
-    // Pragma: no-cache
-    // Cache-Control: no-cache
-    // Upgrade-Insecure-Requests: 1
-    // User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko)
-    //          Chrome/75.0.3770.100 Safari/537.36
-    // Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;
-    //          q=0.8,application/signed-exchange;v=b3
-    // Accept-Encoding: gzip, deflate
-    // Accept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7
-    //
-    // HTTP/1.1 301 Moved Permanently
-    // Server: Tengine
-    // Content-Type: text/html; charset=utf-8
-    // Content-Length: 244
-    // Connection: keep-alive
-    // Date: Wed, 26 Jun 2019 06:29:10 GMT
-    // Access-Control-Allow-Origin: *
-    // Access-Control-Expose-Headers: X-Log, X-Reqid
-    // Access-Control-Max-Age: 2592000
-    // Location: /s%E5%85%B1df/%2A/~/@/:/%21/$/&/&amp;/%27/%28/%29/%2A/+/,/;%22/=/%20/
-    //          sdf/%2A/~/@/:/%21/$/&/&amp;/%27/%28/%29/%2A/+/,/;%22/=/%20/?
-    //          sdfr=34sdf/*/~/@/:/!/$/&/&amp;/%27/(/)/*/+/,/;%22/=/%20/
-    // <a href="/s%E5%85%B1df/%2A/~/@/:/%21/$/&amp;/&amp;amp;/%27/%28/%29/%2A/+/,/;%22/=/%20/
-    //      sdf/%2A/~/@/:/%21/$/&amp;/&amp;amp;/%27/%28/%29/%2A/+/,/;%22/=/%20/?
-    //      sdfr=34sdf/*/~/@/:/!/$/&amp;/&amp;amp;/%27/(/)/*/+/,/;%22/=/%20/">Moved Permanently</a>.
-
+    // EagleId: 767ba4a715644841959032513e
+    // Location: /s%E5%85%B1df/%2A/~/@/:/%21/$/&/&amp;/%27/%28/%29/%2A/+/-/_/,/;%22/=/%20/sdf/%2A/~/@/:/%21/$/&/&amp;/%27/%28/%29/%2A/+/-/_/,/;%22/=/%20/?sdfr=34sdf/*/~/@/:/!/$/&/&amp;/%27/(/)/*/+/-/_/,/;%22/=/%20/
+    // Via: cache20.l2cn1824[75,301-0,M], cache39.l2cn1824[76,0], vcache2.cn822[145,301-0,M], vcache19.cn822[147,0]
+    // X-Cache: MISS TCP_MISS dirn:-2:-2
+    // X-Log: X-Log
+    // X-M-Log: QNM:xs1166;SRCPROXY:xs488;SRC:2/301;SRCPROXY:2/301;QNM3:50/301
+    // X-M-Reqid: kwYAAE1_CVUWKrYV
+    // X-Qiniu-Zone: 0
+    // X-Qnm-Cache: Validate,MissValidate
+    // X-Reqid: kowAAABb8VcWKrYV
+    // CHECKSTYLE:ON
     public static final String PLUS_NON_ENCODING = "~@:$&+,;=/?";
 
     /**
