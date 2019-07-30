@@ -95,7 +95,7 @@ public class FixBlockUploaderTest {
 
     @Test
     public void test6M1K() throws IOException {
-        template(1024 * 6 + 1, false, false);
+        template(true, 1024 * 6 + 1, false, false);
     }
 
 
@@ -148,6 +148,7 @@ public class FixBlockUploaderTest {
         }
         System.out.println(f.getAbsolutePath());
         final String etag = Etag.file(f);
+        System.out.println(etag);
         final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
 
@@ -164,10 +165,10 @@ public class FixBlockUploaderTest {
             Response r = null;
             if (isStream) {
                 System.out.println("upload input stream");
-                r = up.upload(new FileInputStream(f), f.length(), token, expectKey, metaParams);
+                r = up.upload(new FileInputStream(f), f.length(), token, expectKey, metaParams, null, 0);
             } else {
                 System.out.println("upload file");
-                r = up.upload(f, token, expectKey, metaParams);
+                r = up.upload(f, token, expectKey, metaParams, null, 0);
             }
             System.out.println(r.getInfo());
             ResumeUploadTest.MyRet ret = r.jsonToObject(ResumeUploadTest.MyRet.class);

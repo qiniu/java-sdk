@@ -22,7 +22,8 @@ public class JsonTest {
         private String name;
         private int age;
         private String emailAddress;
-
+        transient String s1;
+        transient int i1;
         public User(String name, int age) {
             this.name = name;
             this.age = age;
@@ -32,6 +33,17 @@ public class JsonTest {
         public String toString() {
             return new Gson().toJson(this);
         }
+    }
+
+    @Test
+    public void testJ0() {
+        User u = new User("a", 23);
+        u.s1 = "s1";
+        u.i1 = 1;
+        String j = u.toString();
+        System.out.println(u);
+        System.out.println(j);
+        assertTrue(" no s1, i1 fields", j.indexOf("s1") == -1);
     }
 
     @Test

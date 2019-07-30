@@ -10,7 +10,11 @@ import com.qiniu.util.*;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class FixBlockUploader {
     private final int blockSize;
@@ -46,125 +50,109 @@ public class FixBlockUploader {
 
 
     public Response upload(final File file, final String token, String key) throws QiniuException {
-        return upload(file, token, key, null);
+        return upload(file, token, key, null, null, 0);
     }
 
+    public Response upload(final File file, final String token, String key,
+                           ExecutorService pool) throws QiniuException {
+        return upload(file, token, key, null, pool, 8);
+    }
 
-    public Response upload(final File file, final String token, String key, StringMap metaParams)
-            throws QiniuException {
+    public Response upload(final File file, final String token, String key,
+                           StringMap metaParams, ExecutorService pool, int maxRunningBlock) throws QiniuException {
         BlockData blockData;
         try {
             blockData = new FileBlockData(this.blockSize, file);
         } catch (IOException e) {
             throw new QiniuException(e);
         }
-        try {
-            return upload(blockData, new StaticToken(token), key, metaParams);
-        } finally {
-            blockData.close();
-        }
+        return upload(blockData, new StaticToken(token), key, metaParams, pool, maxRunningBlock);
     }
 
 
     public Response upload(final InputStream is, long inputStreamLength, final String token, String key)
             throws QiniuException {
-        return upload(is, inputStreamLength, token, key, null);
+        return upload(is, inputStreamLength, token, key, null, null, 0);
     }
 
+
     public Response upload(final InputStream is, long inputStreamLength, final String token,
-                           String key, StringMap metaParams) throws QiniuException {
+                           String key, ExecutorService pool) throws QiniuException {
+        return upload(is, inputStreamLength, token, key, null, pool, 8);
+    }
+
+
+    public Response upload(final InputStream is, long inputStreamLength,
+                           final String token, String key, StringMap metaParams,
+                           ExecutorService pool, int maxRunningBlock) throws QiniuException {
         BlockData blockData;
         blockData = new InputStreamBlockData(this.blockSize, is, inputStreamLength);
+        return upload(blockData, new StaticToken(token), key, metaParams, pool, maxRunningBlock);
+    }
+
+
+    public Response upload(BlockData blockData, String token, String key,
+                           StringMap metaParams, ExecutorService pool, int maxRunningBlock) throws QiniuException {
+        return upload(blockData, new StaticToken(token), key, metaParams, pool, maxRunningBlock);
+    }
+
+
+    Response upload(BlockData blockData, Token token, String key, StringMap metaParams,
+                           ExecutorService pool, int maxRunningBlock) throws QiniuException {
         try {
-            return upload(blockData, new StaticToken(token), key, metaParams);
+            assert !StringUtils.isNullOrEmpty(key) : "key must not be null or empty";
+            if (key == null) { // assert may not be enabled. we do not like null pointer exception//
+                key = "";
+            }
+            String bucket = parseBucket(token.getUpToken());
+            String base64Key = UrlSafeBase64.encodeToString(key);
+            String recordFileKey = (recorder == null) ? ""
+                    : recorder.recorderKeyGenerate(bucket, base64Key, blockData.getContentUUID(),
+                        this.blockSize + "*:|>?^ \b" + this.getClass().getName());
+            // must before any http request //
+            if (host == null) {
+                host = configHelper.upHost(token.getUpToken());
+            }
+            UploadRecordHelper helper = new UploadRecordHelper(recorder, recordFileKey, blockData.repeatable());
+            Record record = initRecorder(blockData, helper, bucket, base64Key, token);
+            boolean repeatable = recorder != null &&  blockData.repeatable();
+
+            Response res;
+            try {
+                upBlock(blockData, token, bucket, base64Key, repeatable, record, pool, maxRunningBlock);
+                res = makeFile(bucket, base64Key, token, record.uploadId, record.etagIdxes, metaParams);
+            } catch (QiniuException e) {
+                // if everything is ok, do not need to sync record  //
+                helper.syncRecord(record);
+                throw e;
+            }
+            if (res.isOK()) {
+                helper.delRecord();
+            }
+            return res;
         } finally {
             blockData.close();
         }
     }
 
-
-    public Response upload(BlockData blockData, String token, String key, StringMap metaParams) throws QiniuException {
-        return upload(blockData, new StaticToken(token), key, metaParams);
-    }
-
-
-    public Response upload(BlockData blockData, Token token, String key, StringMap metaParams) throws QiniuException {
-        assert !StringUtils.isNullOrEmpty(key) : "key must not be null or empty";
-        if (key == null) { // assert may not be enabled. we do not like null pointer exception//
-            key = "";
-        }
-        String bucket = parseBucket(token.getUpToken());
-        String base64Key = UrlSafeBase64.encodeToString(key);
-        if (host == null) {
-            host = configHelper.upHost(token.getUpToken());
-        }
-        if (metaParams == null) {
-            metaParams = new StringMap();
-        }
-        RetryCounter counter = new RetryCounter(this.retryMax);
-
-        String uploadId = null;
-        List<EtagIdx> etags = null;
+    Record initRecorder(BlockData blockData, UploadRecordHelper helper,
+                        String bucket, String base64Key, Token token) throws QiniuException {
         Record record = null;
-
-        UploadRecordHelper helper = new UploadRecordHelper(recorder, bucket, base64Key,
-                blockData.getContentUUID(), this.blockSize + "*:|>?^ \b" + this.getClass().getName());
-
-        if (blockData.isRetryable()) {
+        if (blockData.repeatable()) {
             record = helper.reloadRecord();
-            if (helper.isActiveRecord(record, blockData)) {
-                // 有效的 record 才拿来用 //
-                try {
-                    blockData.skipByte(record.size); // may throw exception
-                    blockData.skipBlock(record.etagIdxes.size());
-                    etags = record.etagIdxes;
-                    uploadId = record.uploadId;
-                } catch (IOException e) {
-                    // need reset blockData ? how ?
-                    // mark(int readlimit) readlimit is not big enough, it's useless for large entity.
-                    // fileinputstream does not support mark and reset.
-                    // be simple, only delete record file, then throw an exception. the invoker maybe need to retry.
-                    helper.delRecord();
-                    throw new QiniuException(e, "blockData skip failed. "
-                            + "record file is already deleted, please retry if needed.");
-                }
+            // 有效的 record 才拿来用 //
+            if (!helper.isActiveRecord(record, blockData)) {
+                record = null;
             }
         }
 
-        if (uploadId == null) {
-            uploadId = init(bucket, base64Key, token.getUpToken());
-            etags = new ArrayList<EtagIdx>();
-            record = initRecord(uploadId, etags);
+        if (record == null || record.uploadId == null) {
+            String uploadId = init(bucket, base64Key, token.getUpToken());
+            List<EtagIdx> etagIdxes = new ArrayList<>();
+            record = initRecord(uploadId, etagIdxes);
         }
-
-        while (blockData.hasNext()) {
-            try {
-                blockData.nextBlock();
-            } catch (IOException e) {
-                throw new QiniuException(e);
-            }
-            byte[] data = blockData.getCurrentBlockData();
-            // usually, size equals data.length, except the last block of blockdata
-            int size = blockData.getCurrentRead();
-            int index = blockData.getCurrentIndex();
-
-            String etag = uploadBlock(bucket, base64Key, token, uploadId, data, size, index, counter);
-            etags.add(new EtagIdx(etag, index));
-            // 对应的 etag、index 通过 etags 添加 //
-            record.size += size;
-
-            helper.syncRecord(record);
-        }
-
-        Response res = makeFile(bucket, base64Key, token, uploadId, etags, metaParams);
-
-        if (res.isOK()) {
-            helper.delRecord();
-        }
-
-        return res;
+        return record;
     }
-
 
     String init(String bucket, String base64Key, String upToken) throws QiniuException {
         String url = host + "/buckets/" + bucket + "/objects/" + base64Key + "/uploads";
@@ -222,13 +210,146 @@ public class FixBlockUploader {
     }
 
 
-    String uploadBlock(String bucket, String base64Key, Token token, String uploadId, byte[] data,
+    private void upBlock(BlockData blockData, Token token, String bucket, String base64Key, boolean repeatable,
+                         Record record, ExecutorService pool, int maxRunningBlock) throws QiniuException {
+        boolean useAsync = useAsync(pool, blockData, record);
+
+        if (!useAsync) {
+            syncUpload(blockData, token, bucket, base64Key, record);
+        } else {
+            asyncUpload(blockData, token, bucket, base64Key, record, repeatable, pool, maxRunningBlock);
+        }
+    }
+
+    private boolean useAsync(ExecutorService pool, BlockData blockData, Record record) {
+        return pool != null && ((blockData.size() - record.size) > this.blockSize);
+    }
+
+    private void syncUpload(BlockData blockData, Token token, String bucket,
+                            String base64Key, Record record) throws QiniuException {
+        final String uploadId = record.uploadId;
+        final List<EtagIdx> etagIdxes = record.etagIdxes;
+        RetryCounter counter = new NormalRetryCounter(retryMax);
+        while (blockData.hasNext()) {
+            try {
+                blockData.nextBlock();
+            } catch (IOException e) {
+                throw new QiniuException(e, e.getMessage());
+            }
+            DataWraper wrapper = blockData.getCurrentBlockData();
+            if (alreadyDone(wrapper.getIndex(), etagIdxes)) {
+                continue;
+            }
+
+            EtagIdx etagIdx;
+            try {
+                etagIdx = uploadBlock(bucket, base64Key, token, uploadId,
+                        wrapper.getData(), wrapper.getSize(), wrapper.getIndex(), counter);
+            } catch (IOException e) {
+                throw new QiniuException(e, e.getMessage());
+            }
+            etagIdxes.add(etagIdx);
+            // 对应的 etag、index 通过 etags 添加 //
+            record.size += etagIdx.size;
+        }
+    }
+
+    private void asyncUpload(BlockData blockData, final Token token,
+                             final String bucket, final String base64Key, Record record,
+                             boolean needRecord, ExecutorService pool, int maxRunningBlock) throws QiniuException {
+        final String uploadId = record.uploadId;
+        final List<EtagIdx> etagIdxes = record.etagIdxes;
+        final RetryCounter counter = new AsyncRetryCounter(retryMax);
+        List<Future<EtagIdx>> futures = new ArrayList<>((int) (blockData.size() / blockSize) + 1);
+        QiniuException qiniuEx = null;
+        while (blockData.hasNext()) {
+            try {
+                blockData.nextBlock();
+            } catch (IOException e) {
+                qiniuEx = new QiniuException(e, e.getMessage());
+                break;
+            }
+            final DataWraper wrapper = blockData.getCurrentBlockData();
+            if (alreadyDone(wrapper.getIndex(), etagIdxes)) {
+                continue;
+            }
+
+            Callable<EtagIdx> runner = new Callable<EtagIdx>() {
+                @Override
+                public EtagIdx call() throws Exception {
+                    return uploadBlock(bucket, base64Key, token, uploadId,
+                            wrapper.getData(), wrapper.getSize(), wrapper.getIndex(), counter);
+                }
+            };
+
+            waitingEnough(maxRunningBlock, futures);
+
+            try {
+                futures.add(pool.submit(runner));
+            } catch (Exception e) {
+                qiniuEx = new QiniuException(e, e.getMessage());
+                break;
+            }
+        }
+        for (Future<EtagIdx> future : futures) {
+            if (!needRecord && qiniuEx != null) {
+                future.cancel(true);
+                continue;
+            }
+            EtagIdx etagIdx;
+            try {
+                etagIdx = future.get();
+                etagIdxes.add(etagIdx);
+                record.size += etagIdx.size;
+            } catch (Exception e) {
+                if (qiniuEx == null) {
+                    qiniuEx = new QiniuException(e, e.getMessage());
+                }
+            }
+        }
+        if (qiniuEx != null) {
+            throw qiniuEx;
+        }
+    }
+
+
+    private boolean alreadyDone(int index, List<EtagIdx> etagIdxes) {
+        for (EtagIdx etagIdx : etagIdxes) {
+            if (etagIdx.idx == index) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private void waitingEnough(int maxRunningBlock, List<Future<EtagIdx>> futures) {
+        for ( ; ; ) {
+            int count = futures.size();
+            if (count < maxRunningBlock) {
+                break;
+            }
+            int done = 0;
+            for (Future<EtagIdx> future : futures) {
+                if (future.isDone()) {
+                    done++;
+                }
+            }
+            if (count - done < maxRunningBlock) {
+                break;
+            }
+            sleepMillis(500);
+        }
+    }
+
+
+    EtagIdx uploadBlock(String bucket, String base64Key, Token token, String uploadId, byte[] data,
                        int dataLength, int partNum, RetryCounter counter) throws QiniuException {
         Response res = uploadBlockWithRetry(bucket, base64Key, token, uploadId, data, dataLength, partNum, counter);
         try {
             String etag = res.jsonToMap().get("etag").toString();
             if (etag.length() > 10) {
-                return etag;
+                return new EtagIdx(etag, partNum, dataLength);
             }
         } catch (Exception e) {
             // ignore, see next line
@@ -306,18 +427,28 @@ public class FixBlockUploader {
         }
     }
 
+
     Response makeFile(String bucket, String base64Key, Token token, String uploadId, List<EtagIdx> etags,
                        StringMap metaParams) throws QiniuException {
         String url = host + "/buckets/" + bucket + "/objects/" + base64Key + "/uploads/" + uploadId;
         byte[] data = new EtagIdxPart(etags).toString().getBytes(Charset.forName("UTF-8"));
         final StringMap headers = new StringMap().put("Authorization", "UpToken " + token.getUpToken());
 
-        metaParams.forEach(new StringMap.Consumer() {
-            @Override
-            public void accept(String key, Object value) {
-                if (key != null && key.startsWith("X-Qn-Meta-")) {
-                    headers.put(key, value);
+        if (metaParams != null) {
+            metaParams.forEach(new StringMap.Consumer() {
+                @Override
+                public void accept(String key, Object value) {
+                    if (key != null && key.startsWith("X-Qn-Meta-")) {
+                        headers.put(key, value);
+                    }
                 }
+            });
+        }
+
+        etags.sort(new Comparator<EtagIdx>() {
+            @Override
+            public int compare(EtagIdx o1, EtagIdx o2) {
+                return o1.idx - o2.idx; // small enough and both greater than 0 //
             }
         });
 
@@ -400,9 +531,11 @@ public class FixBlockUploader {
         String etag;
         @SerializedName("PartNumber")
         int idx;
-        EtagIdx(String etag, int idx) {
+        transient int size;
+        EtagIdx(String etag, int idx, int size) {
             this.etag = etag;
             this.idx = idx;
+            this.size = size;
         }
 
         public String toString() {
@@ -435,14 +568,15 @@ public class FixBlockUploader {
 
 
     class UploadRecordHelper {
+        boolean needRecord;
         Recorder recorder;
         String recordFileKey;
 
-        public UploadRecordHelper(Recorder recorder, String bucket, String base64Key,
-                                  String contentUUID, String uploaderSUID) {
+        UploadRecordHelper(Recorder recorder, String recordFileKey, boolean needRecord) {
+            this.needRecord = needRecord;
             if (recorder != null) {
                 this.recorder = recorder;
-                recordFileKey = recorder.recorderKeyGenerate(bucket, base64Key, contentUUID, uploaderSUID);
+                this.recordFileKey = recordFileKey;
             }
         }
 
@@ -470,7 +604,13 @@ public class FixBlockUploader {
 
 
         public void syncRecord(Record record) {
-            if (recorder != null) {
+            if (needRecord && recorder != null && record.etagIdxes.size() > 0) {
+                record.etagIdxes.sort(new Comparator<EtagIdx>() {
+                    @Override
+                    public int compare(EtagIdx o1, EtagIdx o2) {
+                        return o1.idx - o2.idx; // small enough and both greater than 0 //
+                    }
+                });
                 recorder.set(recordFileKey, new Gson().toJson(record).getBytes(Charset.forName("UTF-8")));
             }
         }
@@ -484,9 +624,9 @@ public class FixBlockUploader {
             if (isOk) {
                 int p = 0;
                 // PartNumber start with 1 and increase by 1 //
-                // 当前文件各块串行. 若并行，需额外考虑 //
+                // 当前文件各块串行 if (ei.idx == p + 1) . 若并行，需额外考虑 //
                 for (EtagIdx ei : record.etagIdxes) {
-                    if (ei.idx == p + 1) {
+                    if (ei.idx > p) {
                         p = ei.idx;
                     } else {
                         return false;
@@ -502,74 +642,95 @@ public class FixBlockUploader {
     ///////////////////////////////////////
 
 
-    public abstract static class BlockData {
-        public final int blockDataSize;
+    abstract static class BlockData {
+        protected final int blockDataSize;
 
         BlockData(int blockDataSize) {
             this.blockDataSize = blockDataSize;
         }
 
-        public abstract int getCurrentIndex();
+        abstract DataWraper getCurrentBlockData();
 
-        public abstract byte[] getCurrentBlockData();
+        abstract boolean hasNext();
 
-        public abstract int getCurrentRead();
+        abstract void nextBlock() throws IOException;
 
-        public abstract boolean hasNext();
+        abstract void close();
 
-        public abstract void nextBlock() throws IOException;
+        abstract long size();
 
-        public abstract void skipByte(long n) throws IOException;
-        public abstract void skipBlock(int blockCount);
+        abstract boolean repeatable();
 
-        public abstract void close();
-
-        public abstract long size();
-
-        public abstract boolean isRetryable();
-
-        public abstract String getContentUUID();
+        abstract String getContentUUID();
     }
 
+    interface DataWraper {
+        byte[] getData() throws IOException;
+        int getSize();
+        int getIndex();
+    }
 
-    public interface Token {
+    interface Token {
         String getUpToken();
     }
 
-    class RetryCounter {
+    interface RetryCounter {
+        void retried();
+        boolean inRange();
+    }
+
+    class NormalRetryCounter implements RetryCounter {
         int count;
 
-        RetryCounter(int max) {
+        NormalRetryCounter(int max) {
             this.count = max;
         }
 
+        @Override
         public void retried() {
             this.count--;
         }
 
+        @Override
         public boolean inRange() {
             return this.count > 0;
         }
     }
 
+    class AsyncRetryCounter implements RetryCounter {
+        volatile int count;
 
-    public static class FileBlockData extends BlockData {
+        AsyncRetryCounter(int max) {
+            this.count = max;
+        }
+
+        @Override
+        public synchronized void retried() {
+            this.count--;
+        }
+
+        @Override
+        public synchronized boolean inRange() {
+            return this.count > 0;
+        }
+    }
+
+
+    static class FileBlockData extends BlockData {
         final long totalLength;
         String contentUUID;
-
-        FileInputStream fis;
-        byte[] data;
-        int readLength = -1;
+        DataWraper dataWraper;
+        RandomAccessFile fis;
         int index = 0; // start at 1, read a block , add 1
-
         long alreadyReadSize = 0;
+        Lock lock;
 
-        public FileBlockData(int blockDataSize, File file) throws FileNotFoundException {
+        public FileBlockData(int blockDataSize, File file) throws IOException {
             super(blockDataSize);
-            fis = new FileInputStream(file);
+            fis = new RandomAccessFile(file, "r");
             totalLength = file.length();
-            data = new byte[blockDataSize];
             contentUUID = file.lastModified() + "_.-^ \b" + file.getAbsolutePath();
+            lock = new ReentrantLock();
         }
 
         @Override
@@ -578,20 +739,9 @@ public class FixBlockUploader {
         }
 
         @Override
-        public byte[] getCurrentBlockData() {
-            return data;
+        public DataWraper getCurrentBlockData() {
+            return dataWraper;
         }
-
-        @Override
-        public int getCurrentRead() {
-            return readLength;
-        }
-
-        @Override
-        public int getCurrentIndex() {
-            return index;
-        }
-
 
         @Override
         public boolean hasNext() {
@@ -600,24 +750,40 @@ public class FixBlockUploader {
 
         @Override
         public void nextBlock() throws IOException {
-            readLength = fis.read(data);
+            final long start = alreadyReadSize + 0;
+            final int readLength = (int) Math.min(totalLength - alreadyReadSize, blockDataSize);
             alreadyReadSize += readLength;
             index++;
+            final int idx = index + 0;
+            dataWraper = new DataWraper() {
+                int size;
+                public int getSize() {
+                    return size;
+                }
+
+                public int getIndex() {
+                    return idx;
+                }
+
+                @Override
+                public byte[] getData() throws IOException {
+                    byte[] data = new byte[blockDataSize];
+                    try {
+                        lock.lock();
+                        fis.seek(start);
+                        size = fis.read(data);
+                        assert readLength == size : "read size should equals "
+                                + "(int)Math.min(totalLength - alreadyReadSize, blockDataSize): " + readLength;
+                    } finally {
+                        lock.unlock();
+                    }
+                    return data;
+                }
+            };
         }
 
         @Override
-        public void skipByte(long n) throws IOException {
-            fis.skip(n);
-            alreadyReadSize += n;
-        }
-
-        @Override
-        public void skipBlock(int blockCount) {
-            this.index += blockCount;
-        }
-
-        @Override
-        public boolean isRetryable() {
+        public boolean repeatable() {
             return true;
         }
 
@@ -638,16 +804,14 @@ public class FixBlockUploader {
     }
 
 
-    public static class InputStreamBlockData extends BlockData {
+    static class InputStreamBlockData extends BlockData {
         final long totalLength;
         final boolean closedAfterUpload;
 
-        boolean retryable;
+        boolean repeatable;
         String contentUUID;
-
+        DataWraper dataWraper;
         InputStream is;
-        byte[] data;
-        int readLength = -1;
         int index = 0; // start at 1, read a block , add 1
 
         long alreadyReadSize = 0;
@@ -661,13 +825,12 @@ public class FixBlockUploader {
         }
 
         public InputStreamBlockData(int blockDataSize, InputStream is, long totalLength, boolean closedAfterUpload,
-                                    boolean retryable, String contentUUID) {
+                                    boolean repeatable, String contentUUID) {
             super(blockDataSize);
             this.is = is;
             this.totalLength = totalLength;
             this.closedAfterUpload = closedAfterUpload;
-            this.data = new byte[blockDataSize];
-            this.retryable = retryable;
+            this.repeatable = repeatable;
             this.contentUUID = contentUUID;
         }
 
@@ -677,20 +840,9 @@ public class FixBlockUploader {
         }
 
         @Override
-        public byte[] getCurrentBlockData() {
-            return data;
+        public DataWraper getCurrentBlockData() {
+            return dataWraper;
         }
-
-        @Override
-        public int getCurrentRead() {
-            return readLength;
-        }
-
-        @Override
-        public int getCurrentIndex() {
-            return index;
-        }
-
 
         @Override
         public boolean hasNext() {
@@ -699,7 +851,7 @@ public class FixBlockUploader {
 
         @Override
         public void nextBlock() throws IOException {
-            readLength = 0;
+            final byte[] data = new byte[blockDataSize];
             int rl = is.read(data);
             int rlt = rl;
             // no enough data //
@@ -708,7 +860,7 @@ public class FixBlockUploader {
                 if (rl == -1) {
                     break;
                 }
-                sleep(100);
+                sleepMillis(100);
                 rl = is.read(data, rlt, blockDataSize - rlt);
                 if (rl > 0) {
                     rlt += rl;
@@ -716,39 +868,31 @@ public class FixBlockUploader {
             }
 
             if (rlt != -1) {
-                readLength = rlt;
-                alreadyReadSize += readLength;
+                alreadyReadSize += rlt;
                 index++;
             }
-        }
-
-
-        @Override
-        public void skipByte(final long n) throws IOException {
-            long sn = is.skip(n);
-            long snt = sn;
-            while (snt < n) {
-                if (sn == -1) {
-                    throw new IOException("input stream does not have enough content: " + n);
+            final int dataLen = rlt;
+            final int idx = index;
+            dataWraper = new DataWraper() {
+                @Override
+                public byte[] getData() {
+                    return data;
                 }
-                sleep(100);
-                sn = is.skip(n - snt);
-                if (sn > 0) {
-                    snt += sn;
+
+                @Override
+                public int getSize() {
+                    return dataLen;
                 }
-            }
-            alreadyReadSize += n;
-        }
 
-
-        @Override
-        public void skipBlock(int blockCount) {
-            this.index += blockCount;
+                public int getIndex() {
+                    return idx;
+                }
+            };
         }
 
         @Override
-        public boolean isRetryable() {
-            return retryable;
+        public boolean repeatable() {
+            return repeatable;
         }
 
         @Override
@@ -769,16 +913,16 @@ public class FixBlockUploader {
     }
 
 
-    static void sleep(long millis) {
+    static void sleepMillis(long millis) {
         try {
-            Thread.sleep(100);
+            Thread.sleep(millis);
         } catch (InterruptedException e) {
             // do nothing
         }
     }
 
 
-    public static class StaticToken implements Token {
+    static class StaticToken implements Token {
         String token;
 
         public StaticToken(String token) {

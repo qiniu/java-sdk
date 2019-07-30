@@ -91,6 +91,9 @@ class AutoRegion extends Region {
         }
         // info 不能为 null //
         if (info == null) {
+            if (ex instanceof QiniuException) {
+                throw (QiniuException) ex;
+            }
             throw new QiniuException(ex, "auto region get region info from uc failed.");
         }
         return info;

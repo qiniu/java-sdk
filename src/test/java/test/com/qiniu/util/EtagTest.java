@@ -23,19 +23,27 @@ public class EtagTest {
     @Test
     public void testFile() throws IOException {
         File f = TempFile.createFileOld(1024);
-        assertEquals("Foyl8onxBLWeRLL5oItRJphv6i4b", Etag.file(f));
+        assertEquals("FqOV9T8l48x1u9dFEOROzwp4b0jr", Etag.file(f));
         TempFile.remove(f);
+
         f = TempFile.createFileOld(4 * 1024);
-        assertEquals("FicHOveBNs5Kn9d74M3b9tI4D-8r", Etag.file(f));
+//        System.out.println(Etag.file(f));
+        assertEquals("FgtlGCfS97kgqopAxq0vvKRA5o_R", Etag.file(f));
         TempFile.remove(f);
+
         f = TempFile.createFileOld(5 * 1024);
-        assertEquals("lg-Eb5KFCuZn-cUfj_oS2PPOU9xy", Etag.file(f));
+//        System.out.println(Etag.file(f));
+        assertEquals("lvtM_iKNnZXkZR8U3Fvi_QQO2yyi", Etag.file(f));
         TempFile.remove(f);
+
         f = TempFile.createFileOld(8 * 1024);
-        assertEquals("lkSKZOMToDp-EqLDVuT1pyjQssl-", Etag.file(f));
+//        System.out.println(Etag.file(f));
+        assertEquals("lhiIbcJgsRrl46LwMD9KHAQRLH2O", Etag.file(f));
         TempFile.remove(f);
+
         f = TempFile.createFileOld(9 * 1024);
-        assertEquals("ljgVjMtyMsOgIySv79U8Qz4TrUO4", Etag.file(f));
+//        System.out.println(Etag.file(f));
+        assertEquals("ll1xhlUFKQqynVgMMt_J1TuTrdB1", Etag.file(f));
         TempFile.remove(f);
     }
 }

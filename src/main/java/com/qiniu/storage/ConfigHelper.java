@@ -13,7 +13,19 @@ class ConfigHelper {
     }
 
     public String upHost(String upToken) throws QiniuException {
-        return upHost(upToken, null, false, true);
+        try {
+            return upHost(upToken, null, false, false);
+        } catch (QiniuException e) {
+            if (e.response == null || e.response.needRetry()) {
+                try {
+                    Thread.sleep(500);
+                } catch (Exception e1) {
+                    // do nothing
+                }
+                return upHost(upToken, null, false, true);
+            }
+            throw e;
+        }
     }
 
     public String tryChangeUpHost(String upToken, String lastUsedHost) throws QiniuException {
