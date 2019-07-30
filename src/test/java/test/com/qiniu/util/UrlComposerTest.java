@@ -18,9 +18,9 @@ public class UrlComposerTest {
 
     @Test
     public void testNonEncoding() {
-        String u = "http://asfd.clouddn.com/s共df/-+./*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;\"/=/ /"
+        String u = "http://asfd.clouddn.com/s共df/_-+./*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;\"/=/ /"
                 + "sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;\"/=/ /?sdfr=34sdf";
-        String f = "http://asfd.clouddn.com/s%E5%85%B1df/-+./%2A/~/@/:/%21/$/&/&amp;/%27/%28/%29/%2A/+/,/;%22/=/%20/"
+        String f = "http://asfd.clouddn.com/s%E5%85%B1df/_-+./%2A/~/@/:/%21/$/&/&amp;/%27/%28/%29/%2A/+/,/;%22/=/%20/"
                 + "sdf/%2A/~/@/:/%21/$/&/&amp;/%27/%28/%29/%2A/+/,/;%22/=/%20/?sdfr=34sdf";
         String c = UrlUtils.urlEncode(u, UrlUtils.PLUS_NON_ENCODING); // ~@:$&+,;=/?     no !'()*
         String cdefault = UrlUtils.urlEncode(u); // use UrlUtils.PLUS_NON_ENCODING
@@ -29,7 +29,7 @@ public class UrlComposerTest {
         assertFalse(java.util.regex.Pattern.compile("[!'()*]").matcher(f).find());
         assertEquals(f, c);
 
-        String f2 = "http://asfd.clouddn.com/s%E5%85%B1df/-+./*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;%22/=/%20/"
+        String f2 = "http://asfd.clouddn.com/s%E5%85%B1df/_-+./*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;%22/=/%20/"
                 + "sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;%22/=/%20/?sdfr=34sdf";
         String c2 = UrlUtils.urlEncode(u, UrlUtils.PLUS_NON_ENCODING2); // ~@:!$&'()*+,;=/?
         assertEquals(f2, c2);
