@@ -57,10 +57,10 @@ public class FixBlockUploaderWithRecorderTest {
 
     @Test
     public void breakThenUpload2() throws IOException {
-        ExecutorService pool = new ThreadPoolExecutor(0, 3,
+        ExecutorService pool = new ThreadPoolExecutor(0, 2,
                 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>());
-        breakThenUpload(pool, Executors.newFixedThreadPool(2), Executors.newCachedThreadPool(), 6, 8, 3);
+        breakThenUpload(pool, Executors.newFixedThreadPool(2), Executors.newCachedThreadPool(), 6, 7, 2);
     }
 
 
@@ -74,13 +74,13 @@ public class FixBlockUploaderWithRecorderTest {
     @Test
     public void breakThenUpload5() throws IOException {
         ExecutorService pool = Executors.newWorkStealingPool();
-        breakThenUpload(null, pool, null, 15, 20);
+        breakThenUpload(null, pool, null, 15, 7, 2);
     }
 
     @Test
     public void breakThenUpload6() throws IOException {
         ExecutorService pool = Executors.newFixedThreadPool(2);
-        breakThenUpload(pool, null, null, 6, 20); // 可能无法中断 //
+        breakThenUpload(pool, null, null, 7, 20, 2); // 可能无法中断 //
     }
 
 
@@ -123,22 +123,10 @@ public class FixBlockUploaderWithRecorderTest {
 
         // 显示断点记录文件
         Thread showRecord = new Thread() {
-            long lastSize = 0;
-
             public void run() {
                 for (; ; ) {
-                    doSleep(2000);
+                    doSleep(1000);
                     showRecord("normal: " + size + " :", recorder, recordKey);
-                    long s = helper.reloadRecord().size;
-                    if (s >= lastSize) {
-                        lastSize = s;
-                    } else {
-                        String msg = "// 记录文件被回滚了 // r.size: " + s + ", lastSize: " + lastSize;
-                        System.out.println(msg);
-//                        fail("// 记录文件被回滚了 // r.size: " + s + ", lastSize: " + lastSize);
-//                        throw new RuntimeException("// 记录文件被回滚了 // r.size: " + s + ", lastSize: " + lastSize);
-                    }
-
                 }
             }
         };
@@ -147,29 +135,32 @@ public class FixBlockUploaderWithRecorderTest {
 
         // 400s, 800
         // 20s, 40
+        long lastSize = 0;
         for (int i = 0; i < upSecondsTime1 * 2; i++) {
             doSleep(500);
             Record r = helper.reloadRecord();
             System.out.println("1 r.size: " + r.size + "       blockSize:" + blockSize);
             if (r.size > blockSize - 1) {
+                lastSize = r.size;
                 break;
             }
         }
         fbd.close();
         if (pool1 != null) {
             System.out.println("pool1.shutdownNow();");
+            pool1.shutdown();
             pool1.shutdownNow();
         }
-
+        System.out.println("pool1");
         int it1Finished = 0;
-        for (; it1Finished < 2500; it1Finished++) {
+        for (; it1Finished < 1500; it1Finished++) {
             doSleep(100);
             if (t1Finished[0] == 1) {
                 break;
             }
         }
         System.out.println("t1Finished[0] == 1    " + (t1Finished[0] == 1) + "     " + it1Finished);
-
+        doSleep(1500);
         final FixBlockUploader.FileBlockData fbd2 = new FixBlockUploader.FileBlockData(blockSize, f);
         final int[] t2Finished = {0};
         Thread t2 = new Thread() {
@@ -182,33 +173,38 @@ public class FixBlockUploaderWithRecorderTest {
         };
         t2.setDaemon(true);
         t2.start();
-
         // 400s, 800
         // 20s, 40
+        System.out.println(lastSize);
         for (int i = 0; i < upSecondsTime2 * 2; i++) {
             doSleep(500);
             Record r = helper.reloadRecord();
             System.out.println("2 r.size: " + r.size + "       blockSize:" + blockSize);
-            if (r.size > blockSize * 2) {
+            if (lastSize != 0 && r.size > lastSize + blockSize) {
+                lastSize = r.size;
                 break;
             }
         }
-        System.out.println("fbd2.close();");
+        System.out.println(lastSize);
+        System.out.println(new Date());
         fbd2.close();
         if (pool2 != null) {
             System.out.println("pool2.shutdownNow();");
+            pool2.shutdown();
             pool2.shutdownNow();
         }
+        System.out.println("pool1");
+
 
         int it2Finished = 0;
-        for (; it2Finished < 2500; it2Finished++) {
+        for (; it2Finished < 1500; it2Finished++) {
             doSleep(100);
             if (t2Finished[0] == 1) {
                 break;
             }
         }
         System.out.println("t2Finished[0] == 1    " + (t2Finished[0] == 1) + "     " + it2Finished);
-
+        doSleep(1500);
         System.out.println("------ start 3, " + new Date());
         try {
 //            upload(3, fbd2, token, expectKey, pool2, maxRunningBlock, t2Finished, etag);
