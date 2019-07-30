@@ -96,7 +96,7 @@ public class FixBlockUploader {
     }
 
 
-    public Response upload(BlockData blockData, String token, String key,
+    Response upload(BlockData blockData, String token, String key,
                            StringMap metaParams, ExecutorService pool, int maxRunningBlock) throws QiniuException {
         return upload(blockData, new StaticToken(token), key, metaParams, pool, maxRunningBlock);
     }
