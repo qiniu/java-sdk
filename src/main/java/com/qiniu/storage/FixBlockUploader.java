@@ -761,9 +761,8 @@ public class FixBlockUploader {
             index++;
             final int idx = index + 0;
             dataWraper = new DataWraper() {
-                int size;
                 public int getSize() {
-                    return size;
+                    return readLength;
                 }
 
                 public int getIndex() {
@@ -773,10 +772,10 @@ public class FixBlockUploader {
                 @Override
                 public byte[] getData() throws IOException {
                     byte[] data = new byte[blockDataSize];
+                    lock.lock();
                     try {
-                        lock.lock();
                         fis.seek(start);
-                        size = fis.read(data);
+                        int size = fis.read(data);
                         assert readLength == size : "read size should equals "
                                 + "(int)Math.min(totalLength - alreadyReadSize, blockDataSize): " + readLength;
                     } finally {
