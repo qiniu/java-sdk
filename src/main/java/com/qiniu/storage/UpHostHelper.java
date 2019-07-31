@@ -7,7 +7,6 @@ import java.util.*;
 class UpHostHelper {
     private long failedPeriodMillis; // 毫秒 1/1000 s
     private Configuration conf;
-    private boolean useGetFailedRegion = false;
 
     private LinkedHashMap<String, RegionUpHost> regionHostsLRU =
             new LinkedHashMap<String, RegionUpHost>(1, 1.0f, true) {
@@ -31,31 +30,17 @@ class UpHostHelper {
         // auto region may failed here.
         List<String> accHosts;
         List<String> srcHosts;
-        String getFailedRegion = "failed_get_region";
-
         try {
             accHosts = region.getAccUpHost(regionReqInfo);
             srcHosts = region.getSrcUpHost(regionReqInfo);
-            if (useGetFailedRegion) {
-                useGetFailedRegion = false;
-                regionHostsLRU.remove(getFailedRegion);
-            }
         } catch (QiniuException e) { // it will success soon.
-            // if successful before,  regionHostsLRU.get(failedGetRegion) should be null
-            RegionUpHost regionHost = regionHostsLRU.get(getFailedRegion);
-            if (regionHost != null) {
-                return regionHost.upHost(regionHost.lastAccHosts, regionHost.lastSrcHosts,
-                        lastUsedHost, true);
-            }
             if (mustReturnUpHost && conf.useDefaultUpHostIfNone) {
-                useGetFailedRegion = true;
-                return failedUpHost(getFailedRegion);
+                return failedUpHost("failed_get_region");
             } else {
                 throw e;
             }
         }
 
-        // String regionKey = region.getRegion(regionReqInfo); // 此值可能错误的设置 //
         String regionKey = region.getRegion(regionReqInfo) + "_&//=_" + getRegionKey(srcHosts, accHosts);
         RegionUpHost regionHost = regionHostsLRU.get(regionKey);
         if (regionHost == null) {
@@ -74,7 +59,7 @@ class UpHostHelper {
         RegionUpHost regionHost = regionHostsLRU.get(regionKey);
         if (regionHost == null) {
             regionHost = new RegionUpHost();
-            regionHostsLRU.put(regionKey, regionHost);
+            regionHostsLRU.put(regionKey, regionHost); // small ,do not need remove it.
         }
         if (regionHost.lastSrcHosts == null) {
             accHosts = new ArrayList<String>() {
@@ -86,6 +71,7 @@ class UpHostHelper {
                     this.add("upload-as0.qiniup.com");
                 }
             };
+            Collections.shuffle(accHosts); // ?
             srcHosts = new ArrayList<>();
         } else {
             srcHosts = regionHost.lastSrcHosts;
@@ -98,27 +84,36 @@ class UpHostHelper {
 
     String getRegionKey(List<String> srcHosts, List<String> accHosts) {
         String host = null;
+        String lhost = null;
         for (String a : srcHosts) {
             if (host == null) {
                 host = a;
+                lhost = a;
             }
             if (a.length() < host.length()) {
                 host = a;
+            }
+            if (a.length() > lhost.length()) {
+                lhost = a;
             }
         }
         if (host != null) {
-            return host;
+            return host + ";+=-_" + lhost;
         }
+
         for (String a : accHosts) {
             if (host == null) {
                 host = a;
+                lhost = a;
             }
             if (a.length() < host.length()) {
                 host = a;
             }
+            if (a.length() > lhost.length()) {
+                lhost = a;
+            }
         }
-
-        return host;
+        return host + ";+=-_" + lhost;
     }
 
 

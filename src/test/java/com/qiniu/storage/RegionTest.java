@@ -4,6 +4,7 @@ import com.qiniu.common.*;
 import com.qiniu.util.Auth;
 import org.junit.Assert;
 import org.junit.Test;
+import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
 
 
@@ -130,18 +131,12 @@ public class RegionTest {
         ConfigHelper configHelper = new ConfigHelper(cfg0);
         Auth auth = Auth.create(TestConfig.testAccessKey, TestConfig.testSecretKey);
         String upToken = auth.uploadToken(TestConfig.testBucket_z0 + "notexitbucket38_-4rfjiu4r3u4t83d");
-        String h1 = configHelper.upHost(upToken);
-        String h2 = configHelper.upHost(upToken);
-
-        System.out.println(h1);
-        System.out.println(h2);
-        String h3 = configHelper.tryChangeUpHost(upToken, h2);
-        String h4 = configHelper.tryChangeUpHost(upToken, h3);
-        System.out.println(h3);
-        System.out.println(h4);
-        Assert.assertNotEquals(h1, h2);
-        Assert.assertNotEquals(h3, h2);
-        Assert.assertNotEquals(h3, h4);
+        try {
+            String h1 = configHelper.upHost(upToken);
+            Assert.fail("should failed: no such bucket: ");
+        } catch (QiniuException e) {
+            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(631)));
+        }
     }
 
 

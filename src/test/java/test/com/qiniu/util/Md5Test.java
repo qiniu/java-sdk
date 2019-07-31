@@ -34,7 +34,7 @@ public class Md5Test {
         System.out.println(l + ",  " +  data.length + "  md5  " + md5_data);
 
         assertEquals(md5, md5_data);
-        assertEquals(md5, "543757d0e58f2f581df42529d50baa4a");
+        assertEquals(md5, "0f343b0931126a20f133d67c2b018a3b");
         String src = "FileInputStream fis = new FileInputStream(f);";
 
         String md5Str = StringUtils.md5Lower(src);

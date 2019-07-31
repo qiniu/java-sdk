@@ -34,7 +34,7 @@ public final class Configuration implements Cloneable {
     public boolean accUpHostFirst = true;
 
     /**
-     * 如果从区域信息得到上传 host 失败，使用默认的上传域名上传，默认 是
+     * 使用 AutoRegion 时，如果从区域信息得到上传 host 失败，使用默认的上传域名上传，默认 是
      * upload.qiniup.com, upload-z1.qiniup.com, upload-z2.qiniup.com,
      * upload-na0.qiniup.com, upload-as0.qiniup.com
      */
