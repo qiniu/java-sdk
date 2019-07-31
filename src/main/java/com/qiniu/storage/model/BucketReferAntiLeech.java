@@ -90,7 +90,7 @@ public class BucketReferAntiLeech {
         if (this.pattern.endsWith(";")) {
             this.pattern = this.pattern.substring(0, this.pattern.length() - 1);
         }
-        this.pattern = String.join(this.pattern, ";", pattern);
+        this.pattern = this.pattern + ";" + pattern;
         return this;
     }
 

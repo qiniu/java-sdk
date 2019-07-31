@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -450,7 +451,7 @@ public class FixBlockUploader {
             });
         }
 
-        etags.sort(new Comparator<EtagIdx>() {
+        Collections.sort(etags, new Comparator<EtagIdx>() {
             @Override
             public int compare(EtagIdx o1, EtagIdx o2) {
                 return o1.idx - o2.idx; // small enough and both greater than 0 //
@@ -610,7 +611,7 @@ public class FixBlockUploader {
 
         public void syncRecord(Record record) {
             if (needRecord && recorder != null && record.etagIdxes.size() > 0) {
-                record.etagIdxes.sort(new Comparator<EtagIdx>() {
+                Collections.sort(record.etagIdxes, new Comparator<EtagIdx>() {
                     @Override
                     public int compare(EtagIdx o1, EtagIdx o2) {
                         return o1.idx - o2.idx; // small enough and both greater than 0 //
