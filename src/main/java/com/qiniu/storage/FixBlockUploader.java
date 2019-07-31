@@ -266,7 +266,8 @@ public class FixBlockUploader {
         final String uploadId = record.uploadId;
         final List<EtagIdx> etagIdxes = record.etagIdxes;
         final RetryCounter counter = new AsyncRetryCounter(retryMax);
-        List<Future<EtagIdx>> futures = new ArrayList<>((int) (blockData.size() / blockSize) + 1);
+        List<Future> futures =
+                new ArrayList<>((int) ((blockData.size() - record.size + blockSize - 1) / blockSize));
         QiniuException qiniuEx = null;
         while (blockData.hasNext()) {
             try {
