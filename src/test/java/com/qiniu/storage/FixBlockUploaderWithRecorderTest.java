@@ -60,7 +60,7 @@ public class FixBlockUploaderWithRecorderTest {
         ExecutorService pool = new ThreadPoolExecutor(0, 2,
                 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>());
-        breakThenUpload(pool, Executors.newFixedThreadPool(2), Executors.newCachedThreadPool(), 6, 7, 2);
+        breakThenUpload(pool, Executors.newFixedThreadPool(2), Executors.newCachedThreadPool(), 10, 10, 2);
     }
 
 
@@ -73,7 +73,7 @@ public class FixBlockUploaderWithRecorderTest {
 
     @Test
     public void breakThenUpload5() throws IOException {
-        ExecutorService pool = Executors.newWorkStealingPool();
+        ExecutorService pool = Executors.newFixedThreadPool(3);
         breakThenUpload(null, pool, null, 15, 7, 2);
     }
 
@@ -92,7 +92,7 @@ public class FixBlockUploaderWithRecorderTest {
     public void breakThenUpload(final ExecutorService pool1, final ExecutorService pool2, final ExecutorService pool3,
                                 int upSecondsTime1, int upSecondsTime2, final int maxRunningBlock) throws IOException {
         final long size = 1024 * 53 + 1039;
-        final String expectKey = "\r\n?&r=" + size + "k";
+        final String expectKey = "\r\n?&r=" + size + "k" + System.currentTimeMillis();
         final File f = TempFile.createFileOld(size);
         final FixBlockUploader.FileBlockData fbd = new FixBlockUploader.FileBlockData(blockSize, f);
         System.out.println(f.getAbsolutePath());
