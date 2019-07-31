@@ -296,6 +296,9 @@ public class FormUploadTest {
             File f = null;
             try {
                 f = TempFile.createFile(1);
+                File f1 = TempFile.createFile(1);
+                f = new File(f1.getParentFile(),"_试一个中文看下效果_" + f1.getName());
+                f1.renameTo(f);
             } catch (IOException e) {
                 e.printStackTrace();
             }
