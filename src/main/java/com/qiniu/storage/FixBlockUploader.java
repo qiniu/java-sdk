@@ -266,7 +266,7 @@ public class FixBlockUploader {
         final String uploadId = record.uploadId;
         final List<EtagIdx> etagIdxes = record.etagIdxes;
         final RetryCounter counter = new AsyncRetryCounter(retryMax);
-        List<Future> futures =
+        List<Future<EtagIdx>> futures =
                 new ArrayList<>((int) ((blockData.size() - record.size + blockSize - 1) / blockSize));
         QiniuException qiniuEx = null;
         while (blockData.hasNext()) {
@@ -438,9 +438,7 @@ public class FixBlockUploader {
     Response makeFile(String bucket, String base64Key, Token token, String uploadId, List<EtagIdx> etags,
                        StringMap metaParams) throws QiniuException {
         String url = host + "/buckets/" + bucket + "/objects/" + base64Key + "/uploads/" + uploadId;
-        byte[] data = new EtagIdxPart(etags).toString().getBytes(Charset.forName("UTF-8"));
         final StringMap headers = new StringMap().put("Authorization", "UpToken " + token.getUpToken());
-
         if (metaParams != null) {
             metaParams.forEach(new StringMap.Consumer() {
                 @Override
@@ -451,13 +449,13 @@ public class FixBlockUploader {
                 }
             });
         }
-
         Collections.sort(etags, new Comparator<EtagIdx>() {
             @Override
             public int compare(EtagIdx o1, EtagIdx o2) {
                 return o1.idx - o2.idx; // small enough and both greater than 0 //
             }
         });
+        byte[] data = new EtagIdxPart(etags).toString().getBytes(Charset.forName("UTF-8"));
 
         // 1
         Response res = makeFile1(url, data, headers, true);
