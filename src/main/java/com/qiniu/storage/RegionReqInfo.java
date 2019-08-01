@@ -25,7 +25,7 @@ class RegionReqInfo {
         }
     }
 
-    public RegionReqInfo(String accessKey, String bucket) {
+    RegionReqInfo(String accessKey, String bucket) {
         this.accessKey = accessKey;
         this.bucket = bucket;
     }

@@ -284,7 +284,7 @@ public class FixBlockUploaderWithRecorderTest {
         Recorder recorder;
         String recordFileKey;
 
-        public UploadRecordHelper(Recorder recorder, String bucket, String base64Key,
+        UploadRecordHelper(Recorder recorder, String bucket, String base64Key,
                                   String contentUUID, String uploaderSUID) {
             if (recorder != null) {
                 this.recorder = recorder;

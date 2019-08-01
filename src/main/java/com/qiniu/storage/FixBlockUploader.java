@@ -730,7 +730,7 @@ public class FixBlockUploader {
         long alreadyReadSize = 0;
         Lock lock;
 
-        public FileBlockData(int blockDataSize, File file) throws IOException {
+        FileBlockData(int blockDataSize, File file) throws IOException {
             super(blockDataSize);
             fis = new RandomAccessFile(file, "r");
             totalLength = file.length();
@@ -820,15 +820,15 @@ public class FixBlockUploader {
 
         long alreadyReadSize = 0;
 
-        public InputStreamBlockData(int blockDataSize, InputStream is, long totalLength) {
+        InputStreamBlockData(int blockDataSize, InputStream is, long totalLength) {
             this(blockDataSize, is, totalLength, true);
         }
 
-        public InputStreamBlockData(int blockDataSize, InputStream is, long totalLength, boolean closedAfterUpload) {
+        InputStreamBlockData(int blockDataSize, InputStream is, long totalLength, boolean closedAfterUpload) {
             this(blockDataSize, is, totalLength, closedAfterUpload, false, "");
         }
 
-        public InputStreamBlockData(int blockDataSize, InputStream is, long totalLength, boolean closedAfterUpload,
+        InputStreamBlockData(int blockDataSize, InputStream is, long totalLength, boolean closedAfterUpload,
                                     boolean repeatable, String contentUUID) {
             super(blockDataSize);
             this.is = is;
@@ -929,7 +929,7 @@ public class FixBlockUploader {
     static class StaticToken implements Token {
         String token;
 
-        public StaticToken(String token) {
+        StaticToken(String token) {
             this.token = token;
         }
 
