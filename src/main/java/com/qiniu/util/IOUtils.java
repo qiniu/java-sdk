@@ -21,7 +21,7 @@ public class IOUtils {
      * @throws IOException
      */
     public static byte[] toByteArray(final InputStream input) throws IOException {
-        try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
             int n;
             while (-1 != (n = input.read(buffer))) {

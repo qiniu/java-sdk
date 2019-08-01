@@ -255,7 +255,7 @@ public class RecordUploadTest {
         private final String token;
         ResumeUploader uploader = null;
 
-        public Up(File file, String key, String token) {
+        Up(File file, String key, String token) {
             this.file = file;
             this.key = key;
             this.token = token;
