@@ -9,6 +9,7 @@ import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.Assert;
 import org.junit.Test;
+import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
 
 import java.util.HashMap;
@@ -74,7 +75,7 @@ public class PfopTest {
             OperationStatus status = operationManager.prefop(jobid);
             Assert.assertEquals(0, status.code);
         } catch (QiniuException ex) {
-            Assert.assertEquals(612, ex.code());
+            Assert.assertTrue(ResCode.find(ex.code(), ResCode.getPossibleResCode(612)));
         }
     }
 
