@@ -1,7 +1,6 @@
 package com.qiniu.storage;
 
 import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
@@ -12,10 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -33,10 +30,10 @@ public class FixBlockUploader {
     private String host = null;
 
     /**
-     * @param blockSize must be multiples of 4M.
+     * @param blockSize     must be multiples of 4M.
      * @param configuration Nullable, if null, then create a new one.
-     * @param client    Nullable, if null, then create a new one with configuration.
-     * @param recorder  Nullable.
+     * @param client        Nullable, if null, then create a new one with configuration.
+     * @param recorder      Nullable.
      */
     public FixBlockUploader(int blockSize, Configuration configuration, Client client, Recorder recorder) {
         assert blockSize > 0 && blockSize % (4 * 1024 * 1024) == 0 : "blockSize must be multiples of 4M ";
@@ -64,76 +61,80 @@ public class FixBlockUploader {
         return upload(file, token, key, null, pool, 8);
     }
 
-    public Response upload(final File file, final String token, String key,
-                           StringMap metaParams, ExecutorService pool, int maxRunningBlock) throws QiniuException {
+    public Response upload(final File file, final String token, String key, OptionsMeta params,
+                           ExecutorService pool, int maxRunningBlock) throws QiniuException {
         BlockData blockData;
         try {
             blockData = new FileBlockData(this.blockSize, file);
         } catch (IOException e) {
             throw new QiniuException(e);
         }
-        return upload(blockData, new StaticToken(token), key, metaParams, pool, maxRunningBlock);
+        return upload(blockData, new StaticToken(token), key, params, pool, maxRunningBlock);
     }
 
 
-    public Response upload(final InputStream is, long inputStreamLength, final String token, String key)
-            throws QiniuException {
-        return upload(is, inputStreamLength, token, key, null, null, 0);
+    public Response upload(final InputStream is, long inputStreamLength, String fileName,
+                           final String token, String key) throws QiniuException {
+        return upload(is, inputStreamLength, fileName, token, key, null, null, 0);
     }
 
 
-    public Response upload(final InputStream is, long inputStreamLength, final String token,
-                           String key, ExecutorService pool) throws QiniuException {
-        return upload(is, inputStreamLength, token, key, null, pool, 8);
+    public Response upload(final InputStream is, long inputStreamLength, String fileName,
+                           final String token, String key, ExecutorService pool) throws QiniuException {
+        return upload(is, inputStreamLength, fileName, token, key, null, pool, 8);
     }
 
 
-    public Response upload(final InputStream is, long inputStreamLength,
-                           final String token, String key, StringMap metaParams,
+    public Response upload(final InputStream is, long inputStreamLength, String fileName,
+                           final String token, String key, OptionsMeta params,
                            ExecutorService pool, int maxRunningBlock) throws QiniuException {
         BlockData blockData;
-        blockData = new InputStreamBlockData(this.blockSize, is, inputStreamLength);
-        return upload(blockData, new StaticToken(token), key, metaParams, pool, maxRunningBlock);
+        blockData = new InputStreamBlockData(this.blockSize, is, inputStreamLength, fileName);
+        return upload(blockData, new StaticToken(token), key, params, pool, maxRunningBlock);
     }
 
 
-    Response upload(BlockData blockData, String token, String key,
-                           StringMap metaParams, ExecutorService pool, int maxRunningBlock) throws QiniuException {
-        return upload(blockData, new StaticToken(token), key, metaParams, pool, maxRunningBlock);
+    Response upload(BlockData blockData, String token, String key, OptionsMeta params,
+                    ExecutorService pool, int maxRunningBlock) throws QiniuException {
+        return upload(blockData, new StaticToken(token), key, params, pool, maxRunningBlock);
     }
 
 
-    Response upload(BlockData blockData, Token token, String key, StringMap metaParams,
-                           ExecutorService pool, int maxRunningBlock) throws QiniuException {
+    Response upload(BlockData blockData, Token token, String key, OptionsMeta params,
+                    ExecutorService pool, int maxRunningBlock) throws QiniuException {
         try {
-            assert !StringUtils.isNullOrEmpty(key) : "key must not be null or empty";
-            if (key == null) { // assert may not be enabled. we do not like null pointer exception//
-                key = "";
-            }
             String bucket = parseBucket(token.getUpToken());
-            String base64Key = UrlSafeBase64.encodeToString(key);
-            String recordFileKey = (recorder == null) ? ""
+            /*
+            上传到七牛存储保存的文件名， 需要进行UrlSafeBase64编码。
+            注意:
+            当设置为空时表示空的文件名;
+            当设置为未进行 UrlSafeBase64 编码的字符  ~  的时候,表示未设置文件名，
+                具体行为如分片上传v1:  使用文件的hash最为文件名， 如果设置了saveKey则使用saveKey的规则进行文件命名
+            */
+            String base64Key = key != null ? UrlSafeBase64.encodeToString(key) : "~";
+            String recordFileKey = (recorder == null) ? "NULL"
                     : recorder.recorderKeyGenerate(bucket, base64Key, blockData.getContentUUID(),
-                        this.blockSize + "*:|>?^ \b" + this.getClass().getName());
+                    this.blockSize + "*:|>?^ \b" + this.getClass().getName());
             // must before any http request //
             if (host == null) {
                 host = configHelper.upHost(token.getUpToken());
             }
-            UploadRecordHelper helper = new UploadRecordHelper(recorder, recordFileKey, blockData.repeatable());
-            Record record = initRecorder(blockData, helper, bucket, base64Key, token);
-            boolean repeatable = recorder != null &&  blockData.repeatable();
+            UploadRecordHelper recordHelper = new UploadRecordHelper(recorder, recordFileKey, blockData.repeatable());
+            Record record = initUpload(blockData, recordHelper, bucket, base64Key, token);
+            boolean repeatable = recorder != null && blockData.repeatable();
 
             Response res;
             try {
                 upBlock(blockData, token, bucket, base64Key, repeatable, record, pool, maxRunningBlock);
-                res = makeFile(bucket, base64Key, token, record.uploadId, record.etagIdxes, metaParams);
+                res = makeFile(bucket, base64Key, token, record.uploadId, record.etagIdxes,
+                        blockData.getFileName(), params);
             } catch (QiniuException e) {
                 // if everything is ok, do not need to sync record  //
-                helper.syncRecord(record);
+                recordHelper.syncRecord(record);
                 throw e;
             }
             if (res.isOK()) {
-                helper.delRecord();
+                recordHelper.delRecord();
             }
             return res;
         } finally {
@@ -141,13 +142,13 @@ public class FixBlockUploader {
         }
     }
 
-    Record initRecorder(BlockData blockData, UploadRecordHelper helper,
-                        String bucket, String base64Key, Token token) throws QiniuException {
+    Record initUpload(BlockData blockData, UploadRecordHelper recordHelper,
+                      String bucket, String base64Key, Token token) throws QiniuException {
         Record record = null;
         if (blockData.repeatable()) {
-            record = helper.reloadRecord();
+            record = recordHelper.reloadRecord();
             // 有效的 record 才拿来用 //
-            if (!helper.isActiveRecord(record, blockData)) {
+            if (!recordHelper.isActiveRecord(record, blockData)) {
                 record = null;
             }
         }
@@ -255,7 +256,7 @@ public class FixBlockUploader {
                 throw new QiniuException(e, e.getMessage());
             }
             etagIdxes.add(etagIdx);
-            // 对应的 etag、index 通过 etags 添加 //
+            // 对应的 etag、index 通过 etagIdx 添加 //
             record.size += etagIdx.size;
         }
     }
@@ -303,9 +304,8 @@ public class FixBlockUploader {
                 future.cancel(true);
                 continue;
             }
-            EtagIdx etagIdx;
             try {
-                etagIdx = future.get();
+                EtagIdx etagIdx = future.get();
                 etagIdxes.add(etagIdx);
                 record.size += etagIdx.size;
             } catch (Exception e) {
@@ -319,21 +319,18 @@ public class FixBlockUploader {
         }
     }
 
-
     private boolean alreadyDone(int index, List<EtagIdx> etagIdxes) {
         for (EtagIdx etagIdx : etagIdxes) {
-            if (etagIdx.idx == index) {
+            if (etagIdx.partNumber == index) {
                 return true;
             }
         }
         return false;
     }
 
-
     private void waitingEnough(int maxRunningBlock, List<Future<EtagIdx>> futures) {
-        for ( ; ; ) {
-            int count = futures.size();
-            if (count < maxRunningBlock) {
+        for (; ; ) {
+            if (futures.size() < maxRunningBlock) {
                 break;
             }
             int done = 0;
@@ -342,16 +339,15 @@ public class FixBlockUploader {
                     done++;
                 }
             }
-            if (count - done < maxRunningBlock) {
+            if (futures.size() - done < maxRunningBlock) {
                 break;
             }
             sleepMillis(500);
         }
     }
 
-
     EtagIdx uploadBlock(String bucket, String base64Key, Token token, String uploadId, byte[] data,
-                       int dataLength, int partNum, RetryCounter counter) throws QiniuException {
+                        int dataLength, int partNum, RetryCounter counter) throws QiniuException {
         Response res = uploadBlockWithRetry(bucket, base64Key, token, uploadId, data, dataLength, partNum, counter);
         try {
             String etag = res.jsonToMap().get("etag").toString();
@@ -363,7 +359,6 @@ public class FixBlockUploader {
         }
         throw new QiniuException(res);
     }
-
 
     Response uploadBlockWithRetry(String bucket, String base64Key, Token token, String uploadId,
                                   byte[] data, int dataLength, int partNum, RetryCounter counter)
@@ -415,9 +410,8 @@ public class FixBlockUploader {
         return res;
     }
 
-
     Response uploadBlock1(String url, byte[] data,
-                          int dataLength,  StringMap headers, boolean ignoreError) throws QiniuException {
+                          int dataLength, StringMap headers, boolean ignoreError) throws QiniuException {
         // put PUT
         try {
             Response res = client.put(url, data, 0, dataLength, headers, "application/octet-stream");
@@ -434,28 +428,13 @@ public class FixBlockUploader {
         }
     }
 
-
     Response makeFile(String bucket, String base64Key, Token token, String uploadId, List<EtagIdx> etags,
-                       StringMap metaParams) throws QiniuException {
+                      String fileName, OptionsMeta params) throws QiniuException {
         String url = host + "/buckets/" + bucket + "/objects/" + base64Key + "/uploads/" + uploadId;
         final StringMap headers = new StringMap().put("Authorization", "UpToken " + token.getUpToken());
-        if (metaParams != null) {
-            metaParams.forEach(new StringMap.Consumer() {
-                @Override
-                public void accept(String key, Object value) {
-                    if (key != null && key.startsWith("X-Qn-Meta-")) {
-                        headers.put(key, value);
-                    }
-                }
-            });
-        }
-        Collections.sort(etags, new Comparator<EtagIdx>() {
-            @Override
-            public int compare(EtagIdx o1, EtagIdx o2) {
-                return o1.idx - o2.idx; // small enough and both greater than 0 //
-            }
-        });
-        byte[] data = new EtagIdxPart(etags).toString().getBytes(Charset.forName("UTF-8"));
+        sortAsc(etags);
+        byte[] data = new MakefileBody(etags, fileName, params)
+                .json().getBytes(Charset.forName("UTF-8"));
 
         // 1
         Response res = makeFile1(url, data, headers, true);
@@ -477,7 +456,6 @@ public class FixBlockUploader {
         return res;
     }
 
-
     Response makeFile1(String url, byte[] data, StringMap headers, boolean ignoreError) throws QiniuException {
         try {
             Response res = client.post(url, data, headers, "text/plain");
@@ -494,7 +472,6 @@ public class FixBlockUploader {
         }
     }
 
-
     private void changeHost(String upToken, String host) {
         try {
             this.host = configHelper.tryChangeUpHost(upToken, host);
@@ -504,8 +481,7 @@ public class FixBlockUploader {
         }
     }
 
-
-    static String parseBucket(String upToken) throws QiniuException {
+    private String parseBucket(String upToken) throws QiniuException {
         try {
             String part3 = upToken.split(":")[2];
             byte[] b = UrlSafeBase64.decode(part3);
@@ -517,29 +493,66 @@ public class FixBlockUploader {
         }
     }
 
+    static void sortAsc(List<EtagIdx> etags) {
+        Collections.sort(etags, new Comparator<EtagIdx>() {
+            @Override
+            public int compare(EtagIdx o1, EtagIdx o2) {
+                return o1.partNumber - o2.partNumber; // small enough and both greater than 0 //
+            }
+        });
+    }
 
-    class EtagIdxPart {
+
+    class MakefileBody {
         List<EtagIdx> parts;
+        String fname;
+        String mimeType;
+        Map<String, Object> metadata;
+        Map<String, Object> customVars;
 
-        EtagIdxPart(List<EtagIdx> parts) {
-            this.parts = parts;
+        MakefileBody(List<EtagIdx> etags, String fileName, OptionsMeta params) {
+            this.parts = etags;
+            this.fname = fileName;
+            if (params != null) {
+                this.mimeType = params.mimeType;
+                if (params.metadata != null && params.metadata.size() > 0) {
+                    this.metadata = filterParam(params.metadata, "X-Qn-Meta-");
+                }
+                if (params.customVars != null && params.customVars.size() > 0) {
+                    this.customVars = filterParam(params.customVars, "x:");
+                }
+            }
         }
 
-        public String toString() {
+        private Map<String, Object> filterParam(StringMap param, final String keyPrefix) {
+            final Map<String, Object> ret = new HashMap<>();
+            final String prefix = keyPrefix.toLowerCase();
+            param.forEach(new StringMap.Consumer() {
+                @Override
+                public void accept(String key, Object value) {
+                    if (key != null && value != null && !StringUtils.isNullOrEmpty(value.toString())
+                            && key.toLowerCase().startsWith(prefix)) {
+                        ret.put(key, value);
+                    }
+                }
+            });
+            return ret;
+        }
+
+        public String json() {
             return new Gson().toJson(this);
         }
     }
 
 
     class EtagIdx {
-        @SerializedName("Etag")
         String etag;
-        @SerializedName("PartNumber")
-        int idx;
+        int partNumber;
         transient int size;
+
         EtagIdx(String etag, int idx, int size) {
             this.etag = etag;
-            this.idx = idx;
+            this.partNumber = idx;
             this.size = size;
         }
 
@@ -595,9 +608,6 @@ public class FixBlockUploader {
                     // do nothing
                 }
             }
-            if (record == null) {
-                record = new Record();
-            }
             return record;
         }
 
@@ -610,19 +620,15 @@ public class FixBlockUploader {
 
         public void syncRecord(Record record) {
             if (needRecord && recorder != null && record.etagIdxes.size() > 0) {
-                Collections.sort(record.etagIdxes, new Comparator<EtagIdx>() {
-                    @Override
-                    public int compare(EtagIdx o1, EtagIdx o2) {
-                        return o1.idx - o2.idx; // small enough and both greater than 0 //
-                    }
-                });
+                sortAsc(record.etagIdxes);
                 recorder.set(recordFileKey, new Gson().toJson(record).getBytes(Charset.forName("UTF-8")));
             }
         }
 
         public boolean isActiveRecord(Record record, BlockData blockData) {
             //// 服务端 7 天内有效，设置 5 天 ////
-            boolean isOk = record.createdTime > System.currentTimeMillis() - 1000 * 3600 * 24 * 5
+            boolean isOk = record != null
+                    && record.createdTime > System.currentTimeMillis() - 1000 * 3600 * 24 * 5
                     && !StringUtils.isNullOrEmpty(record.uploadId)
                     && record.etagIdxes != null && record.etagIdxes.size() > 0
                     && record.size > 0 && record.size <= blockData.size();
@@ -631,8 +637,8 @@ public class FixBlockUploader {
                 // PartNumber start with 1 and increase by 1 //
                 // 当前文件各块串行 if (ei.idx == p + 1) . 若并行，需额外考虑 //
                 for (EtagIdx ei : record.etagIdxes) {
-                    if (ei.idx > p) {
-                        p = ei.idx;
+                    if (ei.partNumber > p) {
+                        p = ei.partNumber;
                     } else {
                         return false;
                     }
@@ -667,11 +673,15 @@ public class FixBlockUploader {
         abstract boolean repeatable();
 
         abstract String getContentUUID();
+
+        abstract String getFileName();
     }
 
     interface DataWraper {
         byte[] getData() throws IOException;
+
         int getSize();
+
         int getIndex();
     }
 
@@ -681,6 +691,7 @@ public class FixBlockUploader {
 
     interface RetryCounter {
         void retried();
+
         boolean inRange();
     }
 
@@ -726,6 +737,7 @@ public class FixBlockUploader {
         String contentUUID;
         DataWraper dataWraper;
         RandomAccessFile fis;
+        String fileName;
         int index = 0; // start at 1, read a block , add 1
         long alreadyReadSize = 0;
         Lock lock;
@@ -733,6 +745,7 @@ public class FixBlockUploader {
         FileBlockData(int blockDataSize, File file) throws IOException {
             super(blockDataSize);
             fis = new RandomAccessFile(file, "r");
+            fileName = file.getName();
             totalLength = file.length();
             contentUUID = file.lastModified() + "_.-^ \b" + file.getAbsolutePath();
             lock = new ReentrantLock();
@@ -805,6 +818,11 @@ public class FixBlockUploader {
                 e.printStackTrace();
             }
         }
+
+        @Override
+        public String getFileName() {
+            return fileName;
+        }
     }
 
 
@@ -816,22 +834,25 @@ public class FixBlockUploader {
         String contentUUID;
         DataWraper dataWraper;
         InputStream is;
+        String fileName;
         int index = 0; // start at 1, read a block , add 1
 
         long alreadyReadSize = 0;
 
-        InputStreamBlockData(int blockDataSize, InputStream is, long totalLength) {
-            this(blockDataSize, is, totalLength, true);
+        InputStreamBlockData(int blockDataSize, InputStream is, long totalLength, String fileName) {
+            this(blockDataSize, is, totalLength, fileName, true);
         }
 
-        InputStreamBlockData(int blockDataSize, InputStream is, long totalLength, boolean closedAfterUpload) {
-            this(blockDataSize, is, totalLength, closedAfterUpload, false, "");
+        InputStreamBlockData(int blockDataSize, InputStream is, long totalLength,
+                             String fileName, boolean closedAfterUpload) {
+            this(blockDataSize, is, totalLength, fileName, closedAfterUpload, false, "");
         }
 
-        InputStreamBlockData(int blockDataSize, InputStream is, long totalLength, boolean closedAfterUpload,
-                                    boolean repeatable, String contentUUID) {
+        InputStreamBlockData(int blockDataSize, InputStream is, long totalLength, String fileName,
+                             boolean closedAfterUpload, boolean repeatable, String contentUUID) {
             super(blockDataSize);
             this.is = is;
+            this.fileName = fileName;
             this.totalLength = totalLength;
             this.closedAfterUpload = closedAfterUpload;
             this.repeatable = repeatable;
@@ -914,6 +935,11 @@ public class FixBlockUploader {
                 }
             }
         }
+
+        @Override
+        public String getFileName() {
+            return fileName;
+        }
     }
 
 
@@ -924,7 +950,6 @@ public class FixBlockUploader {
             // do nothing
         }
     }
-
 
     static class StaticToken implements Token {
         String token;
@@ -939,5 +964,39 @@ public class FixBlockUploader {
         }
     }
 
+    public static class OptionsMeta {
+        String mimeType;
+        StringMap metadata;
+        StringMap customVars;
+
+        public OptionsMeta setMimeType(String mimeType) {
+            this.mimeType = mimeType;
+            return this;
+        }
+
+        /**
+         * @param key     start with X-Qn-Meta-
+         * @param value     not null or empty
+         */
+        public OptionsMeta addMetadata(String key, String value) {
+            if (metadata == null) {
+                metadata = new StringMap();
+            }
+            metadata.put(key, value);
+            return this;
+        }
+
+        /**
+         * @param key     start with x:
+         * @param value     not null or empty
+         */
+        public OptionsMeta addCustomVar(String key, String value) {
+            if (customVars == null) {
+                customVars = new StringMap();
+            }
+            customVars.put(key, value);
+            return this;
+        }
+    }
 
 }
