@@ -73,7 +73,7 @@ public class ResourcesCensor {
 
         bodyData.put("data", uri);
         bodyData.put("params", params);
-        String paraR = gson.toJson(params);
+        String paraR = gson.toJson(bodyData);
         byte[] bodyByte = paraR.getBytes();
 
         // 接口请求地址
