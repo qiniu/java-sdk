@@ -14,7 +14,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
@@ -762,8 +761,11 @@ public class BucketTest {
      * 测试设置原图保护模式
      */
     @Test
-    @Ignore(" 空间删除了访问域名，若测试，请先在空间绑定域名 ")
     public void testPutBucketAccessStyleMode() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+        String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
         for (int i = 0; i < buckets.length; i++) {
@@ -777,16 +779,16 @@ public class BucketTest {
                 Assert.assertEquals(200, response.statusCode);
                 try {
                     client.get(url);
-                    Assert.fail("should be 401");
+                    Assert.fail(msg + "should be 401");
                 } catch (QiniuException e) {
-                    Assert.assertEquals(401, e.response.statusCode);
+                    Assert.assertEquals(msg, 401, e.response.statusCode);
                 }
 
                 // 测试关闭原图保护
                 response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
-                Assert.assertEquals(200, response.statusCode);
+                Assert.assertEquals(msg, 200, response.statusCode);
                 response = client.get(url);
-                Assert.assertEquals(200, response.statusCode);
+                Assert.assertEquals(msg, 200, response.statusCode);
 
             } catch (QiniuException e) {
                 e.printStackTrace();
