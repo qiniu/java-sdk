@@ -54,14 +54,19 @@ public class CdnTest {
      */
     @Test
     public void testRefresh() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+        String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
+
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.RefreshResult r;
         try {
             r = c.refreshUrls(new String[]{TestConfig.testUrl_z0});
-            Assert.assertEquals(200, r.code);
+            Assert.assertEquals(msg, 200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
-            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));
+            Assert.assertTrue(msg, ResCode.find(e.code(), ResCode.getPossibleResCode()));
         }
     }
 
@@ -86,6 +91,11 @@ public class CdnTest {
      */
     @Test
     public void testGetBandwidth() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+        String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
+
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.BandwidthResult r = null;
         String[] domains = {TestConfig.testDomain_z0};
@@ -94,10 +104,10 @@ public class CdnTest {
         String granularity = "day";
         try {
             r = c.getBandwidthData(domains, startDate, endDate, granularity);
-            Assert.assertEquals(200, r.code);
+            Assert.assertEquals(msg, 200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
-            Assert.fail();
+            Assert.fail(msg);
         }
     }
 
@@ -106,6 +116,11 @@ public class CdnTest {
      */
     @Test
     public void testGetFlux() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+        String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
+
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.FluxResult r = null;
         String[] domains = {TestConfig.testDomain_z0};
@@ -114,10 +129,10 @@ public class CdnTest {
         String granularity = "day";
         try {
             r = c.getFluxData(domains, startDate, endDate, granularity);
-            Assert.assertEquals(200, r.code);
+            Assert.assertEquals(msg, 200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
-            Assert.fail();
+            Assert.fail(msg);
         }
     }
 
@@ -127,6 +142,11 @@ public class CdnTest {
      */
     @Test
     public void testGetCdnLogList() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+        String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
+
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.LogListResult r = null;
         String[] domains = {TestConfig.testDomain_z0};
@@ -134,10 +154,10 @@ public class CdnTest {
 
         try {
             r = c.getCdnLogList(domains, logDate);
-            Assert.assertEquals(true, r.data.size() >= 0);
+            Assert.assertEquals(msg, true, r.data.size() >= 0);
         } catch (QiniuException e) {
             e.printStackTrace();
-            Assert.fail();
+            Assert.fail(msg);
         }
     }
 
@@ -151,6 +171,11 @@ public class CdnTest {
      */
     @Test
     public void testCreateTimestampAntiLeechUrlSimple() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+        String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
+
         String host = "http://" + TestConfig.testDomain_z0_timeStamp;
         String fileName = TestConfig.testKey_z0;
         StringMap queryStringMap = new StringMap();
@@ -166,7 +191,7 @@ public class CdnTest {
                         + "sign=50d05540eea4ea8ab905b57006edef7a&t=5c811f8b";
         try {
             URL url = new URL(TestConfig.testUrl_z0_timeStamp);
-            Assert.assertEquals(403, getResponse(url.toString()).statusCode);
+            Assert.assertEquals(msg, 403, getResponse(url.toString()).statusCode);
             String signedUrl1 = CdnManager.createTimestampAntiLeechUrl(host, fileName, queryStringMap,
                     encryptKey1, deadline1);
             String signedUrl2 = CdnManager.createTimestampAntiLeechUrl(url, encryptKey2, deadline2);
@@ -175,13 +200,13 @@ public class CdnTest {
             System.out.println(signedUrl1);
             System.out.println(signedUrl2);
             System.out.println(signedUrl3);
-            Assert.assertEquals(200, getResponse(signedUrl1).statusCode);
-            Assert.assertEquals(200, getResponse(signedUrl2).statusCode);
-            Assert.assertEquals(403, getResponse(signedUrl3).statusCode);
+            Assert.assertEquals(msg, 200, getResponse(signedUrl1).statusCode);
+            Assert.assertEquals(msg, 200, getResponse(signedUrl2).statusCode);
+            Assert.assertEquals(msg, 403, getResponse(signedUrl3).statusCode);
             Assert.assertEquals(testUrl_z0_timeStamp_outdate, signedUrl3);
         } catch (Exception ex) {
             ex.printStackTrace();
-            Assert.fail();
+            Assert.fail(msg);
         }
     }
 
