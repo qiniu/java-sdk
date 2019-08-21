@@ -241,7 +241,7 @@ public class FixBlockUploaderTest {
         File f = TempFile.createFile(1);
         String etag = Etag.file(f);
         String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
-                + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
+                + ",\"fname\":\"$(x:biubiu)_$(fname)\",\"mimeType\":\"$(mimeType)\",\"biu2biu\":\"$(x:biu2biu)\"}";
 
         StringMap p = new StringMap().put("returnBody", returnBody);
         String key = "俩个中文试试1.txt";
@@ -256,18 +256,27 @@ public class FixBlockUploaderTest {
         // param.addMetadata("X-Qn-Meta-!Cobsboe4", 23);
         Response res = up.upload(f, token, key, param, null, 0);
         System.out.println(res.getInfo());
-        ResumeUploadTest.MyRet ret = res.jsonToObject(ResumeUploadTest.MyRet.class);
+        MyRet ret = res.jsonToObject(MyRet.class);
         Response res2 = bm.statResponse(bucket, ret.key);
         System.out.println(res2.getInfo());
         Assert.assertNotEquals(ret.hash, ret.key);
         Assert.assertEquals(mimeType, ret.mimeType);
         Assert.assertEquals(etag, ret.hash);
+        Assert.assertEquals("duDu/werfhue3_" + f.getName(), ret.fname);
+        Assert.assertEquals("duDu/werfhue3", ret.biu2biu);
         String resStr = res2.bodyString();
-        Assert.assertTrue("// 要有额外设置的元信息   customVar  metadata //\n" + new Gson().toJson(param),
+        Assert.assertTrue("// 要有额外设置的元信息  metadata //\n" + new Gson().toJson(param),
                     resStr.indexOf("text/liubin") > -1
-                            && resStr.indexOf("teinYjf") > -1
-                            && resStr.indexOf("werfhue3") > -1
-                            && resStr.indexOf("biu2biu") > -1
-                            && resStr.indexOf("biubiu") > -1);
+                            && resStr.indexOf("teinYjf") > -1);
     }
+
+    class MyRet {
+        public String hash;
+        public String key;
+        public String fsize;
+        public String fname;
+        public String mimeType;
+        public String biu2biu;
+    }
+
 }
