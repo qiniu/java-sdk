@@ -24,6 +24,7 @@ public class JsonTest {
         private String emailAddress;
         transient String s1;
         transient int i1;
+        private String nameNull;
         User(String name, int age) {
             this.name = name;
             this.age = age;

@@ -762,6 +762,10 @@ public class BucketTest {
      */
     @Test
     public void testPutBucketAccessStyleMode() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+        String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
         for (int i = 0; i < buckets.length; i++) {
@@ -775,15 +779,16 @@ public class BucketTest {
                 Assert.assertEquals(200, response.statusCode);
                 try {
                     client.get(url);
+                    Assert.fail(msg + "should be 401");
                 } catch (QiniuException e) {
-                    Assert.assertEquals(401, e.response.statusCode);
+                    Assert.assertEquals(msg, 401, e.response.statusCode);
                 }
 
                 // 测试关闭原图保护
                 response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
-                Assert.assertEquals(200, response.statusCode);
+                Assert.assertEquals(msg, 200, response.statusCode);
                 response = client.get(url);
-                Assert.assertEquals(200, response.statusCode);
+                Assert.assertEquals(msg, 200, response.statusCode);
 
             } catch (QiniuException e) {
                 e.printStackTrace();
@@ -835,6 +840,11 @@ public class BucketTest {
      */
     @Deprecated
     public void testPutBucketMaxAge2() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+        String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
+
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
         for (int i = 0; i < buckets.length; i++) {
@@ -846,7 +856,7 @@ public class BucketTest {
                     // 设置max-age
                     System.out.println("maxAge=" + maxAge);
                     Response response = bucketManager.putBucketMaxAge(bucket, maxAge);
-                    Assert.assertEquals(200, response.statusCode);
+                    Assert.assertEquals(msg, 200, response.statusCode);
                     // 有缓存时间，停几秒
                     try {
                         Thread.sleep(3000);
@@ -859,11 +869,11 @@ public class BucketTest {
                     System.out.println("url=" + url);
                     System.out.println("expect=" + expect);
                     System.out.println("actual=" + actual);
-                    Assert.assertEquals("[public, max-age=" + expect + "]", actual);
+                    Assert.assertEquals(msg, "[public, max-age=" + expect + "]", actual);
                 }
             } catch (IOException e) {
                 if (e instanceof QiniuException) {
-                    Assert.fail(((QiniuException) e).response.toString());
+                    Assert.fail(msg + ((QiniuException) e).response.toString());
                 }
             }
         }
