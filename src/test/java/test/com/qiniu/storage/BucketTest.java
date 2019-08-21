@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
@@ -761,6 +762,7 @@ public class BucketTest {
      * 测试设置原图保护模式
      */
     @Test
+    @Ignore(" 空间删除了访问域名，若测试，请先在空间绑定域名 ")
     public void testPutBucketAccessStyleMode() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
@@ -775,6 +777,7 @@ public class BucketTest {
                 Assert.assertEquals(200, response.statusCode);
                 try {
                     client.get(url);
+                    Assert.fail("should be 401");
                 } catch (QiniuException e) {
                     Assert.assertEquals(401, e.response.statusCode);
                 }
