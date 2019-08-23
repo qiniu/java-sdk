@@ -1,11 +1,15 @@
 package com.qiniu.storage;
 
+import com.google.gson.Gson;
 import com.qiniu.common.*;
 import com.qiniu.util.Auth;
 import org.junit.Assert;
 import org.junit.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 
 public class RegionTest {
@@ -210,5 +214,32 @@ public class RegionTest {
                 "" + h5.indexOf("up.") + h5.indexOf("up-"));
     }
 
+    @Test
+    public void testZoneToRegion() throws NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException, QiniuException {
+        Configuration cfg = new Configuration(Zone.zone0());
+        ConfigHelper c = new ConfigHelper(cfg);
+        String m = "makeSureRegion";
 
+        System.out.println(cfg.region);
+//        System.out.println(cfg.zone);
+
+        Class clazz = c.getClass();
+        Method m1 = clazz.getDeclaredMethod(m);
+        m1.setAccessible(true);
+        m1.invoke(c);
+        Region rz = cfg.region;
+        System.out.println("cfg.region : " + new Gson().toJson(cfg.region));
+//        System.out.println(new Gson().toJson(cfg.zone));
+
+        Region r0 = Region.region0();
+        System.out.println("Region.region0() : " + new Gson().toJson(r0));
+
+        Assert.assertTrue(r0.getSrcUpHost(null).contains(rz.getSrcUpHost(null).get(0)));
+        Assert.assertTrue(r0.getAccUpHost(null).contains(rz.getAccUpHost(null).get(0)));
+        Assert.assertEquals(r0.getIovipHost(null), rz.getIovipHost(null));
+        Assert.assertEquals(r0.getRsHost(null), rz.getRsHost(null));
+        Assert.assertEquals(r0.getRsfHost(null), rz.getRsfHost(null));
+        Assert.assertEquals(r0.getApiHost(null), rz.getApiHost(null));
+    }
 }

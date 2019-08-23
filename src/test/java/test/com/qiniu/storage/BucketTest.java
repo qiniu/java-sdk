@@ -786,6 +786,7 @@ public class BucketTest {
 
                 // 测试关闭原图保护
                 response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
+                System.out.println(response);
                 Assert.assertEquals(msg, 200, response.statusCode);
                 response = client.get(url);
                 Assert.assertEquals(msg, 200, response.statusCode);
