@@ -177,9 +177,9 @@ class ConfigHelper {
 
     private String getHost(String https, String http) {
         if (config.useHttpsDomains) {
-            return https;
+            return toDomain(https);
         } else {
-            return http;
+            return toDomain(http);
         }
     }
 

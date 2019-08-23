@@ -2,7 +2,6 @@ package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
-import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
@@ -22,7 +21,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class BucketTest {
+public class BucketTest2 {
 
     List<Integer> batchStatusCode = Arrays.asList(200, 298);
     private BucketManager bucketManager;
@@ -35,7 +34,7 @@ public class BucketTest {
      */
     @Before
     public void setUp() throws Exception {
-        Configuration cfg = new Configuration(Zone.autoZone());
+        Configuration cfg = new Configuration(Zone.zone0());
         //cfg.useHttpsDomains = false;
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
         this.dummyBucketManager = new BucketManager(TestConfig.dummyAuth, new Configuration());
@@ -49,7 +48,6 @@ public class BucketTest {
         try {
             String[] buckets = bucketManager.buckets();
             Assert.assertTrue(StringUtils.inStringArray(TestConfig.testBucket_z0, buckets));
-            Assert.assertTrue(StringUtils.inStringArray(TestConfig.testBucket_na0, buckets));
         } catch (QiniuException e) {
             Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));
         }
@@ -81,7 +79,7 @@ public class BucketTest {
     @Test
     public void testList() {
         try {
-            String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+            String[] buckets = new String[]{TestConfig.testBucket_z0};
             for (String bucket : buckets) {
                 FileListing l = bucketManager.listFiles(bucket, null, null, 2, null);
                 Assert.assertNotNull(l.items[0]);
@@ -100,7 +98,6 @@ public class BucketTest {
         try {
             Map<String, String> bucketKeyMap = new HashMap<String, String>();
             bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-            bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
 
             for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
                 String bucket = entry.getKey();
@@ -122,7 +119,7 @@ public class BucketTest {
      */
     @Test
     public void testListIterator() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "", 20, null);
 
@@ -144,7 +141,7 @@ public class BucketTest {
      */
     @Test
     public void testListIteratorWithDefaultLimit() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "");
 
@@ -169,7 +166,7 @@ public class BucketTest {
         //test exists
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
 
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
@@ -179,7 +176,7 @@ public class BucketTest {
                 Assert.assertNotNull(info.hash);
                 Assert.assertNotNull(info.mimeType);
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + "==> " + e.response);
             }
         }
 
@@ -216,7 +213,7 @@ public class BucketTest {
     public void testDelete() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             String key = entry.getValue();
@@ -259,7 +256,7 @@ public class BucketTest {
     public void testRename() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
 
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
@@ -284,7 +281,7 @@ public class BucketTest {
         Response response;
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             String key = entry.getValue();
@@ -294,7 +291,8 @@ public class BucketTest {
                 System.out.println(response.statusCode);
                 bucketManager.delete(bucket, copyToKey);
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                e.printStackTrace();
+                Assert.fail(bucket + ":" + key + "==> " + e.response);
             }
         }
     }
@@ -306,7 +304,6 @@ public class BucketTest {
     public void testChangeMime() {
         List<String[]> cases = new ArrayList<String[]>();
         cases.add(new String[]{TestConfig.testBucket_z0, TestConfig.testKey_z0, "image/png"});
-        cases.add(new String[]{TestConfig.testBucket_na0, TestConfig.testKey_na0, "image/png"});
 
         for (String[] icase : cases) {
             String bucket = icase[0];
@@ -327,7 +324,6 @@ public class BucketTest {
     public void testChangeHeaders() {
         List<String[]> cases = new ArrayList<String[]>();
         cases.add(new String[]{TestConfig.testBucket_z0, TestConfig.testKey_z0});
-        cases.add(new String[]{TestConfig.testBucket_na0, TestConfig.testKey_na0});
 
         for (String[] icase : cases) {
             String bucket = icase[0];
@@ -352,7 +348,7 @@ public class BucketTest {
     // TODO
     //@Test
     public void testPrefetch() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
                 bucketManager.setImage(bucket, "https://developer.qiniu.com/");
@@ -372,7 +368,7 @@ public class BucketTest {
      */
     @Test
     public void testFetch() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
                 String resUrl = "http://devtools.qiniu.com/qiniu.png";
@@ -398,7 +394,7 @@ public class BucketTest {
      */
     @Test
     public void testBucketInfo() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
                 BucketInfo info = bucketManager.getBucketInfo(bucket);
@@ -417,7 +413,7 @@ public class BucketTest {
      */
     @Test
     public void testPutReferAntiLeech() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             BucketReferAntiLeech leech = new BucketReferAntiLeech();
             Response response;
@@ -472,7 +468,7 @@ public class BucketTest {
      */
     @Test
     public void testBucketLifeCycleRule() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             Response response;
             BucketLifeCycleRule rule;
@@ -577,7 +573,7 @@ public class BucketTest {
      */
     @Test
     public void testBucketEvent() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         String[] keys = new String[]{TestConfig.testKey_z0, TestConfig.testKey_na0};
         for (int i = 0; i < buckets.length; i++) {
             String bucket = buckets[i];
@@ -681,7 +677,7 @@ public class BucketTest {
                 Assert.assertEquals(0, rules.length);
 
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail("" + e.response);
             }
         }
     }
@@ -707,7 +703,7 @@ public class BucketTest {
      */
     @Test
     public void testCorsRules() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             CorsRule rule1 = new CorsRule(new String[]{"*"}, new String[]{""});
             CorsRule rule2 = new CorsRule(new String[]{"*"}, new String[]{"GET", "POST"});
@@ -747,7 +743,7 @@ public class BucketTest {
     @Test
     // TODO
     public void testPutBucketSourceConfig() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
 
@@ -758,64 +754,13 @@ public class BucketTest {
     }
 
     /**
-     * 测试设置原图保护模式
-     */
-    @Test
-    public void testPutBucketAccessStyleMode() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-        String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-        String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
-        for (int i = 0; i < buckets.length; i++) {
-            String bucket = buckets[i];
-            String url = urls[i];
-            Client client = new Client();
-            Response response;
-            try {
-                // 测试开启原图保护
-                response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.OPEN);
-                Assert.assertEquals(200, response.statusCode);
-                try {
-                    client.get(url);
-                    Assert.fail(msg + "should be 401");
-                } catch (QiniuException e) {
-                    Assert.assertEquals(msg, 401, e.response.statusCode);
-                }
-
-                // 测试关闭原图保护
-                response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
-                System.out.println(response);
-                Assert.assertEquals(msg, 200, response.statusCode);
-                response = client.get(url);
-                Assert.assertEquals(msg, 200, response.statusCode);
-
-            } catch (QiniuException e) {
-                e.printStackTrace();
-                Assert.fail(e.response.toString());
-            } finally {
-                try {
-                    bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
-                } catch (QiniuException e) {
-                    try {
-                        bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
-                    } catch (QiniuException e1) {
-                        // do nothing
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * 测试设置max-age属性
      */
     @Test
     public void testPutBucketMaxAge() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
-            final long []maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
+            final long[] maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
             try {
                 for (long maxAge : maxAges) {
                     // 设置max-age
@@ -846,12 +791,12 @@ public class BucketTest {
         }
         String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
 
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
         for (int i = 0; i < buckets.length; i++) {
             String bucket = buckets[i];
             String url = urls[i];
-            final long []maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
+            final long[] maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
             try {
                 for (long maxAge : maxAges) {
                     // 设置max-age
@@ -885,7 +830,7 @@ public class BucketTest {
      */
     @Test
     public void testPutBucketAccessMode() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             Response response;
             try {
@@ -918,7 +863,7 @@ public class BucketTest {
      */
     @Test
     public void testBucketQuota() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
                 testBucketQuota(bucket, -2, -2);
@@ -956,7 +901,7 @@ public class BucketTest {
     public void testBatchCopy() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             String key = entry.getValue();
@@ -968,7 +913,7 @@ public class BucketTest {
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                Assert.fail("" + e.response);
             }
             ops = new BucketManager.BatchOperations().addDeleteOp(bucket, copyToKey);
             try {
@@ -988,7 +933,7 @@ public class BucketTest {
     public void testBatchMove() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             String key = entry.getValue();
@@ -1023,7 +968,7 @@ public class BucketTest {
     public void testBatchRename() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             String key = entry.getValue();
@@ -1058,7 +1003,7 @@ public class BucketTest {
     public void testBatchStat() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             String key = entry.getValue();
@@ -1085,7 +1030,7 @@ public class BucketTest {
     public void testBatchChangeType() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             String okey = entry.getValue();
@@ -1131,7 +1076,7 @@ public class BucketTest {
     public void testBatchCopyChgmDelete() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             String key = entry.getValue();
@@ -1182,7 +1127,7 @@ public class BucketTest {
     public void testBatch() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             String key = entry.getValue();
@@ -1235,7 +1180,7 @@ public class BucketTest {
     //TODO
     //@Test
     public void testSetAndUnsetImage() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             String srcSiteUrl = "http://developer.qiniu.com/";
             String host = "developer.qiniu.com";
@@ -1261,7 +1206,6 @@ public class BucketTest {
     public void testDeleteAfterDays() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
 
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
@@ -1284,7 +1228,6 @@ public class BucketTest {
     public void testChangeFileType() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
-        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
 
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();

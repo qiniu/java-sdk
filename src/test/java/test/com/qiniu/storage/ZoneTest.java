@@ -29,4 +29,5 @@ public class ZoneTest {
         Configuration cfg = new Configuration(Zone.autoZone());
         cfg.zone = zone2;
     }
+
 }
