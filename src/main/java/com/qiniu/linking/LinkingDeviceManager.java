@@ -17,7 +17,6 @@ public class LinkingDeviceManager {
     private final String host;
     private final Client client;
 
-
     public LinkingDeviceManager(Auth auth) {
         this(auth, "http://linking.qiniuapi.com");
     }
@@ -34,6 +33,25 @@ public class LinkingDeviceManager {
 
     public void createDevice(String appid, String deviceName) throws QiniuException {
         StringMap params = new StringMap().put("device", deviceName);
+        String url = String.format("%s/v1/apps/%s/devices", host, appid);
+        Response res = post(url, params);
+        res.close();
+    }
+
+    public void createDevice(String appid, Device device) throws QiniuException {
+        StringMap params = new StringMap();
+        params.put("device", device.getDeviceName());
+        params.put("segmentExpireDays", device.getSegmentExpireDays());
+        params.put("device", device.getDeviceName());
+        params.put("segmentExpireDays", device.getSegmentExpireDays());
+        params.put("uploadMode", device.getUploadMode());
+        params.put("meta", device.getMeta());
+        params.put("sdcardRotatePolicy", device.getSdcardRotatePolicy());
+        params.put("sdcardRotateValue", device.getSdcardRotateValue());
+        params.put("type", device.getType());
+        params.put("maxChannel", device.getMaxChannel());
+        params.put("channels", device.getChannels());
+
         String url = String.format("%s/v1/apps/%s/devices", host, appid);
         Response res = post(url, params);
         res.close();
