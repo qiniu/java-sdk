@@ -3,6 +3,7 @@ package test.com.qiniu;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 /**
@@ -21,8 +22,8 @@ public final class TempFile {
     public static File createFile(long kiloSize) throws IOException {
         FileOutputStream fos = null;
         try {
-            long size = (long) (1024 * kiloSize);
-            File f = File.createTempFile("qiniu_" + kiloSize + "k", "tmp");
+            long size = 1024 * kiloSize;
+            File f = File.createTempFile("qiniu_" + kiloSize + "k", ".tmp");
             f.createNewFile();
             fos = new FileOutputStream(f);
             byte[] b = getByte();
@@ -74,19 +75,21 @@ public final class TempFile {
     }
 
 
-    public static File createFileOld(int kiloSize) throws IOException {
+    public static File createFileOld(long kiloSize) throws IOException {
         FileOutputStream fos = null;
         try {
-            long size = (long) (1024 * kiloSize);
-            File f = File.createTempFile("qiniu_" + kiloSize + "k", "tmp");
+            long size = 1024 * kiloSize;
+            File f = File.createTempFile("qiniu_" + kiloSize + "k", ".tmp");
             f.createNewFile();
             fos = new FileOutputStream(f);
-            byte[] b = getByteOld();
             long s = 0;
+            int i = 0;
             while (s < size) {
+                byte[] b = getByteOld(i);
                 int l = (int) Math.min(b.length, size - s);
                 fos.write(b, 0, l);
                 s += l;
+                i++;
             }
             fos.flush();
             return f;
@@ -101,14 +104,11 @@ public final class TempFile {
         }
     }
 
-    private static byte[] getByteOld() {
-        byte[] b = new byte[1024 * 4];
-        b[0] = 'A';
-        for (int i = 1; i < 1024 * 4; i++) {
-            b[i] = 'b';
+    private static byte[] getByteOld(int a) {
+        ByteBuffer buffer = ByteBuffer.allocate(1024 * 8);
+        for (int i = 1; i < 1024; i++) {
+            buffer.putInt(a);
         }
-        b[1024 * 4 - 2] = '\r';
-        b[1024 * 4 - 1] = '\n';
-        return b;
+        return buffer.array();
     }
 }

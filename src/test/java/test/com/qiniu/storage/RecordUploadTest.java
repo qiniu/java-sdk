@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.MessageDigest;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +33,13 @@ public class RecordUploadTest {
     FileRecorder recorder = null;
     private Response response = null;
 
+
+    /**
+     * 断点续传
+     *
+     * @param size
+     * @throws IOException
+     */
     private void template(final int size) throws IOException {
         Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
         bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
@@ -117,9 +123,9 @@ public class RecordUploadTest {
                 assertNotNull(response);
                 assertTrue(response.isOK());
                 assertEquals(etag, hash);
-                doSleep(500);
+                doSleep(2000);
                 showRecord("nodata: " + size + " :", recorder, recordKey);
-                assertNull("文件上传成功,但断点记录文件为清理", recorder.get(recordKey));
+                assertNull("文件上传成功,但断点记录文件未清理", recorder.get(recordKey));
             } finally {
                 TempFile.remove(f);
             }
@@ -203,7 +209,7 @@ public class RecordUploadTest {
         String folder = f.getParent();
         FileRecorder fr = new FileRecorder(folder);
 
-        String key = "test_profile_";
+        String key = fr.recorderKeyGenerate("b", "k", "c", "test_profile_");
         byte[] data = new byte[3];
         data[0] = 'a';
         data[1] = '8';
@@ -212,26 +218,26 @@ public class RecordUploadTest {
         fr.set(key, data);
         byte[] data2 = fr.get(key);
 
-        File recoderFile = new File(folder, hash(key));
+        File recoderFile = new File(folder, key);
 
         long m1 = recoderFile.lastModified();
 
         assertEquals(3, data2.length);
         assertEquals('8', data2[1]);
 
-        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 48 + 2300);
+        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 24 * 5 + 2300);
         data2 = fr.get(key);
         assertEquals(3, data2.length);
         assertEquals('8', data2[1]);
 
-        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 48 - 2300);
+        recoderFile.setLastModified(new Date().getTime() - 1000 * 3600 * 24 * 5 - 2300);
 
         long m2 = recoderFile.lastModified();
 
         byte[] data3 = fr.get(key);
 
         assertNull(data3);
-        assertTrue(m1 - m2 > 1000 * 3600 * 48 && m1 - m2 < 1000 * 3600 * 48 + 5500);
+        assertTrue(m1 - m2 > 1000 * 3600 * 24 * 5 && m1 - m2 < 1000 * 3600 * 24 * 5 + 5500);
 
         try {
             Thread.sleep(2300);
@@ -243,30 +249,13 @@ public class RecordUploadTest {
         assertTrue(m4 > m1);
     }
 
-    // copied from FileRecorder
-    private static String hash(String base) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] hash = digest.digest(base.getBytes());
-            StringBuffer hexString = new StringBuffer();
-
-            for (int i = 0; i < hash.length; i++) {
-                hexString.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
-            }
-            return hexString.toString();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
-
     class Up {
         private final File file;
         private final String key;
         private final String token;
         ResumeUploader uploader = null;
 
-        public Up(File file, String key, String token) {
+        Up(File file, String key, String token) {
             this.file = file;
             this.key = key;
             this.token = token;
@@ -276,9 +265,9 @@ public class RecordUploadTest {
             System.out.println("UP going to close");
             // 调用 uploader 私有方法 close()
             try {
-                Method m_close = ResumeUploader.class.getDeclaredMethod("close", new Class[]{});
+                Method m_close = ResumeUploader.class.getDeclaredMethod("close");
                 m_close.setAccessible(true);
-                m_close.invoke(uploader, new Object[]{});
+                m_close.invoke(uploader);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
@@ -288,7 +277,6 @@ public class RecordUploadTest {
             }
             System.out.println("UP closed");
         }
-
 
         public Response up(Zone zone) throws Exception {
             int i = r.nextInt(10000);

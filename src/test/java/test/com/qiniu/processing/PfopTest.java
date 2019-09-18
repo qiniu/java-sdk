@@ -1,66 +1,60 @@
 package test.com.qiniu.processing;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Region;
+import com.qiniu.common.Zone;
 import com.qiniu.processing.OperationManager;
 import com.qiniu.processing.OperationStatus;
 import com.qiniu.storage.Configuration;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
-import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Test;
+import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.fail;
 
-public class PfopTest extends TestCase {
+public class PfopTest {
 
-    private String testMp4FileKey;
-    private String testPipeline;
-
-    @Override
-    protected void setUp() throws Exception {
-        this.testMp4FileKey = "sintel_trailer.mp4";
-        this.testPipeline = "demopipe";
-    }
-
+    /**
+     * 测试pfop
+     * 检测jobid是否不为空
+     */
     @Test
-    public void testAvthumb() {
-        Map<String, Region> cases = new HashMap<String, Region>();
-        cases.put(TestConfig.testBucket_z0, Region.region0());
-        cases.put(TestConfig.testBucket_na0, Region.regionNa0());
-        cases.put(TestConfig.testBucket_z0, Region.autoRegion());
-        cases.put(TestConfig.testBucket_na0, Region.autoRegion());
+    public void testPfop() {
+        Map<String, Zone> cases = new HashMap<String, Zone>();
+        cases.put(TestConfig.testBucket_z0, Zone.autoZone());
+        cases.put(TestConfig.testBucket_na0, Zone.autoZone());
 
-        for (Map.Entry<String, Region> entry : cases.entrySet()) {
+        for (Map.Entry<String, Zone> entry : cases.entrySet()) {
             String bucket = entry.getKey();
-            Region region = entry.getValue();
+            Zone zone = entry.getValue();
 
-            String notifyURL = "";
+            String notifyURL = null;
             boolean force = true;
 
-            String m3u8SaveEntry = String.format("%s:%s", bucket, this.testMp4FileKey + "_320x240.m3u8");
+            String m3u8SaveEntry = String.format("%s:%s", bucket, TestConfig.testMp4FileKey + "_320x240.m3u8");
             String fopM3u8 = String.format("avthumb/m3u8/segtime/10/vcodec/libx264/s/320x240|saveas/%s",
                     UrlSafeBase64.encodeToString(String.format(m3u8SaveEntry)));
 
-            String mp4SaveEntry = String.format("%s:%s", bucket, this.testMp4FileKey + "_320x240.mp4");
+            String mp4SaveEntry = String.format("%s:%s", bucket, TestConfig.testMp4FileKey + "_320x240.mp4");
             String fopMp4 = String.format("avthumb/mp4/vcodec/libx264/s/320x240|saveas/%s",
                     UrlSafeBase64.encodeToString(mp4SaveEntry));
 
-            //join fop together
             String fops = StringUtils.join(new String[]{fopM3u8, fopMp4}, ";");
+            System.out.println(fops);
 
             try {
-                Configuration cfg = new Configuration(region);
+                Configuration cfg = new Configuration(zone);
                 OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
-                String id = operationManager.pfop(bucket, this.testMp4FileKey, fops, testPipeline, notifyURL, force);
-                assertNotNull(id);
-                assertNotEquals("", id);
-                String purl = "http://api.qiniu.com/status/get/prefop?id=" + id;
+                String jobid = operationManager.pfop(bucket, TestConfig.testMp4FileKey, fops, null,
+                        notifyURL, force);
+                Assert.assertNotNull(jobid);
+                Assert.assertNotEquals("", jobid);
+                String purl = "https://api.qiniu.com/status/get/prefop?id=" + jobid;
                 System.out.println(purl);
             } catch (QiniuException e) {
                 fail(e.response.toString());
@@ -68,61 +62,21 @@ public class PfopTest extends TestCase {
         }
     }
 
+    /**
+     * 测试prefop
+     * 检测status是否为0（成功）
+     */
     @Test
     public void testPrefop() {
-        String persistentId = "na0.5899aaf692129336c2034e2d";
         try {
-            Configuration cfg = new Configuration();
-            //cfg.useHttpsDomains = true;
-            OperationStatus status = new OperationManager(TestConfig.testAuth, cfg).prefop(persistentId);
-            assertEquals(0, status.code);
+            String jobid = "z0.5c81361a38b9f349c8bb5288";
+            Configuration cfg = new Configuration(Zone.autoZone());
+            OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
+            OperationStatus status = operationManager.prefop(jobid);
+            Assert.assertEquals(0, status.code);
         } catch (QiniuException ex) {
-            Assert.assertEquals(612, ex.code());
+            Assert.assertTrue(ResCode.find(ex.code(), ResCode.getPossibleResCode(612)));
         }
     }
 
-
-    /*
-    *
-    * http://api.qiniu.com/status/get/prefop?id=z0.5b2cd03638b9f324a561e56d
-    *
-    * {
-        code: 0,
-        desc: "The fop was completed successfully",
-        id: "z0.5b2cd03638b9f324a561e56d",
-        inputBucket: "kk-community-video",
-        inputKey: "shortvideo-1529655406116.mp4",
-        items: [
-        {
-        cmd: "vsample/jpg/ss/1/t/10/interval/1/pattern/dmZyYW1lLSQoY291bnQp",
-        code: 0,
-        desc: "The fop was completed successfully",
-        keys: [
-        "vframe-000001",
-        "vframe-000002",
-        "vframe-000003",
-        "vframe-000004",
-        "vframe-000005",
-        "vframe-000006",
-        "vframe-000007",
-        "vframe-000008",
-        "vframe-000009"
-        ],
-        returnOld: 0
-        }
-        ],
-        pipeline: "1380312146.kkpri02",
-        reqid: "O2kAAFx4s3jjdDoV"
-        }
-    * */
-    @Test
-    public void testPrefopVsample() throws QiniuException {
-        String persistentId = "z0.5b2cd03638b9f324a561e56d";
-
-        Configuration cfg = new Configuration();
-        //cfg.useHttpsDomains = true;
-        OperationStatus status = new OperationManager(TestConfig.testAuth, cfg).prefop(persistentId);
-        assertEquals(0, status.code);
-        assertTrue("vsample prefop's keys length gt 1", status.items[0].keys.length > 1);
-    }
 }

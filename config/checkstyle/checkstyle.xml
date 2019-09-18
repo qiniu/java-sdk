@@ -26,18 +26,16 @@
         <property name="message" value="Space needed around ':' character."/>
     </module>
 
-    <module name="SuppressionCommentFilter">
-    </module>
 
     <module name="TreeWalker">
-        <module name="FileContentsHolder"/>
+        <module name="SuppressionCommentFilter" />
         <!-- Checks for Javadoc comments.                     -->
         <!-- See http://checkstyle.sf.net/config_javadoc.html -->
         <!--module name="JavadocMethod"/-->
         <!--module name="JavadocType"/-->
         <!--module name="JavadocVariable"/-->
         <module name="JavadocStyle">
-            <property name="checkFirstSentence" value="false"/>
+            <property name="checkFirstSentence" value="false" />
         </module>
 
 
@@ -113,9 +111,6 @@
         <!--module name="InnerAssignment"/-->
         <!--module name="MagicNumber"/-->
         <!--module name="MissingSwitchDefault"/-->
-        <module name="RedundantThrows">
-            <property name="suppressLoadErrors" value="true"/>
-        </module>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
 

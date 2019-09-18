@@ -22,7 +22,7 @@ public final class FormUploader {
     private final byte[] data;
     private final String mime;
     private final boolean checkCrc;
-    private final Configuration configuration;
+    private final ConfigHelper configHelper;
     private StringMap params;
     private Client client;
     private String fileName;
@@ -53,7 +53,7 @@ public final class FormUploader {
         this.params = params;
         this.mime = mime;
         this.checkCrc = checkCrc;
-        this.configuration = configuration;
+        this.configHelper = new ConfigHelper(configuration);
     }
 
     /**
@@ -61,12 +61,21 @@ public final class FormUploader {
      */
     public Response upload() throws QiniuException {
         buildParams();
-        if (data != null) {
-            return client.multipartPost(configuration.upHost(token), params, "file", fileName, data,
-                    mime, new StringMap());
+        String host = configHelper.upHost(token);
+        try {
+            if (data != null) {
+                return client.multipartPost(configHelper.upHost(token), params, "file", fileName, data,
+                        mime, new StringMap());
+            } else {
+                return client.multipartPost(configHelper.upHost(token), params, "file", fileName, file,
+                        mime, new StringMap());
+            }
+        } catch (QiniuException e) {
+            if (e.response == null || e.response.needSwitchServer()) {
+                changeHost(token, host);
+            }
+            throw e;
         }
-        return client.multipartPost(configuration.upHost(token), params, "file", fileName, file,
-                mime, new StringMap());
     }
 
     /**
@@ -74,23 +83,39 @@ public final class FormUploader {
      */
     public void asyncUpload(final UpCompletionHandler handler) throws IOException {
         buildParams();
+        final String host = configHelper.upHost(token);
         if (data != null) {
-            client.asyncMultipartPost(configuration.upHost(token), params, "file", fileName,
+            client.asyncMultipartPost(host, params, "file", fileName,
                     data, mime, new StringMap(), new AsyncCallback() {
                         @Override
-                        public void complete(Response r) {
-                            handler.complete(key, r);
+                        public void complete(Response res) {
+                            if (res != null && res.needSwitchServer()) {
+                                changeHost(token, host);
+                            }
+                            handler.complete(key, res);
                         }
                     });
             return;
         }
-        client.asyncMultipartPost(configuration.upHost(token), params, "file", fileName,
+        client.asyncMultipartPost(configHelper.upHost(token), params, "file", fileName,
                 file, mime, new StringMap(), new AsyncCallback() {
                     @Override
-                    public void complete(Response r) {
-                        handler.complete(key, r);
+                    public void complete(Response res) {
+                        if (res != null && res.needSwitchServer()) {
+                            changeHost(token, host);
+                        }
+                        handler.complete(key, res);
                     }
                 });
+    }
+
+    private void changeHost(String upToken, String host) {
+        try {
+            configHelper.tryChangeUpHost(upToken, host);
+        } catch (Exception e) {
+            // ignore
+            // use the old up host //
+        }
     }
 
     private void buildParams() throws QiniuException {

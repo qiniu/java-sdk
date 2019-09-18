@@ -1,11 +1,13 @@
 package com.qiniu.util;
 
+import com.google.gson.annotations.SerializedName;
 import com.qiniu.http.Client;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 
 public final class Auth {
 
@@ -333,5 +335,57 @@ public final class Auth {
         byte[] sign = createMac().doFinal(encodedRoomAcc.getBytes());
         String encodedSign = UrlSafeBase64.encodeToString(sign);
         return this.accessKey + ":" + encodedSign + ":" + encodedRoomAcc;
+    }
+
+
+    public static final String DTOKEN_ACTION_VOD = "linking:vod";
+    public static final String DTOKEN_ACTION_STATUS = "linking:status";
+    public static final String DTOKEN_ACTION_TUTK = "linking:tutk";
+
+    class LinkingDtokenStatement {
+        @SerializedName("action")
+        private String action;
+
+        LinkingDtokenStatement(String action) {
+            this.action = action;
+        }
+
+        public String getAction() {
+            return action;
+        }
+
+        public void setAction(String action) {
+            this.action = action;
+        }
+    }
+
+
+    public String generateLinkingDeviceToken(String appid, String deviceName, long deadline, String[] actions) {
+        LinkingDtokenStatement[] staments = new LinkingDtokenStatement[actions.length];
+
+        for (int i = 0; i < actions.length; ++i) {
+            staments[i] = new LinkingDtokenStatement(actions[i]);
+        }
+
+        SecureRandom random = new SecureRandom();
+        StringMap map = new StringMap();
+        map.put("appid", appid).put("device", deviceName).put("deadline", deadline)
+                .put("random", random.nextInt()).put("statement", staments);
+        String s = Json.encode(map);
+        return signWithData(StringUtils.utf8Bytes(s));
+    }
+
+    public String generateLinkingDeviceTokenWithExpires(String appid, String deviceName,
+                                                        long expires, String[] actions) {
+        long deadline = (System.currentTimeMillis() / 1000) + expires;
+        return generateLinkingDeviceToken(appid, deviceName, deadline, actions);
+    }
+
+    public String generateLinkingDeviceVodTokenWithExpires(String appid, String deviceName, long expires) {
+        return generateLinkingDeviceTokenWithExpires(appid, deviceName, expires, new String[]{DTOKEN_ACTION_VOD});
+    }
+
+    public String generateLinkingDeviceStatusTokenWithExpires(String appid, String deviceName, long expires) {
+        return generateLinkingDeviceTokenWithExpires(appid, deviceName, expires, new String[]{DTOKEN_ACTION_STATUS});
     }
 }

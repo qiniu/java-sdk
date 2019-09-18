@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
  */
 public class StreamUploadTest {
 
-    @Test
+    //@Test
     public void testXVar() throws IOException {
         Map<String, Zone> bucketZoneMap = new HashMap<String, Zone>();
         bucketZoneMap.put(TestConfig.testBucket_z0, Zone.zone0());

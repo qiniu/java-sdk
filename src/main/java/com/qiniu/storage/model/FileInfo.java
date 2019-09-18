@@ -40,5 +40,5 @@ public final class FileInfo {
     /**
      * 文件的md5值
      */
-    public int md5;
+    public String md5;
 }

@@ -37,14 +37,14 @@ public final class ResumeUploader {
     private final StringMap params;
     private final String mime;
     private final String[] contexts;
-    private final Configuration configuration;
+    private final ConfigHelper configHelper;
     private final Client client;
     private final byte[] blockBuffer;
     private final Recorder recorder;
     private final long modifyTime;
     private final RecordHelper helper;
     private FileInputStream file;
-    private String host;
+    private String host = null;
     private int retryMax;
 
     /**
@@ -52,7 +52,7 @@ public final class ResumeUploader {
      */
     public ResumeUploader(Client client, String upToken, String key, File file,
                           StringMap params, String mime, Recorder recorder, Configuration configuration) {
-        this.configuration = configuration;
+        this.configHelper = new ConfigHelper(configuration);
         this.client = client;
         this.upToken = upToken;
         this.key = key;
@@ -82,7 +82,7 @@ public final class ResumeUploader {
 
     private Response upload0() throws QiniuException {
         if (host == null) {
-            this.host = configuration.upHost(upToken);
+            this.host = configHelper.upHost(upToken);
         }
         long uploaded = helper.recoveryFromRecord();
         try {
@@ -113,8 +113,8 @@ public final class ResumeUploader {
             try {
                 response = makeBlock(blockBuffer, blockSize);
             } catch (QiniuException e) {
-                if (e.code() < 0) {
-                    host = configuration.upHostBackup(upToken);
+                if (e.code() < 0 || (e.response != null && e.response.needSwitchServer())) {
+                    changeHost(upToken, host);
                 }
                 if (e.response == null || e.response.needRetry()) {
                     retry = true;
@@ -169,6 +169,15 @@ public final class ResumeUploader {
             }
         } finally {
             helper.removeRecord();
+        }
+    }
+
+    private void changeHost(String upToken, String host) {
+        try {
+            this.host = configHelper.tryChangeUpHost(upToken, host);
+        } catch (Exception e) {
+            // ignore
+            // use the old up host //
         }
     }
 
@@ -310,9 +319,6 @@ public final class ResumeUploader {
             long modify_time;
             // CHECKSTYLE:ON
             String[] contexts;
-
-            Record() {
-            }
 
             Record(long size, long offset, long modify_time, String[] contexts) {
                 this.size = size;
