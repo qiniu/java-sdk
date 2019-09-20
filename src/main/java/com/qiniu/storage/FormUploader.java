@@ -119,28 +119,36 @@ public final class FormUploader {
     }
 
     private void buildParams() throws QiniuException {
+        if (params == null) return;
         params.put("token", token);
+
         if (key != null) {
             params.put("key", key);
         }
+
         if (file != null) {
             fileName = file.getName();
-        }
-        if (fileName == null || fileName.trim().length() == 0) {
-            fileName = "fileName";
-        }
-
-        long crc32 = 0;
-        if (file != null) {
-            try {
-                crc32 = Crc32.file(file);
-            } catch (IOException e) {
-                throw new QiniuException(e);
-            }
         } else {
-            crc32 = Crc32.bytes(data);
+            Object object = params.get("filename");
+            if (object != null) {
+                fileName = (String) object;
+            } else if (fileName == null || fileName.trim().length() == 0) {
+                fileName = "defaultFilename";
+            }
         }
-        params.put("crc32", "" + crc32);
 
+        if (checkCrc) {
+            long crc32;
+            if (file != null) {
+                try {
+                    crc32 = Crc32.file(file);
+                } catch (IOException e) {
+                    throw new QiniuException(e);
+                }
+            } else {
+                crc32 = Crc32.bytes(data);
+            }
+            params.put("crc32", "" + crc32);
+        }
     }
 }
