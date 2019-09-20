@@ -499,12 +499,12 @@ public final class BucketManager {
      * @return Response
      * @throws QiniuException
      */
-    public Response asynFetch(String url, String bucket, String key) throws QiniuException {
-        String requesturl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
+    public Response asyncFetch(String url, String bucket, String key) throws QiniuException {
+        String requestUrl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
         StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key);
         byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
-        return client.post(requesturl, bodyByte,
-                auth.authorizationV2(requesturl, "POST", bodyByte, "application/json"), Client.JsonMime);
+        return client.post(requestUrl, bodyByte,
+                auth.authorizationV2(requestUrl, "POST", bodyByte, "application/json"), Client.JsonMime);
     }
 
     /**
@@ -517,26 +517,34 @@ public final class BucketManager {
      * @param key              文件抓取后保存的文件名
      * @param md5              文件md5,传入以后会在存入存储时对文件做校验，校验失败则不存入指定空间
      * @param etag             文件etag,传入以后会在存入存储时对文件做校验，校验失败则不存入指定空间
-     * @param callbackurl      回调URL，详细解释请参考上传策略中的callbackUrl
-     * @param callbackbody     回调Body，如果callbackurl不为空则必须指定。与普通上传一致支持魔法变量，
-     * @param callbackbodytype 回调Body内容类型,默认为"application/x-www-form-urlencoded"，
-     * @param callbackhost     回调时使用的Host
+     * @param callbackUrl      回调URL，详细解释请参考上传策略中的callbackUrl
+     * @param callbackBody     回调Body，如果callbackurl不为空则必须指定。与普通上传一致支持魔法变量，
+     * @param callbackBodyType 回调Body内容类型,默认为"application/x-www-form-urlencoded"，
+     * @param callbackHost     回调时使用的Host
      * @param fileType         存储文件类型 0:正常存储(默认),1:低频存储
      * @return Response
      * @throws QiniuException
      */
-    public Response asynFetch(String url, String bucket, String key, String md5, String etag,
-                              String callbackurl, String callbackbody, String callbackbodytype,
-                              String callbackhost, int fileType) throws QiniuException {
-        String requesturl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
-        StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).
-                putNotNull("key", key).putNotNull("md5", md5).putNotNull("etag", etag).
-                putNotNull("callbackurl", callbackurl).putNotNull("callbackbody", callbackbody).
-                putNotNull("callbackbodytype", callbackbodytype).
-                putNotNull("callbackhost", callbackhost).putNotNull("file_type", fileType);
+    public Response asyncFetch(String url, String bucket, String host, String key, String md5, String etag,
+                              String callbackUrl, String callbackBody, String callbackBodyType,
+                              String callbackHost, int fileType, boolean ignoreSameKey) throws QiniuException {
+        String requestUrl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
+        StringMap stringMap = new StringMap()
+                .put("url", url)
+                .put("bucket", bucket)
+                .putNotNull("host", host)
+                .putNotNull("key", key)
+                .putNotNull("md5", md5)
+                .putNotNull("etag", etag)
+                .putNotNull("callbackurl", callbackUrl)
+                .putNotNull("callbackbody", callbackBody)
+                .putNotNull("callbackbodytype", callbackBodyType)
+                .putNotNull("callbackhost", callbackHost)
+                .putNotNull("file_type", fileType)
+                .putNotNull("ignore_same_key", ignoreSameKey);
         byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
-        return client.post(requesturl, bodyByte,
-                auth.authorizationV2(requesturl, "POST", bodyByte, "application/json"), Client.JsonMime);
+        return client.post(requestUrl, bodyByte,
+                auth.authorizationV2(requestUrl, "POST", bodyByte, "application/json"), Client.JsonMime);
     }
 
     /**
