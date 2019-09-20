@@ -114,7 +114,7 @@ public final class StreamUploader {
             }
             if (!retry) {
                 ResumeBlockInfo blockInfo0 = response.jsonToObject(ResumeBlockInfo.class);
-                if (blockInfo0.crc32 != crc) {
+                if (blockInfo0 == null || blockInfo0.crc32 != crc) {
                     retry = true;
                     temp = new QiniuException(new Exception("block's crc32 is not match"));
                 }
@@ -134,7 +134,7 @@ public final class StreamUploader {
                 }
             }
             ResumeBlockInfo blockInfo = response.jsonToObject(ResumeBlockInfo.class);
-            if (blockInfo.crc32 != crc) {
+            if (blockInfo == null || blockInfo.crc32 != crc) {
                 throw new QiniuException(new Exception("block's crc32 is not match"));
             }
             contexts.add(blockInfo.ctx);
@@ -145,11 +145,7 @@ public final class StreamUploader {
         try {
             return makeFile();
         } catch (QiniuException e) {
-            try {
-                return makeFile();
-            } catch (QiniuException e1) {
-                throw e1;
-            }
+            return makeFile();
         }
     }
 
@@ -177,13 +173,13 @@ public final class StreamUploader {
     }
 
     private String fileUrl() {
-        String url = host + "/mkfile/" + size + "/mimeType/"
-                + UrlSafeBase64.encodeToString(mime);
+        String url = host + "/mkfile/" + size + "/mimeType/" + UrlSafeBase64.encodeToString(mime);
         final StringBuilder b = new StringBuilder(url);
         if (key != null) {
             b.append("/key/");
             b.append(UrlSafeBase64.encodeToString(key));
         }
+        // 这里如果要传递 filename 参数则使用 fname 作为 params 的 key
         if (params != null) {
             params.forEach(new StringMap.Consumer() {
                 @Override

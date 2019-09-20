@@ -16,7 +16,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-
 /**
  * 分片上传
  * 参考文档：<a href="http://developer.qiniu.com/docs/v6/api/overview/up/chunked-upload.html">分片上传</a>
@@ -127,7 +126,7 @@ public final class ResumeUploader {
 
             if (!retry) {
                 ResumeBlockInfo blockInfo0 = response.jsonToObject(ResumeBlockInfo.class);
-                if (blockInfo0.crc32 != crc) {
+                if (blockInfo0 == null || blockInfo0.crc32 != crc) {
                     retry = true;
                     temp = new QiniuException(new Exception("block's crc32 is not match"));
                 }
@@ -150,7 +149,7 @@ public final class ResumeUploader {
             }
 
             ResumeBlockInfo blockInfo = response.jsonToObject(ResumeBlockInfo.class);
-            if (blockInfo.crc32 != crc) {
+            if (blockInfo == null || blockInfo.crc32 != crc) {
                 throw new QiniuException(new Exception("block's crc32 is not match"));
             }
             contexts[contextIndex++] = blockInfo.ctx;
@@ -162,11 +161,7 @@ public final class ResumeUploader {
         try {
             return makeFile();
         } catch (QiniuException e) {
-            try {
-                return makeFile();
-            } catch (QiniuException e1) {
-                throw e1;
-            }
+            return makeFile();
         } finally {
             helper.removeRecord();
         }

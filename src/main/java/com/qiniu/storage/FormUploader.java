@@ -24,8 +24,8 @@ public final class FormUploader {
     private final boolean checkCrc;
     private final ConfigHelper configHelper;
     private StringMap params;
+    private String filename;
     private Client client;
-    private String fileName;
 
     /**
      * 构建一个表单上传字节数组的对象
@@ -64,10 +64,10 @@ public final class FormUploader {
         String host = configHelper.upHost(token);
         try {
             if (data != null) {
-                return client.multipartPost(configHelper.upHost(token), params, "file", fileName, data,
+                return client.multipartPost(configHelper.upHost(token), params, "file", filename, data,
                         mime, new StringMap());
             } else {
-                return client.multipartPost(configHelper.upHost(token), params, "file", fileName, file,
+                return client.multipartPost(configHelper.upHost(token), params, "file", filename, file,
                         mime, new StringMap());
             }
         } catch (QiniuException e) {
@@ -85,7 +85,7 @@ public final class FormUploader {
         buildParams();
         final String host = configHelper.upHost(token);
         if (data != null) {
-            client.asyncMultipartPost(host, params, "file", fileName,
+            client.asyncMultipartPost(host, params, "file", filename,
                     data, mime, new StringMap(), new AsyncCallback() {
                         @Override
                         public void complete(Response res) {
@@ -97,7 +97,7 @@ public final class FormUploader {
                     });
             return;
         }
-        client.asyncMultipartPost(configHelper.upHost(token), params, "file", fileName,
+        client.asyncMultipartPost(configHelper.upHost(token), params, "file", filename,
                 file, mime, new StringMap(), new AsyncCallback() {
                     @Override
                     public void complete(Response res) {
@@ -127,13 +127,18 @@ public final class FormUploader {
         }
 
         if (file != null) {
-            fileName = file.getName();
+            filename = file.getName();
         } else {
             Object object = params.get("filename");
             if (object != null) {
-                fileName = (String) object;
-            } else if (fileName == null || fileName.trim().length() == 0) {
-                fileName = "defaultFilename";
+                filename = (String) object;
+                object = null;
+            } else if (filename == null || filename.trim().length() == 0) {
+                if (key == null) {
+                    filename = "defaultFilename";
+                } else {
+                    filename = key;
+                }
             }
         }
 
