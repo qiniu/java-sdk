@@ -499,12 +499,12 @@ public final class BucketManager {
      * @return Response
      * @throws QiniuException
      */
-    public Response asynFetch(String url, String bucket, String key) throws QiniuException {
-        String requesturl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
+    public Response asyncFetch(String url, String bucket, String key) throws QiniuException {
+        String requestUrl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
         StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key);
         byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
-        return client.post(requesturl, bodyByte,
-                auth.authorizationV2(requesturl, "POST", bodyByte, "application/json"), Client.JsonMime);
+        return client.post(requestUrl, bodyByte,
+                auth.authorizationV2(requestUrl, "POST", bodyByte, "application/json"), Client.JsonMime);
     }
 
     /**
@@ -525,18 +525,38 @@ public final class BucketManager {
      * @return Response
      * @throws QiniuException
      */
-    public Response asynFetch(String url, String bucket, String key, String md5, String etag,
-                              String callbackurl, String callbackbody, String callbackbodytype,
-                              String callbackhost, int fileType) throws QiniuException {
-        String requesturl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
+    public Response asyncFetch(String url, String bucket, String key, String md5, String etag,
+                               String callbackurl, String callbackbody, String callbackbodytype,
+                               String callbackhost, int fileType) throws QiniuException {
+        String requestUrl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
         StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).
                 putNotNull("key", key).putNotNull("md5", md5).putNotNull("etag", etag).
                 putNotNull("callbackurl", callbackurl).putNotNull("callbackbody", callbackbody).
                 putNotNull("callbackbodytype", callbackbodytype).
                 putNotNull("callbackhost", callbackhost).putNotNull("file_type", fileType);
         byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
-        return client.post(requesturl, bodyByte,
-                auth.authorizationV2(requesturl, "POST", bodyByte, "application/json"), Client.JsonMime);
+        return client.post(requestUrl, bodyByte,
+                auth.authorizationV2(requestUrl, "POST", bodyByte, "application/json"), Client.JsonMime);
+    }
+
+    /**
+     * 异步第三方资源抓取 从指定 URL 抓取资源，并将该资源存储到指定空间中。每次只抓取一个文件，抓取时可以指定保存空间名和最终资源名。
+     * 主要对于大文件进行抓取
+     * https://developer.qiniu.com/kodo/api/4097/asynch-fetch
+     *
+     * @param url    待抓取的文件链接，支持设置多个,以';'分隔
+     * @param bucket 文件抓取后保存的空间
+     * @param params 其他参数
+     * @return Response
+     * @throws QiniuException
+     */
+    public Response asyncFetch(String url, String bucket, StringMap params) throws QiniuException {
+        if (params == null) params = new StringMap();
+        params.put("url", url).put("bucket", bucket);
+        String requestUrl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
+        byte[] bodyByte = Json.encode(params).getBytes(Constants.UTF_8);
+        return client.post(requestUrl, bodyByte,
+                auth.authorizationV2(requestUrl, "POST", bodyByte, "application/json"), Client.JsonMime);
     }
 
     /**
