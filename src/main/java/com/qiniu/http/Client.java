@@ -90,8 +90,8 @@ public final class Client {
                     try {
                         return dns.lookup(hostname);
                     } catch (Exception e) {
+                        return okhttp3.Dns.SYSTEM.lookup(hostname);
                     }
-                    return okhttp3.Dns.SYSTEM.lookup(hostname);
                 }
             });
         }
@@ -362,7 +362,7 @@ public final class Client {
             }
 
             @Override
-            public void onResponse(Call call, okhttp3.Response response) throws IOException {
+            public void onResponse(Call call, okhttp3.Response response) {
                 long duration = (System.currentTimeMillis() - start) / 1000;
                 cb.complete(Response.create(response, "", duration));
             }
@@ -402,7 +402,7 @@ public final class Client {
                                    File fileBody,
                                    String mimeType,
                                    StringMap headers,
-                                   AsyncCallback cb) throws QiniuException {
+                                   AsyncCallback cb) {
         RequestBody file = RequestBody.create(MediaType.parse(mimeType), fileBody);
         asyncMultipartPost(url, fields, name, fileName, file, headers, cb);
     }
@@ -430,6 +430,6 @@ public final class Client {
     }
 
     private static class IpTag {
-        public String ip = null;
+        String ip = null;
     }
 }
