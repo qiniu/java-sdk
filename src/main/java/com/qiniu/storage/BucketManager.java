@@ -499,7 +499,7 @@ public final class BucketManager {
      * @return Response
      * @throws QiniuException
      */
-    public Response asyncFetch(String url, String bucket, String key) throws QiniuException {
+    public Response asynFetch(String url, String bucket, String key) throws QiniuException {
         String requestUrl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
         StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key);
         byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
@@ -525,7 +525,7 @@ public final class BucketManager {
      * @return Response
      * @throws QiniuException
      */
-    public Response asyncFetch(String url, String bucket, String key, String md5, String etag,
+    public Response asynFetch(String url, String bucket, String key, String md5, String etag,
                                String callbackurl, String callbackbody, String callbackbodytype,
                                String callbackhost, int fileType) throws QiniuException {
         String requestUrl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
