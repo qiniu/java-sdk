@@ -500,11 +500,8 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public Response asynFetch(String url, String bucket, String key) throws QiniuException {
-        String requestUrl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
-        StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).putNotNull("key", key);
-        byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
-        return client.post(requestUrl, bodyByte,
-                auth.authorizationV2(requestUrl, "POST", bodyByte, "application/json"), Client.JsonMime);
+        StringMap params = new StringMap().putNotNull("key", key);
+        return asyncFetch(url, bucket, params);
     }
 
     /**
@@ -528,15 +525,16 @@ public final class BucketManager {
     public Response asynFetch(String url, String bucket, String key, String md5, String etag,
                                String callbackurl, String callbackbody, String callbackbodytype,
                                String callbackhost, int fileType) throws QiniuException {
-        String requestUrl = configHelper.apiHost(auth.accessKey, bucket) + "/sisyphus/fetch";
-        StringMap stringMap = new StringMap().put("url", url).put("bucket", bucket).
-                putNotNull("key", key).putNotNull("md5", md5).putNotNull("etag", etag).
-                putNotNull("callbackurl", callbackurl).putNotNull("callbackbody", callbackbody).
-                putNotNull("callbackbodytype", callbackbodytype).
-                putNotNull("callbackhost", callbackhost).putNotNull("file_type", fileType);
-        byte[] bodyByte = Json.encode(stringMap).getBytes(Constants.UTF_8);
-        return client.post(requestUrl, bodyByte,
-                auth.authorizationV2(requestUrl, "POST", bodyByte, "application/json"), Client.JsonMime);
+        StringMap params = new StringMap()
+                .putNotNull("key", key)
+                .putNotNull("md5", md5)
+                .putNotNull("etag", etag)
+                .putNotNull("callbackurl", callbackurl)
+                .putNotNull("callbackbody", callbackbody)
+                .putNotNull("callbackbodytype", callbackbodytype)
+                .putNotNull("callbackhost", callbackhost)
+                .putNotNull("file_type", fileType);
+        return asyncFetch(url, bucket, params);
     }
 
     /**
