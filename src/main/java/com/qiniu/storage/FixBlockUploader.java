@@ -458,7 +458,7 @@ public class FixBlockUploader {
 
     Response makeFile1(String url, byte[] data, StringMap headers, boolean ignoreError) throws QiniuException {
         try {
-            Response res = client.post(url, data, headers, "text/plain");
+            Response res = client.post(url, data, headers, "application/json");
             return res;
         } catch (QiniuException e) {
             if (ignoreError) {
