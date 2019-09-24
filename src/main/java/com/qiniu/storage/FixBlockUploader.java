@@ -219,20 +219,20 @@ public class FixBlockUploader {
 
     private void upBlock(BlockData blockData, Token token, String bucket, String base64Key, boolean repeatable,
                          Record record, ExecutorService pool, int maxRunningBlock) throws QiniuException {
-        boolean useAsync = useAsync(pool, blockData, record);
+        boolean useParallel = useParallel(pool, blockData, record);
 
-        if (!useAsync) {
-            syncUpload(blockData, token, bucket, base64Key, record);
+        if (!useParallel) {
+            seqUpload(blockData, token, bucket, base64Key, record);
         } else {
-            asyncUpload(blockData, token, bucket, base64Key, record, repeatable, pool, maxRunningBlock);
+            parallelUpload(blockData, token, bucket, base64Key, record, repeatable, pool, maxRunningBlock);
         }
     }
 
-    private boolean useAsync(ExecutorService pool, BlockData blockData, Record record) {
+    private boolean useParallel(ExecutorService pool, BlockData blockData, Record record) {
         return pool != null && ((blockData.size() - record.size) > this.blockSize);
     }
 
-    private void syncUpload(BlockData blockData, Token token, String bucket,
+    private void seqUpload(BlockData blockData, Token token, String bucket,
                             String base64Key, Record record) throws QiniuException {
         final String uploadId = record.uploadId;
         final List<EtagIdx> etagIdxes = record.etagIdxes;
@@ -261,7 +261,7 @@ public class FixBlockUploader {
         }
     }
 
-    private void asyncUpload(BlockData blockData, final Token token,
+    private void parallelUpload(BlockData blockData, final Token token,
                              final String bucket, final String base64Key, Record record,
                              boolean needRecord, ExecutorService pool, int maxRunningBlock) throws QiniuException {
         final String uploadId = record.uploadId;
