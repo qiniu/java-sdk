@@ -24,8 +24,8 @@ public final class FormUploader {
     private final boolean checkCrc;
     private final ConfigHelper configHelper;
     private StringMap params;
+    private String filename;
     private Client client;
-    private String fileName;
 
     /**
      * 构建一个表单上传字节数组的对象
@@ -64,10 +64,10 @@ public final class FormUploader {
         String host = configHelper.upHost(token);
         try {
             if (data != null) {
-                return client.multipartPost(configHelper.upHost(token), params, "file", fileName, data,
+                return client.multipartPost(configHelper.upHost(token), params, "file", filename, data,
                         mime, new StringMap());
             } else {
-                return client.multipartPost(configHelper.upHost(token), params, "file", fileName, file,
+                return client.multipartPost(configHelper.upHost(token), params, "file", filename, file,
                         mime, new StringMap());
             }
         } catch (QiniuException e) {
@@ -85,7 +85,7 @@ public final class FormUploader {
         buildParams();
         final String host = configHelper.upHost(token);
         if (data != null) {
-            client.asyncMultipartPost(host, params, "file", fileName,
+            client.asyncMultipartPost(host, params, "file", filename,
                     data, mime, new StringMap(), new AsyncCallback() {
                         @Override
                         public void complete(Response res) {
@@ -97,7 +97,7 @@ public final class FormUploader {
                     });
             return;
         }
-        client.asyncMultipartPost(configHelper.upHost(token), params, "file", fileName,
+        client.asyncMultipartPost(configHelper.upHost(token), params, "file", filename,
                 file, mime, new StringMap(), new AsyncCallback() {
                     @Override
                     public void complete(Response res) {
@@ -119,28 +119,41 @@ public final class FormUploader {
     }
 
     private void buildParams() throws QiniuException {
+        if (params == null) return;
         params.put("token", token);
+
         if (key != null) {
             params.put("key", key);
         }
-        if (file != null) {
-            fileName = file.getName();
-        }
-        if (fileName == null || fileName.trim().length() == 0) {
-            fileName = "fileName";
-        }
 
-        long crc32 = 0;
         if (file != null) {
-            try {
-                crc32 = Crc32.file(file);
-            } catch (IOException e) {
-                throw new QiniuException(e);
-            }
+            filename = file.getName();
         } else {
-            crc32 = Crc32.bytes(data);
+            Object object = params.get("filename");
+            if (object != null) {
+                filename = (String) object;
+                object = null;
+            } else if (filename == null || filename.trim().length() == 0) {
+                if (key == null) {
+                    filename = "defaultFilename";
+                } else {
+                    filename = key;
+                }
+            }
         }
-        params.put("crc32", "" + crc32);
 
+        if (checkCrc) {
+            long crc32;
+            if (file != null) {
+                try {
+                    crc32 = Crc32.file(file);
+                } catch (IOException e) {
+                    throw new QiniuException(e);
+                }
+            } else {
+                crc32 = Crc32.bytes(data);
+            }
+            params.put("crc32", "" + crc32);
+        }
     }
 }
