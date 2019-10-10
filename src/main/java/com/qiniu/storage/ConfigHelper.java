@@ -10,6 +10,7 @@ class ConfigHelper {
 
     ConfigHelper(Configuration config) {
         this.config = config;
+        makeSureRegion();
     }
 
     public String upHost(String upToken) throws QiniuException {
@@ -34,32 +35,27 @@ class ConfigHelper {
 
     private String upHost(String upToken, String lastUsedHost, boolean changeHost, boolean mustReturnUpHost)
             throws QiniuException {
-        makeSureRegion();
         return getScheme()
                 + getHelper().upHost(config.region, upToken, toDomain(lastUsedHost), changeHost, mustReturnUpHost);
     }
 
 
     public String ioHost(String ak, String bucket) throws QiniuException {
-        makeSureRegion();
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
         return getScheme() + config.region.getIovipHost(regionReqInfo);
     }
 
     public String apiHost(String ak, String bucket) throws QiniuException {
-        makeSureRegion();
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
         return getScheme() + config.region.getApiHost(regionReqInfo);
     }
 
     public String rsHost(String ak, String bucket) throws QiniuException {
-        makeSureRegion();
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
             return getScheme() + config.region.getRsHost(regionReqInfo);
     }
 
     public String rsfHost(String ak, String bucket) throws QiniuException {
-        makeSureRegion();
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
         return getScheme() + config.region.getRsfHost(regionReqInfo);
     }

@@ -77,6 +77,7 @@ class AutoRegion extends Region {
         // 隔一段时间重新获取 uc 信息 //
         if (info == null || info.createTime < System.currentTimeMillis() - 1000 * 3600 * 8) {
             try {
+                // 1
                 UCRet ret = getRegionJson(index);
                 RegionInfo info2 = RegionInfo.buildFromUcRet(ret);
                 // 初次获取报错，info == null ，响应 null //
@@ -87,6 +88,26 @@ class AutoRegion extends Region {
                 }
             } catch (Exception e) {
                 ex = e;
+                if (info == null) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (Exception e1) {
+                        // do nothing
+                    }
+                    try {
+                        // 2
+                        UCRet ret = getRegionJson(index);
+                        RegionInfo info2 = RegionInfo.buildFromUcRet(ret);
+                        // 初次获取报错，info == null ，响应 null //
+                        // 后续重新获取，正常获取则替换以前的 //
+                        if (info2 != null) {
+                            regions.put(index, info2);
+                            info = info2;
+                        }
+                    } catch (Exception e1) {
+                        ex = e1;
+                    }
+                }
             }
         }
         // info 不能为 null //
