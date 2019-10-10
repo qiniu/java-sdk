@@ -121,14 +121,14 @@ class UpHostHelper {
         List<String> lastAccHosts;
         List<String> lastSrcHosts;
 
-        HashMap<String, Long> hostMark = new HashMap();
+        HashMap<String, Long> hostMark = new HashMap<>();
         ArrayList<String> lastHosts;
 
         volatile int mainHostCount = 0;
         volatile String lastHost;
 
         private void initHostMark(List<String> f, List<String> s) {
-            ArrayList<String> _lastHosts = new ArrayList();
+            ArrayList<String> _lastHosts = new ArrayList<>();
             int _mainHostCount = 0;
 
             if (f.size() > 0) {
@@ -144,7 +144,7 @@ class UpHostHelper {
             int i = 1;
 
             Random r = new Random();
-            ArrayList<Integer> iidx = new ArrayList();
+            ArrayList<Integer> iidx = new ArrayList<>();
 
             for (; i < l; i++) {
                 iidx.add(i);
@@ -156,25 +156,29 @@ class UpHostHelper {
             for (; i < f.size(); i++) {
                 iidx.add(i);
             }
-            randomAdd(_lastHosts, iidx, r, f);
+            randomAdd(_lastHosts, iidx, r, f, null);
 
             iidx.clear();
             for (; i < s.size(); i++) {
                 iidx.add(i);
             }
-            randomAdd(_lastHosts, iidx, r, s);
+            randomAdd(_lastHosts, iidx, r, s, null);
 
             lastHosts = _lastHosts;
             mainHostCount = _mainHostCount;
         }
 
-        private void randomAdd(ArrayList<String> _lastHosts, List<Integer> iidx, Random r, List<String>... list) {
+        private void randomAdd(ArrayList<String> _lastHosts, ArrayList<Integer> iidx, Random r,
+                               List<String> list1, List<String> list2) {
             int size = iidx.size();
             for (int j = 0; j < size; j++) {
                 int ji = r.nextInt(iidx.size());
                 Integer jv = iidx.remove(ji);
-                for (List<String> l : list) {
-                    _lastHosts.add(l.get(jv));
+                if (list1 != null) {
+                    _lastHosts.add(list1.get(jv));
+                }
+                if (list2 != null) {
+                    _lastHosts.add(list2.get(jv));
                 }
             }
         }
