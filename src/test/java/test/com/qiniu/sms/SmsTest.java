@@ -1,16 +1,13 @@
 package test.com.qiniu.sms;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.sms.Configuration;
 import com.qiniu.sms.SmsManager;
 import com.qiniu.sms.model.SignatureInfo;
 import com.qiniu.sms.model.TemplateInfo;
 import com.qiniu.util.Auth;
-import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,7 +18,6 @@ import test.com.qiniu.TestConfig;
 import javax.swing.text.html.FormSubmitEvent.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,8 +43,8 @@ public class SmsTest {
         String json5 = new Gson().toJson(paramMap5);
         Assert.assertTrue("{\"bbbb\":\"sdsdsd\"}".equals(json5));
 
-        Map<String, String> paramMap6 = new HashMap<String, String>(){{
-        this.put("bbbb", "sdsdsd");
+        Map<String, String> paramMap6 = new HashMap<String, String>() {{
+            this.put("bbbb", "sdsdsd");
         }};
         String json6 = new Gson().toJson(paramMap6);
         Assert.assertTrue("null".equals(json6));
