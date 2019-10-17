@@ -1,12 +1,16 @@
 package test.com.qiniu.sms;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.sms.Configuration;
 import com.qiniu.sms.SmsManager;
 import com.qiniu.sms.model.SignatureInfo;
 import com.qiniu.sms.model.TemplateInfo;
 import com.qiniu.util.Auth;
+import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,11 +21,14 @@ import test.com.qiniu.TestConfig;
 import javax.swing.text.html.FormSubmitEvent.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SmsTest {
     private SmsManager smsManager;
+    private String mobile = ""; // 一国内手机号
+    private String[] mobiles = new String[]{mobile,};
 
     /**
      * 初始化
@@ -33,14 +40,64 @@ public class SmsTest {
         this.smsManager = new SmsManager(Auth.create(TestConfig.smsAccessKey, TestConfig.smsSecretKey));
     }
 
+    @Test
+    public void testJson() {
+        Map<String, String> paramMap5 = new HashMap<String, String>();
+        paramMap5.put("bbbb", "sdsdsd");
+        String json5 = new Gson().toJson(paramMap5);
+        Assert.assertTrue("{\"bbbb\":\"sdsdsd\"}".equals(json5));
+
+        Map<String, String> paramMap6 = new HashMap<String, String>(){{
+        this.put("bbbb", "sdsdsd");
+        }};
+        String json6 = new Gson().toJson(paramMap6);
+        Assert.assertTrue("null".equals(json6));
+    }
 
     @Test
     public void testSendMessage() {
+        Map<String, String> paramMap = new HashMap<String, String>();
+        paramMap.put("code", "12945");
         try {
-            Map<String, String> paramMap = new HashMap<String, String>();
-            Response response = smsManager.sendMessage("test", new String[]{"10086"}, paramMap);
+            Response response = smsManager.sendMessage("1138278041873555456", mobiles, paramMap);
             Assert.assertNotNull(response);
         } catch (QiniuException e) {
+            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(401)));
+        }
+    }
+
+    @Test
+    public void sendSingleMessage() {
+        Map<String, String> paramMap = new HashMap<String, String>();
+        paramMap.put("code", "9signle78");
+        try {
+            Response response = smsManager.sendSingleMessage("1138278041873555456", mobile, paramMap);
+            Assert.assertNotNull(response);
+        } catch (QiniuException e) {
+            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(401)));
+        }
+    }
+
+    @Test
+    public void sendOverseaMessage() {
+        Map<String, String> paramMap = new HashMap<String, String>();
+        paramMap.put("code", "8612345");
+        try {
+            // 测试手机后为 国内一手机号，加上 +86
+            Response response = smsManager.sendOverseaMessage("1184679569681027072", "+86" + mobile, paramMap);
+            Assert.assertNotNull(response);
+        } catch (QiniuException e) {
+            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(401)));
+        }
+    }
+
+    @Test
+    public void sendFulltextMessage() {
+        try {
+            Response response = smsManager.sendFulltextMessage(mobiles, "【七牛云】尊敬的用户你好，您的验证码是 38232");
+            Assert.assertNotNull(response);
+        } catch (QiniuException e) {
+            e.printStackTrace();
             Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(401)));
         }
     }
