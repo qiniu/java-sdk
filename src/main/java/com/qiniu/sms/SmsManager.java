@@ -120,7 +120,6 @@ public class SmsManager {
         return post(requestUrl, Json.encode(bodyMap).getBytes());
     }
 
-
     /**
      * 查询签名
      *
