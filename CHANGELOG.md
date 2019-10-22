@@ -1,5 +1,9 @@
 # Changelog
 
+## 7.2.27 (2019-10-22)
+## 增加
+* SMS 功能增加三个接口
+
 ## 7.2.25 (2019-08-23)
 ## 修改
 * 修正 7.2.24 引入的问题： java.net.UnknownHostException: https
