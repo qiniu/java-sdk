@@ -33,7 +33,7 @@ public class GetBucketInfo {
             // 输出空间所述区域
             System.out.println(bucketInfo.getZone());
             
-           // 其他参数详见 com.qiniu.storage.model.BucketInfo;
+           // 其他参数详见 https://github.com/qiniu/java-sdk/blob/master/src/main/java/com/qiniu/storage/model/BucketInfo.java
             
         } catch (Exception e) {
             //
