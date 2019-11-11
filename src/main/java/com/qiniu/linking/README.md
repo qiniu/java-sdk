@@ -130,4 +130,4 @@ String token =  auth.generateLinkingDeviceStatusTokenWithExpires(appid,deviceNam
 视频播放相关 api 编程模型说明：
 如用户请求视频相关api(例如：[https://developer.qiniu.com/linking/api/5650/playback](https://developer.qiniu.com/linking/api/5650/playback))时进行业务服务器中转，会造成访问路径比较长, 因此建议服务端只进行dtoken的签算并提供给播放端，播放端直接请求视频播放相关的API，提升播放体验。
 具体下token签算参考 [https://developer.qiniu.com/linking/api/5680/the-signature-in-the-url](https://developer.qiniu.com/linking/api/5680/the-signature-in-the-url)
-![WeChatWorkScreenshot_c6c3e265-5ca3-48d9-8cc5-c40343506eeb](https://user-images.githubusercontent.com/34932312/63987548-3d000100-cb0b-11e9-971b-7aea84e07c67.png)
+![WeChatWorkScreenshot_7a66f4d2-943f-4e19-bc09-04a394fe69f6](https://user-images.githubusercontent.com/34932312/68568688-41e01a00-0497-11ea-983c-9274a0ffb19f.png)
