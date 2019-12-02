@@ -23,6 +23,7 @@ public final class Client {
     public static final String DefaultMime = "application/octet-stream";
     public static final String JsonMime = "application/json";
     public static final String FormMime = "application/x-www-form-urlencoded";
+    private static String userApp = null;
     private final OkHttpClient httpClient;
 
     /**
@@ -107,12 +108,20 @@ public final class Client {
         httpClient = builder.build();
     }
 
+    public static void setAppName(String userApp) {
+        Client.userApp = userApp;
+    }
+
     private static String userAgent() {
-        String javaVersion = "Java/" + System.getProperty("java.version");
-        String os = System.getProperty("os.name") + " "
+        final String javaVersion = "Java/" + System.getProperty("java.version");
+        final String os = System.getProperty("os.name") + " "
                 + System.getProperty("os.arch") + " " + System.getProperty("os.version");
-        String sdk = "QiniuJava/" + Constants.VERSION;
-        return sdk + " (" + os + ") " + javaVersion;
+        final String sdk = "QiniuJava/" + Constants.VERSION;
+        String userApp = "";
+        if (Client.userApp != null) {
+            userApp = "/" + Client.userApp;
+        }
+        return sdk + userApp + " (" + os + ") " + javaVersion;
     }
 
     private static RequestBody create(final MediaType contentType,
