@@ -1,5 +1,6 @@
 package com.qiniu.sms;
 
+import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
@@ -68,7 +69,7 @@ public class SmsManager {
         bodyMap.put("template_id", templateId);
         bodyMap.put("mobiles", mobiles);
         bodyMap.put("parameters", parameters);
-        return post(requestUrl, Json.encode(bodyMap).getBytes());
+        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -85,7 +86,7 @@ public class SmsManager {
         bodyMap.put("template_id", templateId);
         bodyMap.put("mobile", mobile);
         bodyMap.put("parameters", parameters);
-        return post(requestUrl, Json.encode(bodyMap).getBytes());
+        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -102,7 +103,7 @@ public class SmsManager {
         bodyMap.put("template_id", templateId);
         bodyMap.put("mobile", mobile);
         bodyMap.put("parameters", parameters);
-        return post(requestUrl, Json.encode(bodyMap).getBytes());
+        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -117,7 +118,7 @@ public class SmsManager {
         StringMap bodyMap = new StringMap();
         bodyMap.put("mobiles", mobiles);
         bodyMap.put("content", content);
-        return post(requestUrl, Json.encode(bodyMap).getBytes());
+        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -164,7 +165,7 @@ public class SmsManager {
         bodyMap.put("signature", signature);
         bodyMap.put("source", source);
         bodyMap.putWhen("pics", pics, pics.length > 0);
-        return post(requestUrl, Json.encode(bodyMap).getBytes());
+        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -177,7 +178,7 @@ public class SmsManager {
         String reqUrl = String.format("%s/v1/signature/%s", configuration.smsHost(), signatureId);
         StringMap bodyMap = new StringMap();
         bodyMap.put("signature", signature);
-        return put(reqUrl, Json.encode(bodyMap).getBytes());
+        return put(reqUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -233,7 +234,7 @@ public class SmsManager {
         bodyMap.put("type", type);
         bodyMap.put("description", description);
         bodyMap.put("signature_id", signatureId);
-        return post(requestUrl, Json.encode(bodyMap).getBytes());
+        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -253,7 +254,7 @@ public class SmsManager {
         bodyMap.put("template", template);
         bodyMap.put("description", description);
         bodyMap.put("signature_id", signatureId);
-        return put(requestUrl, Json.encode(bodyMap).getBytes());
+        return put(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
