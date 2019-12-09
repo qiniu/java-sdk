@@ -237,8 +237,12 @@ public final class BucketManager {
         for (int i = 0; i < lineList.size(); i++) {
             String line = lineList.get(i);
             JsonObject jsonObject = Json.decode(line, JsonObject.class);
-            if (!(jsonObject.get("item") instanceof JsonNull))
+            if (jsonObject == null) {
+                continue;
+            }
+            if (!(jsonObject.get("item") instanceof JsonNull)) {
                 fileInfoList.add(Json.decode(jsonObject.get("item"), FileInfo.class));
+            }
             String dir = jsonObject.get("dir").getAsString();
             if (!"".equals(dir)) commonPrefixSet.add(dir);
             if (i == lineList.size() - 1)
@@ -523,8 +527,8 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public Response asynFetch(String url, String bucket, String key, String md5, String etag,
-                               String callbackurl, String callbackbody, String callbackbodytype,
-                               String callbackhost, int fileType) throws QiniuException {
+                              String callbackurl, String callbackbody, String callbackbodytype,
+                              String callbackhost, int fileType) throws QiniuException {
         StringMap params = new StringMap()
                 .putNotNull("key", key)
                 .putNotNull("md5", md5)
