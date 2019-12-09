@@ -24,7 +24,7 @@ public final class CdnManager {
     /**
      * 单个请求最大刷新的链接数量
      */
-    private static final int MAX_API_REFRESH_URL_COUNT = 100;
+    private static final int MAX_API_REFRESH_URL_COUNT = 60;
     /**
      * 单个请求最大刷新的目录数量
      */
@@ -32,7 +32,7 @@ public final class CdnManager {
     /**
      * 单个请求最大预取的链接数量
      */
-    private static final int MAX_API_PREFETCH_URL_COUNT = 100;
+    private static final int MAX_API_PREFETCH_URL_COUNT = 60;
 
     private final Auth auth;
     private final String server;
@@ -60,7 +60,7 @@ public final class CdnManager {
     }
 
     /**
-     * 刷新链接列表，每次最多不可以超过100条链接
+     * 刷新链接列表，每次最多不可以超过 60 条链接
      * 参考文档：<a href="http://developer.qiniu.com/fusion/api/cache-refresh">缓存刷新</a>
      *
      * @param urls 待刷新文件外链列表
@@ -71,7 +71,7 @@ public final class CdnManager {
     }
 
     /**
-     * 刷新目录列表，每次最多不可以超过10个目录
+     * 刷新目录列表，每次最多不可以超过 10 个目录
      * 刷新目录需要额外开通权限，可以联系七牛技术支持处理
      * 参考文档：<a href="http://developer.qiniu.com/fusion/api/cache-refresh">缓存刷新</a>
      *
@@ -83,7 +83,7 @@ public final class CdnManager {
     }
 
     /**
-     * 刷新文件外链和目录，外链每次不超过100个，目录每次不超过10个
+     * 刷新文件外链和目录，外链每次不超过 60 个，目录每次不超过 10 个
      * 刷新目录需要额外开通权限，可以联系七牛技术支持处理
      * 参考文档：<a href="http://developer.qiniu.com/fusion/api/cache-refresh">缓存刷新</a>
      *
@@ -115,7 +115,7 @@ public final class CdnManager {
     }
 
     /**
-     * 预取文件链接，每次最多不可以超过100条
+     * 预取文件链接，每次最多不可以超过 60 条
      * 参考文档：<a href="http://developer.qiniu.com/fusion/api/file-prefetching">文件预取</a>
      *
      * @param urls 待预取的文件外链列表
