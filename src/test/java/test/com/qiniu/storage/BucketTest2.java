@@ -158,6 +158,41 @@ public class BucketTest2 {
         }
     }
 
+    @Test
+    public void testListV2() {
+        try {
+            String[] buckets = new String[]{TestConfig.testBucket_z0};
+            for (String bucket : buckets) {
+                FileListing l = bucketManager.listFilesV2(bucket, "sdfisjfisjei", null, 2, null);
+            }
+
+            for (String bucket : buckets) {
+                FileListing l = bucketManager.listFilesV2(bucket, null, null, 2, null);
+                Assert.assertNotNull(l.items[0]);
+                Assert.assertNotNull(l.marker);
+            }
+        } catch (QiniuException e) {
+            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));
+        }
+    }
+
+
+    @Test
+    public void testListV2_1() {
+        try {
+            String marker = null;
+            do{
+                FileListing l = bucketManager.listFilesV2(TestConfig.testBucket_z0, "pi", marker, 2, null);
+                marker = l.marker;
+                for (FileInfo f :l.items) {
+                    Assert.assertNotNull(f.key);
+                }
+            } while(!StringUtils.isNullOrEmpty(marker));
+        } catch (QiniuException e) {
+            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));
+        }
+    }
+
     /**
      * 测试stat
      */
