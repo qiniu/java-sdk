@@ -163,7 +163,10 @@ public class BucketTest2 {
         try {
             String[] buckets = new String[]{TestConfig.testBucket_z0};
             for (String bucket : buckets) {
-                FileListing l = bucketManager.listFilesV2(bucket, "sdfisjfisjei", null, 2, null);
+                String prefix = "sdfisjfisjei473ysfGYDEJDSDJWEDJNFD23rje";
+                FileListing l = bucketManager.listFilesV2(bucket, prefix, null, 2, null);
+                Assert.assertTrue(l.items.length == 0);
+                Assert.assertNull(l.marker);
             }
 
             for (String bucket : buckets) {
@@ -181,13 +184,16 @@ public class BucketTest2 {
     public void testListV2_1() {
         try {
             String marker = null;
+            int count = 0;
             do{
                 FileListing l = bucketManager.listFilesV2(TestConfig.testBucket_z0, "pi", marker, 2, null);
                 marker = l.marker;
                 for (FileInfo f :l.items) {
                     Assert.assertNotNull(f.key);
                 }
+                count++;
             } while(!StringUtils.isNullOrEmpty(marker));
+            Assert.assertTrue(count > 0);
         } catch (QiniuException e) {
             Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));
         }
