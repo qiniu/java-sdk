@@ -670,6 +670,13 @@ public class BucketTest2 {
                     Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
                 }
 
+                // 追加Event
+                rule.setName("b");
+                rule.setPrefix(key);
+                System.out.println(rule.asQueryString());
+                response = bucketManager.putBucketEvent(bucket, rule);
+                Assert.assertEquals(200, response.statusCode);
+
                 // 重复追加Event（error:event prefix and suffix exists）
                 try {
                     rule.setName("b");
@@ -679,13 +686,6 @@ public class BucketTest2 {
                 } catch (QiniuException e) {
                     Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
                 }
-
-                // 追加Event
-                rule.setName("b");
-                rule.setPrefix(key);
-                System.out.println(rule.asQueryString());
-                response = bucketManager.putBucketEvent(bucket, rule);
-                Assert.assertEquals(200, response.statusCode);
 
                 // 触发时间，回调成功与否 不检测
                 response = bucketManager.copy(bucket, key, bucket, key + "CopyByEvent", true);
