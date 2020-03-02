@@ -303,8 +303,11 @@ public final class Auth {
     }
 
     public String signQiniuAuthorization(String url, String method, byte[] body, String contentType) {
-        return signQiniuAuthorization(url, method, body,
-                new Headers.Builder().set("Content-Type", contentType).build());
+        Headers headers = null;
+        if (!StringUtils.isNullOrEmpty(contentType)) {
+            headers = new Headers.Builder().set("Content-Type", contentType).build();
+        }
+        return signQiniuAuthorization(url, method, body, headers);
     }
 
     public String signQiniuAuthorization(String url, String method, byte[] body, Headers headers) {
