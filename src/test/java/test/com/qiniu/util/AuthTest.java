@@ -90,7 +90,7 @@ public class AuthTest {
         Auth auth = Auth.create(ak, sk);
         Headers map = auth.qiniuAuthorization(url, method, null, null);
         String a = map.get("Authorization");
-        assertEquals("MY_ACCESS_KEY:1uLvuZM6l6oCzZFqkJ6oI4oFMVQ=", a);
+        assertEquals("Qiniu MY_ACCESS_KEY:1uLvuZM6l6oCzZFqkJ6oI4oFMVQ=", a);
     }
 
     private void checkSignQiniu(String sign, Auth auth, String url, String method, Headers headers, byte[] body) {
