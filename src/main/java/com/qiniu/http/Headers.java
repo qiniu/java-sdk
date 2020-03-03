@@ -56,7 +56,6 @@ public class Headers {
         if (headers == null) {
             return builder.build();
         }
-        ;
         headers.forEach(new StringMap.Consumer() {
             @Override
             public void accept(String key, Object value) {
