@@ -1,6 +1,7 @@
 package com.examples;
 
 import com.google.gson.Gson;
+import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
@@ -12,18 +13,24 @@ public class ResourcesCensor {
     //设置好账号的ACCESS_KEY和SECRET_KEY
     private static final String ACCESS_KEY = "填写你们自己的ak";
     private static final String SECRET_KEY = "填写你们自己的sk";
-    private static final Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
+    private final Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
+    private final Client client = new Client();
 
     public static void main(String args[]) {
+        ResourcesCensor resourcesCensor = new ResourcesCensor();
         String result;
-        //result = ImageCensor();
-        result = VideoCensor();
-        System.out.printf(result);
+        try {
+            result = resourcesCensor.ImageCensor();
+            //result = resourcesCensor.VideoCensor();
+            System.out.printf(result);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        }
     }
 
     //参考api文档 https://developer.qiniu.com/dora/manual/4252/image-review
     //图片审核
-    public static String ImageCensor() {
+    public String ImageCensor() throws QiniuException {
         // 构造post请求body
         Gson gson = new Gson();
 
@@ -50,7 +57,7 @@ public class ResourcesCensor {
 
     //参考api文档 https://developer.qiniu.com/dora/manual/4258/video-pulp
     //视频审核
-    public static String VideoCensor() {
+    public String VideoCensor() throws QiniuException {
         // 构造post请求body
         Gson gson = new Gson();
 
@@ -81,20 +88,15 @@ public class ResourcesCensor {
         return post(url, bodyByte);
     }
 
-    private static String post(String url, byte[] body) {
+    private String post(String url, byte[] body) throws QiniuException {
         String accessToken = (String) auth.authorizationV2(url, "POST", body, "application/json")
                 .get("Authorization");
 
-        Client client = new Client();
         StringMap headers = new StringMap();
         headers.put("Authorization", accessToken);
-        try {
-            com.qiniu.http.Response resp = client.post(url, body, headers, Client.JsonMime);
-            return resp.bodyString();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        
+        com.qiniu.http.Response resp = client.post(url, body, headers, Client.JsonMime);
+        return resp.bodyString();
     }
 
 }
