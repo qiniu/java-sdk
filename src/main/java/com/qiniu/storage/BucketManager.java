@@ -115,8 +115,8 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public Response createBucket(String bucketName, String region) throws QiniuException {
-        String url = String.format("%s/mkbucketv2/%s/region/%s", configHelper.rsHost(),
-                UrlSafeBase64.encodeToString(bucketName), region);
+        String url = String.format("%s/mkbucketv3/%s/region/%s", configHelper.rsHost(),
+                bucketName, region);
         Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
