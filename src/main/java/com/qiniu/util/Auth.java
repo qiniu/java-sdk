@@ -2,12 +2,17 @@ package com.qiniu.util;
 
 import com.google.gson.annotations.SerializedName;
 import com.qiniu.http.Client;
+import com.qiniu.http.Headers;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public final class Auth {
 
@@ -91,21 +96,25 @@ public final class Auth {
         return mac;
     }
 
+    @Deprecated // private
     public String sign(byte[] data) {
         Mac mac = createMac();
         String encodedSign = UrlSafeBase64.encodeToString(mac.doFinal(data));
         return this.accessKey + ":" + encodedSign;
     }
 
+    @Deprecated // private
     public String sign(String data) {
         return sign(StringUtils.utf8Bytes(data));
     }
 
+    @Deprecated // private
     public String signWithData(byte[] data) {
         String s = UrlSafeBase64.encodeToString(data);
         return sign(StringUtils.utf8Bytes(s)) + ":" + s;
     }
 
+    @Deprecated // private
     public String signWithData(String data) {
         return signWithData(StringUtils.utf8Bytes(data));
     }
@@ -118,6 +127,7 @@ public final class Auth {
      * @param contentType
      * @return
      */
+    @Deprecated // private
     public String signRequest(String urlString, byte[] body, String contentType) {
         URI uri = URI.create(urlString);
         String path = uri.getRawPath();
@@ -268,11 +278,13 @@ public final class Auth {
         return signWithData(StringUtils.utf8Bytes(s));
     }
 
+    @Deprecated
     public StringMap authorization(String url, byte[] body, String contentType) {
         String authorization = "QBox " + signRequest(url, body, contentType);
         return new StringMap().put("Authorization", authorization);
     }
 
+    @Deprecated
     public StringMap authorization(String url) {
         return authorization(url, null, null);
     }
@@ -280,51 +292,102 @@ public final class Auth {
     /**
      * 生成HTTP请求签名字符串
      *
-     * @param urlString
+     * @param url
      * @param body
      * @param contentType
      * @return
      */
-    public String signRequestV2(String urlString, String method, byte[] body, String contentType) {
-        URI uri = URI.create(urlString);
+    @Deprecated
+    public String signRequestV2(String url, String method, byte[] body, String contentType) {
+        return signQiniuAuthorization(url, method, body, contentType);
+    }
 
-        Mac mac = createMac();
+    public String signQiniuAuthorization(String url, String method, byte[] body, String contentType) {
+        Headers headers = null;
+        if (!StringUtils.isNullOrEmpty(contentType)) {
+            headers = new Headers.Builder().set("Content-Type", contentType).build();
+        }
+        return signQiniuAuthorization(url, method, body, headers);
+    }
+
+    public String signQiniuAuthorization(String url, String method, byte[] body, Headers headers) {
+        URI uri = URI.create(url);
+        if (StringUtils.isNullOrEmpty(method)) {
+            method = "GET";
+        }
+
         StringBuilder sb = new StringBuilder();
+        sb.append(method).append(" ").append(uri.getPath());
 
-        sb.append(String.format("%s %s", method, uri.getPath()));
         if (uri.getQuery() != null) {
-            sb.append(String.format("?%s", uri.getQuery()));
+            sb.append("?").append(uri.getQuery());
         }
 
-        sb.append(String.format("\nHost: %s", uri.getHost()));
+        sb.append("\nHost: ").append(uri.getHost() != null ? uri.getHost() : "");
+
         if (uri.getPort() > 0) {
-            sb.append(String.format(":%d", uri.getPort()));
+            sb.append(":").append(uri.getPort());
         }
 
-        if (contentType != null) {
-            sb.append(String.format("\nContent-Type: %s", contentType));
-        }
+        String contentType = null;
 
-        // body
-        sb.append("\n\n");
-        if (body != null && body.length > 0 && !StringUtils.isNullOrEmpty(contentType)) {
-            if (contentType.equals(Client.FormMime)
-                    || contentType.equals(Client.JsonMime)) {
-                sb.append(new String(body));
+        if (null != headers) {
+            contentType = headers.get("Content-Type");
+            if (contentType != null) {
+                sb.append("\nContent-Type: ").append(contentType);
+            }
+
+            List<Header> xQiniuheaders = genXQiniuHeader(headers);
+            java.util.Collections.sort(xQiniuheaders);
+            if (xQiniuheaders.size() > 0) {
+                for (Header h : xQiniuheaders) {
+                    sb.append("\n").append(h.name).append(": ").append(h.value);
+                }
             }
         }
 
+        sb.append("\n\n");
+
+        if (body != null && body.length > 0 && null != contentType && !"".equals(contentType)
+                && !"application/octet-stream".equals(contentType)) {
+            sb.append(new String(body));
+        }
+        Mac mac = createMac();
         mac.update(StringUtils.utf8Bytes(sb.toString()));
 
         String digest = UrlSafeBase64.encodeToString(mac.doFinal());
         return this.accessKey + ":" + digest;
     }
 
+    private List<Header> genXQiniuHeader(Headers headers) {
+        ArrayList<Header> hs = new ArrayList<Header>();
+        for (String name : headers.names()) {
+            if (name.length() > "X-Qiniu-".length() && name.startsWith("X-Qiniu-")) {
+                for (String value : headers.values(name)) {
+                    hs.add(new Header(canonicalMIMEHeaderKey(name), value));
+                }
+            }
+        }
+        return hs;
+    }
+
+    public Headers qiniuAuthorization(String url, String method, byte[] body, Headers headers) {
+        String authorization = "Qiniu " + signQiniuAuthorization(url, method, body, headers);
+        if (headers == null) {
+            headers = new Headers.Builder().set("Authorization", authorization).build();
+        } else {
+            headers = headers.newBuilder().set("Authorization", authorization).build();
+        }
+        return headers;
+    }
+
+    @Deprecated
     public StringMap authorizationV2(String url, String method, byte[] body, String contentType) {
         String authorization = "Qiniu " + signRequestV2(url, method, body, contentType);
         return new StringMap().put("Authorization", authorization);
     }
 
+    @Deprecated
     public StringMap authorizationV2(String url) {
         return authorizationV2(url, "GET", null, null);
     }
@@ -387,5 +450,81 @@ public final class Auth {
 
     public String generateLinkingDeviceStatusTokenWithExpires(String appid, String deviceName, long expires) {
         return generateLinkingDeviceTokenWithExpires(appid, deviceName, expires, new String[]{DTOKEN_ACTION_STATUS});
+    }
+
+    private static boolean[] isTokenTable = genTokenTable();
+    private static int toLower = 'a' - 'A';
+
+    // https://github.com/golang/go/blob/master/src/net/textproto/reader.go#L596
+    // CanonicalMIMEHeaderKey returns the canonical format of the
+    // MIME header key s. The canonicalization converts the first
+    // letter and any letter following a hyphen to upper case;
+    // the rest are converted to lowercase. For example, the
+    // canonical key for "accept-encoding" is "Accept-Encoding".
+    // MIME header keys are assumed to be ASCII only.
+    // If s contains a space or invalid header field bytes, it is
+    // returned without modifications.
+    private static String canonicalMIMEHeaderKey(String name) {
+        // com.qiniu.http.Headers 已确保 header name 字符的合法性，直接使用 byte ，否则要使用 char //
+        byte[] a = name.getBytes(Charset.forName("UTF-8"));
+        for (int i = 0; i < a.length; i++) {
+            byte c = a[i];
+            if (!validHeaderFieldByte(c)) {
+                return name;
+            }
+        }
+
+        boolean upper = true;
+        for (int i = 0; i < a.length; i++) {
+            byte c = a[i];
+            if (upper && 'a' <= c && c <= 'z') {
+                c -= toLower;
+            } else if (!upper && 'A' <= c && c <= 'Z') {
+                c += toLower;
+            }
+            a[i] = c;
+            upper = c == '-'; // for next time
+        }
+        return new String(a);
+    }
+
+
+    private static boolean validHeaderFieldByte(byte b) {
+        //byte: -128 ~ 127, char:  0 ~ 65535
+        return 0 < b && b < isTokenTable.length && isTokenTable[b];
+    }
+
+    private static boolean[] genTokenTable() {
+        int[] idx = new int[]{
+                '!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+                'U', 'W', 'V', 'X', 'Y', 'Z', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+                'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '|', '~',};
+        boolean[] tokenTable = new boolean[127];
+        Arrays.fill(tokenTable, false);
+        for (int i : idx) {
+            tokenTable[i] = true;
+        }
+        return tokenTable;
+    }
+
+    private class Header implements Comparable<Header> {
+        String name;
+        String value;
+
+        Header(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        @Override
+        public int compareTo(Header o) {
+            int c = this.name.compareTo(o.name);
+            if (c == 0) {
+                return this.value.compareTo(o.value);
+            } else {
+                return c;
+            }
+        }
     }
 }

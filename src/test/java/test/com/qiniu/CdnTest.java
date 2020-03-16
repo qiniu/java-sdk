@@ -52,7 +52,7 @@ public class CdnTest {
     /**
      * 测试刷新，只检查是否返回200
      */
-    @Test
+    //@Test
     public void testRefresh() {
         if (TestConfig.isTravis()) {
             return;
@@ -73,7 +73,7 @@ public class CdnTest {
     /**
      * 测试预取，只检测是否返回200
      */
-    @Test
+    //@Test
     public void testPrefetch() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.PrefetchResult r;
@@ -140,7 +140,7 @@ public class CdnTest {
      * 测试获取CDN域名访问日志的下载链接
      * 检测日志信息列表长度是否>=0
      */
-    @Test
+    //@Test
     public void testGetCdnLogList() {
         if (TestConfig.isTravis()) {
             return;
@@ -169,7 +169,7 @@ public class CdnTest {
      * 检测signedUrl3是否返回403
      * 检测signedUrl3与预期结果是否一致
      */
-    @Test
+    //@Test
     public void testCreateTimestampAntiLeechUrlSimple() {
         if (TestConfig.isTravis()) {
             return;
