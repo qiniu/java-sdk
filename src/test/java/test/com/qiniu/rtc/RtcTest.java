@@ -5,6 +5,7 @@ import com.qiniu.http.Response;
 import com.qiniu.rtc.RtcAppManager;
 import com.qiniu.rtc.RtcRoomManager;
 import com.qiniu.util.Auth;
+import org.junit.Test;
 import test.com.qiniu.TestConfig;
 
 
@@ -90,6 +91,16 @@ public class RtcTest {
     public void getRoomToken() {
         try {
             System.out.print(rmanager.getRoomToken("dg8emfd4t", "zwhome", "zhangwei", 1525410499, "user"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void getCalculateForRoom(){
+        try {
+            Response response =rmanager.getCalculateForRoom("dix05zn6q", "roomtest", "20200317000000", "20200317193000", null,0,null);
+            System.out.print(getString(response));
         } catch (Exception e) {
             e.printStackTrace();
         }

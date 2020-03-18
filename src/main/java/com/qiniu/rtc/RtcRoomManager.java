@@ -76,6 +76,43 @@ public class RtcRoomManager {
     }
 
     /**
+     *
+     * @param appId
+     * @param roomName
+     * @param start 开始时间：20200317000000
+     * @param end 结束时间：20200317200000
+     * @param G 查询的粒度，可选(5min, hour, day, month)，默认为day
+     * @param total 表示查询房间的总时⻓ int64
+     * @param kind 表示类型，Audio/SD/HD/UHD string
+     * @return Response
+     * @throws QiniuException
+     */
+    public Response getCalculateForRoom(String appId, String roomName, String start, String end,String G,int total,String kind) throws QiniuException {
+        StringBuilder builder = new StringBuilder();
+        builder.append(host);
+        builder.append("/v3/apps/").append(appId).append("/rooms/").append(roomName).append("/metric?");
+        if (start != null) {
+            builder.append("start=").append(start).append("&");
+        }
+        if (end != null) {
+            builder.append("end=").append(end);
+        }
+        if (G != null) {
+            builder.append("&granule=").append(G);
+        }
+        if (total > 0) {
+            builder.append("&total=").append(total);
+        }
+        if (kind != null) {
+            builder.append("&kind=").append(kind);
+        }
+        String url = builder.toString();
+        StringMap headers = auth.authorizationV2(builder.toString());
+        System.out.println("url："+url);
+        return client.get(url, headers);
+    }
+
+    /**
      * @param appId      房间所属帐号的 app
      * @param roomName   房间名称，需满足规格 ^[a-zA-Z0-9_-]{3,64}$
      * @param userId     请求加入房间的用户 ID，需满足规格 ^[a-zA-Z0-9_-]{3,50}$
