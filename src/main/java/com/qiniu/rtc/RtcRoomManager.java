@@ -8,6 +8,8 @@ import com.qiniu.rtc.model.RoomAccess;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 
+import java.util.Objects;
+
 public class RtcRoomManager {
     private final Auth auth;
     private final String host;
@@ -87,9 +89,9 @@ public class RtcRoomManager {
      * @return Response
      * @throws QiniuException
      */
-    public Response getCalculateForRoom(String appId, String roomName, String start, String end,String G,int total,String kind) throws QiniuException {
-        if (appId == null || roomName == null) {
-            return Response.createInvalidArgument("appid or roomName is null");
+    public Response getCalculateForRoom(String appId, String roomName, String start, String end, String G, int total, String kind) throws QiniuException {
+        if (appId == null || roomName == null || start == null || end == null) {
+            return Response.createInvalidArgument("some request param is null");
         }
         StringBuilder builder = new StringBuilder();
         builder.append(host);
