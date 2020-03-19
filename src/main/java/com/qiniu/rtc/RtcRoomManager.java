@@ -88,6 +88,9 @@ public class RtcRoomManager {
      * @throws QiniuException
      */
     public Response getCalculateForRoom(String appId, String roomName, String start, String end,String G,int total,String kind) throws QiniuException {
+        if (appId == null || roomName == null) {
+            return Response.createInvalidArgument("appid or roomName is null");
+        }
         StringBuilder builder = new StringBuilder();
         builder.append(host);
         builder.append("/v3/apps/").append(appId).append("/rooms/").append(roomName).append("/metric?");
