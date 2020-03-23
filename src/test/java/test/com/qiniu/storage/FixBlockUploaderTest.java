@@ -22,6 +22,7 @@ import java.util.Date;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class FixBlockUploaderTest {
     int blockSize = 1024 * 1024 * 8;
@@ -45,6 +46,17 @@ public class FixBlockUploaderTest {
         bm = new BucketManager(TestConfig.testAuth, config);
     }
 
+    @Test
+    public void testInit() {
+        Configuration config = new Configuration();
+        Client client = new Client(config);
+        try {
+            new FixBlockUploader(1024 * 1024 * 3, config, client, null);
+            fail("block  size  must  be >= 1024 * 1024 * 4");
+        } catch (AssertionError e) {
+            assertTrue(e.getMessage().indexOf("blockSize must be >= 4M") > -1);
+        }
+    }
 
     @Test
     public void testEmpty() throws IOException {

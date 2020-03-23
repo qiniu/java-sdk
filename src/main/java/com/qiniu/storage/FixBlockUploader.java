@@ -30,13 +30,13 @@ public class FixBlockUploader {
     private String host = null;
 
     /**
-     * @param blockSize     must be multiples of 4M.
+     * @param blockSize     must be >= 4 * 1024 * 1024.
      * @param configuration Nullable, if null, then create a new one.
      * @param client        Nullable, if null, then create a new one with configuration.
      * @param recorder      Nullable.
      */
     public FixBlockUploader(int blockSize, Configuration configuration, Client client, Recorder recorder) {
-        assert blockSize > 0 && blockSize % (4 * 1024 * 1024) == 0 : "blockSize must be multiples of 4M ";
+        assert blockSize >= 4 * 1024 * 1024 : "blockSize must be >= 4M ";
 
         if (configuration == null) {
             configuration = new Configuration();
@@ -107,9 +107,9 @@ public class FixBlockUploader {
             /*
             上传到七牛存储保存的文件名， 需要进行UrlSafeBase64编码。
             注意:
-            当设置为空时表示空的文件名;
-            当设置为未进行 UrlSafeBase64 编码的字符  ~  的时候,表示未设置文件名，
-                具体行为如分片上传v1:  使用文件的hash最为文件名， 如果设置了saveKey则使用saveKey的规则进行文件命名
+            当 key 为空 "" 时表示空的文件名，正常进行 url_safe_base64 编码;
+            当 key 为未进行 UrlSafeBase64 编码的字符  ~  的时候，表示未设置文件名，
+                具体行为如分片上传v1:  使用文件的 hash 作为文件名， 如果设置了saveKey则使用saveKey的规则进行文件命名
             */
             String base64Key = key != null ? UrlSafeBase64.encodeToString(key) : "~";
             String recordFileKey = (recorder == null) ? "NULL"
@@ -120,12 +120,15 @@ public class FixBlockUploader {
                 host = configHelper.upHost(token.getUpToken());
             }
             UploadRecordHelper recordHelper = new UploadRecordHelper(recorder, recordFileKey, blockData.repeatable());
+            // 1. initParts
             Record record = initUpload(blockData, recordHelper, bucket, base64Key, token);
             boolean repeatable = recorder != null && blockData.repeatable();
 
             Response res;
             try {
+                // 2. uploadPart
                 upBlock(blockData, token, bucket, base64Key, repeatable, record, pool, maxRunningBlock);
+                // 3. completeParts
                 res = makeFile(bucket, base64Key, token, record.uploadId, record.etagIdxes,
                         blockData.getFileName(), params);
             } catch (QiniuException e) {
@@ -154,14 +157,15 @@ public class FixBlockUploader {
         }
 
         if (record == null || record.uploadId == null) {
-            String uploadId = init(bucket, base64Key, token.getUpToken());
+            InitRet ret = init(bucket, base64Key, token.getUpToken());
+
             List<EtagIdx> etagIdxes = new ArrayList<>();
-            record = initRecord(uploadId, etagIdxes);
+            record = initRecord(ret, etagIdxes);
         }
         return record;
     }
 
-    String init(String bucket, String base64Key, String upToken) throws QiniuException {
+    InitRet init(String bucket, String base64Key, String upToken) throws QiniuException {
         String url = host + "/buckets/" + bucket + "/objects/" + base64Key + "/uploads";
         byte[] data = new byte[0];
         StringMap headers = new StringMap().put("Authorization", "UpToken " + upToken);
@@ -205,9 +209,9 @@ public class FixBlockUploader {
         }
 
         try {
-            String uploadId = res.jsonToMap().get("uploadId").toString();
-            if (uploadId.length() > 10) {
-                return uploadId;
+            InitRet ret =  res.jsonToObject(InitRet.class);
+            if (ret != null && ret.uploadId != null && ret.uploadId.length() > 10 && ret.expireAt > 1000) {
+                return ret;
             }
         } catch (Exception e) {
             // ignore, see next line
@@ -432,7 +436,7 @@ public class FixBlockUploader {
                       String fileName, OptionsMeta params) throws QiniuException {
         String url = host + "/buckets/" + bucket + "/objects/" + base64Key + "/uploads/" + uploadId;
         final StringMap headers = new StringMap().put("Authorization", "UpToken " + token.getUpToken());
-        sortAsc(etags);
+        sortByPartNumberAsc(etags);
         byte[] data = new MakefileBody(etags, fileName, params)
                 .json().getBytes(Charset.forName("UTF-8"));
 
@@ -493,7 +497,7 @@ public class FixBlockUploader {
         }
     }
 
-    static void sortAsc(List<EtagIdx> etags) {
+    static void sortByPartNumberAsc(List<EtagIdx> etags) {
         Collections.sort(etags, new Comparator<EtagIdx>() {
             @Override
             public int compare(EtagIdx o1, EtagIdx o2) {
@@ -567,17 +571,19 @@ public class FixBlockUploader {
 
 
     class Record {
-        long createdTime;
+        // second
+        long expireAt;
         String uploadId;
         long size;
         List<EtagIdx> etagIdxes;
     }
 
 
-    Record initRecord(String uploadId, List<EtagIdx> etagIdxes) {
+    Record initRecord(InitRet ret, List<EtagIdx> etagIdxes) {
         Record record = new Record();
-        record.createdTime = System.currentTimeMillis();
-        record.uploadId = uploadId;
+        record.uploadId = ret.uploadId;
+        //// 服务端 7 天内有效，设置 5 天 ////
+        record.expireAt = ret.expireAt - 3600 * 24 * 2;
         record.size = 0;
         record.etagIdxes = etagIdxes != null ? etagIdxes : new ArrayList<EtagIdx>();
 
@@ -620,15 +626,14 @@ public class FixBlockUploader {
 
         public void syncRecord(Record record) {
             if (needRecord && recorder != null && record.etagIdxes.size() > 0) {
-                sortAsc(record.etagIdxes);
+                sortByPartNumberAsc(record.etagIdxes);
                 recorder.set(recordFileKey, new Gson().toJson(record).getBytes(Charset.forName("UTF-8")));
             }
         }
 
         public boolean isActiveRecord(Record record, BlockData blockData) {
-            //// 服务端 7 天内有效，设置 5 天 ////
             boolean isOk = record != null
-                    && record.createdTime > System.currentTimeMillis() - 1000 * 3600 * 24 * 5
+                    && record.expireAt < (System.currentTimeMillis() / 1000)
                     && !StringUtils.isNullOrEmpty(record.uploadId)
                     && record.etagIdxes != null && record.etagIdxes.size() > 0
                     && record.size > 0 && record.size <= blockData.size();
@@ -651,6 +656,11 @@ public class FixBlockUploader {
 
 
     ///////////////////////////////////////
+
+    class InitRet {
+        String uploadId;
+        long expireAt;
+    }
 
 
     abstract static class BlockData {
