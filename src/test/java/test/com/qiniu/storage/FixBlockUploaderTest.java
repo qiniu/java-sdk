@@ -290,5 +290,4 @@ public class FixBlockUploaderTest {
         public String mimeType;
         public String biu2biu;
     }
-
 }
