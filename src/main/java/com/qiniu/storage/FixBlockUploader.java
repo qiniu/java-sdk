@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.util.*;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -30,13 +29,15 @@ public class FixBlockUploader {
     private String host = null;
 
     /**
-     * @param blockSize     must be >= 4 * 1024 * 1024.
+     * @param blockSize     block size, eg: 4 * 1024 * 1024
      * @param configuration Nullable, if null, then create a new one.
      * @param client        Nullable, if null, then create a new one with configuration.
      * @param recorder      Nullable.
      */
     public FixBlockUploader(int blockSize, Configuration configuration, Client client, Recorder recorder) {
-        assert blockSize >= 4 * 1024 * 1024 : "blockSize must be >= 4M ";
+        if (blockSize <= 0) {
+            blockSize = 4 * 1024 * 1024;
+        }
 
         if (configuration == null) {
             configuration = new Configuration();
@@ -209,7 +210,7 @@ public class FixBlockUploader {
         }
 
         try {
-            InitRet ret =  res.jsonToObject(InitRet.class);
+            InitRet ret = res.jsonToObject(InitRet.class);
             if (ret != null && ret.uploadId != null && ret.uploadId.length() > 10 && ret.expireAt > 1000) {
                 return ret;
             }
@@ -237,7 +238,7 @@ public class FixBlockUploader {
     }
 
     private void seqUpload(BlockData blockData, Token token, String bucket,
-                            String base64Key, Record record) throws QiniuException {
+                           String base64Key, Record record) throws QiniuException {
         final String uploadId = record.uploadId;
         final List<EtagIdx> etagIdxes = record.etagIdxes;
         RetryCounter counter = new NormalRetryCounter(retryMax);
@@ -266,8 +267,8 @@ public class FixBlockUploader {
     }
 
     private void parallelUpload(BlockData blockData, final Token token,
-                             final String bucket, final String base64Key, Record record,
-                             boolean needRecord, ExecutorService pool, int maxRunningBlock) throws QiniuException {
+                                final String bucket, final String base64Key, Record record,
+                                boolean needRecord, ExecutorService pool, int maxRunningBlock) throws QiniuException {
         final String uploadId = record.uploadId;
         final List<EtagIdx> etagIdxes = record.etagIdxes;
         final RetryCounter counter = new AsyncRetryCounter(retryMax);
@@ -346,7 +347,7 @@ public class FixBlockUploader {
             if (futures.size() - done < maxRunningBlock) {
                 break;
             }
-            sleepMillis(500);
+            sleepMillis(100);
         }
     }
 
@@ -550,9 +551,9 @@ public class FixBlockUploader {
 
 
     class EtagIdx {
-        String etag;
-        int partNumber;
-        transient int size;
+        String etag; // mkfile
+        int partNumber; // mkfile
+        transient int size; // 本地使用，不写入 json 断点记录 //
 
         EtagIdx(String etag, int idx, int size) {
             this.etag = etag;
@@ -574,7 +575,7 @@ public class FixBlockUploader {
         // second
         long expireAt;
         String uploadId;
-        long size;
+        long size; // sum(current putParts size) EtagIdx.size 未序列化，历史断点记录没法获取到已上传大小 //
         List<EtagIdx> etagIdxes;
     }
 
@@ -584,7 +585,7 @@ public class FixBlockUploader {
         record.uploadId = ret.uploadId;
         //// 服务端 7 天内有效，设置 5 天 ////
         record.expireAt = ret.expireAt - 3600 * 24 * 2;
-        record.size = 0;
+        record.size = 0; // 本次上传到需要写断点记录时上传的总大小，EtagIdx.size 未序列化，历史断点记录没法获取到已上传大小 //
         record.etagIdxes = etagIdxes != null ? etagIdxes : new ArrayList<EtagIdx>();
 
         return record;
@@ -640,7 +641,7 @@ public class FixBlockUploader {
             if (isOk) {
                 int p = 0;
                 // PartNumber start with 1 and increase by 1 //
-                // 当前文件各块串行 if (ei.idx == p + 1) . 若并行，需额外考虑 //
+                //  并行上传，中间块可能缺失（上传失败） //
                 for (EtagIdx ei : record.etagIdxes) {
                     if (ei.partNumber > p) {
                         p = ei.partNumber;
@@ -954,6 +955,7 @@ public class FixBlockUploader {
 
 
     static void sleepMillis(long millis) {
+        // LockSupport.parkNanos(millis * 1000 * 1000); // or
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
@@ -985,8 +987,8 @@ public class FixBlockUploader {
         }
 
         /**
-         * @param key     start with X-Qn-Meta-
-         * @param value     not null or empty
+         * @param key   start with X-Qn-Meta-
+         * @param value not null or empty
          */
         public OptionsMeta addMetadata(String key, String value) {
             if (metadata == null) {
@@ -997,8 +999,8 @@ public class FixBlockUploader {
         }
 
         /**
-         * @param key     start with x:
-         * @param value     not null or empty
+         * @param key   start with x:
+         * @param value not null or empty
          */
         public OptionsMeta addCustomVar(String key, String value) {
             if (customVars == null) {
