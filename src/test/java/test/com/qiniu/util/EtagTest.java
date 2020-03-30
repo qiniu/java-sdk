@@ -92,13 +92,16 @@ public class EtagTest {
     }
 
     public static String etagV2(InputStream in, long len, long blockSize) throws IOException {
-        if (blockSize == 1024 * 1024 * 4 || len <= blockSize) {
+        if (blockSize == 1024 * 1024 * 4 || (len <= blockSize && len <= 1024 * 1024 * 4)) {
             return Etag.stream(in, len);
         }
-        int l = (int)((len + blockSize - 1) / blockSize);
-        long[] parts = new long[l];
+        int size = (int) ((len + blockSize - 1) / blockSize);
+        long[] parts = new long[size];
         Arrays.fill(parts, blockSize);
-        parts[l-1] = len % blockSize;
+        parts[size - 1] = len % blockSize;
+
+        // is4MBParts(parts)  include (len <= blockSize && len <= 1024 * 1024 * 4)
+        // means only one block, and it's size <= 4M
 
         return etagV2NoCheck(in, len, parts);
     }
@@ -142,11 +145,11 @@ public class EtagTest {
         for (long part : parts) {
             String partEtag = Etag.stream(in, part);
             byte[] bytes = UrlSafeBase64.decode(partEtag);
-            sha1.update(bytes, 1, bytes.length-1);
+            sha1.update(bytes, 1, bytes.length - 1);
         }
         byte[] digest = sha1.digest();
         byte[] ret = new byte[digest.length + 1];
-        ret[0] = (byte)0x9e;
+        ret[0] = (byte) 0x9e;
         System.arraycopy(digest, 0, ret, 1, digest.length);
         return UrlSafeBase64.encodeToString(ret);
     }
