@@ -7,13 +7,16 @@ import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.FixBlockUploader;
+import com.qiniu.storage.Region;
 import com.qiniu.util.Etag;
+import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
+import test.com.qiniu.util.EtagTest;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,10 +25,9 @@ import java.util.Date;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class FixBlockUploaderTest {
-    int blockSize = 1024 * 1024 * 8;
+    int blockSize = 1024 * 1023 * 4;
     Configuration config;
     Client client;
     FixBlockUploader up;
@@ -38,24 +40,24 @@ public class FixBlockUploaderTest {
     }
 
     private void init2(boolean useHttpsDomains) {
-        config = new Configuration();
+        Region r = useHttpsDomains
+                ? new Region.Builder(Region.region0())
+                    .accUpHost("up-dev.qiniu.io")
+                    .srcUpHost("up-dev.qiniu.io")
+                    .rsHost("rs-dev.qiniu.io")
+                    .rsfHost("rsf-dev.qiniu.io").build()
+                : new Region.Builder(Region.region0())
+                    .accUpHost("up.dev-kodo.dev.qiniu.io")
+                    .srcUpHost("up.dev-kodo.dev.qiniu.io")
+                    .rsHost("rs.dev-kodo.dev.qiniu.io")
+                    .rsfHost("rsf.dev-kodo.dev.qiniu.io").build();
+        config = new Configuration(r);
         config.useHttpsDomains = useHttpsDomains;
         client = new Client(config);
         up = new FixBlockUploader(blockSize, config, client, null);
         bucket = TestConfig.testBucket_z0;
+        bucket = "publicbucket_z0";
         bm = new BucketManager(TestConfig.testAuth, config);
-    }
-
-    @Test
-    public void testInit() {
-        Configuration config = new Configuration();
-        Client client = new Client(config);
-        try {
-            new FixBlockUploader(1024 * 1024 * 3, config, client, null);
-            fail("block  size  must  be >= 1024 * 1024 * 4");
-        } catch (AssertionError e) {
-            assertTrue(e.getMessage().indexOf("blockSize must be >= 4M") > -1);
-        }
     }
 
     @Test
@@ -160,8 +162,9 @@ public class FixBlockUploaderTest {
             f = TempFile.createFileOld(size);
         }
         System.out.println(f.getAbsolutePath());
-        final String etag = Etag.file(f);
-        System.out.println(etag);
+        final String etag = EtagTest.etagV2(f, blockSize);
+        final String md5 = Md5.md5(f);
+        System.out.println("Etag(f): " + etag);
         final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
 
@@ -174,6 +177,7 @@ public class FixBlockUploaderTest {
         param.addMetadata("X-Qn-Meta-liubin", "sb").
                 addMetadata("X-Qn-Meta-!Content-Type", "text/liubin").
                 addMetadata("X-Qn-Meta-Cache-Control", "public, max-age=1984");
+
         try {
             System.out.println("Start uploading " + new Date());
             Response r = null;
@@ -213,7 +217,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testEmptyKey() throws IOException {
         File f = TempFile.createFileOld(1);
-        String etag = Etag.file(f);
+        String etag = EtagTest.etagV2(f);
         String token = TestConfig.testAuth.uploadToken(bucket, null);
         Response res = up.upload(f, token, "");
         System.out.println(res.getInfo());
@@ -225,7 +229,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testNullKey() throws IOException {
         File f = TempFile.createFile(2);
-        String etag = Etag.file(f);
+        String etag = EtagTest.etagV2(f);
         String token = TestConfig.testAuth.uploadToken(bucket, null);
         Response res = up.upload(f, token, null);
         System.out.println(res.getInfo());
@@ -237,7 +241,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testKey2() throws IOException {
         File f = TempFile.createFile(2);
-        String etag = Etag.file(f);
+        String etag = EtagTest.etagV2(f);
         String token = TestConfig.testAuth.uploadToken(bucket, "err");
         try {
             Response res = up.upload(f, token, null);
@@ -251,7 +255,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testMeat() throws IOException {
         File f = TempFile.createFile(1);
-        String etag = Etag.file(f);
+        String etag = EtagTest.etagV2(f);
         String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(x:biubiu)_$(fname)\",\"mimeType\":\"$(mimeType)\",\"biu2biu\":\"$(x:biu2biu)\"}";
 

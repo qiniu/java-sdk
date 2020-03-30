@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
+import test.com.qiniu.util.EtagTest;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,20 +23,31 @@ import java.util.concurrent.*;
 import static org.junit.Assert.assertEquals;
 
 public class FixBlockUploaderWithRecorderTest {
-    int blockSize = 1024 * 1024 * 8;
+    int blockSize = 1024 * 1025;
     Configuration config;
     Client client;
     FixBlockUploader up;
     String bucket;
     Recorder recorder;
+    BucketManager bm;
 
     @Before
     public void init() {
-        init2(false);
+        init2(true);
     }
 
     private void init2(boolean useHttpsDomains) {
-        config = new Configuration();
+        Region rhttps = new Region.Builder(Region.region0())
+                .accUpHost("up-dev.qiniu.io")
+                .srcUpHost("up-dev.qiniu.io")
+                .rsHost("rs-dev.qiniu.io")
+                .rsfHost("rsf-dev.qiniu.io").build();
+        Region rhttp = new Region.Builder(Region.region0())
+                .accUpHost("up.dev-kodo.dev.qiniu.io")
+                .srcUpHost("up.dev-kodo.dev.qiniu.io")
+                .rsHost("rs.dev-kodo.dev.qiniu.io")
+                .rsfHost("rsf.dev-kodo.dev.qiniu.io").build();
+        config = new Configuration(useHttpsDomains ? rhttps : rhttp);
         config.useHttpsDomains = useHttpsDomains;
         client = new Client(config);
 
@@ -47,7 +59,10 @@ public class FixBlockUploaderWithRecorderTest {
             e.printStackTrace();
         }
         up = new FixBlockUploader(blockSize, config, client, recorder);
+        bm = new BucketManager(TestConfig.testAuth, config);
         bucket = TestConfig.testBucket_as0;
+
+        bucket = "publicbucket_z0";
     }
 
     @Test
@@ -57,10 +72,10 @@ public class FixBlockUploaderWithRecorderTest {
 
     @Test
     public void breakThenUpload2() throws IOException {
-        ExecutorService pool = new ThreadPoolExecutor(0, 2,
+        ExecutorService pool = new ThreadPoolExecutor(0, 10,
                 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>());
-        breakThenUpload(pool, Executors.newFixedThreadPool(2), Executors.newCachedThreadPool(), 10, 10, 2);
+        breakThenUpload(pool, Executors.newFixedThreadPool(2), Executors.newCachedThreadPool(), 10, 10, 7);
     }
 
 
@@ -91,12 +106,12 @@ public class FixBlockUploaderWithRecorderTest {
 
     public void breakThenUpload(final ExecutorService pool1, final ExecutorService pool2, final ExecutorService pool3,
                                 int upSecondsTime1, int upSecondsTime2, final int maxRunningBlock) throws IOException {
-        final long size = 1024 * 53 + 1039;
+        final long size = 1024 * 83 + 1039;
         final String expectKey = "\r\n?&r=" + size + "k" + System.currentTimeMillis();
         final File f = TempFile.createFileOld(size);
         final FixBlockUploader.FileBlockData fbd = new FixBlockUploader.FileBlockData(blockSize, f);
         System.out.println(f.getAbsolutePath());
-        final String etag = Etag.file(f);
+        final String etag = EtagTest.etagV2(f, blockSize);
         final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
 
@@ -104,6 +119,12 @@ public class FixBlockUploaderWithRecorderTest {
 
         final String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600, p);
         final int[] t1Finished = {0};
+
+        try {
+            bm.delete(bucket, expectKey);
+        } catch (Exception e) {
+            // do nothing
+        }
 
         Thread t1 = new Thread() {
             @Override
@@ -230,6 +251,11 @@ public class FixBlockUploaderWithRecorderTest {
             throw e;
         } finally {
             TempFile.remove(f);
+            try {
+                bm.delete(bucket, expectKey);
+            } catch (Exception e) {
+                // do nothing
+            }
         }
     }
 

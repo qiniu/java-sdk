@@ -334,11 +334,12 @@ public class FixBlockUploader {
     }
 
     private void waitingEnough(int maxRunningBlock, List<Future<EtagIdx>> futures) {
-        for (; ; ) {
+        while (true) {
             if (futures.size() < maxRunningBlock) {
                 break;
             }
             int done = 0;
+            // max(len(futures)) = 10000
             for (Future<EtagIdx> future : futures) {
                 if (future.isDone()) {
                     done++;
@@ -353,10 +354,18 @@ public class FixBlockUploader {
 
     EtagIdx uploadBlock(String bucket, String base64Key, Token token, String uploadId, byte[] data,
                         int dataLength, int partNum, RetryCounter counter) throws QiniuException {
-        Response res = uploadBlockWithRetry(bucket, base64Key, token, uploadId, data, dataLength, partNum, counter);
+        String url = host + "/buckets/" + bucket + "/objects/" + base64Key + "/uploads/" + uploadId + "/" + partNum;
+        String md5 = Md5.md5(data, 0, dataLength);
+        StringMap headers = new StringMap().
+                put("Content-MD5", md5).
+                put("Authorization", "UpToken " + token.getUpToken());
+
+        Response res = uploadBlockWithRetry(url, token, headers, data, dataLength, counter);
         try {
-            String etag = res.jsonToMap().get("etag").toString();
-            if (etag.length() > 10) {
+            StringMap m = res.jsonToMap();
+            // String qMd5 = m.get("md5").toString();
+            String etag = m.get("etag").toString();
+            if (/*md5.equals(qMd5) && */etag.length() > 10) {
                 return new EtagIdx(etag, partNum, dataLength);
             }
         } catch (Exception e) {
@@ -365,14 +374,9 @@ public class FixBlockUploader {
         throw new QiniuException(res);
     }
 
-    Response uploadBlockWithRetry(String bucket, String base64Key, Token token, String uploadId,
-                                  byte[] data, int dataLength, int partNum, RetryCounter counter)
+    Response uploadBlockWithRetry(String url, Token token, StringMap headers,
+                                  byte[] data, int dataLength, RetryCounter counter)
             throws QiniuException {
-        String url = host + "/buckets/" + bucket + "/objects/" + base64Key + "/uploads/" + uploadId + "/" + partNum;
-        StringMap headers = new StringMap().
-                put("Content-MD5", Md5.md5(data, 0, dataLength)).
-                put("Authorization", "UpToken " + token.getUpToken());
-
         // 在 最多重试次数 范围内， 每个块至多上传 3 次 //
         // 1
         Response res = uploadBlock1(url, data, dataLength, headers, true);
