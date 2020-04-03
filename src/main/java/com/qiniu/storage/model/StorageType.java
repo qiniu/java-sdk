@@ -11,5 +11,9 @@ public enum StorageType {
     /**
      * 低频存储
      */
-    INFREQUENCY
+    INFREQUENCY,
+    /**
+     * 归档存储
+     */
+    Archive
 }
