@@ -807,6 +807,7 @@ public class BucketTest {
                     Assert.fail(msg + url + "should be 401" + ": " + response.statusCode);
                 } catch (QiniuException e) {
                     System.out.println(e.response);
+                    System.out.println(e.response.statusCode);
                     Assert.assertEquals(msg + url, 401, e.response.statusCode);
                 }
 
@@ -814,8 +815,10 @@ public class BucketTest {
                 response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
                 System.out.println(response);
                 Assert.assertEquals(msg + url, 200, response.statusCode);
-                response = client.get(url + "?v" + r.nextDouble());
-                Assert.assertEquals(msg + url, 200, response.statusCode);
+                
+                // 关闭原图保护后，有一定延迟，直接访问会401 ...
+                //response = client.get(url + "?v" + r.nextDouble());
+                //Assert.assertEquals(msg + url, 200, response.statusCode);
 
             } catch (QiniuException e) {
                 e.printStackTrace();
@@ -1358,19 +1361,66 @@ public class BucketTest {
             String bucket = entry.getKey();
             String key = entry.getValue();
             String keyToChangeType = "keyToChangeType" + Math.random();
+            for (int i = 1; i < StorageType.values().length; i ++) { // please begin with 1, not 0
+                StorageType storageType = StorageType.values()[i];
+                try {
+                    bucketManager.copy(bucket, key, bucket, keyToChangeType, true);
+                    Response response = bucketManager.changeType(bucket, keyToChangeType, storageType);
+                    Assert.assertEquals(200, response.statusCode);
+                    //stat
+                    FileInfo fileInfo = bucketManager.stat(bucket, keyToChangeType);
+                    Assert.assertEquals(storageType.ordinal(), fileInfo.type);
+                    //delete the temp file
+                    bucketManager.delete(bucket, keyToChangeType);
+                } catch (QiniuException e) {
+                    Assert.fail(bucket + ":" + key + " > " + keyToChangeType + " >> "
+                            + storageType + " ==> " + e.response.toString());
+                }
+            }
+        }
+    }
+    
+    /**
+     * 测试解冻归档存储
+     */
+    @Test
+    public void testRestoreArchive() {
+        Map<String, String> bucketKeyMap = new HashMap<String, String>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
+        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+        
+        for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
+            String bucket = entry.getKey();
+            String key = entry.getValue();
+            String keyToTest = "keyToChangeType" + Math.random();
             try {
-                bucketManager.copy(bucket, key, bucket, keyToChangeType);
-                Response response = bucketManager.changeType(bucket, keyToChangeType,
-                        StorageType.INFREQUENCY);
+                // if stat, delete
+                try {
+                    Response resp = bucketManager.statResponse(bucket, keyToTest);
+                    if (resp.statusCode == 200) bucketManager.delete(bucket, keyToTest);
+                } catch (QiniuException ex) {
+                    System.out.println("file " + keyToTest + " not exists, ok.");
+                }
+                
+                // copy and changeType to Archive
+                bucketManager.copy(bucket, key, bucket, keyToTest, true);
+                Response response = bucketManager.changeType(bucket, keyToTest, StorageType.Archive);
                 Assert.assertEquals(200, response.statusCode);
-                //stat
-                FileInfo fileInfo = bucketManager.stat(bucket, keyToChangeType);
-                Assert.assertEquals(StorageType.INFREQUENCY.ordinal(), fileInfo.type);
-                //delete the temp file
-                bucketManager.delete(bucket, keyToChangeType);
+                
+                // restoreArchive
+                response = bucketManager.restoreArchive(bucket, keyToTest, 1);
+                Assert.assertEquals(200, response.statusCode);
+                
+                //test for 400 Bad Request {"error":"invalid freeze after days"}
+                try {
+                    response = bucketManager.restoreArchive(bucket, keyToTest, 8);
+                } catch (QiniuException ex) {
+                    Assert.assertEquals(400, ex.response.statusCode);
+                    System.out.println(ex.response.bodyString());
+                }
+                
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + " > " + keyToChangeType + " >> "
-                        + StorageType.INFREQUENCY + " ==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + " > " + keyToTest + " >> " + e.response.toString());
             }
         }
     }

@@ -185,7 +185,8 @@ public final class Client {
             MediaType t = MediaType.parse(contentType);
             rbody = RequestBody.create(t, body);
         } else {
-            rbody = RequestBody.create(null, new byte[0]);
+            MediaType t = MediaType.parse(contentType);
+            rbody = RequestBody.create(t, new byte[0]);
         }
         return post(url, rbody, headers);
     }
@@ -202,6 +203,7 @@ public final class Client {
             MediaType t = MediaType.parse(contentType);
             rbody = RequestBody.create(t, body, offset, size);
         } else {
+            MediaType t = MediaType.parse(contentType);
             rbody = RequestBody.create(null, new byte[0]);
         }
         return put(url, rbody, headers);
@@ -214,6 +216,7 @@ public final class Client {
             MediaType t = MediaType.parse(contentType);
             rbody = create(t, body, offset, size);
         } else {
+            MediaType t = MediaType.parse(contentType);
             rbody = RequestBody.create(null, new byte[0]);
         }
         return post(url, rbody, headers);
@@ -297,6 +300,7 @@ public final class Client {
             MediaType t = MediaType.parse(contentType);
             rbody = RequestBody.create(t, body);
         } else {
+            MediaType t = MediaType.parse(contentType);
             rbody = RequestBody.create(null, new byte[0]);
         }
         return patch(url, rbody, headers);
@@ -309,6 +313,7 @@ public final class Client {
             MediaType t = MediaType.parse(contentType);
             rbody = create(t, body, offset, size);
         } else {
+            MediaType t = MediaType.parse(contentType);
             rbody = RequestBody.create(null, new byte[0]);
         }
         return patch(url, rbody, headers);
@@ -385,6 +390,7 @@ public final class Client {
             MediaType t = MediaType.parse(contentType);
             rbody = create(t, body, offset, size);
         } else {
+            MediaType t = MediaType.parse(contentType);
             rbody = RequestBody.create(null, new byte[0]);
         }
 

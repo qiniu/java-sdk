@@ -52,7 +52,7 @@ public class CdnTest {
     /**
      * 测试刷新，只检查是否返回200
      */
-    //@Test
+    @Test
     public void testRefresh() {
         if (TestConfig.isTravis()) {
             return;
@@ -73,7 +73,7 @@ public class CdnTest {
     /**
      * 测试预取，只检测是否返回200
      */
-    //@Test
+    @Test
     public void testPrefetch() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.PrefetchResult r;
@@ -140,7 +140,7 @@ public class CdnTest {
      * 测试获取CDN域名访问日志的下载链接
      * 检测日志信息列表长度是否>=0
      */
-    //@Test
+    @Test
     public void testGetCdnLogList() {
         if (TestConfig.isTravis()) {
             return;
@@ -169,7 +169,7 @@ public class CdnTest {
      * 检测signedUrl3是否返回403
      * 检测signedUrl3与预期结果是否一致
      */
-    //@Test
+    @Test
     public void testCreateTimestampAntiLeechUrlSimple() {
         if (TestConfig.isTravis()) {
             return;
@@ -181,14 +181,12 @@ public class CdnTest {
         StringMap queryStringMap = new StringMap();
         queryStringMap.put("qiniu", "七牛");
         queryStringMap.put("test", "Test");
-        String encryptKey1 = "10992a8a688900b89ab9f58a6899cb8bb1b924ab";
-        String encryptKey2 = "64b89c989cb97cbb6a9b6c9a4ca93498b69974ab";
+        String encryptKey1 = "908b9cbbbc88028b50b8e8a88baa879bf1b8a788";
+        String encryptKey2 = "d799eba9ff99ea88cfb8acbbf8b82898208afbb8";
         long deadline1 = System.currentTimeMillis() / 1000 + 3600;
         long deadline2 = deadline1;
-        long deadline3 = 1551966091; // 2019-03-07 21:41:31 +0800 CST
-        String testUrl_z0_timeStamp_outdate =
-                "http://javasdk-timestamp.peterpy.cn/do_not_delete/1.png?"
-                        + "sign=50d05540eea4ea8ab905b57006edef7a&t=5c811f8b";
+        long deadline3 = 1485893946; // 2017-02-01 04:19:06 +0800 CST
+        String testUrl_z0_timeStamp_outdate = "http://javasdk-timestamp.peterpy.cn/do_not_delete/1.png?sign=14f48f829b78d5c9a34eb77e9a13f1b6&t=5890f13a";
         try {
             URL url = new URL(TestConfig.testUrl_z0_timeStamp);
             Assert.assertEquals(msg, 403, getResponse(url.toString()).statusCode);
