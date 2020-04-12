@@ -93,7 +93,7 @@ public class FixBlockUploaderWithRecorderTest {
 
     public void breakThenUpload(final ExecutorService pool1, final ExecutorService pool2, final ExecutorService pool3,
                                 int upSecondsTime1, int upSecondsTime2, final int maxRunningBlock) throws IOException {
-        final long size = 1024 * 83 + 1039;
+        final long size = 1024 * 53 + 1039;
         final String expectKey = "\r\n?&r=" + size + "k" + System.currentTimeMillis();
         final File f = TempFile.createFileOld(size);
         final FixBlockUploader.FileBlockData fbd = new FixBlockUploader.FileBlockData(blockSize, f);
@@ -133,9 +133,10 @@ public class FixBlockUploaderWithRecorderTest {
         // 显示断点记录文件
         Thread showRecord = new Thread() {
             public void run() {
-                for (; ; ) {
+                int t = 60 * 10;
+                for (int i=0; i < t ;i++ ) {
                     doSleep(1000);
-                    showRecord("normal: " + size + " :", recorder, recordKey);
+                    showRecord( i + " normal: " + size + " :", recorder, recordKey);
                 }
             }
         };

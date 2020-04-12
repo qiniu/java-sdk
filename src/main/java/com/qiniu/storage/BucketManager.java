@@ -115,8 +115,8 @@ public final class BucketManager {
      * @throws QiniuException
      */
     public Response createBucket(String bucketName, String region) throws QiniuException {
-        String url = String.format("%s/mkbucketv2/%s/region/%s", configHelper.rsHost(),
-                UrlSafeBase64.encodeToString(bucketName), region);
+        String url = String.format("%s/mkbucketv3/%s/region/%s", configHelper.rsHost(),
+                bucketName, region);
         Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
@@ -331,7 +331,7 @@ public final class BucketManager {
      *
      * @param bucket 空间名称
      * @param key    文件名称
-     * @param type   type=0 表示普通存储，type=1 表示低频存存储
+     * @param type   type=0 表示普通存储，type=1 表示低频存存储, type=2 表示归档存储
      * @throws QiniuException
      */
     public Response changeType(String bucket, String key, StorageType type)
@@ -339,6 +339,24 @@ public final class BucketManager {
         String resource = encodedEntry(bucket, key);
         String path = String.format("/chtype/%s/type/%d", resource, type.ordinal());
         return rsPost(bucket, path, null);
+    }
+    
+    /**
+     * 解冻归档存储
+     * 文档：https://developer.qiniu.com/kodo/api/6380/restore-archive
+     * 
+     * @param bucket    空间名称
+     * @param key   文件名称
+     * @param freezeAfterDays   解冻有效时长，取值范围 1～7
+     * @return
+     */
+    public Response restoreArchive(String bucket, String key, int freezeAfterDays) 
+            throws QiniuException {
+        String resource = encodedEntry(bucket, key);
+        String path = String.format("/restoreAr/%s/freezeAfterDays/%s", resource, Integer.toString(freezeAfterDays));
+        String requestUrl = configHelper.rsHost(auth.accessKey, bucket) + path;
+        return client.post(requestUrl, null,
+                auth.authorizationV2(requestUrl, "POST", null, "application/json"), Client.JsonMime);
     }
 
     /**

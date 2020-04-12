@@ -36,7 +36,7 @@ public class BucketTest {
     @Before
     public void setUp() throws Exception {
         Configuration cfg = new Configuration(Zone.autoZone());
-        //cfg.useHttpsDomains = false;
+        cfg.useHttpsDomains = false;
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
         this.dummyBucketManager = new BucketManager(TestConfig.dummyAuth, new Configuration());
     }
@@ -265,14 +265,36 @@ public class BucketTest {
             String bucket = entry.getKey();
             String key = entry.getValue();
             String renameFromKey = "renameFrom" + Math.random();
+            String renameToKey = "renameTo" + key;
             try {
+                try {
+                    bucketManager.delete(bucket, renameFromKey);
+                } catch (Exception ex) {
+                    // do nothing
+                }
+                try {
+                    bucketManager.delete(bucket, renameToKey);
+                } catch (Exception ex) {
+                    // do nothing
+                }
                 bucketManager.copy(bucket, key, bucket, renameFromKey);
-                String renameToKey = "renameTo" + key;
                 bucketManager.rename(bucket, renameFromKey, renameToKey);
                 bucketManager.delete(bucket, renameToKey);
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + "==> " + e.response);
+            } finally {
+                try {
+                    bucketManager.delete(bucket, renameFromKey);
+                } catch (Exception ex) {
+                    // do nothing
+                }
+                try {
+                    bucketManager.delete(bucket, renameToKey);
+                } catch (Exception ex) {
+                    // do nothing
+                }
             }
+
         }
     }
 
@@ -634,6 +656,13 @@ public class BucketTest {
                     Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
                 }
 
+                // 追加Event
+                rule.setName("b");
+                rule.setPrefix(key);
+                System.out.println(rule.asQueryString());
+                response = bucketManager.putBucketEvent(bucket, rule);
+                Assert.assertEquals(200, response.statusCode);
+
                 // 重复追加Event（error:event prefix and suffix exists）
                 // 实际 portal 查看，添加成功了 //
 //                try {
@@ -645,13 +674,6 @@ public class BucketTest {
 //                } catch (QiniuException e) {
 //                    Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
 //                }
-
-                // 追加Event
-                rule.setName("b");
-                rule.setPrefix(key);
-                System.out.println(rule.asQueryString());
-                response = bucketManager.putBucketEvent(bucket, rule);
-                Assert.assertEquals(200, response.statusCode);
 
                 // 触发时间，回调成功与否 不检测
                 response = bucketManager.copy(bucket, key, bucket, key + "CopyByEvent", true);
@@ -767,32 +789,43 @@ public class BucketTest {
         if (TestConfig.isTravis()) {
             return;
         }
+        Random r = new Random();
         String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
-        Random r = new Random();
         for (int i = 0; i < buckets.length; i++) {
             String bucket = buckets[i];
             String url = urls[i];
+            System.out.println(bucket + "  -- " + url);
             Client client = new Client();
             Response response;
             try {
                 // 测试开启原图保护
                 response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.OPEN);
+                System.out.println(response);
                 Assert.assertEquals(200, response.statusCode);
                 try {
-                    client.get(url + "?liubin=" + r.nextFloat());
-                    Assert.fail(msg + "should be 401");
+                    response = client.get(url + "?v" + r.nextDouble());
+                    Assert.fail(msg + url + "should be 401" + ": " + response.statusCode);
                 } catch (QiniuException e) {
-                    Assert.assertEquals(msg, 401, e.response.statusCode);
+                    System.out.println(e.response);
+                    System.out.println(e.response.statusCode);
+                    Assert.assertEquals(msg + url, 401, e.response.statusCode);
                 }
 
                 // 测试关闭原图保护
                 response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
                 System.out.println(response);
-                Assert.assertEquals(msg, 200, response.statusCode);
-                response = client.get(url + "?liubin=" + r.nextFloat());
-                Assert.assertEquals(msg, 200, response.statusCode);
+                Assert.assertEquals(msg + url, 200, response.statusCode);
+                
+                // 关闭原图保护后，有一定延迟，直接访问会401 ...
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    // do nothing
+                }
+                response = client.get(url + "?v" + r.nextDouble());
+                Assert.assertEquals(msg + url, 200, response.statusCode);
 
             } catch (QiniuException e) {
                 e.printStackTrace();
@@ -1032,24 +1065,46 @@ public class BucketTest {
             String key = entry.getValue();
             String renameFromKey = "renameFrom" + Math.random();
             try {
+                bucketManager.delete(bucket, renameFromKey);
+            } catch (Exception e) {
+                // do nothing
+            }
+            try {
                 bucketManager.copy(bucket, key, bucket, renameFromKey);
             } catch (QiniuException e) {
+                try {
+                    bucketManager.delete(bucket, renameFromKey);
+                } catch (Exception e1) {
+                    // do nothing
+                }
                 Assert.fail(e.response.toString());
             }
             String renameToKey = "renameTo" + key;
             BucketManager.BatchOperations ops = new BucketManager.BatchOperations()
                     .addRenameOp(bucket, renameFromKey, renameToKey);
             try {
-                Response r = bucketManager.batch(ops);
-                BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
-                Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
-            } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
-            }
-            try {
                 bucketManager.delete(bucket, renameToKey);
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                // do nothing
+            }
+            try {
+                Response r = bucketManager.batch(ops);
+                BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
+                System.out.println(bs[0].code);
+                Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
+            } catch (QiniuException e) {
+                Assert.fail(e.response + "");
+            }finally {
+                try {
+                    bucketManager.delete(bucket, renameToKey);
+                } catch (QiniuException e) {
+                    // do nothing
+                }
+                try {
+                    bucketManager.delete(bucket, renameFromKey);
+                } catch (Exception e) {
+                    // do nothing
+                }
             }
         }
     }
@@ -1140,17 +1195,27 @@ public class BucketTest {
             String bucket = entry.getKey();
             String key = entry.getValue();
 
-            //make 100 copies
-            String[] keyArray = new String[100];
+            //make 50 copies
+            String[] keyArray = new String[50];
             for (int i = 0; i < keyArray.length; i++) {
                 keyArray[i] = String.format("%s-copy-%d", key, i);
             }
 
             BucketManager.BatchOperations ops = new BucketManager.BatchOperations();
+
+            for (int i = 0; i < keyArray.length; i++) {
+                ops.addDeleteOp(bucket, keyArray[i]);
+            }
+            try {
+                bucketManager.batch(ops);
+            } catch (Exception e) {
+                // do nothing
+            }
+
+            ops.clearOps();
             for (int i = 0; i < keyArray.length; i++) {
                 ops.addCopyOp(bucket, key, bucket, keyArray[i]);
             }
-
 
             try {
                 Response response = bucketManager.batch(ops);
@@ -1167,14 +1232,24 @@ public class BucketTest {
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(response.statusCode));
 
                 //clear ops
+                ops.clearOps();
                 for (int i = 0; i < keyArray.length; i++) {
                     ops.addDeleteOp(bucket, keyArray[i]);
                 }
                 response = bucketManager.batch(ops);
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(response.statusCode));
-
             } catch (QiniuException e) {
                 Assert.fail(e.response.toString());
+            } finally {
+                ops.clearOps();
+                for (int i = 0; i < keyArray.length; i++) {
+                    ops.addDeleteOp(bucket, keyArray[i]);
+                }
+                try {
+                    bucketManager.batch(ops);
+                } catch (Exception e) {
+                    // do nothing
+                }
             }
         }
     }
@@ -1294,19 +1369,66 @@ public class BucketTest {
             String bucket = entry.getKey();
             String key = entry.getValue();
             String keyToChangeType = "keyToChangeType" + Math.random();
+            for (int i = 1; i < StorageType.values().length; i ++) { // please begin with 1, not 0
+                StorageType storageType = StorageType.values()[i];
+                try {
+                    bucketManager.copy(bucket, key, bucket, keyToChangeType, true);
+                    Response response = bucketManager.changeType(bucket, keyToChangeType, storageType);
+                    Assert.assertEquals(200, response.statusCode);
+                    //stat
+                    FileInfo fileInfo = bucketManager.stat(bucket, keyToChangeType);
+                    Assert.assertEquals(storageType.ordinal(), fileInfo.type);
+                    //delete the temp file
+                    bucketManager.delete(bucket, keyToChangeType);
+                } catch (QiniuException e) {
+                    Assert.fail(bucket + ":" + key + " > " + keyToChangeType + " >> "
+                            + storageType + " ==> " + e.response.toString());
+                }
+            }
+        }
+    }
+    
+    /**
+     * 测试解冻归档存储
+     */
+    @Test
+    public void testRestoreArchive() {
+        Map<String, String> bucketKeyMap = new HashMap<String, String>();
+        bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
+        bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
+        
+        for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
+            String bucket = entry.getKey();
+            String key = entry.getValue();
+            String keyToTest = "keyToChangeType" + Math.random();
             try {
-                bucketManager.copy(bucket, key, bucket, keyToChangeType);
-                Response response = bucketManager.changeType(bucket, keyToChangeType,
-                        StorageType.INFREQUENCY);
+                // if stat, delete
+                try {
+                    Response resp = bucketManager.statResponse(bucket, keyToTest);
+                    if (resp.statusCode == 200) bucketManager.delete(bucket, keyToTest);
+                } catch (QiniuException ex) {
+                    System.out.println("file " + keyToTest + " not exists, ok.");
+                }
+                
+                // copy and changeType to Archive
+                bucketManager.copy(bucket, key, bucket, keyToTest, true);
+                Response response = bucketManager.changeType(bucket, keyToTest, StorageType.Archive);
                 Assert.assertEquals(200, response.statusCode);
-                //stat
-                FileInfo fileInfo = bucketManager.stat(bucket, keyToChangeType);
-                Assert.assertEquals(StorageType.INFREQUENCY.ordinal(), fileInfo.type);
-                //delete the temp file
-                bucketManager.delete(bucket, keyToChangeType);
+                
+                // restoreArchive
+                response = bucketManager.restoreArchive(bucket, keyToTest, 1);
+                Assert.assertEquals(200, response.statusCode);
+                
+                //test for 400 Bad Request {"error":"invalid freeze after days"}
+                try {
+                    response = bucketManager.restoreArchive(bucket, keyToTest, 8);
+                } catch (QiniuException ex) {
+                    Assert.assertEquals(400, ex.response.statusCode);
+                    System.out.println(ex.response.bodyString());
+                }
+                
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + " > " + keyToChangeType + " >> "
-                        + StorageType.INFREQUENCY + " ==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + " > " + keyToTest + " >> " + e.response.toString());
             }
         }
     }
@@ -1351,5 +1473,4 @@ public class BucketTest {
         List<String> values = response.headers().values(key);
         return values.toString();
     }
-
 }

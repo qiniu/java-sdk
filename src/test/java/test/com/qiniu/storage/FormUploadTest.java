@@ -409,7 +409,8 @@ public class FormUploadTest {
                 uploadManager.put(f, expectKey, token, null, null, false);
             } catch (QiniuException e) {
                 try {
-                    assertEquals("_", e.response.bodyString());
+                    String err = e.response != null ? e.response.bodyString() : e.error();
+                    assertEquals("_", err);
                 } catch (QiniuException e1) {
                     e1.printStackTrace();
                 }

@@ -185,14 +185,14 @@ public class BucketTest2 {
         try {
             String marker = null;
             int count = 0;
-            do{
+            do {
                 FileListing l = bucketManager.listFilesV2(TestConfig.testBucket_z0, "pi", marker, 2, null);
                 marker = l.marker;
-                for (FileInfo f :l.items) {
+                for (FileInfo f : l.items) {
                     Assert.assertNotNull(f.key);
                 }
                 count++;
-            } while(!StringUtils.isNullOrEmpty(marker));
+            } while (!StringUtils.isNullOrEmpty(marker));
             Assert.assertTrue(count > 0);
         } catch (QiniuException e) {
             Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));
@@ -309,7 +309,7 @@ public class BucketTest2 {
                 bucketManager.rename(bucket, renameFromKey, renameToKey);
                 bucketManager.delete(bucket, renameToKey);
             } catch (QiniuException e) {
-                Assert.fail(bucket + ":" + key + "==> " + e.response.toString());
+                Assert.fail(bucket + ":" + key + "==> " + e.response);
             }
         }
     }
@@ -609,6 +609,119 @@ public class BucketTest2 {
         }
     }
 
+    /**
+     * 测试事件通知
+     */
+    @Test
+    public void testBucketEvent() {
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
+        String[] keys = new String[]{TestConfig.testKey_z0, TestConfig.testKey_na0};
+        for (int i = 0; i < buckets.length; i++) {
+            String bucket = buckets[i];
+            String key = keys[i];
+            Response response;
+            BucketEventRule rule;
+            BucketEventRule[] rules;
+            try {
+                // clear
+                clearBucketEvent(bucket);
+
+                // 追加Event（invalid events）
+                try {
+                    rule = new BucketEventRule("a", new String[]{}, new String[]{});
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.putBucketEvent(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
+                }
+
+                // 追加Event（error:callbackURL must starts with http:// or https://）
+                try {
+                    rule = new BucketEventRule("a", new String[]{"put", "mkfile"}, new String[]{});
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.putBucketEvent(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
+                }
+
+                // 追加Event
+                rule = new BucketEventRule(
+                        "a",
+                        new String[]{"put", "mkfile", "delete", "copy", "move", "append", "disable",
+                                "enable", "deleteMarkerCreate"},
+                        new String[]{"https://requestbin.fullcontact.com/1dsqext1?inspect",
+                                "https://requestbin.fullcontact.com/160bunp1?inspect"}
+                );
+                System.out.println(rule.asQueryString());
+                response = bucketManager.putBucketEvent(bucket, rule);
+                Assert.assertEquals(200, response.statusCode);
+                System.out.println(response.url());
+                System.out.println(response.reqId);
+
+                // 重复追加Event（error:event name exists）
+                try {
+                    rule.setName("a");
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.putBucketEvent(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
+                }
+
+                // 追加Event
+                rule.setName("b");
+                rule.setPrefix(key);
+                System.out.println(rule.asQueryString());
+                response = bucketManager.putBucketEvent(bucket, rule);
+                Assert.assertEquals(200, response.statusCode);
+
+                // 重复追加Event（error:event prefix and suffix exists）
+                try {
+                    rule.setName("b");
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.putBucketEvent(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
+                }
+
+                // 触发时间，回调成功与否 不检测
+                response = bucketManager.copy(bucket, key, bucket, key + "CopyByEvent", true);
+                Assert.assertEquals(200, response.statusCode);
+
+                // 更新Event（error:event name not found）
+                try {
+                    rule.setName("c");
+                    rule.setPrefix("c");
+                    System.out.println(rule.asQueryString());
+                    response = bucketManager.updateBucketEvent(bucket, rule);
+                    Assert.fail();
+                } catch (QiniuException e) {
+                    Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
+                }
+            } catch (QiniuException e) {
+                Assert.fail("" + e.response);
+            }
+        }
+    }
+
+    private void clearBucketEvent(String bucket) throws QiniuException {
+        // 获取Event
+        BucketEventRule[] rules = bucketManager.getBucketEvents(bucket);
+        for (BucketEventRule r : rules) {
+            System.out.println("name=" + r.getName());
+            System.out.println("prefix=" + r.getPrefix());
+            System.out.println("suffix=" + r.getSuffix());
+            System.out.println("event=" + Arrays.asList(r.getEvents()).toString());
+            System.out.println("callbackUrls=" + Arrays.asList(r.getCallbackUrls()).toString());
+        }
+        // 删除Event
+        for (BucketEventRule r : rules) {
+            bucketManager.deleteBucketEvent(bucket, r.getName());
+        }
+    }
 
 
     /**
@@ -897,6 +1010,7 @@ public class BucketTest2 {
             try {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
+                System.out.println(bs[0].code);
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
                 Assert.fail(e.response.toString());
