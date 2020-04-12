@@ -8,7 +8,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.FixBlockUploader;
 import com.qiniu.storage.Region;
-import com.qiniu.util.Etag;
+import com.qiniu.util.EtagV2;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
 import org.junit.Assert;
@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-import test.com.qiniu.util.EtagTest;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,23 +39,11 @@ public class FixBlockUploaderTest {
     }
 
     private void init2(boolean useHttpsDomains) {
-        Region r = useHttpsDomains
-                ? new Region.Builder(Region.region0())
-                    .accUpHost("up-dev.qiniu.io")
-                    .srcUpHost("up-dev.qiniu.io")
-                    .rsHost("rs-dev.qiniu.io")
-                    .rsfHost("rsf-dev.qiniu.io").build()
-                : new Region.Builder(Region.region0())
-                    .accUpHost("up.dev-kodo.dev.qiniu.io")
-                    .srcUpHost("up.dev-kodo.dev.qiniu.io")
-                    .rsHost("rs.dev-kodo.dev.qiniu.io")
-                    .rsfHost("rsf.dev-kodo.dev.qiniu.io").build();
-        config = new Configuration(r);
+        config = new Configuration();
         config.useHttpsDomains = useHttpsDomains;
         client = new Client(config);
         up = new FixBlockUploader(blockSize, config, client, null);
         bucket = TestConfig.testBucket_z0;
-        bucket = "publicbucket_z0";
         bm = new BucketManager(TestConfig.testAuth, config);
     }
 
@@ -78,6 +65,12 @@ public class FixBlockUploaderTest {
     @Test
     public void test1K() throws IOException {
         template(1, false, true);
+    }
+
+    @Test
+    public void test4M() throws IOException {
+        template(1024 * 4, false, true);
+        template(blockSize/1024, false, true);
     }
 
     @Test
@@ -118,8 +111,6 @@ public class FixBlockUploaderTest {
     public void test7M() throws IOException {
         template(1024 * 7, true, false);
     }
-
-
 
     @Test
     public void test12M1K() throws IOException {
@@ -162,9 +153,10 @@ public class FixBlockUploaderTest {
             f = TempFile.createFileOld(size);
         }
         System.out.println(f.getAbsolutePath());
-        final String etag = EtagTest.etagV2(f, blockSize);
+        final String etag = EtagV2.file(f, blockSize);
         final String md5 = Md5.md5(f);
         System.out.println("Etag(f): " + etag);
+        System.out.println("md5(f): " + md5);
         final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
 
@@ -217,7 +209,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testEmptyKey() throws IOException {
         File f = TempFile.createFileOld(1);
-        String etag = EtagTest.etagV2(f);
+        String etag = EtagV2.file(f, blockSize);
         String token = TestConfig.testAuth.uploadToken(bucket, null);
         Response res = up.upload(f, token, "");
         System.out.println(res.getInfo());
@@ -229,7 +221,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testNullKey() throws IOException {
         File f = TempFile.createFile(2);
-        String etag = EtagTest.etagV2(f);
+        String etag = EtagV2.file(f, blockSize);
         String token = TestConfig.testAuth.uploadToken(bucket, null);
         Response res = up.upload(f, token, null);
         System.out.println(res.getInfo());
@@ -241,7 +233,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testKey2() throws IOException {
         File f = TempFile.createFile(2);
-        String etag = EtagTest.etagV2(f);
+        String etag = EtagV2.file(f, blockSize);
         String token = TestConfig.testAuth.uploadToken(bucket, "err");
         try {
             Response res = up.upload(f, token, null);
@@ -255,7 +247,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testMeat() throws IOException {
         File f = TempFile.createFile(1);
-        String etag = EtagTest.etagV2(f);
+        String etag = EtagV2.file(f, blockSize);
         String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(x:biubiu)_$(fname)\",\"mimeType\":\"$(mimeType)\",\"biu2biu\":\"$(x:biu2biu)\"}";
 

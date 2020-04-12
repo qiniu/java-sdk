@@ -4,6 +4,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
+import com.qiniu.storage.Region;
 import com.qiniu.storage.UpCompletionHandler;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.StringMap;
@@ -201,8 +202,9 @@ public class FormUploadTest {
             try {
                 uploadManager.put(f, expectKey, token, params, null, true);
             } catch (QiniuException e) {
+                e.printStackTrace();
                 TempFile.remove(f);
-                fail(e.response.toString());
+                fail(e.response + "");
             }
             TempFile.remove(f);
         }

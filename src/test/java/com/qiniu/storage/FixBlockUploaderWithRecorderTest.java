@@ -5,14 +5,13 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.persistent.FileRecorder;
-import com.qiniu.util.Etag;
+import com.qiniu.util.EtagV2;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.Before;
 import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-import test.com.qiniu.util.EtagTest;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +22,7 @@ import java.util.concurrent.*;
 import static org.junit.Assert.assertEquals;
 
 public class FixBlockUploaderWithRecorderTest {
-    int blockSize = 1024 * 1025;
+    int blockSize = 1024 * 1025 * 4;
     Configuration config;
     Client client;
     FixBlockUploader up;
@@ -37,17 +36,7 @@ public class FixBlockUploaderWithRecorderTest {
     }
 
     private void init2(boolean useHttpsDomains) {
-        Region rhttps = new Region.Builder(Region.region0())
-                .accUpHost("up-dev.qiniu.io")
-                .srcUpHost("up-dev.qiniu.io")
-                .rsHost("rs-dev.qiniu.io")
-                .rsfHost("rsf-dev.qiniu.io").build();
-        Region rhttp = new Region.Builder(Region.region0())
-                .accUpHost("up.dev-kodo.dev.qiniu.io")
-                .srcUpHost("up.dev-kodo.dev.qiniu.io")
-                .rsHost("rs.dev-kodo.dev.qiniu.io")
-                .rsfHost("rsf.dev-kodo.dev.qiniu.io").build();
-        config = new Configuration(useHttpsDomains ? rhttps : rhttp);
+        config = new Configuration();
         config.useHttpsDomains = useHttpsDomains;
         client = new Client(config);
 
@@ -61,8 +50,6 @@ public class FixBlockUploaderWithRecorderTest {
         up = new FixBlockUploader(blockSize, config, client, recorder);
         bm = new BucketManager(TestConfig.testAuth, config);
         bucket = TestConfig.testBucket_as0;
-
-        bucket = "publicbucket_z0";
     }
 
     @Test
@@ -111,7 +98,8 @@ public class FixBlockUploaderWithRecorderTest {
         final File f = TempFile.createFileOld(size);
         final FixBlockUploader.FileBlockData fbd = new FixBlockUploader.FileBlockData(blockSize, f);
         System.out.println(f.getAbsolutePath());
-        final String etag = EtagTest.etagV2(f, blockSize);
+        final String etag = EtagV2.file(f, blockSize);
+        System.out.println("EtagV2: " + etag);
         final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
 
