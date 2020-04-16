@@ -339,7 +339,6 @@ public final class Client {
         long start = System.currentTimeMillis();
         okhttp3.Response res = null;
         Response r;
-        double duration = (System.currentTimeMillis() - start) / 1000.0;
         IpTag tag = new IpTag();
         try {
             res = httpClient.newCall(requestBuilder.tag(tag).build()).execute();
@@ -347,6 +346,7 @@ public final class Client {
             throw new QiniuException(e);
         }
 
+        double duration = (System.currentTimeMillis() - start) / 1000.0;
         r = Response.create(res, tag.ip, duration);
         if (r.statusCode >= 300) {
             throw new QiniuException(r);
