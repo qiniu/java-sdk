@@ -3,44 +3,23 @@ package com.qiniu.qvs.model;
 import com.google.gson.annotations.SerializedName;
 
 public class NameSpace {
-
-    @SerializedName("ID")
     private String ID;
-    @SerializedName("Name")
     private String Name; // 空间名称(格式"^[a-zA-Z0-9_-]{1,100}$")
-    @SerializedName("Desc")
     private String Desc;  // 空间描述
-    @SerializedName("AccessType")
     private String AccessType;  // 接入类型"gb28181"或者“rtmp”
-    @SerializedName("RTMPURLType")
     private int RTMPURLType;    // accessType为“rtmp”时，推拉流地址计算方式，1:static, 2:dynamic
-    @SerializedName("Domains")
     private String[] Domains;   // 直播域名
-    @SerializedName("DomainDetails")
-    private DomainInfo[] DomainDetails;
-    @SerializedName("Callback")
     private String Callback;   // 后台服务器回调URL
-    @SerializedName("Disabled")
     private boolean Disabled;   // 流是否被启用, false:启用,true:禁用
-    @SerializedName("RecordTemplateId")
     private String RecordTemplateId; // 录制模版id
-    @SerializedName("SnapShotTemplateId")
     private String SnapShotTemplateId; // 截图模版id
-    @SerializedName("RecordTemplateApplyAll")
     private boolean RecordTemplateApplyAll;  // 空间模版是否应用到全局
-    @SerializedName("SnapTemplateApplyAll")
     private boolean SnapTemplateApplyAll; // 截图模版是否应用到全局
-    @SerializedName("CreatedAt")
     private int CreatedAt;// 空间创建时间
-    @SerializedName("UpdatedAt")
     private int UpdatedAt; // 空间更新时间
-    @SerializedName("DevicesCount")
     private int DevicesCount;  // 设备数量
-    @SerializedName("StreamCount")
     private int StreamCount;  // 流数量
-    @SerializedName("OnlineStreamCount")
     private int OnlineStreamCount;  // 在线流数量
-    @SerializedName("DisabledStreamCount")
     private int DisabledStreamCount;  // 禁用流数量
 
     public String getID() {
@@ -89,14 +68,6 @@ public class NameSpace {
 
     public void setDomains(String[] domains) {
         Domains = domains;
-    }
-
-    public DomainInfo[] getDomainDetails() {
-        return DomainDetails;
-    }
-
-    public void setDomainDetails(DomainInfo[] domainDetails) {
-        DomainDetails = domainDetails;
     }
 
     public String getCallback() {

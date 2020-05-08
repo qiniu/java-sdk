@@ -18,7 +18,7 @@ public class StreamManager {
     private final Auth auth;
 
     public StreamManager(Auth auth) {
-        this(auth, "http://10.200.20.26:6275");
+        this(auth, "http://qvs.qiniuapi.com");
     }
 
     public StreamManager(Auth auth, String apiServer) {
@@ -32,15 +32,13 @@ public class StreamManager {
     }
 
     /*
-        创建流API
+    创建流API
 
-        请求参数Body:
-        streamId	是	string	流名称, 流名称在空间中唯一，可包含 字母、数字、中划线、下划线；1 ~ 100 个字符长；创建后将不可修改
-        desc	否	string	关于流的描述信息
-        recordTemplateId	否	string	录制模版ID，配置流维度的录制模板
-        snapshotTemplateId	否	string	截图模版ID，配置流维度的截图模板
-
-        /v1/namespaces/{namespaceId}/streams
+    请求参数Body
+    必须参数:	    streamId	        流名称, 流名称在空间中唯一，可包含 字母、数字、中划线、下划线；1 ~ 100 个字符长；创建后将不可修改
+    非必须参数:   desc		        关于流的描述信息
+                recordTemplateId	录制模版ID，配置流维度的录制模板
+                snapshotTemplateId	截图模版ID，配置流维度的截图模板
     */
     public Response createStream(String namespaceId, Stream stream) throws QiniuException {
         StringMap params = new StringMap();
@@ -93,7 +91,7 @@ public class StreamManager {
     /*
         静态模式获取流地址
      */
-    public Response StaticPublishPlayURL(String namespaceId, String streamId, StaticLiveRoute staticLiveRoute) throws QiniuException {
+    public Response staticPublishPlayURL(String namespaceId, String streamId, StaticLiveRoute staticLiveRoute) throws QiniuException {
         StringMap params = new StringMap().put("Domain",staticLiveRoute.getDomain()).
                 put("DomainType",staticLiveRoute.getDomainType()).putNotNull("UrlExpireSec",staticLiveRoute.getUrlExpireSec());
         String url = String.format("%s/v1/namespaces/%s/streams/%s/domain", apiServer, namespaceId, streamId);
@@ -103,7 +101,7 @@ public class StreamManager {
     /*
         动态模式获取流地址
      */
-    public Response DynamicPublishPlayURL(String namespaceId, String streamId, DynamicLiveRoute dynamicLiveRoute) throws QiniuException {
+    public Response dynamicPublishPlayURL(String namespaceId, String streamId, DynamicLiveRoute dynamicLiveRoute) throws QiniuException {
         StringMap params = new StringMap();
         params.put("PublishIP", dynamicLiveRoute.getPublishIP());
         params.put("PlayIP", dynamicLiveRoute.getPlayIP());
@@ -142,7 +140,7 @@ public class StreamManager {
     }
 
     // 查询录制记录
-    public Response QueryStreamRecordHistories(String namespaceId, String streamId, int start, int end, int line, String marker) throws QiniuException {
+    public Response queryStreamRecordHistories(String namespaceId, String streamId, int start, int end, int line, String marker) throws QiniuException {
         if (start <= 0 || end < 0 || (start >= end && end != 0)) {
             throw new QiniuException(new IllegalArgumentException("bad argument" + start + "," + end));
         }
@@ -154,7 +152,7 @@ public class StreamManager {
     }
 
     // 查询流封面
-    public Response QueryStreamCover(String namespaceId, String streamId) throws QiniuException{
+    public Response queryStreamCover(String namespaceId, String streamId) throws QiniuException{
         String url = String.format("%s/v1/namespaces/%s/streams/%s/cover", apiServer, namespaceId, streamId);
         return QvsResponse.get(url, client, auth);
     }

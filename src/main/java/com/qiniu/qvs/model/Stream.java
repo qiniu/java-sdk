@@ -23,6 +23,17 @@ public class Stream {
     private int AudioFrameRate; // 直播流的实时音频帧率
     private int BitRate;    // 直播流的实时码率
     private int VideoFrameRate; // 直播流的实时视频帧率
+    
+    public Stream(String streamID) {
+        StreamID = streamID;
+    }
+
+    public Stream(String streamID, String desc, String recordTemplateId, String snapShotTemplateId) {
+        StreamID = streamID;
+        Desc = desc;
+        RecordTemplateId = recordTemplateId;
+        SnapShotTemplateId = snapShotTemplateId;
+    }
 
     public String getStreamID() {
         return StreamID;

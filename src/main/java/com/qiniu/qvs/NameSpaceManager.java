@@ -15,7 +15,7 @@ public class NameSpaceManager {
     private final Auth auth;
 
     public NameSpaceManager(Auth auth) {
-        this(auth, "http://10.200.20.26:6275");
+        this(auth, "http://qvs.qiniuapi.com");
     }
 
     public NameSpaceManager(Auth auth, String apiServer) {

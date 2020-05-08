@@ -26,7 +26,7 @@ public class StreamTest {
     private int line = 1;
     private int qtype = 0;
     private String maker = "";
-    Stream stream = new Stream();
+    Stream stream = new Stream("teststream005");
 
     @Before
     public void setUp() throws Exception {
@@ -36,7 +36,7 @@ public class StreamTest {
 
     @Test
     public void testCreateStream() {
-        stream.setStreamID("teststream002");
+//        stream.setStreamID("teststream002");
         try {
             res = streamManager.createStream(namespaceId, stream);
             System.out.println(res.bodyString());
@@ -98,7 +98,7 @@ public class StreamTest {
     public void testStaticPublishPlayURL() {
         StaticLiveRoute staticLiveRoute = new StaticLiveRoute("qvs-publish.qtest.com", "publishRtmp", 3600);
         try {
-            res = streamManager.StaticPublishPlayURL(namespaceId, stream.getStreamID(), staticLiveRoute);
+            res = streamManager.staticPublishPlayURL(namespaceId, stream.getStreamID(), staticLiveRoute);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -113,7 +113,7 @@ public class StreamTest {
     public void testDynamicPublishPlayURL() {
         DynamicLiveRoute dynamicLiveRoute = new DynamicLiveRoute("127.0.0.1", "127.0.0.1", 0);
         try {
-            res = streamManager.DynamicPublishPlayURL(namespaceId, stream.getStreamID(), dynamicLiveRoute);
+            res = streamManager.dynamicPublishPlayURL(namespaceId, stream.getStreamID(), dynamicLiveRoute);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -127,7 +127,7 @@ public class StreamTest {
     @Test
     public void testQueryStreamRecordHistories() {
         try {
-            res = streamManager.QueryStreamRecordHistories(namespaceId, stream.getStreamID(), start, end, line, maker);
+            res = streamManager.queryStreamRecordHistories(namespaceId, stream.getStreamID(), start, end, line, maker);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -141,7 +141,7 @@ public class StreamTest {
     @Test
     public void testQueryStreamCover() {
         try {
-            res = streamManager.QueryStreamCover(namespaceId, stream.getStreamID());
+            res = streamManager.queryStreamCover(namespaceId, stream.getStreamID());
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
