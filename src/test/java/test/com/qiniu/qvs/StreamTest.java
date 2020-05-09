@@ -1,23 +1,22 @@
 package test.com.qiniu.qvs;
 
 import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
 import com.qiniu.qvs.StreamManager;
 import com.qiniu.qvs.model.DynamicLiveRoute;
 import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.qvs.model.StaticLiveRoute;
 import com.qiniu.qvs.model.Stream;
-import com.qiniu.http.Response;
 import com.qiniu.util.Auth;
-
-import test.com.qiniu.TestConfig;
-
 import org.junit.Before;
 import org.junit.Test;
+import test.com.qiniu.TestConfig;
 
 public class StreamTest {
 
-    private StreamManager streamManager;
     Auth auth = TestConfig.testAuth;
+    Stream stream = new Stream("teststream005");
+    private StreamManager streamManager;
     private Response res = null;
     private String namespaceId = "2akrarsj8zp0w";
     private int start = 1587975463;
@@ -26,7 +25,6 @@ public class StreamTest {
     private int line = 1;
     private int qtype = 0;
     private String maker = "";
-    Stream stream = new Stream("teststream005");
 
     @Before
     public void setUp() throws Exception {

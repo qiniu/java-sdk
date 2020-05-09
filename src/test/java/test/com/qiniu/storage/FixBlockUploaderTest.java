@@ -72,7 +72,7 @@ public class FixBlockUploaderTest {
         try {
             template(true, 1024 * 3, false, false, true);
             Assert.fail("file exists, can not be success.");
-        }  catch (QiniuException e) {
+        } catch (QiniuException e) {
             assertTrue("file exists", e.response.error.indexOf("file exists") > -1);
         }
         // both the key and content are the same
@@ -104,7 +104,6 @@ public class FixBlockUploaderTest {
     public void test7M() throws IOException {
         template(1024 * 7, true, false);
     }
-
 
 
     @Test
@@ -266,8 +265,8 @@ public class FixBlockUploaderTest {
         Assert.assertEquals("duDu/werfhue3", ret.biu2biu);
         String resStr = res2.bodyString();
         Assert.assertTrue("// 要有额外设置的元信息  metadata //\n" + new Gson().toJson(param),
-                    resStr.indexOf("text/liubin") > -1
-                            && resStr.indexOf("teinYjf") > -1);
+                resStr.indexOf("text/liubin") > -1
+                        && resStr.indexOf("teinYjf") > -1);
     }
 
     class MyRet {

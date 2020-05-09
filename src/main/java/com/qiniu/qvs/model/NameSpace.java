@@ -1,168 +1,168 @@
 package com.qiniu.qvs.model;
 
-import com.google.gson.annotations.SerializedName;
-
 public class NameSpace {
-    private String ID;
-    private String Name; // 空间名称(格式"^[a-zA-Z0-9_-]{1,100}$")
-    private String Desc;  // 空间描述
-    private String AccessType;  // 接入类型"gb28181"或者“rtmp”
-    private int RTMPURLType;    // accessType为“rtmp”时，推拉流地址计算方式，1:static, 2:dynamic
-    private String[] Domains;   // 直播域名
-    private String Callback;   // 后台服务器回调URL
-    private boolean Disabled;   // 流是否被启用, false:启用,true:禁用
-    private String RecordTemplateId; // 录制模版id
-    private String SnapShotTemplateId; // 截图模版id
-    private boolean RecordTemplateApplyAll;  // 空间模版是否应用到全局
-    private boolean SnapTemplateApplyAll; // 截图模版是否应用到全局
-    private int CreatedAt;// 空间创建时间
-    private int UpdatedAt; // 空间更新时间
-    private int DevicesCount;  // 设备数量
-    private int StreamCount;  // 流数量
-    private int OnlineStreamCount;  // 在线流数量
-    private int DisabledStreamCount;  // 禁用流数量
+    private String id;
+    private String name; // 空间名称(格式"^[a-zA-Z0-9_-]{1,100}$")
+    private String desc;  // 空间描述
+    private String accessType;  // 接入类型"gb28181"或者“rtmp”
+    private int rtmpUrlType;    // accessType为“rtmp”时，推拉流地址计算方式，1:static, 2:dynamic
+    public static final int Static = 1;
+    public static final int Dynamic = 2;
+    private String[] domains;   // 直播域名
+    private String callback;   // 后台服务器回调URL
+    private boolean disabled;   // 流是否被启用, false:启用,true:禁用
+    private String recordTemplateId; // 录制模版id
+    private String snapShotTemplateId; // 截图模版id
+    private boolean recordTemplateApplyAll;  // 空间模版是否应用到全局
+    private boolean snapTemplateApplyAll; // 截图模版是否应用到全局
+    private int createdAt; // 空间创建时间
+    private int updatedAt; // 空间更新时间
+    private int devicesCount;  // 设备数量
+    private int streamCount;  // 流数量
+    private int onlineStreamCount;  // 在线流数量
+    private int disabledStreamCount;  // 禁用流数量
 
-    public String getID() {
-        return ID;
+    public String getId() {
+        return id;
     }
 
-    public void setID(String ID) {
-        this.ID = ID;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 
     public String getDesc() {
-        return Desc;
+        return desc;
     }
 
     public void setDesc(String desc) {
-        Desc = desc;
+        this.desc = desc;
     }
 
     public String getAccessType() {
-        return AccessType;
+        return accessType;
     }
 
     public void setAccessType(String accessType) {
-        AccessType = accessType;
+        this.accessType = accessType;
     }
 
-    public int getRTMPURLType() {
-        return RTMPURLType;
+    public int getRtmpUrlType() {
+        return rtmpUrlType;
     }
 
-    public void setRTMPURLType(int RTMPURLType) {
-        this.RTMPURLType = RTMPURLType;
+    public void setRtmpUrlType(int rtmpUrlType) {
+        this.rtmpUrlType = rtmpUrlType;
     }
 
     public String[] getDomains() {
-        return Domains;
+        return domains;
     }
 
     public void setDomains(String[] domains) {
-        Domains = domains;
+        this.domains = domains;
     }
 
     public String getCallback() {
-        return Callback;
+        return callback;
     }
 
     public void setCallback(String callback) {
-        Callback = callback;
+        this.callback = callback;
     }
 
     public boolean isDisabled() {
-        return Disabled;
+        return disabled;
     }
 
     public void setDisabled(boolean disabled) {
-        Disabled = disabled;
+        this.disabled = disabled;
     }
 
     public String getRecordTemplateId() {
-        return RecordTemplateId;
+        return recordTemplateId;
     }
 
     public void setRecordTemplateId(String recordTemplateId) {
-        RecordTemplateId = recordTemplateId;
+        this.recordTemplateId = recordTemplateId;
     }
 
     public String getSnapShotTemplateId() {
-        return SnapShotTemplateId;
+        return snapShotTemplateId;
     }
 
     public void setSnapShotTemplateId(String snapShotTemplateId) {
-        SnapShotTemplateId = snapShotTemplateId;
+        this.snapShotTemplateId = snapShotTemplateId;
     }
 
     public boolean isRecordTemplateApplyAll() {
-        return RecordTemplateApplyAll;
+        return recordTemplateApplyAll;
     }
 
     public void setRecordTemplateApplyAll(boolean recordTemplateApplyAll) {
-        RecordTemplateApplyAll = recordTemplateApplyAll;
+        this.recordTemplateApplyAll = recordTemplateApplyAll;
     }
 
     public boolean isSnapTemplateApplyAll() {
-        return SnapTemplateApplyAll;
+        return snapTemplateApplyAll;
     }
 
     public void setSnapTemplateApplyAll(boolean snapTemplateApplyAll) {
-        SnapTemplateApplyAll = snapTemplateApplyAll;
+        this.snapTemplateApplyAll = snapTemplateApplyAll;
     }
 
     public int getCreatedAt() {
-        return CreatedAt;
+        return createdAt;
     }
 
     public void setCreatedAt(int createdAt) {
-        CreatedAt = createdAt;
+        this.createdAt = createdAt;
     }
 
     public int getUpdatedAt() {
-        return UpdatedAt;
+        return updatedAt;
     }
 
     public void setUpdatedAt(int updatedAt) {
-        UpdatedAt = updatedAt;
+        this.updatedAt = updatedAt;
     }
 
     public int getDevicesCount() {
-        return DevicesCount;
+        return devicesCount;
     }
 
     public void setDevicesCount(int devicesCount) {
-        DevicesCount = devicesCount;
+        this.devicesCount = devicesCount;
     }
 
     public int getStreamCount() {
-        return StreamCount;
+        return streamCount;
     }
 
     public void setStreamCount(int streamCount) {
-        StreamCount = streamCount;
+        this.streamCount = streamCount;
     }
 
     public int getOnlineStreamCount() {
-        return OnlineStreamCount;
+        return onlineStreamCount;
     }
 
     public void setOnlineStreamCount(int onlineStreamCount) {
-        OnlineStreamCount = onlineStreamCount;
+        this.onlineStreamCount = onlineStreamCount;
     }
 
     public int getDisabledStreamCount() {
-        return DisabledStreamCount;
+        return disabledStreamCount;
     }
 
     public void setDisabledStreamCount(int disabledStreamCount) {
-        DisabledStreamCount = disabledStreamCount;
+        this.disabledStreamCount = disabledStreamCount;
     }
 }

@@ -75,12 +75,6 @@ public class AuthTest {
         assertEquals(exp, token);
     }
 
-    static class Policy {
-        String scope;
-        long deadline;
-        String endUser;
-    }
-
     @Test
     public void testQiniuAuthorization() {
         String ak = "MY_ACCESS_KEY";
@@ -219,5 +213,11 @@ public class AuthTest {
         sign = "ak:CzOiB_NSxrvMLkhK8hhV_1vTqYk=";
         url = "http://upload.qiniup.com/mkfile/sdf.jpg?s=er3&df";
         checkSignQiniu(sign, auth, url, method, headers, body);
+    }
+
+    static class Policy {
+        String scope;
+        long deadline;
+        String endUser;
     }
 }
