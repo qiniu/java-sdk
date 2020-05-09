@@ -1,4 +1,4 @@
-# 七牛社会化监控JAVA SDK
+# 七牛IoT视频云JAVA SDK
 
 ## Features
 
