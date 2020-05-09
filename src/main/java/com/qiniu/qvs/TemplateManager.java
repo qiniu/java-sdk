@@ -1,10 +1,10 @@
 package com.qiniu.qvs;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.qvs.model.PatchOperation;
-import com.qiniu.qvs.model.Template;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.qvs.model.PatchOperation;
+import com.qiniu.qvs.model.Template;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlUtils;
@@ -61,8 +61,7 @@ public class TemplateManager {
     }
 
     /*
-	    更新模板API
-
+        更新模板API
     */
     public Response updateTemplate(String templateId, PatchOperation[] patchOperation) throws QiniuException {
         StringMap params = new StringMap().put("operations", patchOperation);
@@ -71,7 +70,7 @@ public class TemplateManager {
     }
 
     /*
-	    查询模板信息API
+        查询模板信息API
     */
     public Response queryTemplate(String templateId) throws QiniuException {
         String url = String.format("%s/v1/templates/%s", apiServer, templateId);

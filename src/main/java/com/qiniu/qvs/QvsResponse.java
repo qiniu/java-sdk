@@ -9,6 +9,8 @@ import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 
 public final class QvsResponse {
+    private QvsResponse() {
+    }
 
     public static Response get(String url, Client client, Auth auth) throws QiniuException {
         StringMap headers = auth.authorizationV2(url, "GET", null, null);

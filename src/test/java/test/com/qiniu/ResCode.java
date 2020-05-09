@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.util.Arrays;
 
 public class ResCode {
-    public static boolean find(int code, int ...codes) {
+    public static boolean find(int code, int... codes) {
         System.out.println("response code is: " + code + ", possible code is in: " + Arrays.toString(codes));
         for (int i : codes) {
             if (code == i) {
@@ -16,11 +16,11 @@ public class ResCode {
         return false;
     }
 
-    public static int[] getPossibleResCode(int ...codes) {
+    public static int[] getPossibleResCode(int... codes) {
         return getPossibleResCode(TestConfig.isTravis(), codes);
     }
 
-    public static int[] getPossibleResCode(boolean isTravis, int ...codes) {
+    public static int[] getPossibleResCode(boolean isTravis, int... codes) {
         if (isTravis) {
             int[] n = new int[codes.length + 1];
             System.arraycopy(codes, 0, n, 0, codes.length);

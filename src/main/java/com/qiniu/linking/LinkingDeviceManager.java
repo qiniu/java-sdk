@@ -142,10 +142,6 @@ public class LinkingDeviceManager {
 
     }
 
-    private class DeviceKeyRet {
-        DeviceKey[] keys;
-    }
-
     public DeviceKey[] addDeviceKey(String appid, String deviceName) throws QiniuException {
         String encodedDeviceName = UrlSafeBase64.encodeToString(deviceName);
         String url = String.format("%s/v1/apps/%s/devices/%s/keys", host, appid, encodedDeviceName);
@@ -225,5 +221,9 @@ public class LinkingDeviceManager {
             throw new QiniuException(res);
         }
         return res;
+    }
+
+    private class DeviceKeyRet {
+        DeviceKey[] keys;
     }
 }

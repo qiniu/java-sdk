@@ -1,21 +1,19 @@
 package test.com.qiniu.qvs;
 
 import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
 import com.qiniu.qvs.TemplateManager;
 import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.qvs.model.Template;
-import com.qiniu.http.Response;
 import com.qiniu.util.Auth;
-
-import test.com.qiniu.TestConfig;
-
 import org.junit.Before;
 import org.junit.Test;
+import test.com.qiniu.TestConfig;
 
 public class TemplateTest {
 
-    private TemplateManager templateManager;
     Auth auth = TestConfig.testAuth;
+    private TemplateManager templateManager;
     private Response res = null;
     private String templateId = "2akrarsl22iil";
 
