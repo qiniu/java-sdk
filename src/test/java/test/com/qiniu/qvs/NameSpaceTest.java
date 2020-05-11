@@ -1,23 +1,21 @@
 package test.com.qiniu.qvs;
 
 import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
 import com.qiniu.qvs.NameSpaceManager;
 import com.qiniu.qvs.model.NameSpace;
 import com.qiniu.qvs.model.PatchOperation;
-import com.qiniu.http.Response;
 import com.qiniu.util.Auth;
-
-import test.com.qiniu.TestConfig;
-
 import org.junit.Before;
 import org.junit.Test;
+import test.com.qiniu.TestConfig;
 
 
 public class NameSpaceTest {
+    Auth auth = TestConfig.testAuth;
     private NameSpaceManager nameSpaceManager;
     private Response res = null;
     private String namespaceId = "2akrarsj8zp0w";
-    Auth auth = TestConfig.testAuth;
 
     @Before
     public void setUp() throws Exception {
@@ -29,7 +27,7 @@ public class NameSpaceTest {
         NameSpace nameSpace = new NameSpace();
         nameSpace.setName("hugo002");
         nameSpace.setAccessType("rtmp");
-        nameSpace.setRTMPURLType(1);
+        nameSpace.setRtmpUrlType(nameSpace.Static);
         nameSpace.setDomains(new String[]{"qtest002.com"});
         try {
             res = nameSpaceManager.createNameSpace(nameSpace);

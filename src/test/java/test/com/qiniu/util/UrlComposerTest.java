@@ -40,8 +40,7 @@ public class UrlComposerTest {
                 .replaceAll("%27", "'")
                 .replaceAll("%28", "(")
                 .replaceAll("%29", ")")
-                .replaceAll("%2A", "*")
-                ;
+                .replaceAll("%2A", "*");
         assertEquals(c2, c3);
     }
 

@@ -31,7 +31,7 @@ public class Md5Test {
         byte[] data = new byte[1024 * 1024 * 7];
         int l = fis.read(data);
         String md5_data = Md5.md5(data, 0, l);
-        System.out.println(l + ",  " +  data.length + "  md5  " + md5_data);
+        System.out.println(l + ",  " + data.length + "  md5  " + md5_data);
 
         assertEquals(md5, md5_data);
         assertEquals(md5, "0f343b0931126a20f133d67c2b018a3b");

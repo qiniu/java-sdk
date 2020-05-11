@@ -26,82 +26,6 @@ public class Region {
     private String rsfHost = "rsf.qbox.me";
     private String apiHost = "api.qiniu.com";
 
-
-    /**
-     * 域名构造器
-     */
-    public static class Builder {
-        protected Region region;
-
-        public Builder() {
-            init();
-        }
-
-        public Builder(Region originRegion) {
-            init();
-            region.region = originRegion.region;
-            region.srcUpHosts = originRegion.srcUpHosts;
-            region.accUpHosts = originRegion.accUpHosts;
-            region.iovipHost = originRegion.iovipHost;
-            region.rsHost = originRegion.rsHost;
-            region.rsfHost = originRegion.rsfHost;
-            region.apiHost = originRegion.apiHost;
-        }
-
-        protected void init() {
-            region = new Region();
-        }
-
-        public Builder region(String region) {
-            this.region.region = region;
-            return this;
-        }
-
-        public Builder srcUpHost(String... srcUpHosts) {
-            this.region.srcUpHosts = Arrays.asList(srcUpHosts);
-            return this;
-        }
-
-        public Builder accUpHost(String... accUpHosts) {
-            this.region.accUpHosts = Arrays.asList(accUpHosts);
-            return this;
-        }
-
-        public Builder iovipHost(String iovipHost) {
-            this.region.iovipHost = iovipHost;
-            return this;
-        }
-
-        public Builder rsHost(String rsHost) {
-            this.region.rsHost = rsHost;
-            return this;
-        }
-
-        public Builder rsfHost(String rsfHost) {
-            this.region.rsfHost = rsfHost;
-            return this;
-        }
-
-        public Builder apiHost(String apiHost) {
-            this.region.apiHost = apiHost;
-            return this;
-        }
-
-        /**
-         * 自动选择,其它参数设置无效
-         */
-        public Region autoRegion(String ucServer) {
-            return new AutoRegion(ucServer);
-        }
-
-        /**
-         * 返回构建好的Region对象
-         */
-        public Region build() {
-            return region;
-        }
-    }
-
     /**
      * 华东机房相关域名
      */
@@ -123,7 +47,6 @@ public class Region {
     public static Region huadong() {
         return region0();
     }
-
 
     /**
      * 华东机房内网上传相关域名
@@ -147,7 +70,6 @@ public class Region {
         return qvmRegion0();
     }
 
-
     /**
      * 华北机房相关域名
      */
@@ -169,7 +91,6 @@ public class Region {
     public static Region huabei() {
         return region1();
     }
-
 
     /**
      * 华北机房内网上传相关域名
@@ -275,8 +196,6 @@ public class Region {
         return new Builder().autoRegion(ucServer);
     }
 
-
-
     String getRegion(RegionReqInfo regionReqInfo) {
         return this.region;
     }
@@ -303,6 +222,81 @@ public class Region {
 
     String getApiHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return apiHost;
+    }
+
+    /**
+     * 域名构造器
+     */
+    public static class Builder {
+        protected Region region;
+
+        public Builder() {
+            init();
+        }
+
+        public Builder(Region originRegion) {
+            init();
+            region.region = originRegion.region;
+            region.srcUpHosts = originRegion.srcUpHosts;
+            region.accUpHosts = originRegion.accUpHosts;
+            region.iovipHost = originRegion.iovipHost;
+            region.rsHost = originRegion.rsHost;
+            region.rsfHost = originRegion.rsfHost;
+            region.apiHost = originRegion.apiHost;
+        }
+
+        protected void init() {
+            region = new Region();
+        }
+
+        public Builder region(String region) {
+            this.region.region = region;
+            return this;
+        }
+
+        public Builder srcUpHost(String... srcUpHosts) {
+            this.region.srcUpHosts = Arrays.asList(srcUpHosts);
+            return this;
+        }
+
+        public Builder accUpHost(String... accUpHosts) {
+            this.region.accUpHosts = Arrays.asList(accUpHosts);
+            return this;
+        }
+
+        public Builder iovipHost(String iovipHost) {
+            this.region.iovipHost = iovipHost;
+            return this;
+        }
+
+        public Builder rsHost(String rsHost) {
+            this.region.rsHost = rsHost;
+            return this;
+        }
+
+        public Builder rsfHost(String rsfHost) {
+            this.region.rsfHost = rsfHost;
+            return this;
+        }
+
+        public Builder apiHost(String apiHost) {
+            this.region.apiHost = apiHost;
+            return this;
+        }
+
+        /**
+         * 自动选择,其它参数设置无效
+         */
+        public Region autoRegion(String ucServer) {
+            return new AutoRegion(ucServer);
+        }
+
+        /**
+         * 返回构建好的Region对象
+         */
+        public Region build() {
+            return region;
+        }
     }
 
 }

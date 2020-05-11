@@ -24,18 +24,16 @@ public final class BucketManager {
      * 该类需要使用QBox鉴权，所以需要指定Auth对象
      */
     private final Auth auth;
-
-    /**
-     * ConfigHelper 对象
-     * 该类相关的域名配置，解析配置，HTTP请求超时时间设置等
-     */
-    private ConfigHelper configHelper;
-
     /**
      * HTTP Client 对象
      * 该类需要通过该对象来发送HTTP请求
      */
     private final Client client;
+    /**
+     * ConfigHelper 对象
+     * 该类相关的域名配置，解析配置，HTTP请求超时时间设置等
+     */
+    private ConfigHelper configHelper;
 
     /**
      * 构建一个新的 BucketManager 对象
@@ -340,17 +338,17 @@ public final class BucketManager {
         String path = String.format("/chtype/%s/type/%d", resource, type.ordinal());
         return rsPost(bucket, path, null);
     }
-    
+
     /**
      * 解冻归档存储
      * 文档：https://developer.qiniu.com/kodo/api/6380/restore-archive
-     * 
-     * @param bucket    空间名称
-     * @param key   文件名称
-     * @param freezeAfterDays   解冻有效时长，取值范围 1～7
+     *
+     * @param bucket          空间名称
+     * @param key             文件名称
+     * @param freezeAfterDays 解冻有效时长，取值范围 1～7
      * @return
      */
-    public Response restoreArchive(String bucket, String key, int freezeAfterDays) 
+    public Response restoreArchive(String bucket, String key, int freezeAfterDays)
             throws QiniuException {
         String resource = encodedEntry(bucket, key);
         String path = String.format("/restoreAr/%s/freezeAfterDays/%s", resource, Integer.toString(freezeAfterDays));
