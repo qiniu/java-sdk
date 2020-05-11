@@ -6,8 +6,6 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.util.*;
 import com.qiniu.storage.MultipartUpload.EtagIdx;
-import com.qiniu.storage.MultipartUpload.OptionsMeta;
-import com.qiniu.storage.MultipartUpload.InitRet;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +72,7 @@ public class FixBlockUploader {
         return upload(file, token, key, null, pool, 8);
     }
 
-    public Response upload(final File file, final String token, String key, OptionsMeta params,
+    public Response upload(final File file, final String token, String key, MultipartUpload.OptionsMeta params,
                            ExecutorService pool, int maxRunningBlock) throws QiniuException {
         BlockData blockData;
         try {
@@ -99,7 +97,7 @@ public class FixBlockUploader {
 
 
     public Response upload(final InputStream is, long inputStreamLength, String fileName,
-                           final String token, String key, OptionsMeta params,
+                           final String token, String key, MultipartUpload.OptionsMeta params,
                            ExecutorService pool, int maxRunningBlock) throws QiniuException {
         BlockData blockData;
         blockData = new InputStreamBlockData(this.blockSize, is, inputStreamLength, fileName);
@@ -107,13 +105,13 @@ public class FixBlockUploader {
     }
 
 
-    Response upload(BlockData blockData, String token, String key, OptionsMeta params,
+    Response upload(BlockData blockData, String token, String key, MultipartUpload.OptionsMeta params,
                     ExecutorService pool, int maxRunningBlock) throws QiniuException {
         return upload(blockData, new StaticToken(token), key, params, pool, maxRunningBlock);
     }
 
 
-    Response upload(BlockData blockData, Token token, String key, OptionsMeta params,
+    Response upload(BlockData blockData, Token token, String key, MultipartUpload.OptionsMeta params,
                     ExecutorService pool, int maxRunningBlock) throws QiniuException {
         try {
             String bucket = parseBucket(token.getUpToken());
@@ -161,7 +159,7 @@ public class FixBlockUploader {
         }
 
         if (record == null || record.uploadId == null) {
-            InitRet ret = init(bucket, key, token);
+            MultipartUpload.InitRet ret = init(bucket, key, token);
 
             List<EtagIdx> etagIdxes = new ArrayList<>();
             record = initRecord(ret, etagIdxes);
@@ -169,7 +167,7 @@ public class FixBlockUploader {
         return record;
     }
 
-    InitRet init(String bucket, String key, Token token) throws QiniuException {
+    MultipartUpload.InitRet init(String bucket, String key, Token token) throws QiniuException {
         Response res = null;
         try {
             // 1
@@ -208,7 +206,7 @@ public class FixBlockUploader {
         }
 
         try {
-            InitRet ret = res.jsonToObject(InitRet.class);
+            MultipartUpload.InitRet ret = res.jsonToObject(MultipartUpload.InitRet.class);
             if (ret != null && ret.uploadId != null && ret.uploadId.length() > 10 && ret.expireAt > 1000) {
                 return ret;
             }
@@ -428,7 +426,7 @@ public class FixBlockUploader {
     }
 
     Response makeFile(String bucket, String key, Token token, String uploadId, List<EtagIdx> etags,
-                      String fileName, OptionsMeta params) throws QiniuException {
+                      String fileName, MultipartUpload.OptionsMeta params) throws QiniuException {
         // 1
         Response res = makeFile1(bucket, key, token, uploadId, etags, fileName, params, true);
         if (res.needRetry()) {
@@ -450,7 +448,7 @@ public class FixBlockUploader {
     }
 
     Response makeFile1(String bucket, String key, Token token, String uploadId, List<EtagIdx> etags,
-                       String fileName, OptionsMeta params, boolean ignoreError) throws QiniuException {
+                       String fileName, MultipartUpload.OptionsMeta params, boolean ignoreError) throws QiniuException {
         try {
             return uploader.completeMultipartUpload(bucket, key, token.getUpToken(), uploadId, etags, fileName, params);
         } catch (QiniuException e) {
@@ -492,7 +490,7 @@ public class FixBlockUploader {
     }
 
 
-    Record initRecord(InitRet ret, List<EtagIdx> etagIdxes) {
+    Record initRecord(MultipartUpload.InitRet ret, List<EtagIdx> etagIdxes) {
         Record record = new Record();
         record.uploadId = ret.uploadId;
         //// 服务端 7 天内有效，设置 5 天 ////
