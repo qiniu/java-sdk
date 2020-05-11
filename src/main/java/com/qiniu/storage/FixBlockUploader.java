@@ -5,6 +5,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.util.*;
+import com.qiniu.storage.MultipartUpload.EtagIdx;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,17 +19,27 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * 分片上传实现
+ * https://developer.qiniu.com/kodo/api/6364/multipartupload-interface
+ *
+ * 若上传到同区域，如全上传到 华东存储，则可只使用一个实例；
+ * 若上传到不同区域，则每个区域最好单独使用一个示例。一个实例多区域并发上传可能导致内部频繁报错，上传效率低；
+ */
 public class FixBlockUploader {
     private final int blockSize;
-    private final ConfigHelper configHelper;
-    private final Client client;
     private final Recorder recorder;
+
+    private final MultipartUpload uploader;
 
     private final int retryMax;
 
     private String host = null;
 
     /**
+     * 若上传到同区域，如全上传到 华东存储，则可只使用一个实例；
+     * 若上传到不同区域，则每个区域最好单独使用一个示例。一个实例多区域并发上传可能导致内部频繁报错，上传效率低；
+     *
      * @param blockSize     block size, eg: 4 * 1024 * 1024
      * @param configuration Nullable, if null, then create a new one.
      * @param client        Nullable, if null, then create a new one with configuration.
@@ -45,8 +56,7 @@ public class FixBlockUploader {
         if (client == null) {
             client = new Client(configuration);
         }
-        this.configHelper = new ConfigHelper(configuration);
-        this.client = client;
+        this.uploader = new MultipartUpload(configuration, client);
         this.blockSize = blockSize;
         this.recorder = recorder;
         this.retryMax = configuration.retryMax;
@@ -62,7 +72,7 @@ public class FixBlockUploader {
         return upload(file, token, key, null, pool, 8);
     }
 
-    public Response upload(final File file, final String token, String key, OptionsMeta params,
+    public Response upload(final File file, final String token, String key, MultipartUpload.OptionsMeta params,
                            ExecutorService pool, int maxRunningBlock) throws QiniuException {
         BlockData blockData;
         try {
@@ -87,7 +97,7 @@ public class FixBlockUploader {
 
 
     public Response upload(final InputStream is, long inputStreamLength, String fileName,
-                           final String token, String key, OptionsMeta params,
+                           final String token, String key, MultipartUpload.OptionsMeta params,
                            ExecutorService pool, int maxRunningBlock) throws QiniuException {
         BlockData blockData;
         blockData = new InputStreamBlockData(this.blockSize, is, inputStreamLength, fileName);
@@ -95,42 +105,33 @@ public class FixBlockUploader {
     }
 
 
-    Response upload(BlockData blockData, String token, String key, OptionsMeta params,
+    Response upload(BlockData blockData, String token, String key, MultipartUpload.OptionsMeta params,
                     ExecutorService pool, int maxRunningBlock) throws QiniuException {
         return upload(blockData, new StaticToken(token), key, params, pool, maxRunningBlock);
     }
 
 
-    Response upload(BlockData blockData, Token token, String key, OptionsMeta params,
+    Response upload(BlockData blockData, Token token, String key, MultipartUpload.OptionsMeta params,
                     ExecutorService pool, int maxRunningBlock) throws QiniuException {
         try {
             String bucket = parseBucket(token.getUpToken());
-            /*
-            上传到七牛存储保存的文件名， 需要进行UrlSafeBase64编码。
-            注意:
-            当 key 为空 "" 时表示空的文件名，正常进行 url_safe_base64 编码;
-            当 key 为未进行 UrlSafeBase64 编码的字符  ~  的时候，表示未设置文件名，
-                具体行为如分片上传v1:  使用文件的 hash 作为文件名， 如果设置了saveKey则使用saveKey的规则进行文件命名
-            */
-            String base64Key = key != null ? UrlSafeBase64.encodeToString(key) : "~";
             String recordFileKey = (recorder == null) ? "NULL"
-                    : recorder.recorderKeyGenerate(bucket, base64Key, blockData.getContentUUID(),
+                    : recorder.recorderKeyGenerate(bucket, MultipartUpload.genKey(key), blockData.getContentUUID(),
                     this.blockSize + "*:|>?^ \b" + this.getClass().getName());
             // must before any http request //
-            if (host == null) {
-                host = configHelper.upHost(token.getUpToken());
-            }
+            uploader.initUpHost(token.getUpToken());
+
             UploadRecordHelper recordHelper = new UploadRecordHelper(recorder, recordFileKey, blockData.repeatable());
             // 1. initParts
-            Record record = initUpload(blockData, recordHelper, bucket, base64Key, token);
+            Record record = initUpload(blockData, recordHelper, bucket, key, token);
             boolean repeatable = recorder != null && blockData.repeatable();
 
             Response res;
             try {
                 // 2. uploadPart
-                upBlock(blockData, token, bucket, base64Key, repeatable, record, pool, maxRunningBlock);
+                upBlock(blockData, token, bucket, key, repeatable, record, pool, maxRunningBlock);
                 // 3. completeParts
-                res = makeFile(bucket, base64Key, token, record.uploadId, record.etagIdxes,
+                res = makeFile(bucket, key, token, record.uploadId, record.etagIdxes,
                         blockData.getFileName(), params);
             } catch (QiniuException e) {
                 // if everything is ok, do not need to sync record  //
@@ -147,7 +148,7 @@ public class FixBlockUploader {
     }
 
     Record initUpload(BlockData blockData, UploadRecordHelper recordHelper,
-                      String bucket, String base64Key, Token token) throws QiniuException {
+                      String bucket, String key, Token token) throws QiniuException {
         Record record = null;
         if (blockData.repeatable()) {
             record = recordHelper.reloadRecord();
@@ -158,7 +159,7 @@ public class FixBlockUploader {
         }
 
         if (record == null || record.uploadId == null) {
-            InitRet ret = init(bucket, base64Key, token.getUpToken());
+            MultipartUpload.InitRet ret = init(bucket, key, token);
 
             List<EtagIdx> etagIdxes = new ArrayList<>();
             record = initRecord(ret, etagIdxes);
@@ -166,16 +167,11 @@ public class FixBlockUploader {
         return record;
     }
 
-    InitRet init(String bucket, String base64Key, String upToken) throws QiniuException {
-        String url = host + "/buckets/" + bucket + "/objects/" + base64Key + "/uploads";
-        byte[] data = new byte[0];
-        StringMap headers = new StringMap().put("Authorization", "UpToken " + upToken);
-        String contentType = "";
-
+    MultipartUpload.InitRet init(String bucket, String key, Token token) throws QiniuException {
         Response res = null;
         try {
             // 1
-            res = client.post(url, data, headers, contentType);
+            res = uploader.initiateMultipartUpload(bucket, key, token.getUpToken());
         } catch (QiniuException e) {
             if (res == null && e.response != null) {
                 res = e.response;
@@ -187,11 +183,11 @@ public class FixBlockUploader {
         // 重试一次，初始不计入重试次数 //
         if (res == null || res.needRetry()) {
             if (res == null || res.needSwitchServer()) {
-                changeHost(upToken, host);
+                uploader.changeHost(token.getUpToken(), host);
             }
             try {
                 // 2
-                res = client.post(url, data, headers, contentType);
+                res = uploader.initiateMultipartUpload(bucket, key, token.getUpToken());
             } catch (QiniuException e) {
                 if (res == null && e.response != null) {
                     res = e.response;
@@ -202,15 +198,15 @@ public class FixBlockUploader {
 
             if (res == null || res.needRetry()) {
                 if (res == null || res.needSwitchServer()) {
-                    changeHost(upToken, host);
+                    uploader.changeHost(token.getUpToken(), host);
                 }
                 // 3
-                res = client.post(url, data, headers, contentType);
+                res = uploader.initiateMultipartUpload(bucket, key, token.getUpToken());
             }
         }
 
         try {
-            InitRet ret = res.jsonToObject(InitRet.class);
+            MultipartUpload.InitRet ret = res.jsonToObject(MultipartUpload.InitRet.class);
             if (ret != null && ret.uploadId != null && ret.uploadId.length() > 10 && ret.expireAt > 1000) {
                 return ret;
             }
@@ -222,14 +218,14 @@ public class FixBlockUploader {
     }
 
 
-    private void upBlock(BlockData blockData, Token token, String bucket, String base64Key, boolean repeatable,
+    private void upBlock(BlockData blockData, Token token, String bucket, String key, boolean repeatable,
                          Record record, ExecutorService pool, int maxRunningBlock) throws QiniuException {
         boolean useParallel = useParallel(pool, blockData, record);
 
         if (!useParallel) {
-            seqUpload(blockData, token, bucket, base64Key, record);
+            seqUpload(blockData, token, bucket, key, record);
         } else {
-            parallelUpload(blockData, token, bucket, base64Key, record, repeatable, pool, maxRunningBlock);
+            parallelUpload(blockData, token, bucket, key, record, repeatable, pool, maxRunningBlock);
         }
     }
 
@@ -238,14 +234,14 @@ public class FixBlockUploader {
     }
 
     private void seqUpload(BlockData blockData, Token token, String bucket,
-                           String base64Key, Record record) throws QiniuException {
+                           String key, Record record) throws QiniuException {
         final String uploadId = record.uploadId;
         final List<EtagIdx> etagIdxes = record.etagIdxes;
         RetryCounter counter = new NormalRetryCounter(retryMax);
         while (blockData.hasNext()) {
             try {
                 blockData.nextBlock();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new QiniuException(e, e.getMessage());
             }
             DataWraper wrapper = blockData.getCurrentBlockData();
@@ -255,9 +251,9 @@ public class FixBlockUploader {
 
             EtagIdx etagIdx;
             try {
-                etagIdx = uploadBlock(bucket, base64Key, token, uploadId,
+                etagIdx = uploadBlock(bucket, key, token, uploadId,
                         wrapper.getData(), wrapper.getSize(), wrapper.getIndex(), counter);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new QiniuException(e, e.getMessage());
             }
             etagIdxes.add(etagIdx);
@@ -267,7 +263,7 @@ public class FixBlockUploader {
     }
 
     private void parallelUpload(BlockData blockData, final Token token,
-                                final String bucket, final String base64Key, Record record,
+                                final String bucket, final String key, Record record,
                                 boolean needRecord, ExecutorService pool, int maxRunningBlock) throws QiniuException {
         final String uploadId = record.uploadId;
         final List<EtagIdx> etagIdxes = record.etagIdxes;
@@ -278,7 +274,7 @@ public class FixBlockUploader {
         while (blockData.hasNext()) {
             try {
                 blockData.nextBlock();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 qiniuEx = new QiniuException(e, e.getMessage());
                 break;
             }
@@ -290,7 +286,7 @@ public class FixBlockUploader {
             Callable<EtagIdx> runner = new Callable<EtagIdx>() {
                 @Override
                 public EtagIdx call() throws Exception {
-                    return uploadBlock(bucket, base64Key, token, uploadId,
+                    return uploadBlock(bucket, key, token, uploadId,
                             wrapper.getData(), wrapper.getSize(), wrapper.getIndex(), counter);
                 }
             };
@@ -352,20 +348,13 @@ public class FixBlockUploader {
         }
     }
 
-    EtagIdx uploadBlock(String bucket, String base64Key, Token token, String uploadId, byte[] data,
+    EtagIdx uploadBlock(String bucket, String key, Token token, String uploadId, byte[] data,
                         int dataLength, int partNum, RetryCounter counter) throws QiniuException {
-        String url = host + "/buckets/" + bucket + "/objects/" + base64Key + "/uploads/" + uploadId + "/" + partNum;
-        String md5 = Md5.md5(data, 0, dataLength);
-        StringMap headers = new StringMap().
-                put("Content-MD5", md5).
-                put("Authorization", "UpToken " + token.getUpToken());
-
-        Response res = uploadBlockWithRetry(url, token, headers, data, dataLength, counter);
+    Response res = uploadBlockWithRetry(bucket, key, token, uploadId, data, dataLength, partNum, counter);
         try {
-            StringMap m = res.jsonToMap();
-            // String qMd5 = m.get("md5").toString();
-            String etag = m.get("etag").toString();
-            if (/*md5.equals(qMd5) && */etag.length() > 10) {
+            MultipartUpload.UploadPartRet ret = res.jsonToObject(MultipartUpload.UploadPartRet.class);
+            String etag = ret.getEtag();
+            if (etag.length() > 10) {
                 return new EtagIdx(etag, partNum, dataLength);
             }
         } catch (Exception e) {
@@ -374,18 +363,18 @@ public class FixBlockUploader {
         throw new QiniuException(res);
     }
 
-    Response uploadBlockWithRetry(String url, Token token, StringMap headers,
-                                  byte[] data, int dataLength, RetryCounter counter)
+    Response uploadBlockWithRetry(String bucket, String key, Token token, String uploadId, byte[] data,
+                                  int dataLength, int partNum, RetryCounter counter)
             throws QiniuException {
         // 在 最多重试次数 范围内， 每个块至多上传 3 次 //
         // 1
-        Response res = uploadBlock1(url, data, dataLength, headers, true);
+        Response res = uploadBlock1(bucket, key, token, uploadId, data, dataLength, partNum, true);
         if (res.isOK()) {
             return res;
         }
 
         if (res.needSwitchServer()) {
-            changeHost(token.getUpToken(), host);
+            uploader.changeHost(token.getUpToken(), host);
         }
 
         if (!counter.inRange()) {
@@ -395,14 +384,14 @@ public class FixBlockUploader {
         if (res.needRetry()) {
             counter.retried();
             // 2
-            res = uploadBlock1(url, data, dataLength, headers, true);
+            res = uploadBlock1(bucket, key, token, uploadId, data, dataLength, partNum, true);
 
             if (res.isOK()) {
                 return res;
             }
 
             if (res.needSwitchServer()) {
-                changeHost(token.getUpToken(), host);
+                uploader.changeHost(token.getUpToken(), host);
             }
 
             if (!counter.inRange()) {
@@ -412,19 +401,18 @@ public class FixBlockUploader {
             if (res.needRetry()) {
                 counter.retried();
                 // 3
-                res = uploadBlock1(url, data, dataLength, headers, false);
+                res = uploadBlock1(bucket, key, token, uploadId, data, dataLength, partNum, false);
             }
         }
 
         return res;
     }
 
-    Response uploadBlock1(String url, byte[] data,
-                          int dataLength, StringMap headers, boolean ignoreError) throws QiniuException {
+    Response uploadBlock1(String bucket, String key, Token token, String uploadId, byte[] data,
+                          int dataLength, int partNum, boolean ignoreError) throws QiniuException {
         // put PUT
         try {
-            Response res = client.put(url, data, 0, dataLength, headers, "application/octet-stream");
-            return res;
+            return uploader.uploadPart(bucket, key, token.getUpToken(), uploadId, data, 0, dataLength, partNum);
         } catch (QiniuException e) {
             if (ignoreError) {
                 if (e.response != null) {
@@ -437,26 +425,20 @@ public class FixBlockUploader {
         }
     }
 
-    Response makeFile(String bucket, String base64Key, Token token, String uploadId, List<EtagIdx> etags,
-                      String fileName, OptionsMeta params) throws QiniuException {
-        String url = host + "/buckets/" + bucket + "/objects/" + base64Key + "/uploads/" + uploadId;
-        final StringMap headers = new StringMap().put("Authorization", "UpToken " + token.getUpToken());
-        sortByPartNumberAsc(etags);
-        byte[] data = new MakefileBody(etags, fileName, params)
-                .json().getBytes(Charset.forName("UTF-8"));
-
+    Response makeFile(String bucket, String key, Token token, String uploadId, List<EtagIdx> etags,
+                      String fileName, MultipartUpload.OptionsMeta params) throws QiniuException {
         // 1
-        Response res = makeFile1(url, data, headers, true);
+        Response res = makeFile1(bucket, key, token, uploadId, etags, fileName, params, true);
         if (res.needRetry()) {
             // 2
-            res = makeFile1(url, data, headers, true);
+            res = makeFile1(bucket, key, token, uploadId, etags, fileName, params, true);
         }
         if (res.needRetry()) {
             if (res.needSwitchServer()) {
-                changeHost(token.getUpToken(), host);
+                uploader.changeHost(token.getUpToken(), host);
             }
             // 3
-            res = makeFile1(url, data, headers, false);
+            res = makeFile1(bucket, key, token, uploadId, etags, fileName, params, false);
         }
         // keep the same, with com.qiniu.http.Client#L337
         if (res.statusCode >= 300) {
@@ -465,10 +447,10 @@ public class FixBlockUploader {
         return res;
     }
 
-    Response makeFile1(String url, byte[] data, StringMap headers, boolean ignoreError) throws QiniuException {
+    Response makeFile1(String bucket, String key, Token token, String uploadId, List<EtagIdx> etags,
+                       String fileName, MultipartUpload.OptionsMeta params, boolean ignoreError) throws QiniuException {
         try {
-            Response res = client.post(url, data, headers, "application/json");
-            return res;
+            return uploader.completeMultipartUpload(bucket, key, token.getUpToken(), uploadId, etags, fileName, params);
         } catch (QiniuException e) {
             if (ignoreError) {
                 if (e.response != null) {
@@ -478,15 +460,6 @@ public class FixBlockUploader {
             } else {
                 throw e;
             }
-        }
-    }
-
-    private void changeHost(String upToken, String host) {
-        try {
-            this.host = configHelper.tryChangeUpHost(upToken, host);
-        } catch (Exception e) {
-            // ignore
-            // use the old up host //
         }
     }
 
@@ -502,74 +475,7 @@ public class FixBlockUploader {
         }
     }
 
-    static void sortByPartNumberAsc(List<EtagIdx> etags) {
-        Collections.sort(etags, new Comparator<EtagIdx>() {
-            @Override
-            public int compare(EtagIdx o1, EtagIdx o2) {
-                return o1.partNumber - o2.partNumber; // small enough and both greater than 0 //
-            }
-        });
-    }
 
-
-    class MakefileBody {
-        List<EtagIdx> parts;
-        String fname;
-        String mimeType;
-        Map<String, Object> metadata;
-        Map<String, Object> customVars;
-
-        MakefileBody(List<EtagIdx> etags, String fileName, OptionsMeta params) {
-            this.parts = etags;
-            this.fname = fileName;
-            if (params != null) {
-                this.mimeType = params.mimeType;
-                if (params.metadata != null && params.metadata.size() > 0) {
-                    this.metadata = filterParam(params.metadata, "X-Qn-Meta-");
-                }
-                if (params.customVars != null && params.customVars.size() > 0) {
-                    this.customVars = filterParam(params.customVars, "x:");
-                }
-            }
-        }
-
-        private Map<String, Object> filterParam(StringMap param, final String keyPrefix) {
-            final Map<String, Object> ret = new HashMap<>();
-            final String prefix = keyPrefix.toLowerCase();
-            param.forEach(new StringMap.Consumer() {
-                @Override
-                public void accept(String key, Object value) {
-                    if (key != null && value != null && !StringUtils.isNullOrEmpty(value.toString())
-                            && key.toLowerCase().startsWith(prefix)) {
-                        ret.put(key, value);
-                    }
-                }
-            });
-            return ret;
-        }
-
-        public String json() {
-            return new Gson().toJson(this);
-        }
-    }
-
-
-    class EtagIdx {
-        String etag; // mkfile
-        int partNumber; // mkfile
-        transient int size; // 本地使用，不写入 json 断点记录 //
-
-        EtagIdx(String etag, int idx, int size) {
-            this.etag = etag;
-            this.partNumber = idx;
-            this.size = size;
-        }
-
-        public String toString() {
-            return new Gson().toJson(this);
-        }
-
-    }
 
 
     ///////////////////////////////////////
@@ -579,18 +485,20 @@ public class FixBlockUploader {
         // second
         long expireAt;
         String uploadId;
-        long size; // sum(current putParts size) EtagIdx.size 未序列化，历史断点记录没法获取到已上传大小 //
+        long size;
         List<EtagIdx> etagIdxes;
     }
 
 
-    Record initRecord(InitRet ret, List<EtagIdx> etagIdxes) {
+    Record initRecord(MultipartUpload.InitRet ret, List<EtagIdx> etagIdxes) {
         Record record = new Record();
         record.uploadId = ret.uploadId;
         //// 服务端 7 天内有效，设置 5 天 ////
         record.expireAt = ret.expireAt - 3600 * 24 * 2;
-        record.size = 0; // 本次上传到需要写断点记录时上传的总大小，EtagIdx.size 未序列化，历史断点记录没法获取到已上传大小 //
         record.etagIdxes = etagIdxes != null ? etagIdxes : new ArrayList<EtagIdx>();
+        for (EtagIdx l : record.etagIdxes) {
+            record.size += l.size;
+        }
 
         return record;
     }
@@ -631,7 +539,7 @@ public class FixBlockUploader {
 
         public void syncRecord(Record record) {
             if (needRecord && recorder != null && record.etagIdxes.size() > 0) {
-                sortByPartNumberAsc(record.etagIdxes);
+                MultipartUpload.sortByPartNumberAsc(record.etagIdxes);
                 recorder.set(recordFileKey, new Gson().toJson(record).getBytes(Charset.forName("UTF-8")));
             }
         }
@@ -661,12 +569,6 @@ public class FixBlockUploader {
 
 
     ///////////////////////////////////////
-
-    class InitRet {
-        String uploadId;
-        long expireAt;
-    }
-
 
     abstract static class BlockData {
         protected final int blockDataSize;
@@ -977,41 +879,6 @@ public class FixBlockUploader {
         @Override
         public String getUpToken() {
             return token;
-        }
-    }
-
-    public static class OptionsMeta {
-        String mimeType;
-        StringMap metadata;
-        StringMap customVars;
-
-        public OptionsMeta setMimeType(String mimeType) {
-            this.mimeType = mimeType;
-            return this;
-        }
-
-        /**
-         * @param key   start with X-Qn-Meta-
-         * @param value not null or empty
-         */
-        public OptionsMeta addMetadata(String key, String value) {
-            if (metadata == null) {
-                metadata = new StringMap();
-            }
-            metadata.put(key, value);
-            return this;
-        }
-
-        /**
-         * @param key   start with x:
-         * @param value not null or empty
-         */
-        public OptionsMeta addCustomVar(String key, String value) {
-            if (customVars == null) {
-                customVars = new StringMap();
-            }
-            customVars.put(key, value);
-            return this;
         }
     }
 

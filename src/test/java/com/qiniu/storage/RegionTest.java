@@ -1,7 +1,8 @@
 package com.qiniu.storage;
 
 import com.google.gson.Gson;
-import com.qiniu.common.*;
+import com.qiniu.common.QiniuException;
+import com.qiniu.common.Zone;
 import com.qiniu.util.Auth;
 import org.junit.Assert;
 import org.junit.Test;

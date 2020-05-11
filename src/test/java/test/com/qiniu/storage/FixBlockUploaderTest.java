@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.storage.BucketManager;
-import com.qiniu.storage.Configuration;
-import com.qiniu.storage.FixBlockUploader;
-import com.qiniu.storage.Region;
+import com.qiniu.storage.*;
 import com.qiniu.util.EtagV2;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
@@ -33,6 +30,8 @@ public class FixBlockUploaderTest {
     String bucket;
     BucketManager bm;
 
+    MultipartUpload multipartUpload;
+
     @Before
     public void init() {
         init2(false);
@@ -45,6 +44,8 @@ public class FixBlockUploaderTest {
         up = new FixBlockUploader(blockSize, config, client, null);
         bucket = TestConfig.testBucket_z0;
         bm = new BucketManager(TestConfig.testAuth, config);
+
+        multipartUpload = new MultipartUpload(config, client);
     }
 
     @Test
@@ -165,7 +166,7 @@ public class FixBlockUploaderTest {
             p.put("insertOnly", 1);
         }
         String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600, p);
-        FixBlockUploader.OptionsMeta param = new FixBlockUploader.OptionsMeta();
+        MultipartUpload.OptionsMeta param = new MultipartUpload.OptionsMeta();
         param.addMetadata("X-Qn-Meta-liubin", "sb").
                 addMetadata("X-Qn-Meta-!Content-Type", "text/liubin").
                 addMetadata("X-Qn-Meta-Cache-Control", "public, max-age=1984");
@@ -254,7 +255,7 @@ public class FixBlockUploaderTest {
         StringMap p = new StringMap().put("returnBody", returnBody);
         String key = "俩个中文试试1.txt";
         String token = TestConfig.testAuth.uploadToken(bucket, key, 3600, p);
-        FixBlockUploader.OptionsMeta param = new FixBlockUploader.OptionsMeta();
+        MultipartUpload.OptionsMeta param = new MultipartUpload.OptionsMeta();
         String mimeType = "mimetype/hehe";
         param.setMimeType(mimeType);
         param.addCustomVar("x:biubiu", "duDu/werfhue3");
@@ -286,4 +287,37 @@ public class FixBlockUploaderTest {
         public String mimeType;
         public String biu2biu;
     }
+
+    @Test
+    public void testAbort() throws QiniuException {
+        String bucket = TestConfig.testBucket_z0;
+        String key = null;
+        String upToken = TestConfig.testAuth.uploadToken(bucket); // 默认 3600 秒内有效
+        // 如果并发上传资源到不同的区域，则 每个区域需使用不同 multipartUpload //
+        multipartUpload.initUpHost(upToken); // 最好有这一步 // 初次上传、更换上传区域 均需要调用此方法 //
+        Response initRes = multipartUpload.initiateMultipartUpload(bucket, key, upToken);
+        MultipartUpload.InitRet initRet = initRes.jsonToObject(MultipartUpload.InitRet.class);
+        byte[] data = new byte[]{1,2,3,4};
+        Response uploadPartRes = multipartUpload.uploadPart(bucket, key, upToken, initRet.getUploadId(), data, 1);
+        MultipartUpload.UploadPartRet uploadPartRet = uploadPartRes.jsonToObject(MultipartUpload.UploadPartRet.class);
+        Response abortRes = multipartUpload.abortMultipartUpload(bucket, key, upToken, initRet.getUploadId());
+        Assert.assertTrue(abortRes.isOK());
+
+        abort("");
+        abort("sTduhruwefjdhfgitvbor283Gsw.buys");
+    }
+
+    public void abort(String key) throws QiniuException {
+        String bucket = TestConfig.testBucket_z0;
+        String upToken = TestConfig.testAuth.uploadToken(bucket); // 默认 3600 秒内有效
+        multipartUpload.initUpHost(upToken); // 最好有这一步 //
+        Response initRes = multipartUpload.initiateMultipartUpload(bucket, key, upToken);
+        MultipartUpload.InitRet initRet = initRes.jsonToObject(MultipartUpload.InitRet.class);
+        byte[] data = new byte[]{1,2,3,4};
+        Response uploadPartRes = multipartUpload.uploadPart(bucket, key, upToken, initRet.getUploadId(), data, 1);
+        MultipartUpload.UploadPartRet uploadPartRet = uploadPartRes.jsonToObject(MultipartUpload.UploadPartRet.class);
+        Response abortRes = multipartUpload.abortMultipartUpload(bucket, key, upToken, initRet.getUploadId());
+        Assert.assertTrue(abortRes.isOK());
+    }
+
 }

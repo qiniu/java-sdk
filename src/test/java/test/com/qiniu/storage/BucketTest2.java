@@ -181,7 +181,7 @@ public class BucketTest2 {
 
 
     @Test
-    public void testListV2_1() {
+    public void testListMarkerV2() {
         try {
             String marker = null;
             int count = 0;

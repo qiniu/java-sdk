@@ -76,9 +76,13 @@ public class Device {
         this.loginAt = loginAt;
     }
 
-    public int getUploadMode() { return uploadMode; }
+    public int getUploadMode() {
+        return uploadMode;
+    }
 
-    public void setUploadMode(int uploadMode) { this.uploadMode = uploadMode; }
+    public void setUploadMode(int uploadMode) {
+        this.uploadMode = uploadMode;
+    }
 
     public int getSegmentExpireDays() {
         return segmentExpireDays;
@@ -120,28 +124,52 @@ public class Device {
         this.updatedAt = updatedAt;
     }
 
-    public int getType() { return type; }
+    public int getType() {
+        return type;
+    }
 
-    public void setType(int type) { this.type = type; }
+    public void setType(int type) {
+        this.type = type;
+    }
 
-    public int getMaxChannel() { return maxChannel; }
+    public int getMaxChannel() {
+        return maxChannel;
+    }
 
-    public void setMaxChannel(int maxChannel) { this.maxChannel = maxChannel; }
+    public void setMaxChannel(int maxChannel) {
+        this.maxChannel = maxChannel;
+    }
 
-    public Channel[] getChannels() { return channels; }
+    public Channel[] getChannels() {
+        return channels;
+    }
 
-    public void setChannels(Channel[] channels) { this.channels = channels; }
+    public void setChannels(Channel[] channels) {
+        this.channels = channels;
+    }
 
-    public byte[] getMeta() { return meta; }
+    public byte[] getMeta() {
+        return meta;
+    }
 
-    public void setMeta(byte[] meta) { this.meta = meta; }
+    public void setMeta(byte[] meta) {
+        this.meta = meta;
+    }
 
-    public int getSdcardRotatePolicy() { return sdcardRotatePolicy; }
+    public int getSdcardRotatePolicy() {
+        return sdcardRotatePolicy;
+    }
 
-    public void setSdcardRotatePolicy(int sdcardRotatePolicy) { this.sdcardRotatePolicy = sdcardRotatePolicy; }
+    public void setSdcardRotatePolicy(int sdcardRotatePolicy) {
+        this.sdcardRotatePolicy = sdcardRotatePolicy;
+    }
 
-    public int getSdcardRotateValue() { return sdcardRotateValue; }
+    public int getSdcardRotateValue() {
+        return sdcardRotateValue;
+    }
 
-    public void setSdcardRotateValue(int sdcardRotateValue) { this.sdcardRotateValue = sdcardRotateValue; }
+    public void setSdcardRotateValue(int sdcardRotateValue) {
+        this.sdcardRotateValue = sdcardRotateValue;
+    }
 }
 

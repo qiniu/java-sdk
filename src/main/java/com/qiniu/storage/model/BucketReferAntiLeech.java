@@ -6,15 +6,21 @@ package com.qiniu.storage.model;
 public class BucketReferAntiLeech {
 
     /**
+     * 是否开启源站的防盗链，默认为开启，且不可变<br>
+     * <br>
+     * bucket 上的防盗链设置默认是不生效的，在以下两种情况下生效<br>
+     * 1. enableSource 开启<br>
+     * 2. 特定 cdn 约定：请求的 header 中携带了 X-Rbl 字段，会将防盗链设置以 header 的方式返回给 cdn（在sdk中不支持此方式）
+     */
+    final boolean enableSource = true;
+    /**
      * 防盗链模式， 0 - 关闭Refer防盗链, 1 - 开启Referer白名单，2 - 开启Referer黑名单
      */
     int mode = 0;
-
     /**
      * 是否允许空的referer访问
      */
     boolean allowEmptyReferer = true;
-
     /**
      * Pattern 匹配HTTP Referer头, 当模式是1或者2的时候有效<br>
      * Mode为1的时候表示允许Referer符合该Pattern的HTTP请求访问<br>
@@ -25,15 +31,6 @@ public class BucketReferAntiLeech {
      * 多个规则之间用;隔开, 比如: foo.com;*.bar.com;sub.foo.com;*.sub.bar.com
      */
     String pattern;
-
-    /**
-     * 是否开启源站的防盗链，默认为开启，且不可变<br>
-     * <br>
-     * bucket 上的防盗链设置默认是不生效的，在以下两种情况下生效<br>
-     * 1. enableSource 开启<br>
-     * 2. 特定 cdn 约定：请求的 header 中携带了 X-Rbl 字段，会将防盗链设置以 header 的方式返回给 cdn（在sdk中不支持此方式）
-     */
-    final boolean enableSource = true;
 
     /**
      * 设置防盗链模式,

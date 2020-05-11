@@ -7,6 +7,7 @@ import com.qiniu.util.StringUtils;
 
 class ConfigHelper {
     private Configuration config;
+    private UpHostHelper helper;
 
     ConfigHelper(Configuration config) {
         this.config = config;
@@ -39,7 +40,6 @@ class ConfigHelper {
                 + getHelper().upHost(config.region, upToken, toDomain(lastUsedHost), changeHost, mustReturnUpHost);
     }
 
-
     public String ioHost(String ak, String bucket) throws QiniuException {
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
         return getScheme() + config.region.getIovipHost(regionReqInfo);
@@ -52,7 +52,7 @@ class ConfigHelper {
 
     public String rsHost(String ak, String bucket) throws QiniuException {
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
-            return getScheme() + config.region.getRsHost(regionReqInfo);
+        return getScheme() + config.region.getRsHost(regionReqInfo);
     }
 
     public String rsfHost(String ak, String bucket) throws QiniuException {
@@ -85,8 +85,6 @@ class ConfigHelper {
             }
         }
     }
-
-    private UpHostHelper helper;
 
     private UpHostHelper getHelper() {
         if (helper == null) {
