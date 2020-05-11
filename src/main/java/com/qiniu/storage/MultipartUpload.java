@@ -56,7 +56,7 @@ public class MultipartUpload {
             this.host = configHelper.tryChangeUpHost(upToken, host);
         } catch (Exception e) {
             // ignore
-            // use the old up host //
+            // use the old up host
         }
     }
 
