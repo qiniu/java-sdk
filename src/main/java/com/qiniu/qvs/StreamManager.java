@@ -159,4 +159,10 @@ public class StreamManager {
         requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
         return QvsResponse.get(requestUrl, client, auth);
     }
+    
+    // 停用流
+    public Response stopStream(String namespaceId, String streamId) throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/streams/%s/stop", apiServer, namespaceId, streamId);
+        return QvsResponse.post(url, null, client, auth);
+    }
 }
