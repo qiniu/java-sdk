@@ -5,6 +5,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.*;
+import com.qiniu.util.Auth;
 import com.qiniu.util.EtagV2;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -289,33 +291,53 @@ public class FixBlockUploaderTest {
     }
 
     @Test
-    public void testAbort() throws QiniuException {
-        String bucket = TestConfig.testBucket_z0;
-        String key = null;
-        String upToken = TestConfig.testAuth.uploadToken(bucket); // 默认 3600 秒内有效
-        // 如果并发上传资源到不同的区域，则 每个区域需使用不同 multipartUpload //
-        multipartUpload.initUpHost(upToken); // 最好有这一步 // 初次上传、更换上传区域 均需要调用此方法 //
-        Response initRes = multipartUpload.initiateMultipartUpload(bucket, key, upToken);
-        MultipartUpload.InitRet initRet = initRes.jsonToObject(MultipartUpload.InitRet.class);
-        byte[] data = new byte[]{1,2,3,4};
-        Response uploadPartRes = multipartUpload.uploadPart(bucket, key, upToken, initRet.getUploadId(), data, 1);
-        MultipartUpload.UploadPartRet uploadPartRet = uploadPartRes.jsonToObject(MultipartUpload.UploadPartRet.class);
-        Response abortRes = multipartUpload.abortMultipartUpload(bucket, key, upToken, initRet.getUploadId());
-        Assert.assertTrue(abortRes.isOK());
-
-        abort("");
-        abort("sTduhruwefjdhfgitvbor283Gsw.buys");
+    public void listThenAbort() throws QiniuException {
+        listThenAbort(null);
+        listThenAbort("");
+        listThenAbort("sTduhruwefjdhfgitvbor283Gsw.buys");
     }
 
-    public void abort(String key) throws QiniuException {
+
+    public void listThenAbort(String key) throws QiniuException {
         String bucket = TestConfig.testBucket_z0;
         String upToken = TestConfig.testAuth.uploadToken(bucket); // 默认 3600 秒内有效
+
         multipartUpload.initUpHost(upToken); // 最好有这一步 //
         Response initRes = multipartUpload.initiateMultipartUpload(bucket, key, upToken);
         MultipartUpload.InitRet initRet = initRes.jsonToObject(MultipartUpload.InitRet.class);
+
+        // 实际上传中，除 最后一块外，其它块大小必须大于 1M，否则 completeMultipartUpload 会报错 //
         byte[] data = new byte[]{1,2,3,4};
         Response uploadPartRes = multipartUpload.uploadPart(bucket, key, upToken, initRet.getUploadId(), data, 1);
         MultipartUpload.UploadPartRet uploadPartRet = uploadPartRes.jsonToObject(MultipartUpload.UploadPartRet.class);
+
+        MultipartUpload.EtagIdx e1 = new MultipartUpload.EtagIdx(uploadPartRet.getEtag(), 1, data.length);
+        System.out.println("uploadPart: " + e1);
+
+        data = new byte[]{1,2,3,4,56,7,8};
+        uploadPartRes = multipartUpload.uploadPart(bucket, key, upToken, initRet.getUploadId(), data, 2);
+        uploadPartRet = uploadPartRes.jsonToObject(MultipartUpload.UploadPartRet.class);
+
+        MultipartUpload.EtagIdx e2 = new MultipartUpload.EtagIdx(uploadPartRet.getEtag(), 2, data.length);
+        System.out.println("uploadPart: " + e2);
+
+        List<MultipartUpload.EtagIdx> listRet = multipartUpload.listPartsAll(bucket, key, upToken, initRet.getUploadId(), 1);
+        System.out.println("listPartsAll: "+ listRet);
+        Assert.assertEquals(2, listRet.size());
+        Assert.assertEquals(e1.getPartNumber(), listRet.get(0).getPartNumber());
+        Assert.assertEquals(e1.getEtag(), listRet.get(0).getEtag());
+        Assert.assertEquals(e2.getPartNumber(), listRet.get(1).getPartNumber());
+        Assert.assertEquals(e2.getEtag(), listRet.get(1).getEtag());
+
+
+        listRet = multipartUpload.listPartsAll(bucket, key, upToken, initRet.getUploadId());
+        System.out.println("listPartsAll: "+ listRet);
+        Assert.assertEquals(2, listRet.size());
+        Assert.assertEquals(e1.getPartNumber(), listRet.get(0).getPartNumber());
+        Assert.assertEquals(e1.getEtag(), listRet.get(0).getEtag());
+        Assert.assertEquals(e2.getPartNumber(), listRet.get(1).getPartNumber());
+        Assert.assertEquals(e2.getEtag(), listRet.get(1).getEtag());
+
         Response abortRes = multipartUpload.abortMultipartUpload(bucket, key, upToken, initRet.getUploadId());
         Assert.assertTrue(abortRes.isOK());
     }
