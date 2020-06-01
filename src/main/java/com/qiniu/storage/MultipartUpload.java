@@ -17,8 +17,8 @@ import java.util.*;
 
 /**
  * 分片上传基础接口实现，以及部分辅助代码
- * https://developer.qiniu.com/kodo/api/6364/multipartupload-interface
- *
+ * 接口参考 https://developer.qiniu.com/kodo/api/6364/multipartupload-interface
+ * <p>
  * 若上传到同区域，如全上传到 华东存储，则可只使用一个实例；
  * 若上传到不同区域，则每个区域最好单独使用一个示例。一个实例多区域并发上传可能导致内部频繁报错，上传效率低；
  */
@@ -85,6 +85,37 @@ public class MultipartUpload {
         return uploadPart(bucket, key, upToken, uploadId, data, 0, data.length, partNum);
     }
 
+    public Response listParts(String bucket, String key, String upToken, String uploadId, int maxParts, String partNumberMarker) throws QiniuException {
+        String url = host + "/buckets/" + bucket + "/objects/" + genKey(key) + "/uploads/" + uploadId + "?max-parts=" + maxParts;
+        if (!StringUtils.isNullOrEmpty(partNumberMarker)) {
+            url += "&part-number-marker=" + partNumberMarker;
+        }
+
+        final StringMap headers = new StringMap().put("Authorization", "UpToken " + upToken);
+        return client.get(url, headers);
+    }
+
+    public List<EtagIdx> listPartsAll(String bucket, String key, String upToken, String uploadId) throws QiniuException {
+        return listPartsAll(bucket, key, upToken, uploadId, 1000); //默认值：1,000 ，最大值：1,000
+    }
+
+    public List<EtagIdx> listPartsAll(String bucket, String key, String upToken, String uploadId, int maxParts) throws QiniuException {
+        List<EtagIdx> parts = new ArrayList<EtagIdx>();
+        String partNumberMarker = null;
+        while (true) {
+            Response res = listParts(bucket, key, upToken, uploadId, maxParts, partNumberMarker);
+            ListPartsRet ret = res.jsonToObject(ListPartsRet.class);
+            parts.addAll(ret.getParts());
+            if ("0".equalsIgnoreCase(ret.getPartNumberMarker())) {
+                break;
+            }
+            partNumberMarker = ret.getPartNumberMarker();
+        }
+        sortByPartNumberAsc(parts);
+        return parts;
+    }
+
+
     public Response completeMultipartUpload(String bucket, String key, String upToken,
                                             String uploadId, List<EtagIdx> etags,
                                             String fileName, OptionsMeta params) throws QiniuException {
@@ -118,7 +149,7 @@ public class MultipartUpload {
     }
 
     /**
-     * 按照 partNumber 排序
+     * 按照 partNumber 升序排序
      */
     public static void sortByPartNumberAsc(List<EtagIdx> etags) {
         Collections.sort(etags, new Comparator<EtagIdx>() {
@@ -169,11 +200,35 @@ public class MultipartUpload {
         String etag; // mkfile need
         int partNumber; // mkfile need
         int size;
+        long putTime;
 
-        EtagIdx(String etag, int idx, int size) {
+        public EtagIdx(String etag, int idx, int size) {
             this.etag = etag;
             this.partNumber = idx;
             this.size = size;
+        }
+
+        public EtagIdx(String etag, int idx, int size, long putTime) {
+            this.etag = etag;
+            this.partNumber = idx;
+            this.size = size;
+            this.putTime = putTime;
+        }
+
+        public String getEtag() {
+            return etag;
+        }
+
+        public int getPartNumber() {
+            return partNumber;
+        }
+
+        public int getSize() {
+            return size;
+        }
+
+        public long getPutTime() {
+            return putTime;
         }
 
         public String toString() {
@@ -181,6 +236,35 @@ public class MultipartUpload {
         }
     }
 
+    public static class ListPartsRet {
+        String uploadId;
+        long expireAt;
+        String partNumberMarker;
+        List<EtagIdx> parts;
+
+        public ListPartsRet(String uploadId, long expireAt, String partNumberMarker, List<EtagIdx> parts) {
+            this.uploadId = uploadId;
+            this.expireAt = expireAt;
+            this.partNumberMarker = partNumberMarker;
+            this.parts = parts;
+        }
+
+        public String getUploadId() {
+            return uploadId;
+        }
+
+        public long getExpireAt() {
+            return expireAt;
+        }
+
+        public String getPartNumberMarker() {
+            return partNumberMarker;
+        }
+
+        public List<EtagIdx> getParts() {
+            return parts;
+        }
+    }
 
     public static class OptionsMeta {
         String mimeType;
@@ -264,11 +348,12 @@ public class MultipartUpload {
     static class CompleteMultipartUploadExclusionStrategy implements ExclusionStrategy {
 
         /**
-         * 只需要 etag partNumber ，不需要 size
+         * 只需要 etag partNumber ，不需要 size、putTime
          */
         @Override
         public boolean shouldSkipField(FieldAttributes f) {
-            return EtagIdx.class == f.getDeclaringClass() && "size".equals(f.getName());
+            return EtagIdx.class == f.getDeclaringClass() &&
+                    ("size".equals(f.getName()) || "putTime".equals(f.getName()));
         }
 
         @Override
