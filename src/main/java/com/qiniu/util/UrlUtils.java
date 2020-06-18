@@ -101,6 +101,9 @@ public class UrlUtils {
             throw new UnsupportedEncodingException(enc);
         }
         */
+        if (charset == null) {
+            charset = Charset.forName("UTF-8");
+        }
 
         for (int i = 0; i < s.length(); ) {
             int c = (int) s.charAt(i);
