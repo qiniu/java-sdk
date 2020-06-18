@@ -29,14 +29,12 @@ public class FixBlockUploader {
     private String host = null;
 
     /**
-     * @param blockSize     must be multiples of 4M.
+     * @param blockSize     block size, eg: 1024 * 1024 * 8.
      * @param configuration Nullable, if null, then create a new one.
      * @param client        Nullable, if null, then create a new one with configuration.
      * @param recorder      Nullable.
      */
     public FixBlockUploader(int blockSize, Configuration configuration, Client client, Recorder recorder) {
-        assert blockSize > 0 && blockSize % (4 * 1024 * 1024) == 0 : "blockSize must be multiples of 4M ";
-
         if (configuration == null) {
             configuration = new Configuration();
         }
