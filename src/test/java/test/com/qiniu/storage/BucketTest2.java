@@ -701,22 +701,6 @@ public class BucketTest2 {
                 } catch (QiniuException e) {
                     Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
                 }
-
-                // 更新Event
-                rule.setName("b");
-                rule.setPrefix("c");
-                rule.setEvents(new String[]{"disable", "enable", "deleteMarkerCreate"});
-                System.out.println(rule.asQueryString());
-                response = bucketManager.updateBucketEvent(bucket, rule);
-                Assert.assertEquals(200, response.statusCode);
-
-                // clear
-                clearBucketEvent(bucket);
-
-                // 再获取Event
-                rules = bucketManager.getBucketEvents(bucket);
-                Assert.assertEquals(0, rules.length);
-
             } catch (QiniuException e) {
                 Assert.fail("" + e.response);
             }
@@ -738,6 +722,7 @@ public class BucketTest2 {
             bucketManager.deleteBucketEvent(bucket, r.getName());
         }
     }
+
 
     /**
      * 测试跨域规则

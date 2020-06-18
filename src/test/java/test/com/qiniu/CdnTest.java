@@ -181,27 +181,30 @@ public class CdnTest {
         StringMap queryStringMap = new StringMap();
         queryStringMap.put("qiniu", "七牛");
         queryStringMap.put("test", "Test");
-        String encryptKey1 = "908b9cbbbc88028b50b8e8a88baa879bf1b8a788";
-        String encryptKey2 = "d799eba9ff99ea88cfb8acbbf8b82898208afbb8";
-        long deadline1 = System.currentTimeMillis() / 1000 + 3600;
-        long deadline2 = deadline1;
-        long deadline3 = 1485893946; // 2017-02-01 04:19:06 +0800 CST
-        String testUrl_z0_timeStamp_outdate = "http://javasdk-timestamp.peterpy.cn/do_not_delete/1.png?sign=14f48f829b78d5c9a34eb77e9a13f1b6&t=5890f13a";
+
+        String encryptKey1 = "10992a8a688900b89ab9f58a6899cb8bb1b924ab";
+        String encryptKey2 = "64b89c989cb97cbb6a9b6c9a4ca93498b69974ab";
+        long deadline1 = 1586690149;
+        long deadline3 = 1551966091; // 2019-03-07 21:41:31 +0800 CST
+        String u1 = "http://javasdk-timestamp.peterpy.cn/do_not_delete/1.png?test=Test&qiniu=%E4%B8%83%E7%89%9B&sign=f909641eb0539561dd8df28c15fa314b&t=5e92f865";
+        String u2 = "http://javasdk-timestamp.peterpy.cn/do_not_delete/1.png?sign=9155cc1725106509920f5644f26f49b4&t=5e92f865";
+        String u3 = "http://javasdk-timestamp.peterpy.cn/do_not_delete/1.png?sign=50d05540eea4ea8ab905b57006edef7a&t=5c811f8b";
+
+        // Fri May 16 18:22:38 2025
+        String urlok = "http://javasdk-timestamp.peterpy.cn/do_not_delete/1.png?sign=fb528741bf617d33a0011e716e72e69a&t=682711ee";
+
         try {
             URL url = new URL(TestConfig.testUrl_z0_timeStamp);
-            Assert.assertEquals(msg, 403, getResponse(url.toString()).statusCode);
             String signedUrl1 = CdnManager.createTimestampAntiLeechUrl(host, fileName, queryStringMap,
                     encryptKey1, deadline1);
-            String signedUrl2 = CdnManager.createTimestampAntiLeechUrl(url, encryptKey2, deadline2);
+            String signedUrl2 = CdnManager.createTimestampAntiLeechUrl(url, encryptKey2, deadline1);
             String signedUrl3 = CdnManager.createTimestampAntiLeechUrl(host, fileName, null,
                     encryptKey1, deadline3);
-            System.out.println(signedUrl1);
-            System.out.println(signedUrl2);
-            System.out.println(signedUrl3);
-            Assert.assertEquals(msg, 200, getResponse(signedUrl1).statusCode);
-            Assert.assertEquals(msg, 200, getResponse(signedUrl2).statusCode);
-            Assert.assertEquals(msg, 403, getResponse(signedUrl3).statusCode);
-            Assert.assertEquals(testUrl_z0_timeStamp_outdate, signedUrl3);
+            Assert.assertEquals(u1, signedUrl1);
+            Assert.assertEquals(u2, signedUrl2);
+            Assert.assertEquals(u3, signedUrl3);
+            Assert.assertEquals(msg, 403, getResponse(url.toString()).statusCode);
+            Assert.assertEquals(msg, 200, getResponse(urlok).statusCode);
         } catch (Exception ex) {
             ex.printStackTrace();
             Assert.fail(msg);

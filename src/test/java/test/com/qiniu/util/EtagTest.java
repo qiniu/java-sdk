@@ -2,11 +2,17 @@ package test.com.qiniu.util;
 
 import com.qiniu.common.Constants;
 import com.qiniu.util.Etag;
+import com.qiniu.util.UrlSafeBase64;
 import org.junit.Test;
 import test.com.qiniu.TempFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,4 +52,5 @@ public class EtagTest {
         assertEquals("ll1xhlUFKQqynVgMMt_J1TuTrdB1", Etag.file(f));
         TempFile.remove(f);
     }
+
 }

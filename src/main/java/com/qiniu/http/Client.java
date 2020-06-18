@@ -342,7 +342,7 @@ public final class Client {
         IpTag tag = new IpTag();
         try {
             res = httpClient.newCall(requestBuilder.tag(tag).build()).execute();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new QiniuException(e);
         }
 

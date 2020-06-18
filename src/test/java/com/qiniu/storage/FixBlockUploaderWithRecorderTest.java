@@ -5,7 +5,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.persistent.FileRecorder;
-import com.qiniu.util.Etag;
+import com.qiniu.util.EtagV2;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.Before;
@@ -22,16 +22,17 @@ import java.util.concurrent.*;
 import static org.junit.Assert.assertEquals;
 
 public class FixBlockUploaderWithRecorderTest {
-    int blockSize = 1024 * 1024 * 8;
+    int blockSize = 1024 * 1025 * 4;
     Configuration config;
     Client client;
     FixBlockUploader up;
     String bucket;
     Recorder recorder;
+    BucketManager bm;
 
     @Before
     public void init() {
-        init2(false);
+        init2(true);
     }
 
     private void init2(boolean useHttpsDomains) {
@@ -47,6 +48,7 @@ public class FixBlockUploaderWithRecorderTest {
             e.printStackTrace();
         }
         up = new FixBlockUploader(blockSize, config, client, recorder);
+        bm = new BucketManager(TestConfig.testAuth, config);
         bucket = TestConfig.testBucket_as0;
     }
 
@@ -57,10 +59,10 @@ public class FixBlockUploaderWithRecorderTest {
 
     @Test
     public void breakThenUpload2() throws IOException {
-        ExecutorService pool = new ThreadPoolExecutor(0, 2,
+        ExecutorService pool = new ThreadPoolExecutor(0, 10,
                 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>());
-        breakThenUpload(pool, Executors.newFixedThreadPool(2), Executors.newCachedThreadPool(), 10, 10, 2);
+        breakThenUpload(pool, Executors.newFixedThreadPool(2), Executors.newCachedThreadPool(), 10, 10, 7);
     }
 
 
@@ -96,7 +98,8 @@ public class FixBlockUploaderWithRecorderTest {
         final File f = TempFile.createFileOld(size);
         final FixBlockUploader.FileBlockData fbd = new FixBlockUploader.FileBlockData(blockSize, f);
         System.out.println(f.getAbsolutePath());
-        final String etag = Etag.file(f);
+        final String etag = EtagV2.file(f, blockSize);
+        System.out.println("EtagV2: " + etag);
         final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
 
@@ -104,6 +107,12 @@ public class FixBlockUploaderWithRecorderTest {
 
         final String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600, p);
         final int[] t1Finished = {0};
+
+        try {
+            bm.delete(bucket, expectKey);
+        } catch (Exception e) {
+            // do nothing
+        }
 
         Thread t1 = new Thread() {
             @Override
@@ -124,9 +133,10 @@ public class FixBlockUploaderWithRecorderTest {
         // 显示断点记录文件
         Thread showRecord = new Thread() {
             public void run() {
-                for (; ; ) {
+                int t = 60 * 10;
+                for (int i=0; i < t ;i++ ) {
                     doSleep(1000);
-                    showRecord("normal: " + size + " :", recorder, recordKey);
+                    showRecord( i + " normal: " + size + " :", recorder, recordKey);
                 }
             }
         };
@@ -230,6 +240,11 @@ public class FixBlockUploaderWithRecorderTest {
             throw e;
         } finally {
             TempFile.remove(f);
+            try {
+                bm.delete(bucket, expectKey);
+            } catch (Exception e) {
+                // do nothing
+            }
         }
     }
 

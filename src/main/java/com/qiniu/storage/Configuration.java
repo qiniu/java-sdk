@@ -18,12 +18,13 @@ public final class Configuration implements Cloneable {
     public static String defaultRsHost = "rs.qiniu.com";
     public static String defaultApiHost = "api.qiniu.com";
     public static String defaultUcHost = "uc.qbox.me";
+
     /**
-     * 使用的Region
+     * 使用的 Region 设置 region 请调用 setRegion
      */
     public Region region;
     /**
-     * 使用的Zone
+     * 使用的 Zone 。推荐使用 Region ，设置 region 请调用 setRegion
      */
     @Deprecated
     public Zone zone;
@@ -103,6 +104,18 @@ public final class Configuration implements Cloneable {
 
     @Deprecated
     public Configuration(Zone zone) {
+        this.zone = zone;
+        configHelper = new ConfigHelper(this);
+    }
+
+    public void setRegion(Region region) {
+        this.region = region;
+        configHelper = new ConfigHelper(this);
+    }
+
+    @Deprecated
+    public void setZone(Zone zone) {
+        this.region = null;
         this.zone = zone;
         configHelper = new ConfigHelper(this);
     }

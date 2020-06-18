@@ -641,6 +641,7 @@ public class BucketTest {
                 );
                 System.out.println(rule.asQueryString());
                 response = bucketManager.putBucketEvent(bucket, rule);
+                System.out.println(response.getInfo());
                 Assert.assertEquals(200, response.statusCode);
                 System.out.println(response.url());
                 System.out.println(response.reqId);
@@ -663,14 +664,16 @@ public class BucketTest {
                 Assert.assertEquals(200, response.statusCode);
 
                 // 重复追加Event（error:event prefix and suffix exists）
-                try {
-                    rule.setName("b");
-                    System.out.println(rule.asQueryString());
-                    response = bucketManager.putBucketEvent(bucket, rule);
-                    Assert.fail();
-                } catch (QiniuException e) {
-                    Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
-                }
+                // 实际 portal 查看，添加成功了 //
+//                try {
+//                    rule.setName("b");
+//                    System.out.println(rule.asQueryString());
+//                    response = bucketManager.putBucketEvent(bucket, rule);
+//                    System.out.println("before Assert.fail():\n" + response.getInfo());
+//                    Assert.fail();
+//                } catch (QiniuException e) {
+//                    Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
+//                }
 
                 // 触发时间，回调成功与否 不检测
                 response = bucketManager.copy(bucket, key, bucket, key + "CopyByEvent", true);
@@ -695,7 +698,6 @@ public class BucketTest {
                 response = bucketManager.updateBucketEvent(bucket, rule);
                 Assert.assertEquals(200, response.statusCode);
 
-                // clear
                 clearBucketEvent(bucket);
 
                 // 再获取Event
@@ -817,8 +819,13 @@ public class BucketTest {
                 Assert.assertEquals(msg + url, 200, response.statusCode);
 
                 // 关闭原图保护后，有一定延迟，直接访问会401 ...
-                //response = client.get(url + "?v" + r.nextDouble());
-                //Assert.assertEquals(msg + url, 200, response.statusCode);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    // do nothing
+                }
+                response = client.get(url + "?v" + r.nextDouble());
+                Assert.assertEquals(msg + url, 200, response.statusCode);
 
             } catch (QiniuException e) {
                 e.printStackTrace();
@@ -1163,7 +1170,8 @@ public class BucketTest {
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
-                Assert.fail(e.response.toString());
+                e.printStackTrace();
+                Assert.fail(e.response + "");
             } finally {
                 try {
                     bucketManager.delete(bucket, key);

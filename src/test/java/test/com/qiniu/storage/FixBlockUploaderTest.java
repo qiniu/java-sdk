@@ -4,10 +4,10 @@ import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.storage.BucketManager;
-import com.qiniu.storage.Configuration;
-import com.qiniu.storage.FixBlockUploader;
-import com.qiniu.util.Etag;
+import com.qiniu.storage.*;
+import com.qiniu.util.Auth;
+import com.qiniu.util.EtagV2;
+import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,17 +19,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class FixBlockUploaderTest {
-    int blockSize = 1024 * 1024 * 8;
+    int blockSize = 1024 * 1023 * 4;
     Configuration config;
     Client client;
     FixBlockUploader up;
     String bucket;
     BucketManager bm;
+
+    MultipartUpload multipartUpload;
 
     @Before
     public void init() {
@@ -43,8 +46,9 @@ public class FixBlockUploaderTest {
         up = new FixBlockUploader(blockSize, config, client, null);
         bucket = TestConfig.testBucket_z0;
         bm = new BucketManager(TestConfig.testAuth, config);
-    }
 
+        multipartUpload = new MultipartUpload(config, client);
+    }
 
     @Test
     public void testEmpty() throws IOException {
@@ -67,12 +71,18 @@ public class FixBlockUploaderTest {
     }
 
     @Test
+    public void test4M() throws IOException {
+        template(1024 * 4, false, true);
+        template(blockSize/1024, false, true);
+    }
+
+    @Test
     public void test3MK() throws IOException {
         template(1024 * 3, false, true);
         try {
             template(true, 1024 * 3, false, false, true);
             Assert.fail("file exists, can not be success.");
-        } catch (QiniuException e) {
+        }  catch (QiniuException e) {
             assertTrue("file exists", e.response.error.indexOf("file exists") > -1);
         }
         // both the key and content are the same
@@ -104,7 +114,6 @@ public class FixBlockUploaderTest {
     public void test7M() throws IOException {
         template(1024 * 7, true, false);
     }
-
 
     @Test
     public void test12M1K() throws IOException {
@@ -147,8 +156,10 @@ public class FixBlockUploaderTest {
             f = TempFile.createFileOld(size);
         }
         System.out.println(f.getAbsolutePath());
-        final String etag = Etag.file(f);
-        System.out.println(etag);
+        final String etag = EtagV2.file(f, blockSize);
+        final String md5 = Md5.md5(f);
+        System.out.println("Etag(f): " + etag);
+        System.out.println("md5(f): " + md5);
         final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
 
@@ -157,10 +168,11 @@ public class FixBlockUploaderTest {
             p.put("insertOnly", 1);
         }
         String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600, p);
-        FixBlockUploader.OptionsMeta param = new FixBlockUploader.OptionsMeta();
+        MultipartUpload.OptionsMeta param = new MultipartUpload.OptionsMeta();
         param.addMetadata("X-Qn-Meta-liubin", "sb").
                 addMetadata("X-Qn-Meta-!Content-Type", "text/liubin").
                 addMetadata("X-Qn-Meta-Cache-Control", "public, max-age=1984");
+
         try {
             System.out.println("Start uploading " + new Date());
             Response r = null;
@@ -200,7 +212,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testEmptyKey() throws IOException {
         File f = TempFile.createFileOld(1);
-        String etag = Etag.file(f);
+        String etag = EtagV2.file(f, blockSize);
         String token = TestConfig.testAuth.uploadToken(bucket, null);
         Response res = up.upload(f, token, "");
         System.out.println(res.getInfo());
@@ -212,7 +224,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testNullKey() throws IOException {
         File f = TempFile.createFile(2);
-        String etag = Etag.file(f);
+        String etag = EtagV2.file(f, blockSize);
         String token = TestConfig.testAuth.uploadToken(bucket, null);
         Response res = up.upload(f, token, null);
         System.out.println(res.getInfo());
@@ -224,7 +236,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testKey2() throws IOException {
         File f = TempFile.createFile(2);
-        String etag = Etag.file(f);
+        String etag = EtagV2.file(f, blockSize);
         String token = TestConfig.testAuth.uploadToken(bucket, "err");
         try {
             Response res = up.upload(f, token, null);
@@ -238,14 +250,14 @@ public class FixBlockUploaderTest {
     @Test
     public void testMeat() throws IOException {
         File f = TempFile.createFile(1);
-        String etag = Etag.file(f);
+        String etag = EtagV2.file(f, blockSize);
         String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(x:biubiu)_$(fname)\",\"mimeType\":\"$(mimeType)\",\"biu2biu\":\"$(x:biu2biu)\"}";
 
         StringMap p = new StringMap().put("returnBody", returnBody);
         String key = "俩个中文试试1.txt";
         String token = TestConfig.testAuth.uploadToken(bucket, key, 3600, p);
-        FixBlockUploader.OptionsMeta param = new FixBlockUploader.OptionsMeta();
+        MultipartUpload.OptionsMeta param = new MultipartUpload.OptionsMeta();
         String mimeType = "mimetype/hehe";
         param.setMimeType(mimeType);
         param.addCustomVar("x:biubiu", "duDu/werfhue3");
@@ -265,8 +277,8 @@ public class FixBlockUploaderTest {
         Assert.assertEquals("duDu/werfhue3", ret.biu2biu);
         String resStr = res2.bodyString();
         Assert.assertTrue("// 要有额外设置的元信息  metadata //\n" + new Gson().toJson(param),
-                resStr.indexOf("text/liubin") > -1
-                        && resStr.indexOf("teinYjf") > -1);
+                    resStr.indexOf("text/liubin") > -1
+                            && resStr.indexOf("teinYjf") > -1);
     }
 
     class MyRet {
@@ -276,6 +288,58 @@ public class FixBlockUploaderTest {
         public String fname;
         public String mimeType;
         public String biu2biu;
+    }
+
+    @Test
+    public void listThenAbort() throws QiniuException {
+        listThenAbort(null);
+        listThenAbort("");
+        listThenAbort("sTduhruwefjdhfgitvbor283Gsw.buys");
+    }
+
+
+    public void listThenAbort(String key) throws QiniuException {
+        String bucket = TestConfig.testBucket_z0;
+        String upToken = TestConfig.testAuth.uploadToken(bucket); // 默认 3600 秒内有效
+
+        multipartUpload.initUpHost(upToken); // 最好有这一步 //
+        Response initRes = multipartUpload.initiateMultipartUpload(bucket, key, upToken);
+        MultipartUpload.InitRet initRet = initRes.jsonToObject(MultipartUpload.InitRet.class);
+
+        // 实际上传中，除 最后一块外，其它块大小必须大于 1M，否则 completeMultipartUpload 会报错 //
+        byte[] data = new byte[]{1,2,3,4};
+        Response uploadPartRes = multipartUpload.uploadPart(bucket, key, upToken, initRet.getUploadId(), data, 1);
+        MultipartUpload.UploadPartRet uploadPartRet = uploadPartRes.jsonToObject(MultipartUpload.UploadPartRet.class);
+
+        MultipartUpload.EtagIdx e1 = new MultipartUpload.EtagIdx(uploadPartRet.getEtag(), 1, data.length);
+        System.out.println("uploadPart: " + e1);
+
+        data = new byte[]{1,2,3,4,56,7,8};
+        uploadPartRes = multipartUpload.uploadPart(bucket, key, upToken, initRet.getUploadId(), data, 2);
+        uploadPartRet = uploadPartRes.jsonToObject(MultipartUpload.UploadPartRet.class);
+
+        MultipartUpload.EtagIdx e2 = new MultipartUpload.EtagIdx(uploadPartRet.getEtag(), 2, data.length);
+        System.out.println("uploadPart: " + e2);
+
+        List<MultipartUpload.EtagIdx> listRet = multipartUpload.listPartsAll(bucket, key, upToken, initRet.getUploadId(), 1);
+        System.out.println("listPartsAll: "+ listRet);
+        Assert.assertEquals(2, listRet.size());
+        Assert.assertEquals(e1.getPartNumber(), listRet.get(0).getPartNumber());
+        Assert.assertEquals(e1.getEtag(), listRet.get(0).getEtag());
+        Assert.assertEquals(e2.getPartNumber(), listRet.get(1).getPartNumber());
+        Assert.assertEquals(e2.getEtag(), listRet.get(1).getEtag());
+
+
+        listRet = multipartUpload.listPartsAll(bucket, key, upToken, initRet.getUploadId());
+        System.out.println("listPartsAll: "+ listRet);
+        Assert.assertEquals(2, listRet.size());
+        Assert.assertEquals(e1.getPartNumber(), listRet.get(0).getPartNumber());
+        Assert.assertEquals(e1.getEtag(), listRet.get(0).getEtag());
+        Assert.assertEquals(e2.getPartNumber(), listRet.get(1).getPartNumber());
+        Assert.assertEquals(e2.getEtag(), listRet.get(1).getEtag());
+
+        Response abortRes = multipartUpload.abortMultipartUpload(bucket, key, upToken, initRet.getUploadId());
+        Assert.assertTrue(abortRes.isOK());
     }
 
 }
