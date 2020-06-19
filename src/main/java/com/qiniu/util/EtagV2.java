@@ -82,21 +82,15 @@ public class EtagV2 {
         Arrays.fill(parts, 0, size - 1, blockSize);
         parts[size - 1] = len % blockSize;
 
-        return etagV2NoCheck(in, len, parts);
+        return etagV2(in, len, parts);
     }
 
     public static String stream(InputStream in, long len, long[] parts) throws IOException {
         if (is4MBParts(parts)) {
             return Etag.stream(in, len);
         }
-        long partSize = 0;
-        for (long part : parts) {
-            partSize += part;
-        }
-        if (len != partSize) {
-            throw new IOException("etag calc failed: size not equal with part size");
-        }
-        return etagV2NoCheck(in, len, parts);
+
+        return etagV2(in, len, parts);
     }
 
     private static boolean is4MBParts(long[] parts) {
@@ -111,7 +105,15 @@ public class EtagV2 {
         return true;
     }
 
-    private static String etagV2NoCheck(InputStream in, long len, long[] parts) throws IOException {
+    private static String etagV2(InputStream in, long len, long[] parts) throws IOException {
+        long partSize = 0;
+        for (long part : parts) {
+            partSize += part;
+        }
+        if (len != partSize) {
+            throw new IOException("etag calc failed: size not equal with part size");
+        }
+
         MessageDigest sha1;
         try {
             sha1 = MessageDigest.getInstance("sha-1");
