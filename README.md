@@ -2,6 +2,8 @@
 [![@qiniu on weibo](http://img.shields.io/badge/weibo-%40qiniutek-blue.svg)](http://weibo.com/qiniutek)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 [![Build Status](https://travis-ci.org/qiniu/java-sdk.svg)](https://travis-ci.org/qiniu/java-sdk)
+[![GitHub release](https://img.shields.io/github/v/tag/qiniu/java-sdk.svg?label=release)](https://github.com/qiniu/java-sdk/releases)
+ [![Coverage Status](https://codecov.io/gh/qiniu/java-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/qiniu/java-sdk)
 [![Latest Stable Version](https://img.shields.io/maven-central/v/com.qiniu/qiniu-java-sdk.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.qiniu%22%20AND%20a%3A%22qiniu-java-sdk%22)
 ## 安装
 
