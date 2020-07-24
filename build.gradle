@@ -1,6 +1,7 @@
 import java.util.regex.Matcher
 
 apply plugin: 'java'
+apply plugin: 'jacoco'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -10,6 +11,13 @@ version = '1.0'
 repositories {
     mavenCentral()
 }
+
+jacocoTestReport {
+     reports {
+         xml.enabled true
+         html.enabled false
+     }
+ }
 
 dependencies {
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.14.4'
