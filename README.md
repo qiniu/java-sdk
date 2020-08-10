@@ -30,9 +30,11 @@ JDK 7 及以上
 ```Java
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
+import com.qiniu.storage.Configuration;
 import com.qiniu.http.Response;
 ...
-    UploadManager uploadManager = new UploadManager()
+    Configuration cfg = new Configuration();
+    UploadManager uploadManager = new UploadManager(cfg);
     Auth auth = Auth.create(accessKey, secretKey);
     String token = auth.uploadToken(bucketName);
     Response r = upManager.put("hello world".getBytes(), "yourkey", token);
