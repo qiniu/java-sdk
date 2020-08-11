@@ -9,7 +9,7 @@ import com.qiniu.util.StringMap;
 /**
  * 设置自定义变量上传并接收自定义变量 demo
  *
- * 上传携带自定义变量参考文档
+ * 自定义变量需要以 x: 开头, 携带自定义变量上传参考文档
  * https://developer.qiniu.com/kodo/manual/1235/vars#2
  *
  * 接收自定义变量参考上传策略文档 -- returnBody
