@@ -20,9 +20,16 @@ public class ResourcesCensor {
         ResourcesCensor resourcesCensor = new ResourcesCensor();
         String result;
         try {
-            result = resourcesCensor.ImageCensor();
-            //result = resourcesCensor.VideoCensor();
-            System.out.printf(result);
+            //result = resourcesCensor.ImageCensor();
+            result = resourcesCensor.VideoCensor();
+            System.out.println(result);
+
+            /* 只有视频审核才会返回jobID */
+            Gson gson = new Gson();
+            Map<String, String> jobMap = new HashMap();
+            String jobID = (String) gson.fromJson(result, jobMap.getClass()).get("job");
+            String videoCensorResult = resourcesCensor.getVideoCensorResultByJobID(jobID);
+            System.out.println(videoCensorResult);
         } catch (QiniuException e) {
             e.printStackTrace();
         }
@@ -88,13 +95,33 @@ public class ResourcesCensor {
         return post(url, bodyByte);
     }
 
+    /**
+     *
+     * @param ID : 视频审核返回的 job ID
+     *
+     */
+    public String getVideoCensorResultByJobID(String ID){
+        String url = "http://ai.qiniuapi.com/v3/jobs/video/".concat(ID);
+        String accessToken = (String) auth.authorizationV2(url).get("Authorization");
+        StringMap headers = new StringMap();
+        headers.put("Authorization", accessToken);
+
+        try {
+            com.qiniu.http.Response resp = client.get(url,headers);
+            return resp.bodyString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private String post(String url, byte[] body) throws QiniuException {
         String accessToken = (String) auth.authorizationV2(url, "POST", body, "application/json")
                 .get("Authorization");
 
         StringMap headers = new StringMap();
         headers.put("Authorization", accessToken);
-        
+
         com.qiniu.http.Response resp = client.post(url, body, headers, Client.JsonMime);
         return resp.bodyString();
     }
