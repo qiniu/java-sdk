@@ -9,6 +9,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * 自定义文件元信息demo(x-qn-meta-*)
+ * 
+ * 接口
+ * POST /setmeta/<EncodedEntryURI>[/<x-qn-meta-MetaKey>/<EncodedMetaValue>][/cond/Encoded(condKey1=condVal1&condKey2=condVal2)]
+ * Host: rs-<region>.qiniu.com
+ * Content-Type: application/x-www-form-urlencoded
+ * Authorization: Qbox 鉴权
+ * 
+ * 注意：
+ * meta-key，key不能设置为中文,不允许为空;
+ * 新的metas会完全替换掉以前的metas，注意, 是完全覆盖;
+ * 如果请求url中没有 [<x-qn-meta-MetaKey>/<EncodedMetaValue>]，则表示要删除所有metas;
+ *
+ */
 public class QNMetaDemo {
     //设置好账号的ACCESS_KEY和SECRET_KEY
     private static final String ACCESS_KEY = "填写你们自己的AK";
