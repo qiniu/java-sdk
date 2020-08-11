@@ -6,7 +6,17 @@ import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 
-
+/**
+ * 设置自定义变量上传并接收自定义变量 demo
+ *
+ * 上传携带自定义变量参考文档
+ * https://developer.qiniu.com/kodo/manual/1235/vars#2
+ *
+ * 接收自定义变量参考上传策略文档 -- returnBody
+ * https://developer.qiniu.com/kodo/manual/1206/put-policy
+ *
+ * 服务端具体用法实例参考 UploadBySelfDefiningParam.upload()
+ */
 public class UploadBySelfDefiningParam {
 
     private static final String ACCESS_KEY = "设置好你们自己的AK";
