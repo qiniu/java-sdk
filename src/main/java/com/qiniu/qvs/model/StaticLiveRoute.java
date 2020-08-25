@@ -1,11 +1,8 @@
 package com.qiniu.qvs.model;
 
 import com.qiniu.common.Constants;
-import com.qiniu.util.Hex;
+import com.qiniu.util.Md5;
 import com.qiniu.util.UrlSafeBase64;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class StaticLiveRoute {
 
@@ -52,7 +49,7 @@ public class StaticLiveRoute {
         String path = "/" + nsId + "/" + streamId;
         String scheme = useHttps ? "https" : "http";
         String host = "";
-        if (domainType == "liveHls") {
+        if ("liveHls".equals(domainType)) {
             host = domain + ":1370";
             path += ".m3u8";
         } else {
@@ -76,13 +73,7 @@ public class StaticLiveRoute {
     private String signToken(String key, String path, long expireTime) {
         String encode_path = UrlSafeBase64.encodeToString(path);
         String tempS = key + encode_path + Long.toHexString(expireTime);
-        byte[] digest = new byte[0];
-        try {
-            digest = MessageDigest.getInstance("MD5").digest(tempS.getBytes(Constants.UTF_8));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return Hex.encodeHexString(digest);
+        return Md5.md5(tempS.getBytes(Constants.UTF_8));
     }
 }
 
