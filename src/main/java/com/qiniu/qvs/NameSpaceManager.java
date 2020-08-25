@@ -97,7 +97,7 @@ public class NameSpaceManager {
     */
     public Response disableNameSpace(String namespaceId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/disabled", apiServer, namespaceId);
-        return QvsResponse.post(url, null, client, auth);
+        return QvsResponse.post(url, new StringMap(), client, auth);
     }
 
     /*
@@ -105,7 +105,7 @@ public class NameSpaceManager {
     */
     public Response enableNameSpace(String namespaceId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/enabled", apiServer, namespaceId);
-        return QvsResponse.post(url, null, client, auth);
+        return QvsResponse.post(url, new StringMap(), client, auth);
     }
 
 

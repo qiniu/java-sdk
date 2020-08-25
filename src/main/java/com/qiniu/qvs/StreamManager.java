@@ -116,7 +116,7 @@ public class StreamManager {
     */
     public Response disableStream(String namespaceId, String streamId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/streams/%s/disabled", apiServer, namespaceId, streamId);
-        return QvsResponse.post(url, null, client, auth);
+        return QvsResponse.post(url, new StringMap(), client, auth);
     }
 
     /*
@@ -124,7 +124,7 @@ public class StreamManager {
     */
     public Response enableStream(String namespaceId, String streamId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/streams/%s/enabled", apiServer, namespaceId, streamId);
-        return QvsResponse.post(url, null, client, auth);
+        return QvsResponse.post(url, new StringMap(), client, auth);
     }
 
     // 查询推流历史记录
@@ -163,6 +163,6 @@ public class StreamManager {
     // 停用流
     public Response stopStream(String namespaceId, String streamId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/streams/%s/stop", apiServer, namespaceId, streamId);
-        return QvsResponse.post(url, null, client, auth);
+        return QvsResponse.post(url, new StringMap(), client, auth);
     }
 }
