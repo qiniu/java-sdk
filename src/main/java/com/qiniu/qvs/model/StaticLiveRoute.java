@@ -1,5 +1,12 @@
 package com.qiniu.qvs.model;
 
+import com.qiniu.common.Constants;
+import com.qiniu.util.Hex;
+import com.qiniu.util.UrlSafeBase64;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class StaticLiveRoute {
 
     private String domain; // 域名
@@ -40,4 +47,42 @@ public class StaticLiveRoute {
     public void setUrlExpireSec(int urlExpireSec) {
         this.urlExpireSec = urlExpireSec;
     }
+
+    public String genStaticHLSFLVDomain(String nsId, String streamId, String key, boolean useHttps) {
+        String path = "/" + nsId + "/" + streamId;
+        String scheme = useHttps ? "https" : "http";
+        String host = "";
+        if (domainType == "liveHls") {
+            host = domain + ":1370";
+            path += ".m3u8";
+        } else {
+            host = domain + ":1360";
+            path += ".flv";
+        }
+        long expireTime = System.currentTimeMillis() + urlExpireSec * 1000;
+        String token = signToken(key, path, expireTime);
+        return String.format("%s://%s%s?e=%d&token=%s", scheme, host, path, expireTime, token);
+    }
+
+    public String genStaticRtmpDomain(String nsId, String streamId, String key) {
+        String path = "/" + nsId + "/" + streamId;
+        String scheme = "rtmp";
+        String host = domain + ":2045";
+        long expireTime = System.currentTimeMillis() + urlExpireSec * 1000;
+        String token = signToken(key, path, expireTime);
+        return String.format("%s://%s%s?e=%d&token=%s", scheme, host, path, expireTime, token);
+    }
+
+    private String signToken(String key, String path, long expireTime) {
+        String encode_path = UrlSafeBase64.encodeToString(path);
+        String tempS = key + encode_path + Long.toHexString(expireTime);
+        byte[] digest = new byte[0];
+        try {
+            digest = MessageDigest.getInstance("MD5").digest(tempS.getBytes(Constants.UTF_8));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return Hex.encodeHexString(digest);
+    }
 }
+
