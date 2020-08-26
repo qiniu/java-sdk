@@ -815,7 +815,7 @@ public class BucketTest {
                 response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.CLOSE);
                 System.out.println(response);
                 Assert.assertEquals(msg + url, 200, response.statusCode);
-                
+
                 // 关闭原图保护后，有一定延迟，直接访问会401 ...
                 //response = client.get(url + "?v" + r.nextDouble());
                 //Assert.assertEquals(msg + url, 200, response.statusCode);
@@ -844,7 +844,7 @@ public class BucketTest {
     public void testPutBucketMaxAge() {
         String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
         for (String bucket : buckets) {
-            final long []maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
+            final long[] maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
             try {
                 for (long maxAge : maxAges) {
                     // 设置max-age
@@ -880,7 +880,7 @@ public class BucketTest {
         for (int i = 0; i < buckets.length; i++) {
             String bucket = buckets[i];
             String url = urls[i];
-            final long []maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
+            final long[] maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
             try {
                 for (long maxAge : maxAges) {
                     // 设置max-age
@@ -1087,7 +1087,7 @@ public class BucketTest {
                 Assert.assertTrue("200 or 298", batchStatusCode.contains(bs[0].code));
             } catch (QiniuException e) {
                 Assert.fail(e.response + "");
-            }finally {
+            } finally {
                 try {
                     bucketManager.delete(bucket, renameToKey);
                 } catch (QiniuException e) {
@@ -1361,7 +1361,7 @@ public class BucketTest {
             String bucket = entry.getKey();
             String key = entry.getValue();
             String keyToChangeType = "keyToChangeType" + Math.random();
-            for (int i = 1; i < StorageType.values().length; i ++) { // please begin with 1, not 0
+            for (int i = 1; i < StorageType.values().length; i++) { // please begin with 1, not 0
                 StorageType storageType = StorageType.values()[i];
                 try {
                     bucketManager.copy(bucket, key, bucket, keyToChangeType, true);
@@ -1379,7 +1379,7 @@ public class BucketTest {
             }
         }
     }
-    
+
     /**
      * 测试解冻归档存储
      */
@@ -1388,7 +1388,7 @@ public class BucketTest {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
         bucketKeyMap.put(TestConfig.testBucket_na0, TestConfig.testKey_na0);
-        
+
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             String key = entry.getValue();
@@ -1401,16 +1401,16 @@ public class BucketTest {
                 } catch (QiniuException ex) {
                     System.out.println("file " + keyToTest + " not exists, ok.");
                 }
-                
+
                 // copy and changeType to Archive
                 bucketManager.copy(bucket, key, bucket, keyToTest, true);
                 Response response = bucketManager.changeType(bucket, keyToTest, StorageType.Archive);
                 Assert.assertEquals(200, response.statusCode);
-                
+
                 // restoreArchive
                 response = bucketManager.restoreArchive(bucket, keyToTest, 1);
                 Assert.assertEquals(200, response.statusCode);
-                
+
                 //test for 400 Bad Request {"error":"invalid freeze after days"}
                 try {
                     response = bucketManager.restoreArchive(bucket, keyToTest, 8);
@@ -1418,7 +1418,7 @@ public class BucketTest {
                     Assert.assertEquals(400, ex.response.statusCode);
                     System.out.println(ex.response.bodyString());
                 }
-                
+
             } catch (QiniuException e) {
                 Assert.fail(bucket + ":" + key + " > " + keyToTest + " >> " + e.response.toString());
             }

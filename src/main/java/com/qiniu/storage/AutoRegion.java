@@ -237,17 +237,17 @@ class AutoRegion extends Region {
 
         /**
          * {
-         *   "io": {"src": {"main": ["iovip.qbox.me"]}},
-         *   "up": {
-         *     "acc": {
-         *       "main": ["upload.qiniup.com"],
-         *       "backup": ["upload-jjh.qiniup.com", "upload-xs.qiniup.com"]
-         *     },
-         *     "src": {
-         *       "main": ["up.qiniup.com"],
-         *       "backup": ["up-jjh.qiniup.com", "up-xs.qiniup.com"]
-         *     }
-         *   }
+         * "io": {"src": {"main": ["iovip.qbox.me"]}},
+         * "up": {
+         * "acc": {
+         * "main": ["upload.qiniup.com"],
+         * "backup": ["upload-jjh.qiniup.com", "upload-xs.qiniup.com"]
+         * },
+         * "src": {
+         * "main": ["up.qiniup.com"],
+         * "backup": ["up-jjh.qiniup.com", "up-xs.qiniup.com"]
+         * }
+         * }
          * }
          *
          * @param ret

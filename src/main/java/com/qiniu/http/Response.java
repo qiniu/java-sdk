@@ -224,10 +224,6 @@ public final class Response {
         return response.request().url().toString();
     }
 
-    public static class ErrorBody {
-        public String error;
-    }
-
     public String getInfo() {
         String[] msg = new String[3];
         try {
@@ -245,5 +241,9 @@ public final class Response {
         }
 
         return StringUtils.join(msg, "  \n");
+    }
+
+    public static class ErrorBody {
+        public String error;
     }
 }

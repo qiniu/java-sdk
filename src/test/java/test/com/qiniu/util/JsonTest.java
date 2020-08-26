@@ -16,26 +16,6 @@ public class JsonTest {
         assertTrue(j.equals("{\"k\":\"v\",\"n\":1}") || j.equals("{\"n\":1,\"k\":\"v\"}"));
     }
 
-
-    private class User {
-        //省略其它
-        private String name;
-        private int age;
-        private String emailAddress;
-        transient String s1;
-        transient int i1;
-        private String nameNull;
-        User(String name, int age) {
-            this.name = name;
-            this.age = age;
-//            this.emailAddress = emailAddress;
-        }
-
-        public String toString() {
-            return new Gson().toJson(this);
-        }
-    }
-
     @Test
     public void testJ0() {
         User u = new User("a", 23);
@@ -73,5 +53,25 @@ public class JsonTest {
         assertEquals("怪盗kidou", u.name);
         assertEquals("s.com", u.emailAddress);
         assertEquals(24, u.age);
+    }
+
+    private class User {
+        transient String s1;
+        transient int i1;
+        //省略其它
+        private String name;
+        private int age;
+        private String emailAddress;
+        private String nameNull;
+
+        User(String name, int age) {
+            this.name = name;
+            this.age = age;
+//            this.emailAddress = emailAddress;
+        }
+
+        public String toString() {
+            return new Gson().toJson(this);
+        }
     }
 }

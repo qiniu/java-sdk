@@ -1,10 +1,10 @@
 package com.qiniu.qvs;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.qvs.model.NameSpace;
-import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.qvs.model.NameSpace;
+import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlUtils;
@@ -42,7 +42,7 @@ public class NameSpaceManager {
         params.putNotNull("name", nameSpace.getName());
         params.putNotNull("desc", nameSpace.getDesc());
         params.putNotNull("accessType", nameSpace.getAccessType());
-        params.putNotNull("rtmpUrlType", nameSpace.getRTMPURLType());
+        params.putNotNull("rtmpUrlType", nameSpace.getRtmpUrlType());
         params.putNotNull("domains", nameSpace.getDomains());
         params.putNotNull("callBack", nameSpace.getCallback());
         params.putNotNull("recordTemplateId", nameSpace.getRecordTemplateId());
@@ -58,7 +58,7 @@ public class NameSpaceManager {
     }
 
     /*
-	    删除空间API
+        删除空间API
     */
     public Response deleteNameSpace(String namespaceId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s", apiServer, namespaceId);
@@ -66,9 +66,8 @@ public class NameSpaceManager {
     }
 
     /*
-	    更新空间API
-
-	    可编辑参数: name/desc/callBack/recordTemplateId/snapshotTemplateId/recordTemplateApplyAll/snapshotTemplateApplyAll
+        更新空间API
+        可编辑参数: name/desc/callBack/recordTemplateId/snapshotTemplateId/recordTemplateApplyAll/snapshotTemplateApplyAll
     */
     public Response updateNameSpace(String namespaceId, PatchOperation[] patchOperation) throws QiniuException {
         StringMap params = new StringMap().put("operations", patchOperation);
@@ -77,7 +76,7 @@ public class NameSpaceManager {
     }
 
     /*
-	    查询空间信息API
+        查询空间信息API
     */
     public Response queryNameSpace(String namespaceId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s", apiServer, namespaceId);
@@ -85,7 +84,7 @@ public class NameSpaceManager {
     }
 
     /*
-	    列出空间API
+        列出空间API
     */
     public Response listNameSpace(int offset, int line, String sortBy) throws QiniuException {
         String requestUrl = String.format("%s/v1/namespaces", apiServer);
@@ -96,7 +95,7 @@ public class NameSpaceManager {
     }
 
     /*
-	    禁用空间API
+        禁用空间API
     */
     public Response disableNameSpace(String namespaceId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/disabled", apiServer, namespaceId);
@@ -104,7 +103,7 @@ public class NameSpaceManager {
     }
 
     /*
-	    启用空间API
+        启用空间API
     */
     public Response enableNameSpace(String namespaceId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/enabled", apiServer, namespaceId);

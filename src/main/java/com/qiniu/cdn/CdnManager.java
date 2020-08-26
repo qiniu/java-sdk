@@ -59,6 +59,68 @@ public final class CdnManager {
         this.client = client;
     }
 
+    public static String createTimestampAntiLeechUrl(URL oUrl, String encryptKey, long deadline) throws QiniuException {
+        try {
+            String urlencodedPath = URLEncoder.encode(oUrl.getPath(), "UTF-8").replaceAll("%2F", "/");
+            String query = oUrl.getQuery();
+            String file = (query == null) ? urlencodedPath : (urlencodedPath + "?" + query);
+            URL url = new URL(oUrl.getProtocol(), oUrl.getHost(), oUrl.getPort(), file);
+            String expireHex = Long.toHexString(deadline);
+
+            String toSignStr = String.format("%s%s%s", encryptKey, urlencodedPath, expireHex);
+            String signedStr = StringUtils.md5Lower(toSignStr);
+
+            String signedUrl;
+            if (url.getQuery() != null) {
+                signedUrl = String.format("%s&sign=%s&t=%s", url, signedStr, expireHex);
+            } else {
+                signedUrl = String.format("%s?sign=%s&t=%s", url, signedStr, expireHex);
+            }
+
+            return signedUrl;
+        } catch (Exception e) {
+            throw new QiniuException(e, "timestamp anti leech failed");
+        }
+    }
+
+    /**
+     * 构建七牛标准的基于时间戳的防盗链
+     * 参考文档：<a href="https://support.qiniu.com/question/195128">时间戳防盗链</a>
+     *
+     * @param host           自定义域名，例如 http://img.abc.com
+     * @param fileName       待访问的原始文件名，必须是utf8编码，不需要进行urlencode
+     * @param queryStringMap 业务自身的查询参数，必须是utf8编码，不需要进行urlencode
+     * @param encryptKey     时间戳防盗链的签名密钥，从七牛后台获取
+     * @param deadline       链接的有效期时间戳，是以秒为单位的Unix时间戳
+     * @return signedUrl     最终的带时间戳防盗链的url
+     */
+    public static String createTimestampAntiLeechUrl(
+            String host, String fileName, final StringMap queryStringMap, String encryptKey, long deadline)
+            throws QiniuException {
+        URL urlObj = null;
+        try {
+            String urlToSign = null;
+            if (queryStringMap != null && queryStringMap.size() > 0) {
+                List<String> queryStrings = new ArrayList<String>();
+                for (Map.Entry<String, Object> entry : queryStringMap.map().entrySet()) {
+                    StringBuilder queryStringBuilder = new StringBuilder();
+                    queryStringBuilder.append(URLEncoder.encode(entry.getKey(), "utf-8"));
+                    queryStringBuilder.append("=");
+                    queryStringBuilder.append(URLEncoder.encode(entry.getValue().toString(), "utf-8"));
+                    queryStrings.add(queryStringBuilder.toString());
+                }
+                urlToSign = String.format("%s/%s?%s", host, fileName, StringUtils.join(queryStrings, "&"));
+            } else {
+                urlToSign = String.format("%s/%s", host, fileName);
+            }
+
+            urlObj = new URL(urlToSign);
+        } catch (Exception e) {
+            throw new QiniuException(e, "timestamp anti leech failed");
+        }
+        return createTimestampAntiLeechUrl(urlObj, encryptKey, deadline);
+    }
+
     /**
      * 刷新链接列表，每次最多不可以超过 60 条链接
      * 参考文档：<a href="http://developer.qiniu.com/fusion/api/cache-refresh">缓存刷新</a>
@@ -202,67 +264,5 @@ public final class CdnManager {
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
         Response response = client.post(url, body, headers, Client.JsonMime);
         return response.jsonToObject(CdnResult.LogListResult.class);
-    }
-
-    public static String createTimestampAntiLeechUrl(URL oUrl, String encryptKey, long deadline) throws QiniuException {
-        try {
-            String urlencodedPath = URLEncoder.encode(oUrl.getPath(), "UTF-8").replaceAll("%2F", "/");
-            String query = oUrl.getQuery();
-            String file = (query == null) ? urlencodedPath : (urlencodedPath + "?" + query);
-            URL url = new URL(oUrl.getProtocol(), oUrl.getHost(), oUrl.getPort(), file);
-            String expireHex = Long.toHexString(deadline);
-
-            String toSignStr = String.format("%s%s%s", encryptKey, urlencodedPath, expireHex);
-            String signedStr = StringUtils.md5Lower(toSignStr);
-
-            String signedUrl;
-            if (url.getQuery() != null) {
-                signedUrl = String.format("%s&sign=%s&t=%s", url, signedStr, expireHex);
-            } else {
-                signedUrl = String.format("%s?sign=%s&t=%s", url, signedStr, expireHex);
-            }
-
-            return signedUrl;
-        } catch (Exception e) {
-            throw new QiniuException(e, "timestamp anti leech failed");
-        }
-    }
-
-    /**
-     * 构建七牛标准的基于时间戳的防盗链
-     * 参考文档：<a href="https://support.qiniu.com/question/195128">时间戳防盗链</a>
-     *
-     * @param host           自定义域名，例如 http://img.abc.com
-     * @param fileName       待访问的原始文件名，必须是utf8编码，不需要进行urlencode
-     * @param queryStringMap 业务自身的查询参数，必须是utf8编码，不需要进行urlencode
-     * @param encryptKey     时间戳防盗链的签名密钥，从七牛后台获取
-     * @param deadline       链接的有效期时间戳，是以秒为单位的Unix时间戳
-     * @return signedUrl     最终的带时间戳防盗链的url
-     */
-    public static String createTimestampAntiLeechUrl(
-            String host, String fileName, final StringMap queryStringMap, String encryptKey, long deadline)
-            throws QiniuException {
-        URL urlObj = null;
-        try {
-            String urlToSign = null;
-            if (queryStringMap != null && queryStringMap.size() > 0) {
-                List<String> queryStrings = new ArrayList<String>();
-                for (Map.Entry<String, Object> entry : queryStringMap.map().entrySet()) {
-                    StringBuilder queryStringBuilder = new StringBuilder();
-                    queryStringBuilder.append(URLEncoder.encode(entry.getKey(), "utf-8"));
-                    queryStringBuilder.append("=");
-                    queryStringBuilder.append(URLEncoder.encode(entry.getValue().toString(), "utf-8"));
-                    queryStrings.add(queryStringBuilder.toString());
-                }
-                urlToSign = String.format("%s/%s?%s", host, fileName, StringUtils.join(queryStrings, "&"));
-            } else {
-                urlToSign = String.format("%s/%s", host, fileName);
-            }
-
-            urlObj = new URL(urlToSign);
-        } catch (Exception e) {
-            throw new QiniuException(e, "timestamp anti leech failed");
-        }
-        return createTimestampAntiLeechUrl(urlObj, encryptKey, deadline);
     }
 }

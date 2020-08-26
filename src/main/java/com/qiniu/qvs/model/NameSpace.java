@@ -1,7 +1,5 @@
 package com.qiniu.qvs.model;
 
-import com.google.gson.annotations.SerializedName;
-
 public class NameSpace {
 	private String ID;
 	private String Name; // 空间名称(格式"^[a-zA-Z0-9_-]{1,100}$")
@@ -193,4 +191,5 @@ public class NameSpace {
 	public void setHlsLowLatency(boolean hlsLowLatency) {
 		this.hlsLowLatency = hlsLowLatency;
 	}
+
 }

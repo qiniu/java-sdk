@@ -16,6 +16,9 @@ import java.util.List;
 
 public final class Auth {
 
+    public static final String DTOKEN_ACTION_VOD = "linking:vod";
+    public static final String DTOKEN_ACTION_STATUS = "linking:status";
+    public static final String DTOKEN_ACTION_TUTK = "linking:tutk";
     /**
      * 上传策略
      * 参考文档：<a href="https://developer.qiniu.com/kodo/manual/put-policy">上传策略</a>
@@ -50,6 +53,8 @@ public final class Auth {
     private static final String[] deprecatedPolicyFields = new String[]{
             "asyncOps",
     };
+    private static boolean[] isTokenTable = genTokenTable();
+    private static int toLower = 'a' - 'A';
     public final String accessKey;
     private final SecretKeySpec secretKey;
 
@@ -82,6 +87,58 @@ public final class Auth {
                 }
             }
         });
+    }
+
+    // https://github.com/golang/go/blob/master/src/net/textproto/reader.go#L596
+    // CanonicalMIMEHeaderKey returns the canonical format of the
+    // MIME header key s. The canonicalization converts the first
+    // letter and any letter following a hyphen to upper case;
+    // the rest are converted to lowercase. For example, the
+    // canonical key for "accept-encoding" is "Accept-Encoding".
+    // MIME header keys are assumed to be ASCII only.
+    // If s contains a space or invalid header field bytes, it is
+    // returned without modifications.
+    private static String canonicalMIMEHeaderKey(String name) {
+        // com.qiniu.http.Headers 已确保 header name 字符的合法性，直接使用 byte ，否则要使用 char //
+        byte[] a = name.getBytes(Charset.forName("UTF-8"));
+        for (int i = 0; i < a.length; i++) {
+            byte c = a[i];
+            if (!validHeaderFieldByte(c)) {
+                return name;
+            }
+        }
+
+        boolean upper = true;
+        for (int i = 0; i < a.length; i++) {
+            byte c = a[i];
+            if (upper && 'a' <= c && c <= 'z') {
+                c -= toLower;
+            } else if (!upper && 'A' <= c && c <= 'Z') {
+                c += toLower;
+            }
+            a[i] = c;
+            upper = c == '-'; // for next time
+        }
+        return new String(a);
+    }
+
+    private static boolean validHeaderFieldByte(byte b) {
+        //byte: -128 ~ 127, char:  0 ~ 65535
+        return 0 < b && b < isTokenTable.length && isTokenTable[b];
+    }
+
+    private static boolean[] genTokenTable() {
+        int[] idx = new int[]{
+                '!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+                'U', 'W', 'V', 'X', 'Y', 'Z', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+                'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '|', '~'};
+        boolean[] tokenTable = new boolean[127];
+        Arrays.fill(tokenTable, false);
+        for (int i : idx) {
+            tokenTable[i] = true;
+        }
+        return tokenTable;
     }
 
     private Mac createMac() {
@@ -400,29 +457,6 @@ public final class Auth {
         return this.accessKey + ":" + encodedSign + ":" + encodedRoomAcc;
     }
 
-
-    public static final String DTOKEN_ACTION_VOD = "linking:vod";
-    public static final String DTOKEN_ACTION_STATUS = "linking:status";
-    public static final String DTOKEN_ACTION_TUTK = "linking:tutk";
-
-    class LinkingDtokenStatement {
-        @SerializedName("action")
-        private String action;
-
-        LinkingDtokenStatement(String action) {
-            this.action = action;
-        }
-
-        public String getAction() {
-            return action;
-        }
-
-        public void setAction(String action) {
-            this.action = action;
-        }
-    }
-
-
     public String generateLinkingDeviceToken(String appid, String deviceName, long deadline, String[] actions) {
         LinkingDtokenStatement[] staments = new LinkingDtokenStatement[actions.length];
 
@@ -452,60 +486,21 @@ public final class Auth {
         return generateLinkingDeviceTokenWithExpires(appid, deviceName, expires, new String[]{DTOKEN_ACTION_STATUS});
     }
 
-    private static boolean[] isTokenTable = genTokenTable();
-    private static int toLower = 'a' - 'A';
+    class LinkingDtokenStatement {
+        @SerializedName("action")
+        private String action;
 
-    // https://github.com/golang/go/blob/master/src/net/textproto/reader.go#L596
-    // CanonicalMIMEHeaderKey returns the canonical format of the
-    // MIME header key s. The canonicalization converts the first
-    // letter and any letter following a hyphen to upper case;
-    // the rest are converted to lowercase. For example, the
-    // canonical key for "accept-encoding" is "Accept-Encoding".
-    // MIME header keys are assumed to be ASCII only.
-    // If s contains a space or invalid header field bytes, it is
-    // returned without modifications.
-    private static String canonicalMIMEHeaderKey(String name) {
-        // com.qiniu.http.Headers 已确保 header name 字符的合法性，直接使用 byte ，否则要使用 char //
-        byte[] a = name.getBytes(Charset.forName("UTF-8"));
-        for (int i = 0; i < a.length; i++) {
-            byte c = a[i];
-            if (!validHeaderFieldByte(c)) {
-                return name;
-            }
+        LinkingDtokenStatement(String action) {
+            this.action = action;
         }
 
-        boolean upper = true;
-        for (int i = 0; i < a.length; i++) {
-            byte c = a[i];
-            if (upper && 'a' <= c && c <= 'z') {
-                c -= toLower;
-            } else if (!upper && 'A' <= c && c <= 'Z') {
-                c += toLower;
-            }
-            a[i] = c;
-            upper = c == '-'; // for next time
+        public String getAction() {
+            return action;
         }
-        return new String(a);
-    }
 
-
-    private static boolean validHeaderFieldByte(byte b) {
-        //byte: -128 ~ 127, char:  0 ~ 65535
-        return 0 < b && b < isTokenTable.length && isTokenTable[b];
-    }
-
-    private static boolean[] genTokenTable() {
-        int[] idx = new int[]{
-                '!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-                'U', 'W', 'V', 'X', 'Y', 'Z', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-                'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '|', '~',};
-        boolean[] tokenTable = new boolean[127];
-        Arrays.fill(tokenTable, false);
-        for (int i : idx) {
-            tokenTable[i] = true;
+        public void setAction(String action) {
+            this.action = action;
         }
-        return tokenTable;
     }
 
     private class Header implements Comparable<Header> {

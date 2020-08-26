@@ -24,6 +24,15 @@ public class BucketQuota {
     }
 
     /**
+     * 获取空间存储量配额
+     *
+     * @return
+     */
+    public long getSize() {
+        return this.size;
+    }
+
+    /**
      * 设置空间存储量配额<br>
      * 参数传入0或不传表示不更改当前配置，传入-1表示取消限额，新创建的空间默认没有限额。
      *
@@ -36,12 +45,12 @@ public class BucketQuota {
     }
 
     /**
-     * 获取空间存储量配额
+     * 获取空间文件数配额
      *
      * @return
      */
-    public long getSize() {
-        return this.size;
+    public long getCount() {
+        return this.count;
     }
 
     /**
@@ -54,15 +63,6 @@ public class BucketQuota {
     public BucketQuota setCount(long count) {
         this.count = count;
         return this;
-    }
-
-    /**
-     * 获取空间文件数配额
-     *
-     * @return
-     */
-    public long getCount() {
-        return this.count;
     }
 
 }

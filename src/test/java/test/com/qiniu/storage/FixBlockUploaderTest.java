@@ -7,7 +7,7 @@ import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.FixBlockUploader;
-import com.qiniu.util.Etag;
+import com.qiniu.util.EtagV2;
 import com.qiniu.util.StringMap;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,7 +24,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class FixBlockUploaderTest {
-    int blockSize = 1024 * 1024 * 8;
+    int blockSize = 1024 * 1021 * 7;
     Configuration config;
     Client client;
     FixBlockUploader up;
@@ -72,7 +72,7 @@ public class FixBlockUploaderTest {
         try {
             template(true, 1024 * 3, false, false, true);
             Assert.fail("file exists, can not be success.");
-        }  catch (QiniuException e) {
+        } catch (QiniuException e) {
             assertTrue("file exists", e.response.error.indexOf("file exists") > -1);
         }
         // both the key and content are the same
@@ -104,7 +104,6 @@ public class FixBlockUploaderTest {
     public void test7M() throws IOException {
         template(1024 * 7, true, false);
     }
-
 
 
     @Test
@@ -148,7 +147,7 @@ public class FixBlockUploaderTest {
             f = TempFile.createFileOld(size);
         }
         System.out.println(f.getAbsolutePath());
-        final String etag = Etag.file(f);
+        final String etag = EtagV2.file(f, blockSize);
         System.out.println(etag);
         final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
@@ -201,7 +200,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testEmptyKey() throws IOException {
         File f = TempFile.createFileOld(1);
-        String etag = Etag.file(f);
+        String etag = EtagV2.file(f, blockSize);
         String token = TestConfig.testAuth.uploadToken(bucket, null);
         Response res = up.upload(f, token, "");
         System.out.println(res.getInfo());
@@ -213,7 +212,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testNullKey() throws IOException {
         File f = TempFile.createFile(2);
-        String etag = Etag.file(f);
+        String etag = EtagV2.file(f, blockSize);
         String token = TestConfig.testAuth.uploadToken(bucket, null);
         Response res = up.upload(f, token, null);
         System.out.println(res.getInfo());
@@ -225,7 +224,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testKey2() throws IOException {
         File f = TempFile.createFile(2);
-        String etag = Etag.file(f);
+        String etag = EtagV2.file(f, blockSize);
         String token = TestConfig.testAuth.uploadToken(bucket, "err");
         try {
             Response res = up.upload(f, token, null);
@@ -239,7 +238,7 @@ public class FixBlockUploaderTest {
     @Test
     public void testMeat() throws IOException {
         File f = TempFile.createFile(1);
-        String etag = Etag.file(f);
+        String etag = EtagV2.file(f, blockSize);
         String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(x:biubiu)_$(fname)\",\"mimeType\":\"$(mimeType)\",\"biu2biu\":\"$(x:biu2biu)\"}";
 
@@ -266,8 +265,8 @@ public class FixBlockUploaderTest {
         Assert.assertEquals("duDu/werfhue3", ret.biu2biu);
         String resStr = res2.bodyString();
         Assert.assertTrue("// 要有额外设置的元信息  metadata //\n" + new Gson().toJson(param),
-                    resStr.indexOf("text/liubin") > -1
-                            && resStr.indexOf("teinYjf") > -1);
+                resStr.indexOf("text/liubin") > -1
+                        && resStr.indexOf("teinYjf") > -1);
     }
 
     class MyRet {
