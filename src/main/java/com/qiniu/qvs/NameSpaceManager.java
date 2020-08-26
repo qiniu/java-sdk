@@ -49,6 +49,9 @@ public class NameSpaceManager {
         params.putNotNull("snapshotTemplateId", nameSpace.getSnapShotTemplateId());
         params.putNotNull("recordTemplateApplyAll", nameSpace.isRecordTemplateApplyAll());
         params.putNotNull("snapshotTemplateApplyAll", nameSpace.isSnapTemplateApplyAll());
+        params.putNotNull("urlMode", nameSpace.getUrlMode());
+        params.putNotNull("zone", nameSpace.getZone());
+        params.putNotNull("hlsLowLatency", nameSpace.isHlsLowLatency());
 
         String url = String.format("%s/v1/namespaces", apiServer);
         return QvsResponse.post(url, params, client, auth);
