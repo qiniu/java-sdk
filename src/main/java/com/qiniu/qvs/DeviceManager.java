@@ -81,19 +81,21 @@ public class DeviceManager {
 	}
 
 	/*
-	 * 启动设备
+	 * 启动设备拉流
 	 */
-	public Response startDevice(String namespaceId, String gbId) throws QiniuException {
+	public Response startDevice(String namespaceId, String gbId, String channels) throws QiniuException {
 		String url = String.format("%s/v1/namespaces/%s/devices/%s/start", apiServer, namespaceId, gbId);
-		return QvsResponse.post(url, new StringMap(), client, auth);
+		StringMap params = new StringMap().put("channels", channels);
+        	return QvsResponse.post(url, params, client, auth);
 	}
 
 	/*
-	 * 停止设备
+	 * 停止设备拉流
 	 */
-	public Response stopDevice(String namespaceId, String gbId) throws QiniuException {
+	public Response stopDevice(String namespaceId, String gbId, String channels) throws QiniuException {
 		String url = String.format("%s/v1/namespaces/%s/devices/%s/stop", apiServer, namespaceId, gbId);
-		return QvsResponse.post(url, new StringMap(), client, auth);
+		StringMap params = new StringMap().put("channels", channels);
+        	return QvsResponse.post(url, params, client, auth);
 	}
 
 }
