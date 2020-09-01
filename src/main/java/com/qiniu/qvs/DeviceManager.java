@@ -79,6 +79,16 @@ public class DeviceManager {
 		requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
 		return QvsResponse.get(requestUrl, client, auth);
 	}
+	
+	/*
+         * 获取通道列表
+     	 */
+    	public Response listChannels(String namespaceId, String gbId, String prefix) throws QiniuException {
+        	String requestUrl = String.format("%s/v1/namespaces/%s/devices/%s/channels", apiServer, namespaceId, gbId);
+        	StringMap map = new StringMap().put("prefix", prefix);
+        	requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
+        	return QvsResponse.get(requestUrl, client, auth);
+    	}
 
 	/*
 	 * 启动设备拉流
