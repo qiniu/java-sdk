@@ -29,6 +29,10 @@ public class DeviceManager {
 		this.client = client;
 	}
 
+
+    /*
+     * 创建设备
+     */
 	public Response createDevice(String namespaceId, Device device) throws QiniuException {
 		StringMap params = new StringMap();
 		params.put("name", device.getName());
@@ -79,16 +83,16 @@ public class DeviceManager {
 		requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
 		return QvsResponse.get(requestUrl, client, auth);
 	}
-	
+
 	/*
-         * 获取通道列表
-     	 */
-    	public Response listChannels(String namespaceId, String gbId, String prefix) throws QiniuException {
-        	String requestUrl = String.format("%s/v1/namespaces/%s/devices/%s/channels", apiServer, namespaceId, gbId);
-        	StringMap map = new StringMap().put("prefix", prefix);
-        	requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
-        	return QvsResponse.get(requestUrl, client, auth);
-    	}
+     * 获取通道列表
+     */
+	public Response listChannels(String namespaceId, String gbId, String prefix) throws QiniuException {
+	    String requestUrl = String.format("%s/v1/namespaces/%s/devices/%s/channels", apiServer, namespaceId, gbId);
+	    StringMap map = new StringMap().put("prefix", prefix);
+	    requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
+	    return QvsResponse.get(requestUrl, client, auth);
+	}
 
 	/*
 	 * 启动设备拉流
@@ -96,7 +100,7 @@ public class DeviceManager {
 	public Response startDevice(String namespaceId, String gbId, String channels) throws QiniuException {
 		String url = String.format("%s/v1/namespaces/%s/devices/%s/start", apiServer, namespaceId, gbId);
 		StringMap params = new StringMap().put("channels", channels);
-        	return QvsResponse.post(url, params, client, auth);
+		return QvsResponse.post(url, params, client, auth);
 	}
 
 	/*
@@ -105,7 +109,7 @@ public class DeviceManager {
 	public Response stopDevice(String namespaceId, String gbId, String channels) throws QiniuException {
 		String url = String.format("%s/v1/namespaces/%s/devices/%s/stop", apiServer, namespaceId, gbId);
 		StringMap params = new StringMap().put("channels", channels);
-        	return QvsResponse.post(url, params, client, auth);
+		return QvsResponse.post(url, params, client, auth);
 	}
 
 }
