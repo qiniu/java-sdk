@@ -49,14 +49,14 @@ public class StaticLiveRoute {
         String path = "/" + nsId + "/" + streamId;
         String scheme = useHttps ? "https" : "http";
         String host = "";
-        if ("liveHls".equals(DomainType)) {
-            host = Domain + ":1370";
+        if ("liveHls".equals(domainType)) {
+            host = domain + ":1370";
             path += ".m3u8";
         } else {
-            host = Domain + ":1360";
+            host = domain + ":1360";
             path += ".flv";
         }
-        long expireTime = System.currentTimeMillis() + UrlExpireSec * 1000;
+        long expireTime = System.currentTimeMillis() + urlExpireSec * 1000;
         String token = signToken(key, path, expireTime);
         return String.format("%s://%s%s?e=%d&token=%s", scheme, host, path, expireTime, token);
     }
@@ -64,8 +64,8 @@ public class StaticLiveRoute {
     public String genStaticRtmpDomain(String nsId, String streamId, String key) {
         String path = "/" + nsId + "/" + streamId;
         String scheme = "rtmp";
-        String host = Domain + ":2045";
-        long expireTime = System.currentTimeMillis() + UrlExpireSec * 1000;
+        String host = domain + ":2045";
+        long expireTime = System.currentTimeMillis() + urlExpireSec * 1000;
         String token = signToken(key, path, expireTime);
         return String.format("%s://%s%s?e=%d&token=%s", scheme, host, path, expireTime, token);
     }
