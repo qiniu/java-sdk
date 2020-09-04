@@ -24,7 +24,7 @@ import java.util.Map;
 public class SmsTest {
     private SmsManager smsManager;
     private String mobile = ""; // 一国内手机号
-    private String[] mobiles = new String[]{mobile,};
+    private String[] mobiles = new String[]{mobile};
 
     /**
      * 初始化

@@ -6,43 +6,43 @@ import com.qiniu.util.UrlSafeBase64;
 
 public class StaticLiveRoute {
 
-    private String Domain; // 域名
-    private String DomainType;   // 域名类型  publishRtmp | liveRtmp | liveHls | liveHdl
-    private int UrlExpireSec; // 地址过期时间,urlExpireSec:100代表100秒后过期;  默认urlExpireSec:0,永不过期.
+    private String domain; // 域名
+    private String domainType;   // 域名类型  publishRtmp | liveRtmp | liveHls | liveHdl
+    private int urlExpireSec; // 地址过期时间,urlExpireSec:100代表100秒后过期;  默认urlExpireSec:0,永不过期.
 
     public StaticLiveRoute(String domain, String domainType) {
-        Domain = domain;
-        DomainType = domainType;
+        this.domain = domain;
+        this.domainType = domainType;
     }
 
     public StaticLiveRoute(String domain, String domainType, int urlExpireSec) {
-        Domain = domain;
-        DomainType = domainType;
-        UrlExpireSec = urlExpireSec;
+        this.domain = domain;
+        this.domainType = domainType;
+        this.urlExpireSec = urlExpireSec;
     }
 
     public String getDomain() {
-        return Domain;
+        return domain;
     }
 
     public void setDomain(String domain) {
-        Domain = domain;
+        this.domain = domain;
     }
 
     public String getDomainType() {
-        return DomainType;
+        return domainType;
     }
 
     public void setDomainType(String domainType) {
-        DomainType = domainType;
+        this.domainType = domainType;
     }
 
     public int getUrlExpireSec() {
-        return UrlExpireSec;
+        return urlExpireSec;
     }
 
     public void setUrlExpireSec(int urlExpireSec) {
-        UrlExpireSec = urlExpireSec;
+        this.urlExpireSec = urlExpireSec;
     }
 
     public String genStaticHLSFLVDomain(String nsId, String streamId, String key, boolean useHttps) {

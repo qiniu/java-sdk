@@ -13,8 +13,8 @@ import java.security.MessageDigest;
  * 实现分片上传时上传进度的接口方法
  */
 public final class FileRecorder implements Recorder {
-    private final File directory;
     private static final String SPLIT = "*:|>?^ \b";
+    private final File directory;
 
     /**
      * 断点记录文件保存的目录
@@ -44,6 +44,22 @@ public final class FileRecorder implements Recorder {
         if (!directory.isDirectory()) {
             throw new IOException("does not mkdir");
         }
+    }
+
+    private static String hash(String base) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            byte[] hash = digest.digest(base.getBytes());
+            StringBuilder hexString = new StringBuilder();
+
+            for (int i = 0; i < hash.length; i++) {
+                hexString.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            return hexString.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return "";
     }
 
     /**
@@ -139,25 +155,8 @@ public final class FileRecorder implements Recorder {
         return hash(key + SPLIT + file.lastModified() + SPLIT + file.getAbsolutePath());
     }
 
-
     @Override
     public String recorderKeyGenerate(String bucket, String key, String contentDataSUID, String uploaderSUID) {
         return hash(bucket + SPLIT + key + SPLIT + contentDataSUID + SPLIT + uploaderSUID);
-    }
-
-    private static String hash(String base) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] hash = digest.digest(base.getBytes());
-            StringBuilder hexString = new StringBuilder();
-
-            for (int i = 0; i < hash.length; i++) {
-                hexString.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
-            }
-            return hexString.toString();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return "";
     }
 }

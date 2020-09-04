@@ -181,18 +181,18 @@ public class BucketTest2 {
 
 
     @Test
-    public void testListV2_1() {
+    public void testListMarkerV2() {
         try {
             String marker = null;
             int count = 0;
-            do{
+            do {
                 FileListing l = bucketManager.listFilesV2(TestConfig.testBucket_z0, "pi", marker, 2, null);
                 marker = l.marker;
-                for (FileInfo f :l.items) {
+                for (FileInfo f : l.items) {
                     Assert.assertNotNull(f.key);
                 }
                 count++;
-            } while(!StringUtils.isNullOrEmpty(marker));
+            } while (!StringUtils.isNullOrEmpty(marker));
             Assert.assertTrue(count > 0);
         } catch (QiniuException e) {
             Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));

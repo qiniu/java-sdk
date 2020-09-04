@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.util.*;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -30,14 +29,12 @@ public class FixBlockUploader {
     private String host = null;
 
     /**
-     * @param blockSize     must be multiples of 4M.
+     * @param blockSize     block size, eg: 1024 * 1024 * 8.
      * @param configuration Nullable, if null, then create a new one.
      * @param client        Nullable, if null, then create a new one with configuration.
      * @param recorder      Nullable.
      */
     public FixBlockUploader(int blockSize, Configuration configuration, Client client, Recorder recorder) {
-        assert blockSize > 0 && blockSize % (4 * 1024 * 1024) == 0 : "blockSize must be multiples of 4M ";
-
         if (configuration == null) {
             configuration = new Configuration();
         }
@@ -51,6 +48,22 @@ public class FixBlockUploader {
         this.retryMax = configuration.retryMax;
     }
 
+    static void sortAsc(List<EtagIdx> etags) {
+        Collections.sort(etags, new Comparator<EtagIdx>() {
+            @Override
+            public int compare(EtagIdx o1, EtagIdx o2) {
+                return o1.partNumber - o2.partNumber; // small enough and both greater than 0 //
+            }
+        });
+    }
+
+    static void sleepMillis(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
+    }
 
     public Response upload(final File file, final String token, String key) throws QiniuException {
         return upload(file, token, key, null, null, 0);
@@ -72,18 +85,15 @@ public class FixBlockUploader {
         return upload(blockData, new StaticToken(token), key, params, pool, maxRunningBlock);
     }
 
-
     public Response upload(final InputStream is, long inputStreamLength, String fileName,
                            final String token, String key) throws QiniuException {
         return upload(is, inputStreamLength, fileName, token, key, null, null, 0);
     }
 
-
     public Response upload(final InputStream is, long inputStreamLength, String fileName,
                            final String token, String key, ExecutorService pool) throws QiniuException {
         return upload(is, inputStreamLength, fileName, token, key, null, pool, 8);
     }
-
 
     public Response upload(final InputStream is, long inputStreamLength, String fileName,
                            final String token, String key, OptionsMeta params,
@@ -93,12 +103,10 @@ public class FixBlockUploader {
         return upload(blockData, new StaticToken(token), key, params, pool, maxRunningBlock);
     }
 
-
     Response upload(BlockData blockData, String token, String key, OptionsMeta params,
                     ExecutorService pool, int maxRunningBlock) throws QiniuException {
         return upload(blockData, new StaticToken(token), key, params, pool, maxRunningBlock);
     }
-
 
     Response upload(BlockData blockData, Token token, String key, OptionsMeta params,
                     ExecutorService pool, int maxRunningBlock) throws QiniuException {
@@ -216,7 +224,6 @@ public class FixBlockUploader {
         throw new QiniuException(res);
     }
 
-
     private void upBlock(BlockData blockData, Token token, String bucket, String base64Key, boolean repeatable,
                          Record record, ExecutorService pool, int maxRunningBlock) throws QiniuException {
         boolean useParallel = useParallel(pool, blockData, record);
@@ -233,7 +240,7 @@ public class FixBlockUploader {
     }
 
     private void seqUpload(BlockData blockData, Token token, String bucket,
-                            String base64Key, Record record) throws QiniuException {
+                           String base64Key, Record record) throws QiniuException {
         final String uploadId = record.uploadId;
         final List<EtagIdx> etagIdxes = record.etagIdxes;
         RetryCounter counter = new NormalRetryCounter(retryMax);
@@ -262,8 +269,8 @@ public class FixBlockUploader {
     }
 
     private void parallelUpload(BlockData blockData, final Token token,
-                             final String bucket, final String base64Key, Record record,
-                             boolean needRecord, ExecutorService pool, int maxRunningBlock) throws QiniuException {
+                                final String bucket, final String base64Key, Record record,
+                                boolean needRecord, ExecutorService pool, int maxRunningBlock) throws QiniuException {
         final String uploadId = record.uploadId;
         final List<EtagIdx> etagIdxes = record.etagIdxes;
         final RetryCounter counter = new AsyncRetryCounter(retryMax);
@@ -493,87 +500,6 @@ public class FixBlockUploader {
         }
     }
 
-    static void sortAsc(List<EtagIdx> etags) {
-        Collections.sort(etags, new Comparator<EtagIdx>() {
-            @Override
-            public int compare(EtagIdx o1, EtagIdx o2) {
-                return o1.partNumber - o2.partNumber; // small enough and both greater than 0 //
-            }
-        });
-    }
-
-
-    class MakefileBody {
-        List<EtagIdx> parts;
-        String fname;
-        String mimeType;
-        Map<String, Object> metadata;
-        Map<String, Object> customVars;
-
-        MakefileBody(List<EtagIdx> etags, String fileName, OptionsMeta params) {
-            this.parts = etags;
-            this.fname = fileName;
-            if (params != null) {
-                this.mimeType = params.mimeType;
-                if (params.metadata != null && params.metadata.size() > 0) {
-                    this.metadata = filterParam(params.metadata, "X-Qn-Meta-");
-                }
-                if (params.customVars != null && params.customVars.size() > 0) {
-                    this.customVars = filterParam(params.customVars, "x:");
-                }
-            }
-        }
-
-        private Map<String, Object> filterParam(StringMap param, final String keyPrefix) {
-            final Map<String, Object> ret = new HashMap<>();
-            final String prefix = keyPrefix.toLowerCase();
-            param.forEach(new StringMap.Consumer() {
-                @Override
-                public void accept(String key, Object value) {
-                    if (key != null && value != null && !StringUtils.isNullOrEmpty(value.toString())
-                            && key.toLowerCase().startsWith(prefix)) {
-                        ret.put(key, value);
-                    }
-                }
-            });
-            return ret;
-        }
-
-        public String json() {
-            return new Gson().toJson(this);
-        }
-    }
-
-
-    class EtagIdx {
-        String etag;
-        int partNumber;
-        transient int size;
-
-        EtagIdx(String etag, int idx, int size) {
-            this.etag = etag;
-            this.partNumber = idx;
-            this.size = size;
-        }
-
-        public String toString() {
-            return new Gson().toJson(this);
-        }
-
-    }
-
-
-    ///////////////////////////////////////
-
-
-    class Record {
-        long createdTime;
-        String uploadId;
-        long size;
-        List<EtagIdx> etagIdxes;
-    }
-
-
     Record initRecord(String uploadId, List<EtagIdx> etagIdxes) {
         Record record = new Record();
         record.createdTime = System.currentTimeMillis();
@@ -585,73 +511,31 @@ public class FixBlockUploader {
     }
 
 
-    class UploadRecordHelper {
-        boolean needRecord;
-        Recorder recorder;
-        String recordFileKey;
-
-        UploadRecordHelper(Recorder recorder, String recordFileKey, boolean needRecord) {
-            this.needRecord = needRecord;
-            if (recorder != null) {
-                this.recorder = recorder;
-                this.recordFileKey = recordFileKey;
-            }
-        }
-
-        public Record reloadRecord() {
-            Record record = null;
-            if (recorder != null) {
-                try {
-                    byte[] data = recorder.get(recordFileKey);
-                    record = new Gson().fromJson(new String(data, Charset.forName("UTF-8")), Record.class);
-                } catch (Exception e) {
-                    // do nothing
-                }
-            }
-            return record;
-        }
-
-        public void delRecord() {
-            if (recorder != null) {
-                recorder.del(recordFileKey);
-            }
-        }
+    ///////////////////////////////////////
 
 
-        public void syncRecord(Record record) {
-            if (needRecord && recorder != null && record.etagIdxes.size() > 0) {
-                sortAsc(record.etagIdxes);
-                recorder.set(recordFileKey, new Gson().toJson(record).getBytes(Charset.forName("UTF-8")));
-            }
-        }
+    interface DataWraper {
+        byte[] getData() throws IOException;
 
-        public boolean isActiveRecord(Record record, BlockData blockData) {
-            //// 服务端 7 天内有效，设置 5 天 ////
-            boolean isOk = record != null
-                    && record.createdTime > System.currentTimeMillis() - 1000 * 3600 * 24 * 5
-                    && !StringUtils.isNullOrEmpty(record.uploadId)
-                    && record.etagIdxes != null && record.etagIdxes.size() > 0
-                    && record.size > 0 && record.size <= blockData.size();
-            if (isOk) {
-                int p = 0;
-                // PartNumber start with 1 and increase by 1 //
-                // 当前文件各块串行 if (ei.idx == p + 1) . 若并行，需额外考虑 //
-                for (EtagIdx ei : record.etagIdxes) {
-                    if (ei.partNumber > p) {
-                        p = ei.partNumber;
-                    } else {
-                        return false;
-                    }
-                }
-            }
+        int getSize();
 
-            return isOk;
-        }
+        int getIndex();
+    }
+
+
+    interface Token {
+        String getUpToken();
+    }
+
+
+    interface RetryCounter {
+        void retried();
+
+        boolean inRange();
     }
 
 
     ///////////////////////////////////////
-
 
     abstract static class BlockData {
         protected final int blockDataSize;
@@ -676,61 +560,6 @@ public class FixBlockUploader {
 
         abstract String getFileName();
     }
-
-    interface DataWraper {
-        byte[] getData() throws IOException;
-
-        int getSize();
-
-        int getIndex();
-    }
-
-    interface Token {
-        String getUpToken();
-    }
-
-    interface RetryCounter {
-        void retried();
-
-        boolean inRange();
-    }
-
-    class NormalRetryCounter implements RetryCounter {
-        int count;
-
-        NormalRetryCounter(int max) {
-            this.count = max;
-        }
-
-        @Override
-        public void retried() {
-            this.count--;
-        }
-
-        @Override
-        public boolean inRange() {
-            return this.count > 0;
-        }
-    }
-
-    class AsyncRetryCounter implements RetryCounter {
-        volatile int count;
-
-        AsyncRetryCounter(int max) {
-            this.count = max;
-        }
-
-        @Override
-        public synchronized void retried() {
-            this.count--;
-        }
-
-        @Override
-        public synchronized boolean inRange() {
-            return this.count > 0;
-        }
-    }
-
 
     static class FileBlockData extends BlockData {
         final long totalLength;
@@ -824,7 +653,6 @@ public class FixBlockUploader {
             return fileName;
         }
     }
-
 
     static class InputStreamBlockData extends BlockData {
         final long totalLength;
@@ -942,15 +770,6 @@ public class FixBlockUploader {
         }
     }
 
-
-    static void sleepMillis(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            // do nothing
-        }
-    }
-
     static class StaticToken implements Token {
         String token;
 
@@ -975,8 +794,8 @@ public class FixBlockUploader {
         }
 
         /**
-         * @param key     start with X-Qn-Meta-
-         * @param value     not null or empty
+         * @param key   start with X-Qn-Meta-
+         * @param value not null or empty
          */
         public OptionsMeta addMetadata(String key, String value) {
             if (metadata == null) {
@@ -987,8 +806,8 @@ public class FixBlockUploader {
         }
 
         /**
-         * @param key     start with x:
-         * @param value     not null or empty
+         * @param key   start with x:
+         * @param value not null or empty
          */
         public OptionsMeta addCustomVar(String key, String value) {
             if (customVars == null) {
@@ -996,6 +815,171 @@ public class FixBlockUploader {
             }
             customVars.put(key, value);
             return this;
+        }
+    }
+
+    class MakefileBody {
+        List<EtagIdx> parts;
+        String fname;
+        String mimeType;
+        Map<String, Object> metadata;
+        Map<String, Object> customVars;
+
+        MakefileBody(List<EtagIdx> etags, String fileName, OptionsMeta params) {
+            this.parts = etags;
+            this.fname = fileName;
+            if (params != null) {
+                this.mimeType = params.mimeType;
+                if (params.metadata != null && params.metadata.size() > 0) {
+                    this.metadata = filterParam(params.metadata, "X-Qn-Meta-");
+                }
+                if (params.customVars != null && params.customVars.size() > 0) {
+                    this.customVars = filterParam(params.customVars, "x:");
+                }
+            }
+        }
+
+        private Map<String, Object> filterParam(StringMap param, final String keyPrefix) {
+            final Map<String, Object> ret = new HashMap<>();
+            final String prefix = keyPrefix.toLowerCase();
+            param.forEach(new StringMap.Consumer() {
+                @Override
+                public void accept(String key, Object value) {
+                    if (key != null && value != null && !StringUtils.isNullOrEmpty(value.toString())
+                            && key.toLowerCase().startsWith(prefix)) {
+                        ret.put(key, value);
+                    }
+                }
+            });
+            return ret;
+        }
+
+        public String json() {
+            return new Gson().toJson(this);
+        }
+    }
+
+    class EtagIdx {
+        String etag;
+        int partNumber;
+        transient int size;
+
+        EtagIdx(String etag, int idx, int size) {
+            this.etag = etag;
+            this.partNumber = idx;
+            this.size = size;
+        }
+
+        public String toString() {
+            return new Gson().toJson(this);
+        }
+
+    }
+
+    class Record {
+        long createdTime;
+        String uploadId;
+        long size;
+        List<EtagIdx> etagIdxes;
+    }
+
+    class UploadRecordHelper {
+        boolean needRecord;
+        Recorder recorder;
+        String recordFileKey;
+
+        UploadRecordHelper(Recorder recorder, String recordFileKey, boolean needRecord) {
+            this.needRecord = needRecord;
+            if (recorder != null) {
+                this.recorder = recorder;
+                this.recordFileKey = recordFileKey;
+            }
+        }
+
+        public Record reloadRecord() {
+            Record record = null;
+            if (recorder != null) {
+                try {
+                    byte[] data = recorder.get(recordFileKey);
+                    record = new Gson().fromJson(new String(data, Charset.forName("UTF-8")), Record.class);
+                } catch (Exception e) {
+                    // do nothing
+                }
+            }
+            return record;
+        }
+
+        public void delRecord() {
+            if (recorder != null) {
+                recorder.del(recordFileKey);
+            }
+        }
+
+
+        public void syncRecord(Record record) {
+            if (needRecord && recorder != null && record.etagIdxes.size() > 0) {
+                sortAsc(record.etagIdxes);
+                recorder.set(recordFileKey, new Gson().toJson(record).getBytes(Charset.forName("UTF-8")));
+            }
+        }
+
+        public boolean isActiveRecord(Record record, BlockData blockData) {
+            //// 服务端 7 天内有效，设置 5 天 ////
+            boolean isOk = record != null
+                    && record.createdTime > System.currentTimeMillis() - 1000 * 3600 * 24 * 5
+                    && !StringUtils.isNullOrEmpty(record.uploadId)
+                    && record.etagIdxes != null && record.etagIdxes.size() > 0
+                    && record.size > 0 && record.size <= blockData.size();
+            if (isOk) {
+                int p = 0;
+                // PartNumber start with 1 and increase by 1 //
+                // 当前文件各块串行 if (ei.idx == p + 1) . 若并行，需额外考虑 //
+                for (EtagIdx ei : record.etagIdxes) {
+                    if (ei.partNumber > p) {
+                        p = ei.partNumber;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+
+            return isOk;
+        }
+    }
+
+    class NormalRetryCounter implements RetryCounter {
+        int count;
+
+        NormalRetryCounter(int max) {
+            this.count = max;
+        }
+
+        @Override
+        public void retried() {
+            this.count--;
+        }
+
+        @Override
+        public boolean inRange() {
+            return this.count > 0;
+        }
+    }
+
+    class AsyncRetryCounter implements RetryCounter {
+        volatile int count;
+
+        AsyncRetryCounter(int max) {
+            this.count = max;
+        }
+
+        @Override
+        public synchronized void retried() {
+            this.count--;
+        }
+
+        @Override
+        public synchronized boolean inRange() {
+            return this.count > 0;
         }
     }
 

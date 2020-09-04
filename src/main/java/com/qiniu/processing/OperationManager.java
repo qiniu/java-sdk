@@ -152,10 +152,6 @@ public final class OperationManager {
         return pfop(bucket, key, fops, params);
     }
 
-    private class PfopResult {
-        public String persistentId;
-    }
-
     /**
      * 根据persistentId查询任务状态
      */
@@ -178,5 +174,9 @@ public final class OperationManager {
         T object = response.jsonToObject(retClass);
         response.close();
         return object;
+    }
+
+    private class PfopResult {
+        public String persistentId;
     }
 }

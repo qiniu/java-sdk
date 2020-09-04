@@ -24,6 +24,16 @@
     - [x] 启用流: enableStream(String namespaceId, String streamId)
     - [x] 查询推流记录: queryStreamPubHistories(String namespaceId, String streamId, int start, int end, int offset, int line) 
 
+- 设备管理
+    - [x] 创建设备: createDevice(String namespaceId, Device device) 
+	- [x] 删除设备: deleteDevice(String namespaceId, String gbId)
+	- [x] 更新设备: updateDevice(String namespaceId, String gbId, PatchOperation[] patchOperation)
+	- [x] 查询设备信息: queryDevice(String namespaceId, String gbId)
+	- [x] 获取设备列表: listDevice(String namespaceId, int offset, int line, String prefix, String state, int qtype)
+	- [x] 获取通道列表: listChannels(String namespaceId, String gbId, String prefix)
+	- [x] 启动设备拉流: startDevice(String namespaceId, String gbId, String channels)
+    - [x] 停止设备拉流: stopDevice(String namespaceId, String gbId, String channels)
+
 - 模板管理
     - [x] 创建模板: createTemplate(Template template)
     - [x] 删除模板: deleteTemplate(String templateId)
@@ -66,20 +76,31 @@
     * [启用流](#启用流)
     * [删除流](#删除流)
 
-  - [模板管理](#模板管理)
+  - [设备管理](#设备管理)
 
+    - [创建设备](#创建设备)
+    - [删除设备](#删除设备)
+    - [查询设备](#查询设备)
+    - [更新设备](#更新设备)
+    - [获取设备列表](#获取设备列表)
+    - [获取通道列表](#获取通道列表)
+    - [启动设备拉流](#启动设备拉流)
+    - [停止设备拉流](#停止设备拉流)
+  
+  - [模板管理](#模板管理)
+  
     * [创建模板](#创建模板)
     * [查询模板](#查询模板)
     * [更新模板](#更新模板)
     * [获取模板列表](#获取模板列表)
     * [删除模板](#删除模板)
-
+  
   - [录制管理](#录制管理)
-
+  
     - [查询录制记录](#查询录制记录)
     - [查询流封面](#查询流封面)
     - [获取截图列表](#获取截图列表)
-
+  
     
 
 ## Usage
@@ -247,6 +268,79 @@ streamManager.enableStream(namespaceId, stream.getStreamID());
 ```
 // 删除流
 streamManager.deleteStream(namespaceId, stream.getStreamID());
+```
+
+### 设备管理
+
+#### 创建设备
+
+```
+// 创建设备
+DeviceManager deviceManager = new DeviceManager(auth);
+Device device = new Device();
+device.setUsername("admin");
+device.setPassword("QQQNNN111");
+
+String namespaceId = "3nm4x0v0h6vjr";
+deviceManager.createDevice(namespaceId, device);
+```
+
+#### 删除设备
+
+```
+deviceManager.deleteDevice(namespaceId, device.getGbId());
+```
+
+#### 查询设备
+
+```
+// 查询设备
+device.setGbId("31011500991320000056");
+
+deviceManager.queryDevice(namespaceId, device.getGbId());
+```
+
+#### 更新设备
+
+```
+// 更新设备
+PatchOperation[] patchOperation = {new PatchOperation("replace", "name", "GBTEST")};
+
+deviceManager.updateDevice(namespaceId, device.getGbId(), patchOperation);
+```
+
+#### 获取设备列表
+
+```
+// 获取设备列表
+int offset = 0;
+int line = 3;
+int qtype = 0;
+String prefix = "310";
+String state = "notReg";
+
+deviceManager.listDevice(namespaceId, offset, line, prefix, state, qtype);
+```
+
+#### 获取通道列表
+
+```
+// 禁用空间
+deviceManager.listChannels(namespaceId, device.getGbId(), prefix);
+```
+
+#### 启动设备拉流
+
+```
+// 启动设备拉流
+deviceManager.startDevice(namespaceId, device.getGbId(), "31011500991320000056");
+```
+
+#### 停止设备拉流
+
+```
+// 停止设备拉流
+deviceManager.stopDevice(namespaceId, device.getGbId(), "31011500991320000056");
 ```
 
 

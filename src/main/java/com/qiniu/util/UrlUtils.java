@@ -5,6 +5,34 @@ import java.nio.charset.Charset;
 import java.util.BitSet;
 
 public class UrlUtils {
+    public static final String ALWAYS_NON_ENCODING = "abcdefghijklmnopqrstuvwxyz"
+            + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            + "0123456789"
+            + "-_.";
+    // EagleId: 767ba4a715644841959032513e
+    // Location: /s%E5%85%B1df/%2A/~/@/:/%21/$/&/&amp;/%27/%28/%29/%2A/+/-/_/,/;%22/=/%20/sdf/%2A/~/@/:/%21/$/&/&amp;/%27/%28/%29/%2A/+/-/_/,/;%22/=/%20/?sdfr=34sdf/*/~/@/:/!/$/&/&amp;/%27/(/)/*/+/-/_/,/;%22/=/%20/
+    // Via: cache20.l2cn1824[75,301-0,M], cache39.l2cn1824[76,0], vcache2.cn822[145,301-0,M], vcache19.cn822[147,0]
+    // X-Cache: MISS TCP_MISS dirn:-2:-2
+    // X-Log: X-Log
+    // X-M-Log: QNM:xs1166;SRCPROXY:xs488;SRC:2/301;SRCPROXY:2/301;QNM3:50/301
+    // X-M-Reqid: kwYAAE1_CVUWKrYV
+    // X-Qiniu-Zone: 0
+    // X-Qnm-Cache: Validate,MissValidate
+    // X-Reqid: kowAAABb8VcWKrYV
+    // CHECKSTYLE:ON
+    public static final String PLUS_NON_ENCODING = "~@:$&+,;=/?";
+    /**
+     * https://github.com/google/guava/blob/v28.0/guava/src/com/google/common/net/UrlEscapers.java
+     */
+    public static final String PLUS_NON_ENCODING2 = "~@:!$&'()*+,;=/?";
+    static final int caseDiff = ('a' - 'A');
+
+    // CHECKSTYLE:OFF
+    // http://asfd.clouddn.com//s共df/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;"/=/ /sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;"/=/ /?sdfr=34sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;"/=/ /
+
+    // Request URL: http://asfd.clouddn.com//s%E5%85%B1df/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;%22/=/%20/sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;%22/=/%20/?sdfr=34sdf/*/~/@/:/!/$/&/&amp;/%27/(/)/*/+/-/_/,/;%22/=/%20/
+    // Request Method: GET
+
     private UrlUtils() {
     }
 
@@ -19,37 +47,6 @@ public class UrlUtils {
         }
         return url + queryStr.toString();
     }
-
-    static final int caseDiff = ('a' - 'A');
-
-    public static final String ALWAYS_NON_ENCODING = "abcdefghijklmnopqrstuvwxyz"
-                                                      + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                                      + "0123456789"
-                                                      + "-_.";
-
-    // CHECKSTYLE:OFF
-    // http://asfd.clouddn.com//s共df/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;"/=/ /sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;"/=/ /?sdfr=34sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;"/=/ /
-
-    // Request URL: http://asfd.clouddn.com//s%E5%85%B1df/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;%22/=/%20/sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/-/_/,/;%22/=/%20/?sdfr=34sdf/*/~/@/:/!/$/&/&amp;/%27/(/)/*/+/-/_/,/;%22/=/%20/
-    // Request Method: GET
-
-    // EagleId: 767ba4a715644841959032513e
-    // Location: /s%E5%85%B1df/%2A/~/@/:/%21/$/&/&amp;/%27/%28/%29/%2A/+/-/_/,/;%22/=/%20/sdf/%2A/~/@/:/%21/$/&/&amp;/%27/%28/%29/%2A/+/-/_/,/;%22/=/%20/?sdfr=34sdf/*/~/@/:/!/$/&/&amp;/%27/(/)/*/+/-/_/,/;%22/=/%20/
-    // Via: cache20.l2cn1824[75,301-0,M], cache39.l2cn1824[76,0], vcache2.cn822[145,301-0,M], vcache19.cn822[147,0]
-    // X-Cache: MISS TCP_MISS dirn:-2:-2
-    // X-Log: X-Log
-    // X-M-Log: QNM:xs1166;SRCPROXY:xs488;SRC:2/301;SRCPROXY:2/301;QNM3:50/301
-    // X-M-Reqid: kwYAAE1_CVUWKrYV
-    // X-Qiniu-Zone: 0
-    // X-Qnm-Cache: Validate,MissValidate
-    // X-Reqid: kowAAABb8VcWKrYV
-    // CHECKSTYLE:ON
-    public static final String PLUS_NON_ENCODING = "~@:$&+,;=/?";
-
-    /**
-     * https://github.com/google/guava/blob/v28.0/guava/src/com/google/common/net/UrlEscapers.java
-     * */
-    public static final String PLUS_NON_ENCODING2 = "~@:!$&'()*+,;=/?";
 
     public static String urlEncode(String s) {
         return urlEncode(s, Charset.forName("UTF-8"));
@@ -104,8 +101,11 @@ public class UrlUtils {
             throw new UnsupportedEncodingException(enc);
         }
         */
+        if (charset == null) {
+            charset = Charset.forName("UTF-8");
+        }
 
-        for (int i = 0; i < s.length();) {
+        for (int i = 0; i < s.length(); ) {
             int c = (int) s.charAt(i);
             //System.out.println("Examining character: " + c);
             if (dontNeedEncoding.get(c)) {

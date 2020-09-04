@@ -18,6 +18,28 @@ public class Headers {
 
     }
 
+    public static Headers of(Map<String, String> headers) {
+        Headers inner = new Headers();
+        inner.innerHeaders = okhttp3.Headers.of(headers);
+        return inner;
+    }
+
+    public static Headers of(StringMap headers) {
+        final Builder builder = new Builder();
+        if (headers == null) {
+            return builder.build();
+        }
+        headers.forEach(new StringMap.Consumer() {
+            @Override
+            public void accept(String key, Object value) {
+                if (null != value) {
+                    builder.add(key, value.toString());
+                }
+            }
+        });
+        return builder.build();
+    }
+
     /**
      * Returns the last value corresponding to the specified field, or null.
      */
@@ -44,29 +66,6 @@ public class Headers {
         builder.innerBuilder = innerHeaders.newBuilder();
         return builder;
     }
-
-    public static Headers of(Map<String, String> headers) {
-        Headers inner = new Headers();
-        inner.innerHeaders = okhttp3.Headers.of(headers);
-        return inner;
-    }
-
-    public static Headers of(StringMap headers) {
-        final Builder builder = new Builder();
-        if (headers == null) {
-            return builder.build();
-        }
-        headers.forEach(new StringMap.Consumer() {
-            @Override
-            public void accept(String key, Object value) {
-                if (null != value) {
-                    builder.add(key, value.toString());
-                }
-            }
-        });
-        return builder.build();
-    }
-
 
     public static final class Builder {
         // 代理了部分 okhttp3.Headers.Builder 方法 //

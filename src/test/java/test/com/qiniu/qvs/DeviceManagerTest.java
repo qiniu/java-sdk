@@ -2,35 +2,34 @@ package test.com.qiniu.qvs;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
-import com.qiniu.qvs.NameSpaceManager;
-import com.qiniu.qvs.model.NameSpace;
+import com.qiniu.qvs.DeviceManager;
+import com.qiniu.qvs.model.Device;
 import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.util.Auth;
 import org.junit.Before;
 import org.junit.Test;
 import test.com.qiniu.TestConfig;
 
-
-public class NameSpaceTest {
+public class DeviceManagerTest {
     Auth auth = TestConfig.testAuth;
-    private NameSpaceManager nameSpaceManager;
+    private DeviceManager deviceManager;
     private Response res = null;
-    private String namespaceId = "2akrarsj8zp0w";
+    private String namespaceId = "3nm4x0v0h6vjr";
+    private String gbId = "31011500991320000056";
+
 
     @Before
     public void setUp() throws Exception {
-        this.nameSpaceManager = new NameSpaceManager(auth);
+        this.deviceManager = new DeviceManager(auth);
     }
 
     @Test
-    public void testCreateNameSpace() {
-        NameSpace nameSpace = new NameSpace();
-        nameSpace.setName("hugo002");
-        nameSpace.setAccessType("rtmp");
-        nameSpace.setRtmpUrlType(nameSpace.Static);
-        nameSpace.setDomains(new String[]{"qtest002.com"});
+    public void testCreateDevice() {
+        Device device = new Device();
+        device.setUsername("admin");
+        device.setPassword("QQQNNN111");
         try {
-            res = nameSpaceManager.createNameSpace(nameSpace);
+            res = deviceManager.createDevice(namespaceId, device);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -42,9 +41,9 @@ public class NameSpaceTest {
     }
 
     @Test
-    public void testQueryNameSpace() {
+    public void testQueryDevice() {
         try {
-            res = nameSpaceManager.queryNameSpace(namespaceId);
+            res = deviceManager.queryDevice(namespaceId, gbId);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -56,10 +55,10 @@ public class NameSpaceTest {
     }
 
     @Test
-    public void testUpdateNameSpace() {
-        PatchOperation[] patchOperation = {new PatchOperation("replace", "recordTemplateApplyAll", true)};
+    public void testUpdateDevice() {
+        PatchOperation[] patchOperation = {new PatchOperation("replace", "name", "GBTEST")};
         try {
-            res = nameSpaceManager.updateNameSpace(namespaceId, patchOperation);
+            res = deviceManager.updateDevice(namespaceId, gbId, patchOperation);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -71,12 +70,14 @@ public class NameSpaceTest {
     }
 
     @Test
-    public void testListNameSpace() {
+    public void testListDevice() {
         int offset = 0;
-        int line = 1;
-        String sortBy = "asc:updatedAt";
+        int line = 3;
+        int qtype = 0;
+        String prefix = "310";
+        String state = "notReg";
         try {
-            res = nameSpaceManager.listNameSpace(offset, line, sortBy);
+            res = deviceManager.listDevice(namespaceId, offset, line, prefix, state, qtype);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -88,9 +89,10 @@ public class NameSpaceTest {
     }
 
     @Test
-    public void testDisableNameSpace() {
+    public void testListChannels() {
+        String prefix = "310";
         try {
-            res = nameSpaceManager.disableNameSpace(namespaceId);
+            res = deviceManager.listChannels(namespaceId, gbId, prefix);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -102,9 +104,9 @@ public class NameSpaceTest {
     }
 
     @Test
-    public void testEnableNameSpace() {
+    public void testStartDevice() {
         try {
-            res = nameSpaceManager.enableNameSpace(namespaceId);
+            res = deviceManager.startDevice(namespaceId, gbId, "31011500991320000056");
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -116,9 +118,9 @@ public class NameSpaceTest {
     }
 
     @Test
-    public void testDeleteNameSpace() {
+    public void testStopDevice() {
         try {
-            res = nameSpaceManager.deleteNameSpace(namespaceId);
+            res = deviceManager.stopDevice(namespaceId, gbId, "31011500991320000056");
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -129,4 +131,17 @@ public class NameSpaceTest {
         }
     }
 
+    @Test
+    public void testDeleteDevice() {
+        try {
+            res = deviceManager.deleteDevice(namespaceId, gbId);
+            System.out.println(res.bodyString());
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } finally {
+            if (res != null) {
+                res.close();
+            }
+        }
+    }
 }

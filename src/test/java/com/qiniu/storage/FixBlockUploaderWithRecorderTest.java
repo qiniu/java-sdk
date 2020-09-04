@@ -5,7 +5,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.persistent.FileRecorder;
-import com.qiniu.util.Etag;
+import com.qiniu.util.EtagV2;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.Before;
@@ -96,7 +96,7 @@ public class FixBlockUploaderWithRecorderTest {
         final File f = TempFile.createFileOld(size);
         final FixBlockUploader.FileBlockData fbd = new FixBlockUploader.FileBlockData(blockSize, f);
         System.out.println(f.getAbsolutePath());
-        final String etag = Etag.file(f);
+        final String etag = EtagV2.file(f, blockSize);
         final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
 
@@ -285,7 +285,7 @@ public class FixBlockUploaderWithRecorderTest {
         String recordFileKey;
 
         UploadRecordHelper(Recorder recorder, String bucket, String base64Key,
-                                  String contentUUID, String uploaderSUID) {
+                           String contentUUID, String uploaderSUID) {
             if (recorder != null) {
                 this.recorder = recorder;
                 recordFileKey = recorder.recorderKeyGenerate(bucket, base64Key, contentUUID, uploaderSUID);
