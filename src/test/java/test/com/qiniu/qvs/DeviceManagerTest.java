@@ -6,6 +6,7 @@ import com.qiniu.qvs.DeviceManager;
 import com.qiniu.qvs.model.Device;
 import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.util.Auth;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import test.com.qiniu.TestConfig;
@@ -14,8 +15,9 @@ public class DeviceManagerTest {
     Auth auth = TestConfig.testAuth;
     private DeviceManager deviceManager;
     private Response res = null;
-    private String namespaceId = "3nm4x0v0h6vjr";
-    private String gbId = "31011500991320000056";
+    private String namespaceId = "2xenzw3lpzpdz";
+    private String gbId = "31011500991320000126";
+    private String[] channels = {"31011500991320000126"};
 
 
     @Before
@@ -30,8 +32,10 @@ public class DeviceManagerTest {
         device.setPassword("QQQNNN111");
         try {
             res = deviceManager.createDevice(namespaceId, device);
+            Assert.assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
+            Assert.assertEquals("401", res.statusCode);
             e.printStackTrace();
         } finally {
             if (res != null) {
@@ -44,8 +48,10 @@ public class DeviceManagerTest {
     public void testQueryDevice() {
         try {
             res = deviceManager.queryDevice(namespaceId, gbId);
+            Assert.assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
+            Assert.assertEquals("401", res.statusCode);
             e.printStackTrace();
         } finally {
             if (res != null) {
@@ -59,8 +65,10 @@ public class DeviceManagerTest {
         PatchOperation[] patchOperation = {new PatchOperation("replace", "name", "GBTEST")};
         try {
             res = deviceManager.updateDevice(namespaceId, gbId, patchOperation);
+            Assert.assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
+            Assert.assertEquals("401", res.statusCode);
             e.printStackTrace();
         } finally {
             if (res != null) {
@@ -78,8 +86,10 @@ public class DeviceManagerTest {
         String state = "notReg";
         try {
             res = deviceManager.listDevice(namespaceId, offset, line, prefix, state, qtype);
+            Assert.assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
+            Assert.assertEquals("401", res.statusCode);
             e.printStackTrace();
         } finally {
             if (res != null) {
@@ -93,6 +103,7 @@ public class DeviceManagerTest {
         String prefix = "310";
         try {
             res = deviceManager.listChannels(namespaceId, gbId, prefix);
+            Assert.assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -106,7 +117,8 @@ public class DeviceManagerTest {
     @Test
     public void testStartDevice() {
         try {
-            res = deviceManager.startDevice(namespaceId, gbId, "31011500991320000056");
+            res = deviceManager.startDevice(namespaceId, gbId, channels);
+            Assert.assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -120,7 +132,8 @@ public class DeviceManagerTest {
     @Test
     public void testStopDevice() {
         try {
-            res = deviceManager.stopDevice(namespaceId, gbId, "31011500991320000056");
+            res = deviceManager.stopDevice(namespaceId, gbId, channels);
+            Assert.assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -135,8 +148,10 @@ public class DeviceManagerTest {
     public void testDeleteDevice() {
         try {
             res = deviceManager.deleteDevice(namespaceId, gbId);
+            Assert.assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
+            Assert.assertEquals("401", res.statusCode);
             e.printStackTrace();
         } finally {
             if (res != null) {
