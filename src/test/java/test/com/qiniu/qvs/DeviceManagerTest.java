@@ -16,8 +16,8 @@ public class DeviceManagerTest {
     private DeviceManager deviceManager;
     private Response res = null;
     private String namespaceId = "2xenzw3lpzpdz";
-    private String gbId = "31011500991320000126";
-    private String[] channels = {"31011500991320000126"};
+    private String gbId = "31011500991320000127";
+    private String[] channels = {"31011500991320000127"};
 
 
     @Before
@@ -136,22 +136,6 @@ public class DeviceManagerTest {
             Assert.assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
-            e.printStackTrace();
-        } finally {
-            if (res != null) {
-                res.close();
-            }
-        }
-    }
-
-    @Test
-    public void testDeleteDevice() {
-        try {
-            res = deviceManager.deleteDevice(namespaceId, gbId);
-            Assert.assertNotNull(res);
-            System.out.println(res.bodyString());
-        } catch (QiniuException e) {
-            Assert.assertEquals("401", res.statusCode);
             e.printStackTrace();
         } finally {
             if (res != null) {
