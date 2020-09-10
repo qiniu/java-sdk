@@ -6,6 +6,7 @@ import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.MediaType;
+import okhttp3.Request;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +20,10 @@ public final class Response {
     public static final int InvalidFile = -3;
     public static final int Cancelled = -2;
     public static final int NetworkError = -1;
+    /**
+     * 请求方法
+     */
+    public final String method;
     /**
      * 回复状态码
      */
@@ -62,6 +67,21 @@ public final class Response {
         this.error = error;
         this.address = address;
         this.body = body;
+        this.method = getMethod(response);
+    }
+
+    private String getMethod(okhttp3.Response response) {
+        String method = null;
+        if (response != null) {
+            Request req = response.request();
+            if (req != null) {
+                method = req.method();
+            }
+        }
+        if (method == null) {
+            method = "";
+        }
+        return method;
     }
 
     public static Response create(okhttp3.Response response, String address, double duration) {
@@ -227,7 +247,8 @@ public final class Response {
     public String getInfo() {
         String[] msg = new String[3];
         try {
-            msg[0] = url();
+            msg[0] = this.method;
+            msg[0] += (" " + url());
         } catch (Throwable t) {
         }
         try {
