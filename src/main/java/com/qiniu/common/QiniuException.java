@@ -26,17 +26,17 @@ public final class QiniuException extends IOException {
     }
 
     public QiniuException(Exception e, String msg) {
-        super(msg, e);
+        super(msg != null ? msg : (e != null ? e.getMessage() : null), e);
         this.response = null;
         this.error = msg;
     }
 
     public String url() {
-        return response.url();
+        return response != null ? response.url() : "";
     }
 
     public int code() {
-        return response == null ? -1 : response.statusCode;
+        return response != null ? response.statusCode : -1;
     }
 
     public String error() {
