@@ -116,7 +116,7 @@ public class StreamManager {
     */
     public Response disableStream(String namespaceId, String streamId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/streams/%s/disabled", apiServer, namespaceId, streamId);
-        return QvsResponse.post(url, null, client, auth);
+        return QvsResponse.post(url, new StringMap(), client, auth);
     }
 
     /*
@@ -124,16 +124,13 @@ public class StreamManager {
     */
     public Response enableStream(String namespaceId, String streamId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/streams/%s/enabled", apiServer, namespaceId, streamId);
-        return QvsResponse.post(url, null, client, auth);
+        return QvsResponse.post(url, new StringMap(), client, auth);
     }
 
     // 查询推流历史记录
     public Response queryStreamPubHistories(String namespaceId, String streamId, int start, int end, int offset, int line) throws QiniuException {
-        if (start <= 0 || end < 0 || (start >= end && end != 0)) {
-            throw new QiniuException(new IllegalArgumentException("bad argument" + start + "," + end));
-        }
         String requestUrl = String.format("%s/v1/namespaces/%s/streams/%s/pubhistories", apiServer, namespaceId, streamId);
-        StringMap map = new StringMap().put("start", start).put("end", end).
+        StringMap map = new StringMap().putNotNull("start", start).putNotNull("end", end).
                 putNotNull("offset", offset).putNotNull("line", line);
         requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
         return QvsResponse.get(requestUrl, client, auth);
@@ -141,11 +138,8 @@ public class StreamManager {
 
     // 查询录制记录
     public Response queryStreamRecordHistories(String namespaceId, String streamId, int start, int end, int line, String marker) throws QiniuException {
-        if (start <= 0 || end < 0 || (start >= end && end != 0)) {
-            throw new QiniuException(new IllegalArgumentException("bad argument" + start + "," + end));
-        }
         String requestUrl = String.format("%s/v1/namespaces/%s/streams/%s/recordhistories", apiServer, namespaceId, streamId);
-        StringMap map = new StringMap().put("start", start).put("end", end)
+        StringMap map = new StringMap().putNotNull("start", start).putNotNull("end", end)
                 .putNotNull("line", line).putNotEmpty("marker", marker);
         requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
         return QvsResponse.get(requestUrl, client, auth);
@@ -159,13 +153,16 @@ public class StreamManager {
 
     // 获取截图列表
     public Response streamsSnapshots(String namespaceId, String streamId, int start, int end, int type, int line, String marker) throws QiniuException {
-        if (start <= 0 || end < 0 || (start >= end && end != 0)) {
-            throw new QiniuException(new IllegalArgumentException("bad argument" + start + "," + end));
-        }
         String requestUrl = String.format("%s/v1/namespaces/%s/streams/%s/snapshots", apiServer, namespaceId, streamId);
-        StringMap map = new StringMap().put("start", start).put("end", end)
+        StringMap map = new StringMap().putNotNull("start", start).putNotNull("end", end)
                 .putNotNull("line", line).putNotEmpty("marker", marker).put("type", type);
         requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
         return QvsResponse.get(requestUrl, client, auth);
+    }
+    
+    // 停用流
+    public Response stopStream(String namespaceId, String streamId) throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/streams/%s/stop", apiServer, namespaceId, streamId);
+        return QvsResponse.post(url, new StringMap(), client, auth);
     }
 }

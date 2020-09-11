@@ -22,6 +22,10 @@ public class NameSpace {
     private int onlineStreamCount;  // 在线流数量
     private int disabledStreamCount;  // 禁用流数量
 
+    private int urlMode; // 推拉流地址计算方式，1:static, 2:dynamic
+    private String zone; // 存储区域
+    private boolean hlsLowLatency; // hls低延迟开关
+
     public String getId() {
         return id;
     }
@@ -165,4 +169,29 @@ public class NameSpace {
     public void setDisabledStreamCount(int disabledStreamCount) {
         this.disabledStreamCount = disabledStreamCount;
     }
+
+    public int getUrlMode() {
+        return urlMode;
+    }
+
+    public void setUrlMode(int urlMode) {
+        this.urlMode = urlMode;
+    }
+
+    public String getZone() {
+        return zone;
+    }
+
+    public void setZone(String zone) {
+        this.zone = zone;
+    }
+
+    public boolean isHlsLowLatency() {
+        return hlsLowLatency;
+    }
+
+    public void setHlsLowLatency(boolean hlsLowLatency) {
+        this.hlsLowLatency = hlsLowLatency;
+    }
+
 }

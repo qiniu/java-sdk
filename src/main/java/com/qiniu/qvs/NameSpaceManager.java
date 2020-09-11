@@ -49,6 +49,9 @@ public class NameSpaceManager {
         params.putNotNull("snapshotTemplateId", nameSpace.getSnapShotTemplateId());
         params.putNotNull("recordTemplateApplyAll", nameSpace.isRecordTemplateApplyAll());
         params.putNotNull("snapshotTemplateApplyAll", nameSpace.isSnapTemplateApplyAll());
+        params.putNotNull("urlMode", nameSpace.getUrlMode());
+        params.putNotNull("zone", nameSpace.getZone());
+        params.putNotNull("hlsLowLatency", nameSpace.isHlsLowLatency());
 
         String url = String.format("%s/v1/namespaces", apiServer);
         return QvsResponse.post(url, params, client, auth);
@@ -96,7 +99,7 @@ public class NameSpaceManager {
     */
     public Response disableNameSpace(String namespaceId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/disabled", apiServer, namespaceId);
-        return QvsResponse.post(url, null, client, auth);
+        return QvsResponse.post(url, new StringMap(), client, auth);
     }
 
     /*
@@ -104,7 +107,7 @@ public class NameSpaceManager {
     */
     public Response enableNameSpace(String namespaceId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/enabled", apiServer, namespaceId);
-        return QvsResponse.post(url, null, client, auth);
+        return QvsResponse.post(url, new StringMap(), client, auth);
     }
 
 
