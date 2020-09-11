@@ -23,7 +23,8 @@
     - [x] 禁用流: disableStream(String namespaceId, String streamId) 
     - [x] 启用流: enableStream(String namespaceId, String streamId)
     - [x] 查询推流记录: queryStreamPubHistories(String namespaceId, String streamId, int start, int end, int offset, int line) 
-
+    - [x] 停用流: stopStream(String namespaceId, String streamId)
+    
 - 设备管理
     - [x] 创建设备: createDevice(String namespaceId, Device device) 
 	- [x] 删除设备: deleteDevice(String namespaceId, String gbId)
@@ -75,9 +76,10 @@
     * [禁用流](#禁用流)
     * [启用流](#启用流)
     * [删除流](#删除流)
-
-  - [设备管理](#设备管理)
-
+    * [停用流](#停用流)
+  
+- [设备管理](#设备管理)
+  
     - [创建设备](#创建设备)
     - [删除设备](#删除设备)
     - [查询设备](#查询设备)
@@ -269,6 +271,15 @@ streamManager.enableStream(namespaceId, stream.getStreamID());
 // 删除流
 streamManager.deleteStream(namespaceId, stream.getStreamID());
 ```
+
+#### 停用流
+
+```
+// 停用流
+streamManager.stopStream(namespaceId, stream.getStreamID());
+```
+
+
 
 ### 设备管理
 
