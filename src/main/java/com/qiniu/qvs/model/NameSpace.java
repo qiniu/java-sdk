@@ -1,13 +1,13 @@
 package com.qiniu.qvs.model;
 
 public class NameSpace {
+    public static final int Static = 1;
+    public static final int Dynamic = 2;
     private String id;
     private String name; // 空间名称(格式"^[a-zA-Z0-9_-]{1,100}$")
     private String desc;  // 空间描述
     private String accessType;  // 接入类型"gb28181"或者“rtmp”
     private int rtmpUrlType;    // accessType为“rtmp”时，推拉流地址计算方式，1:static, 2:dynamic
-    public static final int Static = 1;
-    public static final int Dynamic = 2;
     private String[] domains;   // 直播域名
     private String callback;   // 后台服务器回调URL
     private boolean disabled;   // 流是否被启用, false:启用,true:禁用

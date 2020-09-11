@@ -1,6 +1,10 @@
 package com.qiniu.qvs.model;
 
 public class Template {
+    public static final int RecordNone = 0;
+    public static final int RecordRealtime = 1;
+    public static final int RecordByRequired = 2;
+    public static final int RecordTsFormat = 0;
     private String id;
     private String name; // 模版名称，格式为 4 ~ 100个字符，可包含小写字母、数字、中划线、汉字)
     private String desc;  // 模版描述
@@ -11,14 +15,8 @@ public class Template {
     private int recordInterval;    // 录制文件时长(单位为秒)
     private int snapInterval;    // 截图间隔(单位为秒)
     private String m3u8FileNameTemplate;    // m3u8文件命名格式
-
     private int recordType;      // 录制模式, 0（不录制）,1（实时录制）, 2（按需录制）
-    public static final int RecordNone = 0;
-    public static final int RecordRealtime = 1;
-    public static final int RecordByRequired = 2;
     private int recordFileFormat; // 录制文件存储格式,取值：0（ts格式存储）
-    public static final int RecordTsFormat = 0;
-
     //record/ts/${namespaceId}/${streamId}/${startMs}-${endMs}.ts
     private String tsFilenametemplate;
     //record/snap/${namespaceId}/${streamId}/${startMs}.jpg // 录制封面

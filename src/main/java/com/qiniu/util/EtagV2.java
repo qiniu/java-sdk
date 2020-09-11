@@ -132,3 +132,4 @@ public class EtagV2 {
         return UrlSafeBase64.encodeToString(ret);
     }
 }
+
