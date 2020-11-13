@@ -11,6 +11,8 @@ import okio.BufferedSink;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -69,17 +71,34 @@ public final class Client {
 
         builder.dispatcher(dispatcher);
         builder.connectionPool(connectionPool);
-        builder.addNetworkInterceptor(new Interceptor() {
+        builder.eventListener(new EventListener() {
+            @Override
+            public void connectStart(Call call, InetSocketAddress inetSocketAddress, Proxy proxy) {
+                Request req = call.request();
+                if (req != null) {
+                    IpTag tag = (IpTag) req.tag();
+                    tag.ip = inetSocketAddress + "";
+                }
+            }
+        });
+        builder.addInterceptor(new Interceptor() {
             @Override
             public okhttp3.Response intercept(Chain chain) throws IOException {
                 Request request = chain.request();
-
-                okhttp3.Response response = chain.proceed(request);
-                IpTag tag = (IpTag) request.tag();
+                okhttp3.Response response = null;
+                IOException ex = null;
                 try {
-                    tag.ip = chain.connection().socket().getRemoteSocketAddress().toString();
-                } catch (Exception e) {
-                    tag.ip = "";
+                    response = chain.proceed(request);
+                } catch (IOException e) {
+                    if (e instanceof java.net.ConnectException) {
+                        ex = e;
+                    } else {
+                        IpTag tag = (IpTag) request.tag();
+                        ex = new IOException(e + " on " + tag.ip, e);
+                    }
+                }
+                if (ex != null) {
+                    throw ex;
                 }
                 return response;
             }
@@ -445,6 +464,6 @@ public final class Client {
     }
 
     private static class IpTag {
-        public String ip = null;
+        public String ip = "";
     }
 }
