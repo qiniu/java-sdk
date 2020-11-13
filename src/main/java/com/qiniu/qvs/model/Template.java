@@ -15,8 +15,10 @@ public class Template {
     private int recordInterval;    // 录制文件时长(单位为秒)
     private int snapInterval;    // 截图间隔(单位为秒)
     private String m3u8FileNameTemplate;    // m3u8文件命名格式
+    private String flvFileNameTemplate;     // flv文件命名格式
+    private String mp4FileNameTemplate;     // mp4文件命名格式
     private int recordType;      // 录制模式, 0（不录制）,1（实时录制）, 2（按需录制）
-    private int recordFileFormat; // 录制文件存储格式,取值：0（ts格式存储）
+    private int recordFileFormat; // 录制文件存储格式(多选), 范围：1(001)～7(111), 从左往右的三位二进制数分别代表MP4, FLV, M3U8; 0代表不选择该格式, 1代表选择;例如：2(010)代表选择FLV格式，6(110)代表选择MP4和FLV格式，1(001)代表选择M3U8格式，7(111)代表三种格式均选择
     //record/ts/${namespaceId}/${streamId}/${startMs}-${endMs}.ts
     private String tsFilenametemplate;
     //record/snap/${namespaceId}/${streamId}/${startMs}.jpg // 录制封面
@@ -211,4 +213,21 @@ public class Template {
     public void setM3u8FileNameTemplate(String m3u8FileNameTemplate) {
         this.m3u8FileNameTemplate = m3u8FileNameTemplate;
     }
+
+    public String getFlvFileNameTemplate() {
+        return flvFileNameTemplate;
+    }
+
+    public void setFlvFileNameTemplate(String flvFileNameTemplate) {
+        this.flvFileNameTemplate = flvFileNameTemplate;
+    }
+
+    public String getMp4FileNameTemplate() {
+        return mp4FileNameTemplate;
+    }
+
+    public void setMp4FileNameTemplate(String mp4FileNameTemplate) {
+        this.mp4FileNameTemplate = mp4FileNameTemplate;
+    }
+
 }

@@ -137,10 +137,10 @@ public class StreamManager {
     }
 
     // 查询录制记录
-    public Response queryStreamRecordHistories(String namespaceId, String streamId, int start, int end, int line, String marker) throws QiniuException {
+    public Response queryStreamRecordHistories(String namespaceId, String streamId, int start, int end, int line, String marker, String format) throws QiniuException {
         String requestUrl = String.format("%s/v1/namespaces/%s/streams/%s/recordhistories", apiServer, namespaceId, streamId);
         StringMap map = new StringMap().putNotNull("start", start).putNotNull("end", end)
-                .putNotNull("line", line).putNotEmpty("marker", marker);
+                .putNotNull("line", line).putNotEmpty("marker", marker).putNotEmpty("format", format);
         requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
         return QvsResponse.get(requestUrl, client, auth);
     }
@@ -164,5 +164,22 @@ public class StreamManager {
     public Response stopStream(String namespaceId, String streamId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/streams/%s/stop", apiServer, namespaceId, streamId);
         return QvsResponse.post(url, new StringMap(), client, auth);
+    }
+
+    /*
+     * 按需截图
+     */
+    public Response ondemandSnap(String namespaceId, String streamId) throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/streams/%s/snap", apiServer, namespaceId, streamId);
+        return QvsResponse.post(url, new StringMap(), client, auth);
+    }
+
+    /*
+     * 删除截图
+     */
+    public Response deleteSnapshots(String namespaceId, String streamId, String[] files) throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/streams/%s/snapshots", apiServer, namespaceId, streamId);
+        StringMap params = new StringMap().putNotNull("files", files);
+        return QvsResponse.delete(url, params, client, auth);
     }
 }

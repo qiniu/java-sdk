@@ -160,6 +160,23 @@ public final class Client {
         return send(requestBuilder, headers);
     }
 
+    public Response delete(String url, RequestBody body, StringMap headers) throws QiniuException {
+        Request.Builder requestBuilder = new Request.Builder().delete(body).url(url);
+        return send(requestBuilder, headers);
+    }
+
+    public Response delete(String url, byte[] body, StringMap headers, String contentType) throws QiniuException {
+        RequestBody rbody;
+        if (body != null && body.length > 0) {
+            MediaType t = MediaType.parse(contentType);
+            rbody = RequestBody.create(t, body);
+        } else {
+            MediaType t = MediaType.parse(contentType);
+            rbody = RequestBody.create(t, new byte[0]);
+        }
+        return delete(url, rbody, headers);
+    }
+
     public Response post(String url, byte[] body, StringMap headers) throws QiniuException {
         return post(url, body, headers, DefaultMime);
     }

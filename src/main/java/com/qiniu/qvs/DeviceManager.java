@@ -111,4 +111,38 @@ public class DeviceManager {
         return QvsResponse.post(url, params, client, auth);
     }
 
+    /*
+     * 同步设备通道
+     */
+    public Response fetchCatalog(String namespaceId, String gbId) throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/devices/%s/catalog/fetch", apiServer, namespaceId, gbId);
+        return QvsResponse.post(url, new StringMap(), client, auth);
+    }
+
+    /*
+     * 查询通道详情
+     */
+    public Response queryChannel(String namespaceId, String gbId, String channelId) throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/devices/%s/channels/%s", apiServer, namespaceId, gbId, channelId);
+        return QvsResponse.get(url, client, auth);
+    }
+
+    /*
+     * 删除通道
+     */
+    public Response deleteChannel(String namespaceId, String gbId, String channelId) throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/devices/%s/channels/%s", apiServer, namespaceId, gbId, channelId);
+        return QvsResponse.delete(url, client, auth);
+    }
+
+    /*
+     * 查询本地录像列表
+     * 普通设备chId可以忽略, 置为空即可
+     */
+    public Response queryGBRecordHistories(String namespaceId, String gbId, String channelId, int start, int end) throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/devices/%s/recordhistories", apiServer, namespaceId, gbId);
+        StringMap map = new StringMap().put("start", start).put("end", end).putNotNull("chId", channelId);
+        url = UrlUtils.composeUrlWithQueries(url, map);
+        return QvsResponse.get(url, client, auth);
+    }
 }

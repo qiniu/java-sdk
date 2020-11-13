@@ -143,4 +143,49 @@ public class DeviceManagerTest {
             }
         }
     }
+
+    @Test
+    public void testFetchCatalog() {
+        try {
+            res = deviceManager.fetchCatalog("2xenzw5o81ods", "31011500991320000356");
+            Assert.assertNotNull(res);
+            System.out.println(res.bodyString());
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } finally {
+            if (res != null) {
+                res.close();
+            }
+        }
+    }
+
+    @Test
+    public void testQueryChannel() {
+        try {
+            res = deviceManager.queryChannel("3nm4x0vyz7xlu", "31011500991180000270", "34020000001310000020");
+            Assert.assertNotNull(res);
+            System.out.println(res.bodyString());
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } finally {
+            if (res != null) {
+                res.close();
+            }
+        }
+    }
+
+    @Test
+    public void testQueryGBRecordHistories() {
+        try {
+            res = deviceManager.queryGBRecordHistories("3nm4x0vyz7xlu", "31011500991180000270", "34020000001310000020", 1604817540, 1604903940);
+            Assert.assertNotNull(res);
+            System.out.println(res.bodyString());
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } finally {
+            if (res != null) {
+                res.close();
+            }
+        }
+    }
 }
