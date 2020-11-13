@@ -85,9 +85,6 @@ public final class Client {
                 Request request = chain.request();
                 okhttp3.Response response = chain.proceed(request);
                 IpTag tag = (IpTag) request.tag();
-                if (tag.ip != null && tag.ip.length() > 5) {
-                    return response;
-                }
                 try {
                     tag.ip = chain.connection().socket().getRemoteSocketAddress() + "";
                 } catch (Exception e) {
