@@ -75,10 +75,8 @@ public final class Client {
             @Override
             public void connectStart(Call call, InetSocketAddress inetSocketAddress, Proxy proxy) {
                 Request req = call.request();
-                if (req != null) {
-                    IpTag tag = (IpTag) req.tag();
-                    tag.ip = inetSocketAddress + "";
-                }
+                IpTag tag = (IpTag) req.tag();
+                tag.ip = inetSocketAddress + "";
             }
         });
         builder.addInterceptor(new Interceptor() {
