@@ -79,6 +79,23 @@ public final class Client {
                 tag.ip = inetSocketAddress + "";
             }
         });
+        builder.addNetworkInterceptor(new Interceptor() {
+            @Override
+            public okhttp3.Response intercept(Chain chain) throws IOException {
+                Request request = chain.request();
+                okhttp3.Response response = chain.proceed(request);
+                IpTag tag = (IpTag) request.tag();
+                if (tag.ip != null && tag.ip.length() > 5) {
+                    return response;
+                }
+                try {
+                    tag.ip = chain.connection().socket().getRemoteSocketAddress().toString();
+                } catch (Exception e) {
+                    // ingore
+                }
+                return response;
+            }
+        });
         builder.addInterceptor(new Interceptor() {
             @Override
             public okhttp3.Response intercept(Chain chain) throws IOException {
