@@ -90,12 +90,8 @@ public final class Client {
                 try {
                     response = chain.proceed(request);
                 } catch (IOException e) {
-                    if (e instanceof java.net.ConnectException) {
-                        ex = e;
-                    } else {
-                        IpTag tag = (IpTag) request.tag();
-                        ex = new IOException(e + " on " + tag.ip, e);
-                    }
+                    IpTag tag = (IpTag) request.tag();
+                    ex = new IOException(e + " on " + tag.ip, e);
                 }
                 if (ex != null) {
                     throw ex;
