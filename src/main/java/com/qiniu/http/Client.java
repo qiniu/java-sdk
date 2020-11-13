@@ -89,7 +89,7 @@ public final class Client {
                     return response;
                 }
                 try {
-                    tag.ip = chain.connection().socket().getRemoteSocketAddress().toString();
+                    tag.ip = chain.connection().socket().getRemoteSocketAddress() + "";
                 } catch (Exception e) {
                     // ingore
                 }
