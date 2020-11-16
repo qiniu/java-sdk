@@ -137,6 +137,15 @@ public class StreamManager {
     }
 
     // 查询录制记录
+    public Response queryStreamRecordHistories(String namespaceId, String streamId, int start, int end, int line, String marker) throws QiniuException {
+        String requestUrl = String.format("%s/v1/namespaces/%s/streams/%s/recordhistories", apiServer, namespaceId, streamId);
+        StringMap map = new StringMap().putNotNull("start", start).putNotNull("end", end)
+                .putNotNull("line", line).putNotEmpty("marker", marker);
+        requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
+        return QvsResponse.get(requestUrl, client, auth);
+    }
+
+    // 查询录制记录
     public Response queryStreamRecordHistories(String namespaceId, String streamId, int start, int end, int line, String marker, String format) throws QiniuException {
         String requestUrl = String.format("%s/v1/namespaces/%s/streams/%s/recordhistories", apiServer, namespaceId, streamId);
         StringMap map = new StringMap().putNotNull("start", start).putNotNull("end", end)
