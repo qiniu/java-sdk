@@ -63,4 +63,21 @@ public final class QvsResponse {
         }
         return res;
     }
+
+    public static Response delete(String url, StringMap params, Client client, Auth auth) throws QiniuException {
+        byte[] body;
+        String contentType = null;
+        if (params == null) {
+            body = null;
+        } else {
+            contentType = Client.JsonMime;
+            body = Json.encode(params).getBytes(Constants.UTF_8);
+        }
+        StringMap headers = auth.authorizationV2(url, "DELETE", body, contentType);
+        Response res = client.delete(url, body, headers, Client.JsonMime);
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        return res;
+    }
 }

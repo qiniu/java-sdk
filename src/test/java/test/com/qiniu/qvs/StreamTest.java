@@ -25,6 +25,7 @@ public class StreamTest {
     private int line = 1;
     private int qtype = 0;
     private String maker = "";
+    private String format = "";
 
     @Before
     public void setUp() throws Exception {
@@ -125,7 +126,7 @@ public class StreamTest {
     @Test
     public void testQueryStreamRecordHistories() {
         try {
-            res = streamManager.queryStreamRecordHistories(namespaceId, stream.getStreamID(), start, end, line, maker);
+            res = streamManager.queryStreamRecordHistories(namespaceId, stream.getStreamID(), start, end, line, maker, format);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -220,4 +221,17 @@ public class StreamTest {
         }
     }
 
+    @Test
+    public void testOndemandSnap() {
+        try {
+            res = streamManager.ondemandSnap("2xenzw5o81ods", "31011500991320000356");
+            System.out.println(res.bodyString());
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } finally {
+            if (res != null) {
+                res.close();
+            }
+        }
+    }
 }

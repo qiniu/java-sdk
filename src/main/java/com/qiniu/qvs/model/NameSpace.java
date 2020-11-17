@@ -25,6 +25,7 @@ public class NameSpace {
     private int urlMode; // 推拉流地址计算方式，1:static, 2:dynamic
     private String zone; // 存储区域
     private boolean hlsLowLatency; // hls低延迟开关
+    private boolean onDemandPull; // 按需拉流开关
 
     public String getId() {
         return id;
@@ -192,6 +193,14 @@ public class NameSpace {
 
     public void setHlsLowLatency(boolean hlsLowLatency) {
         this.hlsLowLatency = hlsLowLatency;
+    }
+
+    public boolean isOnDemandPull() {
+        return onDemandPull;
+    }
+
+    public void setOnDemandPull(boolean onDemandPull) {
+        this.onDemandPull = onDemandPull;
     }
 
 }
