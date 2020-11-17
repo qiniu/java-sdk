@@ -373,6 +373,7 @@ public class FormUploadTest {
             try {
                 uploadManager.put(f, expectKey, token, params, null, true);
             } catch (QiniuException e) {
+                e.printStackTrace();
                 fail();
             } finally {
                 TempFile.remove(f);
@@ -406,6 +407,7 @@ public class FormUploadTest {
             try {
                 uploadManager.put(f, expectKey, token, null, null, false);
             } catch (QiniuException e) {
+                e.printStackTrace();
                 try {
                     String err = e.response != null ? e.response.bodyString() : e.error();
                     assertEquals("_", err);
@@ -448,6 +450,7 @@ public class FormUploadTest {
             try {
                 uploadManager.put(bb, expectKey, token, null, null, false);
             } catch (QiniuException e) {
+                e.printStackTrace();
                 try {
                     assertEquals("_", e.response.bodyString());
                 } catch (QiniuException e1) {
