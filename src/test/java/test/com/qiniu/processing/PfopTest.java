@@ -1,5 +1,6 @@
 package test.com.qiniu.processing;
 
+import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.processing.OperationManager;
@@ -12,7 +13,9 @@ import org.junit.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.fail;
@@ -24,10 +27,14 @@ public class PfopTest {
      * 检测jobid是否不为空
      */
     @Test
-    public void testPfop() {
+    public void testPfop() throws QiniuException {
         Map<String, Zone> cases = new HashMap<String, Zone>();
         cases.put(TestConfig.testBucket_z0, Zone.autoZone());
         cases.put(TestConfig.testBucket_na0, Zone.autoZone());
+        List<String> ids = new ArrayList<>();
+
+        Configuration cfg = new Configuration();
+        OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
 
         for (Map.Entry<String, Zone> entry : cases.entrySet()) {
             String bucket = entry.getKey();
@@ -48,17 +55,37 @@ public class PfopTest {
             System.out.println(fops);
 
             try {
-                Configuration cfg = new Configuration(zone);
-                OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
                 String jobid = operationManager.pfop(bucket, TestConfig.testMp4FileKey, fops, null,
                         notifyURL, force);
                 Assert.assertNotNull(jobid);
                 Assert.assertNotEquals("", jobid);
-                String purl = "https://api.qiniu.com/status/get/prefop?id=" + jobid;
-                System.out.println(purl);
+                ids.add(jobid);
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }
+        }
+        System.out.println("\n\n");
+        for (String jobid : ids) {
+            String purl = "https://api.qiniu.com/status/get/prefop?id=" + jobid;
+            System.out.println(purl);
+            OperationStatus status = operationManager.prefop(jobid);
+            System.out.println(new Gson().toJson(status));
+            Assert.assertEquals(jobid, status.id);
+        }
+
+        System.out.println("\n\n");
+        try{
+            Thread.sleep(1000 * 7);
+        } catch (Exception e) {
+            // ingore
+        }
+
+        for (String jobid : ids) {
+            String purl = "https://api.qiniu.com/status/get/prefop?id=" + jobid;
+            System.out.println(purl);
+            OperationStatus status = operationManager.prefop(jobid);
+            System.out.println(new Gson().toJson(status));
+            Assert.assertEquals(jobid, status.id);
         }
     }
 
@@ -75,6 +102,7 @@ public class PfopTest {
             OperationStatus status = operationManager.prefop(jobid);
             Assert.assertEquals(0, status.code);
         } catch (QiniuException ex) {
+            ex.printStackTrace();
             Assert.assertTrue(ResCode.find(ex.code(), ResCode.getPossibleResCode(612)));
         }
     }

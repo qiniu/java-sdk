@@ -164,10 +164,8 @@ public final class OperationManager {
      * 返回结果的 class
      */
     public <T> T prefop(String persistentId, Class<T> retClass) throws QiniuException {
-        StringMap params = new StringMap().put("id", persistentId);
-        byte[] data = StringUtils.utf8Bytes(params.formString());
-        String url = String.format("%s/status/get/prefop", configuration.apiHost());
-        Response response = this.client.post(url, data, null, Client.FormMime);
+        String url = String.format("%s/status/get/prefop?id=%s", configuration.apiHost(), persistentId);
+        Response response = this.client.get(url);
         if (!response.isOK()) {
             throw new QiniuException(response);
         }
