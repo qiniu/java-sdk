@@ -5,7 +5,12 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.ProxyConfiguration;
 import com.qiniu.http.Response;
+import okhttp3.OkHttpClient;
 import org.junit.Assert;
+import org.junit.Test;
+
+import java.lang.reflect.Field;
+import java.util.concurrent.TimeUnit;
 
 public class HttpTest {
     private Client httpManager = new Client();
@@ -91,6 +96,91 @@ public class HttpTest {
         } catch (QiniuException e) {
             Assert.assertNotNull(e.response.reqId);
             Assert.assertEquals(e.response.statusCode, 400);
+        }
+    }
+
+    @Test
+    public void testTimeout() throws NoSuchFieldException, IllegalAccessException {
+        Client client0 = new Client();
+        try {
+            Response res = client0.get("https://www.qiniu.com/?v=12345");
+            String r = res.toString();
+            System.out.println(r);
+            Assert.assertTrue("https, must have port 443", r.indexOf(":443") > 0);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            Assert.fail("should be ok");
+        }
+
+        try {
+            Response res = client0.get("https://www.qiniu.com/?v=12345");
+            String r = res.toString();
+            System.out.println(r);
+            Assert.assertTrue("https, must have port 443", r.indexOf(":443") > 0);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            Assert.fail("should be ok");
+        }
+
+        try {
+            Response res = client0.get("https://www.qiniu.com/?v=12345");
+            String r = res.toString();
+            System.out.println(r);
+            Assert.assertTrue("https, must have port 443", r.indexOf(":443") > 0);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            Assert.fail("should be ok");
+        }
+
+        Client client = new Client();
+        Field field = client.getClass().getDeclaredField("httpClient");
+        field.setAccessible(true);
+        OkHttpClient okHttpClient = (OkHttpClient) field.get(client);
+        okHttpClient = okHttpClient.newBuilder().connectTimeout(3, TimeUnit.MILLISECONDS).build();
+        field.set(client, okHttpClient);
+
+        try {
+            client.get("http://rs.qbox.me/?v=12");
+            Assert.fail("should be timeout");
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            Assert.assertTrue("http, must have port 80", e.getMessage().indexOf(":80") > 10);
+        }
+        try {
+            client.get("http://rs.qbox.me/?v=12");
+            Assert.fail("should be timeout");
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            Assert.assertTrue("http, must have port 80", e.getMessage().indexOf(":80") > 10);
+        }
+        try {
+            client.get("http://rs.qbox.me/?v=12");
+            Assert.fail("should be timeout");
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            Assert.assertTrue("http, must have port 80", e.getMessage().indexOf(":80") > 10);
+        }
+        try {
+            client.get("https://rs.qbox.me/?v=we");
+            Assert.fail("should be timeout");
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            Assert.assertTrue("https, must have port 443", e.getMessage().indexOf(":443") > 10);
+        }
+
+        try {
+            client.get("http://www.qiniu.com/?v=543");
+            Assert.fail("should be timeout");
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            Assert.assertTrue("http, must have port 80", e.getMessage().indexOf(":80") > 10);
+        }
+        try {
+            client.get("https://www.qiniu.com/?v=kgd");
+            Assert.fail("should be timeout");
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            Assert.assertTrue("https, must have port 443", e.getMessage().indexOf(":443") > 10);
         }
     }
 }

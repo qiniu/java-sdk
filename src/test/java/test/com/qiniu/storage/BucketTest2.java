@@ -1186,6 +1186,7 @@ public class BucketTest2 {
                 bucketManager.copy(bucket, key, bucket, moveFromKey);
                 bucketManager.copy(bucket, key, bucket, moveFromKey2);
             } catch (QiniuException e) {
+                e.printStackTrace();
                 Assert.fail(e.response.toString());
             }
 
