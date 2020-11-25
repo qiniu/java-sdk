@@ -1,5 +1,19 @@
 # Changelog
 
+## 7.4.0 (2020-11-25)
+
+## 增加
+[QVS相关](https://developer.qiniu.io/qvs/api/6706/summary-of-the-api)
+* 新增录制管理相关api
+* 新增数据统计管理相关api
+* 流管理api增加按需截图，删除截图
+* 设备管理api增加通道管理，查询本地录像回放列表
+* 空间增加ondemandPull字段，模板修改recordFileFormat字段说明，增加mp4，flv录制格式字段
+* 增加带有body的http的delete请求
+* 增加相关单元测试并测试通过
+* 新增PTZ云台控制相关接口和单测
+
+
 ## 7.3.0（2020-09-11）
 
 ## 新增
