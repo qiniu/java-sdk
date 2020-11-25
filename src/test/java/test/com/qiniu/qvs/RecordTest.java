@@ -14,11 +14,11 @@ public class RecordTest {
     private RecordManager recordManager;
     private Response res = null;
     private Response res2 = null;
-    private String namespaceId = "2xenzw5o81ods";
-    private String streamId = "31011500991320000356";
-    private String format = "m3u8";
-    private int start = 1605254612;
-    private int end = 1605255300;
+    private final String namespaceId = "2xenzw5o81ods";
+    private final String streamId = "31011500991320000356";
+    private final String format = "m3u8";
+    private final int start = 1605254612;
+    private final int end = 1605255300;
 
     @Before
     public void setUp() throws Exception {
@@ -31,7 +31,7 @@ public class RecordTest {
             res = recordManager.startRecord(namespaceId, streamId);
             Assert.assertNotNull(res);
             System.out.println(res.bodyString());
-            Thread.sleep(1000*60);
+            Thread.sleep(1000 * 60);
             res2 = recordManager.stopRecord(namespaceId, streamId);
             Assert.assertNotNull(res2);
             System.out.println(res2.bodyString());

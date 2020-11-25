@@ -15,7 +15,7 @@ public class NameSpaceTest {
     Auth auth = TestConfig.testAuth;
     private NameSpaceManager nameSpaceManager;
     private Response res = null;
-    private String namespaceId = "2akrarsj8zp0w";
+    private final String namespaceId = "2akrarsj8zp0w";
 
     @Before
     public void setUp() throws Exception {
@@ -27,7 +27,7 @@ public class NameSpaceTest {
         NameSpace nameSpace = new NameSpace();
         nameSpace.setName("hugo002");
         nameSpace.setAccessType("rtmp");
-        nameSpace.setRtmpUrlType(nameSpace.Static);
+        nameSpace.setRtmpUrlType(NameSpace.Static);
         nameSpace.setDomains(new String[]{"qtest002.com"});
         try {
             res = nameSpaceManager.createNameSpace(nameSpace);

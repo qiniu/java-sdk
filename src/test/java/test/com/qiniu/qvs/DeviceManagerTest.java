@@ -15,9 +15,9 @@ public class DeviceManagerTest {
     Auth auth = TestConfig.testAuth;
     private DeviceManager deviceManager;
     private Response res = null;
-    private String namespaceId = "2xenzw3lpzpdz";
-    private String gbId = "31011500991320000127";
-    private String[] channels = {"31011500991320000127"};
+    private final String namespaceId = "2xenzw3lpzpdz";
+    private final String gbId = "31011500991320000127";
+    private final String[] channels = {"31011500991320000127"};
 
 
     @Before

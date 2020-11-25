@@ -15,7 +15,7 @@ public class TemplateTest {
     Auth auth = TestConfig.testAuth;
     private TemplateManager templateManager;
     private Response res = null;
-    private String templateId = "2akrarsl22iil";
+    private final String templateId = "2akrarsl22iil";
 
     @Before
     public void setUp() throws Exception {

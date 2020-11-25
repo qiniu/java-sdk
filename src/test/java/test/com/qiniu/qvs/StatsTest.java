@@ -13,11 +13,11 @@ public class StatsTest {
     Auth auth = TestConfig.testAuth;
     private StatsManager statsManager;
     private Response res = null;
-    private String namespaceId = "";
-    private String streamId = "";
-    private String tu = "5min";
-    private int start = 20200901;
-    private int end = 20200902;
+    private final String namespaceId = "";
+    private final String streamId = "";
+    private final String tu = "5min";
+    private final int start = 20200901;
+    private final int end = 20200902;
 
     @Before
     public void setUp() throws Exception {

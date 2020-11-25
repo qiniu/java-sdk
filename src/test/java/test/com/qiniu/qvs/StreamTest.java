@@ -18,14 +18,14 @@ public class StreamTest {
     Stream stream = new Stream("teststream005");
     private StreamManager streamManager;
     private Response res = null;
-    private String namespaceId = "2akrarsj8zp0w";
-    private int start = 1587975463;
-    private int end = 1587976463;
-    private int offset = 0;
-    private int line = 1;
-    private int qtype = 0;
-    private String maker = "";
-    private String format = "";
+    private final String namespaceId = "2akrarsj8zp0w";
+    private final int start = 1587975463;
+    private final int end = 1587976463;
+    private final int offset = 0;
+    private final int line = 1;
+    private final int qtype = 0;
+    private final String maker = "";
+    private final String format = "";
 
     @Before
     public void setUp() throws Exception {

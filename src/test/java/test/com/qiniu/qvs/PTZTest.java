@@ -13,9 +13,9 @@ public class PTZTest {
     Auth auth = TestConfig.testAuth;
     private PTZManager ptzManager;
     private Response res = null;
-    private String namespaceId = "2xenzw5o81ods";
-    private String gbId = "31011500991320000382";
-    private String chId = "";
+    private final String namespaceId = "2xenzw5o81ods";
+    private final String gbId = "31011500991320000382";
+    private final String chId = "";
 
 
     @Before

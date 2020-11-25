@@ -74,7 +74,7 @@ public class PfopTest {
         }
 
         System.out.println("\n\n");
-        try{
+        try {
             Thread.sleep(1000 * 7);
         } catch (Exception e) {
             // ingore
