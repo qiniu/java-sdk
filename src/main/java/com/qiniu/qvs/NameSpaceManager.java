@@ -52,6 +52,7 @@ public class NameSpaceManager {
         params.putNotNull("urlMode", nameSpace.getUrlMode());
         params.putNotNull("zone", nameSpace.getZone());
         params.putNotNull("hlsLowLatency", nameSpace.isHlsLowLatency());
+        params.putNotNull("onDemandPull", nameSpace.isOnDemandPull());
 
         String url = String.format("%s/v1/namespaces", apiServer);
         return QvsResponse.post(url, params, client, auth);
