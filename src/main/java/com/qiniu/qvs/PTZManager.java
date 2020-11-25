@@ -65,7 +65,7 @@ public class PTZManager {
     /*
      * 获取预置位列表
      */
-    public Response listPresets(String namespaceId, String gbId, String chId) throws QiniuException{
+    public Response listPresets(String namespaceId, String gbId, String chId) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/devices/%s/presets", apiServer, namespaceId, gbId);
         StringMap map = new StringMap().putNotEmpty("chId", chId);
         url = UrlUtils.composeUrlWithQueries(url, map);
