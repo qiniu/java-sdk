@@ -268,8 +268,10 @@ public final class ResumeUploader {
             }
             String jsonStr = new String(data);
             Record r = new Gson().fromJson(jsonStr, Record.class);
-            if (r.offset == 0 || r.modify_time != modifyTime || r.size != size
-                    || r.contexts == null || r.contexts.length == 0) {
+            if (!r.isValid()) {
+                return 0;
+            }
+            if (r.modify_time != modifyTime || r.size != size) {
                 return 0;
             }
             for (int i = 0; i < r.contexts.length; i++) {
@@ -325,6 +327,11 @@ public final class ResumeUploader {
                 this.offset = offset;
                 this.modify_time = modify_time;
                 this.contexts = contexts;
+            }
+
+            // 用于区分记录是 V1 还是 V2
+            boolean isValid() {
+                return offset != 0 && contexts != null && contexts.length > 0;
             }
         }
     }

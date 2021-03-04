@@ -881,6 +881,10 @@ public class FixBlockUploader {
         String uploadId;
         long size;
         List<EtagIdx> etagIdxes;
+        // 用于区分记录是 V1 还是 V2
+        boolean isValid() {
+            return uploadId != null && etagIdxes != null && etagIdxes.size() > 0;
+        }
     }
 
     class UploadRecordHelper {
@@ -902,6 +906,9 @@ public class FixBlockUploader {
                 try {
                     byte[] data = recorder.get(recordFileKey);
                     record = new Gson().fromJson(new String(data, Charset.forName("UTF-8")), Record.class);
+                    if (!record.isValid()) {
+                        record = null;
+                    }
                 } catch (Exception e) {
                     // do nothing
                 }
