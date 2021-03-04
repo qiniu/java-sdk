@@ -165,6 +165,7 @@ public class FixBlockUploader {
             String uploadId = init(bucket, base64Key, token.getUpToken());
             List<EtagIdx> etagIdxes = new ArrayList<>();
             record = initRecord(uploadId, etagIdxes);
+            record.blockSize = blockData.blockDataSize;
         }
         return record;
     }
@@ -880,6 +881,7 @@ public class FixBlockUploader {
         long createdTime;
         String uploadId;
         long size;
+        long blockSize;
         List<EtagIdx> etagIdxes;
         // 用于区分记录是 V1 还是 V2
         boolean isValid() {
@@ -936,7 +938,8 @@ public class FixBlockUploader {
                     && record.createdTime > System.currentTimeMillis() - 1000 * 3600 * 24 * 5
                     && !StringUtils.isNullOrEmpty(record.uploadId)
                     && record.etagIdxes != null && record.etagIdxes.size() > 0
-                    && record.size > 0 && record.size <= blockData.size();
+                    && record.size > 0 && record.size <= blockData.size()
+                    && record.blockSize == blockData.blockDataSize;
             if (isOk) {
                 int p = 0;
                 // PartNumber start with 1 and increase by 1 //
