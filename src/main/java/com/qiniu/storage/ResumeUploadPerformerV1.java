@@ -3,7 +3,10 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.util.*;
+import com.qiniu.util.Crc32;
+import com.qiniu.util.StringMap;
+import com.qiniu.util.StringUtils;
+import com.qiniu.util.UrlSafeBase64;
 
 import java.io.IOException;
 
@@ -38,7 +41,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
         return retryUploadAction(new UploadAction() {
             @Override
             public Response uploadAction(String host) throws QiniuException {
-                return makeFile(host);
+                return makeFile(host, uploadSource.fileName);
             }
         });
     }
@@ -55,6 +58,9 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
         }
 
         Response response = post(url, blockData);
+
+        System.out.printf("== make block:%d upload :%s \n", block.index, response);
+
         if (response.isOK()) {
 
             StringMap jsonMap = response.jsonToMap();
@@ -69,7 +75,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
 
                 long crc = Crc32.bytes(blockData, 0, block.size);
                 long serverCrc = new Long(jsonMap.get("crc").toString());
-                if (serverCrc != crc) {
+                if ((long) serverCrc != crc) {
                     throw new QiniuException(new Exception("block's crc32 is not match"));
                 }
             }
@@ -82,9 +88,10 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
         return response;
     }
 
-    private Response makeFile(String host) throws QiniuException {
+    private Response makeFile(String host, String fileName) throws QiniuException {
         String[] contexts = uploadSource.getAllBlockContextList();
-        String action = String.format("/mkfile/%s/mimeType/%s", uploadSource.size, UrlSafeBase64.encodeToString(options.mimeType));
+        String action = String.format("/mkfile/%s/mimeType/%s/fname/%s", uploadSource.size,
+                UrlSafeBase64.encodeToString(options.mimeType), UrlSafeBase64.encodeToString(fileName));
         String url = host + action;
 
         final StringBuilder b = new StringBuilder(url);

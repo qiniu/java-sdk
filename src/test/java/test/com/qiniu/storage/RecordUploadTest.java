@@ -45,15 +45,20 @@ public class RecordUploadTest {
         bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
         bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
         for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
+
             String bucket = entry.getKey();
             final Zone zone = entry.getValue();
+
+            System.out.println("\n\n");
+            System.out.printf("bucket:%s zone:%s \n", bucket, zone);
+
             response = null;
             final String expectKey = "\r\n?&r=" + size + "k";
             final File f = TempFile.createFile(size);
             recorder = new FileRecorder(f.getParentFile());
             try {
                 final String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
-                final String recordKey = recorder.recorderKeyGenerate(expectKey, f);
+                final String recordKey = recorder.recorderKeyGenerate(expectKey, f.getName());
 
                 // 开始第一部分上传
                 final Up up = new Up(f, expectKey, token);

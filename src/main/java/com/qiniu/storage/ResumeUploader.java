@@ -6,7 +6,6 @@ import com.qiniu.http.Response;
 import com.qiniu.util.StringMap;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class ResumeUploader {
@@ -25,17 +24,15 @@ public class ResumeUploader {
      */
     public ResumeUploader(Client client, String upToken, String key, File file,
                           StringMap params, String mime, Recorder recorder, Configuration configuration) {
-
         this(client, key, upToken,
-                new UploadSource(getRecorderKey(key, file.getName(), recorder), file),
+                new UploadSource(getRecorderKey(key, file, recorder), file),
                 recorder, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
     }
 
     public ResumeUploader(Client client, String upToken, String key, InputStream inputStream, String fileName, long fileSize,
                           StringMap params, String mime, Recorder recorder, Configuration configuration) {
-
         this(client, key, upToken,
-                new UploadSource(getRecorderKey(key, fileName, recorder), fileName, fileSize, inputStream),
+                new UploadSource(null, fileName, fileSize, inputStream),
                 recorder, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
     }
 
@@ -57,11 +54,7 @@ public class ResumeUploader {
         try {
             return _upload();
         } finally {
-            try {
-                source.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            close();
         }
     }
 
@@ -87,26 +80,28 @@ public class ResumeUploader {
         uploadPerformer.recoverUploadProgressFromLocal();
 
         // 上传数据至服务 - 步骤1
+        System.out.println("上传步骤 1: 开始");
         Response response = uploadPerformer.uploadInit();
         if (!response.isOK()) {
-            uploadPerformer.saveUploadProgressToLocal();
             return response;
         }
+        System.out.printf("上传步骤 1: 结束 %s \n", response);
 
         // 上传数据至服务 - 步骤2
+        System.out.println("上传步骤 2: 开始");
         response = uploadData();
         if (!response.isOK()) {
-            uploadPerformer.saveUploadProgressToLocal();
             return response;
         }
+        System.out.printf("上传步骤 2: 结束 %s \n", response);
 
         // 上传数据至服务 - 步骤3
+        System.out.println("上传步骤 3: 开始");
         response = uploadPerformer.completeUpload();
         if (response.isOK()) {
             uploadPerformer.removeUploadProgressFromLocal();
-        } else {
-            uploadPerformer.saveUploadProgressToLocal();
         }
+        System.out.printf("上传步骤 3: 结束 %s \n", response);
 
         return response;
     }
@@ -115,14 +110,26 @@ public class ResumeUploader {
         Response response = null;
         do {
             response = uploadPerformer.uploadNextData();
-        } while (response.isOK() && !uploadPerformer.isAllBlocksOfSourceUploaded());
+            if (response != null && response.isOK()) {
+                uploadPerformer.saveUploadProgressToLocal();
+            }
+            System.out.println("上传块结束");
+        } while (!uploadPerformer.isAllBlocksOfSourceUploaded());
         return response;
     }
 
-    private static String getRecorderKey(String key, String fileName, Recorder recorder) {
+    private void close() {
+        try {
+            source.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String getRecorderKey(String key, File file, Recorder recorder) {
         if (recorder == null) {
             return null;
         }
-        return recorder.recorderKeyGenerate(key, fileName);
+        return recorder.recorderKeyGenerate(key, file);
     }
 }

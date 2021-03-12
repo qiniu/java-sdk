@@ -1,6 +1,9 @@
 package com.qiniu.storage;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 class UploadSource {
 
@@ -25,7 +28,7 @@ class UploadSource {
         this.inputStream = inputStream;
     }
 
-    boolean isValid(){
+    boolean isValid() {
         return (file != null && file.canRead()) || inputStream != null;
     }
 
@@ -42,17 +45,23 @@ class UploadSource {
     }
 
     int readData(byte[] buff, int offset, int len) throws IOException {
-        if (inputStream == null && file != null) {
-            inputStream = new FileInputStream(file);
-        }
-        return inputStream.read(buff, offset, len);
+        return inputStream().read(buff, offset, len);
     }
 
     long skip(long len) throws IOException {
-        return inputStream.skip(len);
+        return inputStream().skip(len);
     }
 
     void close() throws IOException {
-        inputStream.close();
+        if (inputStream != null) {
+            inputStream.close();
+        }
+    }
+
+    private InputStream inputStream() throws IOException {
+        if (inputStream == null && file != null) {
+            inputStream = new FileInputStream(file);
+        }
+        return inputStream;
     }
 }

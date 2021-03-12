@@ -88,30 +88,32 @@ class ResumeUploadSource {
         return isAllBlockUploaded;
     }
 
-    synchronized byte[] getBlockData(Block block) throws IOException {
+    byte[] getBlockData(Block block) throws IOException {
         if (block.data != null) {
             return block.data;
         }
 
         byte[] buffer = null;
-        while (true) {
-            if (readOffset == block.offset) {
-                int readSize = 0;
-                buffer = new byte[block.size];
-                while (readSize != block.size) {
-                    readSize += source.readData(buffer, readSize, block.size);
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException ignored) {
+        synchronized (this) {
+            while (true) {
+                if (readOffset == block.offset) {
+                    int readSize = 0;
+                    buffer = new byte[block.size];
+                    while (readSize != block.size) {
+                        readSize += source.readData(buffer, readSize, block.size);
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException ignored) {
+                        }
                     }
+                    block.data = buffer;
+                    readOffset += block.size;
+                    break;
+                } else if (readOffset < block.offset) {
+                    readOffset += source.skip(block.offset - readOffset);
+                } else {
+                    throw new IOException("read block data error");
                 }
-                block.data = buffer;
-                readOffset += block.size;
-                break;
-            } else if (readOffset < block.offset) {
-                source.skip(block.offset - readOffset);
-            } else {
-                throw new IOException("read block data error");
             }
         }
         return buffer;
@@ -170,7 +172,7 @@ class ResumeUploadSource {
         int blockIndex = 1;
         List<Block> blockList = new ArrayList<>();
         while (offset < fileSize) {
-            int lastSize = (int)(fileSize - offset);
+            int lastSize = (int) (fileSize - offset);
             int blockSizeP = Math.min(lastSize, blockSize);
             Block block = new Block(config, offset, blockSizeP, blockIndex);
             blockList.add(block);
