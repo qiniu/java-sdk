@@ -1,6 +1,7 @@
 package com.qiniu.storage;
 
 import java.io.File;
+import java.io.InputStream;
 
 /**
  * 定义分片上传时纪录上传进度的接口
@@ -38,6 +39,15 @@ public interface Recorder {
      * @return 持久化上传纪录的key
      */
     String recorderKeyGenerate(String key, File file);
+
+    /**
+     * 根据服务器的key和本地文件名生成持久化纪录的key
+     *
+     * @param key  服务器的key
+     * @param fileName 本地文件名
+     * @return 持久化上传纪录的key
+     */
+    String recorderKeyGenerate(String key, String fileName);
 
     /**
      * 根据目标bucket, key和本地文件名生成持久化纪录的key

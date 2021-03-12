@@ -42,6 +42,18 @@ public final class Configuration implements Cloneable {
      */
     public boolean useDefaultUpHostIfNone = true;
     /**
+     * 使用分片 V2 上传时的分片大小
+     */
+    public int resumeV2BlockSize = Constants.BLOCK_SIZE;
+    /**
+     * 每个文件传时的最大并发任务数
+     */
+    public int maxCurrentTaskCount = 4;
+    /**
+     * 分片上传的版本
+     */
+    public ResumeVersion resumeVersion = ResumeVersion.V1;
+    /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */
     public int putThreshold = Constants.BLOCK_SIZE;
@@ -177,6 +189,11 @@ public final class Configuration implements Cloneable {
     @Deprecated
     public String ucHost() {
         return configHelper.ucHost();
+    }
+
+
+    enum ResumeVersion {
+        V1, V2
     }
 
 }

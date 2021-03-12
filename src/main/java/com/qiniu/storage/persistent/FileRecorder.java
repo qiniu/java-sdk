@@ -156,6 +156,11 @@ public final class FileRecorder implements Recorder {
     }
 
     @Override
+    public String recorderKeyGenerate(String key, String fileName) {
+        return hash(key + SPLIT + (fileName != null ? fileName : ""));
+    }
+
+    @Override
     public String recorderKeyGenerate(String bucket, String key, String contentDataSUID, String uploaderSUID) {
         return hash(bucket + SPLIT + key + SPLIT + contentDataSUID + SPLIT + uploaderSUID);
     }
