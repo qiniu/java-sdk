@@ -3,12 +3,9 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.util.Json;
-import com.qiniu.util.Md5;
-import com.qiniu.util.StringMap;
-import com.qiniu.util.UrlSafeBase64;
+import com.qiniu.util.*;
 
-import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -16,8 +13,21 @@ import java.util.Locale;
 
 class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
 
-    ResumeUploadPerformerV2(Client client, String key, UploadToken token, UploadSource source, Recorder recorder, UploadOptions options, Configuration config) {
+    ResumeUploadPerformerV2(Client client, String key, UploadToken token, ResumeUploadSource source, Recorder recorder,
+                            UploadOptions options, Configuration config) {
         super(client, key, token, source, recorder, options, config);
+    }
+
+    @Override
+    boolean shouldInit() {
+        // 包含 uploadId 且有效
+        if (StringUtils.isNullOrEmpty(uploadSource.uploadId)) {
+            return true;
+        }
+
+        long currentTimestamp = new Date().getTime() / 1000;
+        long expireAtTimestamp = uploadSource.expireAt - 24 * 3600 * 3;
+        return expireAtTimestamp < currentTimestamp;
     }
 
     @Override
@@ -31,14 +41,11 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     @Override
-    Response uploadNextData() throws QiniuException {
-        final ResumeUploadSource.Block block = getNextUploadingBlock();
+    Response uploadBlock(final ResumeUploadSource.Block block) throws QiniuException {
         return retryUploadAction(new UploadAction() {
             @Override
             public Response uploadAction(String host) throws QiniuException {
-                Response response = uploadPart(host, block);
-                block.updateState();
-                return response;
+                return uploadPart(host, block);
             }
         });
     }
@@ -54,7 +61,6 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     private Response initPart(String host) throws QiniuException {
-
         String action = String.format(Locale.ENGLISH, "/buckets/%s/objects/%s", this.token.getBucket(), resumeV2EncodeKey(key));
         String url = host + action;
         return post(url, null);
@@ -63,16 +69,9 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     private Response uploadPart(String host, ResumeUploadSource.Block block) throws QiniuException {
         String uploadId = uploadSource.uploadId;
         int partIndex = block.index;
-        byte[] blockData = null;
-        try {
-            blockData = uploadSource.getBlockData(block);
-        } catch (IOException e) {
-            throw QiniuException.unrecoverable(e);
-        }
-
         String action = String.format("/buckets/%s/objects/%s/uploads/%s/%d", token.getBucket(), resumeV2EncodeKey(key), uploadId, partIndex);
         String url = host + action;
-        Response response = put(url, blockData);
+        Response response = put(url, block.data);
 
         if (response != null && response.isOK()) {
 
@@ -86,7 +85,7 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
                     throw new QiniuException(new Exception("block's md5 is empty"));
                 }
 
-                String md5 = Md5.md5(blockData);
+                String md5 = Md5.md5(block.data);
                 String serverMd5 = jsonMap.get("md5").toString();
                 if (!serverMd5.equals(md5)) {
                     throw new QiniuException(new Exception("block's md5 is not match"));
@@ -114,8 +113,8 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
         if (partInfoArray != null) {
             bodyMap.put("parts", partInfoArray);
         }
-        if (uploadSource.fileName != null) {
-            bodyMap.put("fname", uploadSource.fileName);
+        if (uploadSource.getFileName() != null) {
+            bodyMap.put("fname", uploadSource.getFileName());
         }
         if (options.mimeType != null) {
             bodyMap.put("mimeType", options.mimeType);

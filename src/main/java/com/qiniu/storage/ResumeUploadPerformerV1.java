@@ -8,30 +8,30 @@ import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 
-import java.io.IOException;
-
 class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
 
 
-    ResumeUploadPerformerV1(Client client, String key, UploadToken token, UploadSource source, Recorder recorder,
+    ResumeUploadPerformerV1(Client client, String key, UploadToken token, ResumeUploadSource source, Recorder recorder,
                             UploadOptions options, Configuration config) {
         super(client, key, token, source, recorder, options, config);
     }
 
     @Override
-    Response uploadInit() throws QiniuException {
-        return Response.createSuccessResponse();
+    boolean shouldInit() {
+        return false;
     }
 
     @Override
-    Response uploadNextData() throws QiniuException {
-        final ResumeUploadSource.Block block = getNextUploadingBlock();
+    Response uploadInit() throws QiniuException {
+        return null;
+    }
+
+    @Override
+    Response uploadBlock(final ResumeUploadSource.Block block) throws QiniuException {
         return retryUploadAction(new UploadAction() {
             @Override
             public Response uploadAction(String host) throws QiniuException {
-                Response response = makeBlock(host, block);
-                block.updateState();
-                return response;
+                return makeBlock(host, block);
             }
         });
     }
@@ -41,7 +41,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
         return retryUploadAction(new UploadAction() {
             @Override
             public Response uploadAction(String host) throws QiniuException {
-                return makeFile(host, uploadSource.fileName);
+                return makeFile(host, uploadSource.getFileName());
             }
         });
     }
@@ -50,14 +50,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
         String action = String.format("/mkblk/%d", block.size);
         String url = host + action;
 
-        byte[] blockData = null;
-        try {
-            blockData = uploadSource.getBlockData(block);
-        } catch (IOException e) {
-            throw QiniuException.unrecoverable(e);
-        }
-
-        Response response = post(url, blockData);
+        Response response = post(url, block.data);
 
         System.out.printf("== make block:%d upload :%s \n", block.index, response);
 
@@ -73,7 +66,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
                     throw new QiniuException(new Exception("block's crc32 is empty"));
                 }
 
-                long crc = Crc32.bytes(blockData, 0, block.size);
+                long crc = Crc32.bytes(block.data, 0, block.size);
                 long serverCrc = new Long(jsonMap.get("crc").toString());
                 if ((long) serverCrc != crc) {
                     throw new QiniuException(new Exception("block's crc32 is not match"));
@@ -90,8 +83,12 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
 
     private Response makeFile(String host, String fileName) throws QiniuException {
         String[] contexts = uploadSource.getAllBlockContextList();
-        String action = String.format("/mkfile/%s/mimeType/%s/fname/%s", uploadSource.size,
-                UrlSafeBase64.encodeToString(options.mimeType), UrlSafeBase64.encodeToString(fileName));
+        String action = String.format("/mkfile/%s/mimeType/%s", uploadSource.getSize(),
+                UrlSafeBase64.encodeToString(options.mimeType));
+        if (!StringUtils.isNullOrEmpty(fileName)) {
+            action = String.format("%s/fname/%s", action, UrlSafeBase64.encodeToString(fileName));
+        }
+
         String url = host + action;
 
         final StringBuilder b = new StringBuilder(url);

@@ -192,7 +192,7 @@ public final class Configuration implements Cloneable {
     }
 
 
-    enum ResumeVersion {
+    public enum ResumeVersion {
         V1, V2
     }
 

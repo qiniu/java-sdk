@@ -1,5 +1,6 @@
 package com.qiniu.storage;
 
+import com.qiniu.common.Constants;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 
@@ -9,78 +10,38 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-class ResumeUploadSource {
+abstract class ResumeUploadSource {
 
-    final long size;
+    final String recordKey;
     final int blockSize;
-    final String fileName;
-    final String sourceId;
     final String targetRegionId;
-    final List<Block> blockList;
     final Configuration.ResumeVersion resumeVersion;
 
-    transient final UploadSource source;
     transient final Configuration config;
 
-    // source 读取的 offset, 只能增大不能减小
-    long readOffset;
-
+    List<Block> blockList;
     // uploadId: 此次文件上传唯一标识 【resume v2 特有】
     String uploadId;
     // expireAt: uploadId 有效期， 单位：秒 【resume v2 特有】
     Long expireAt;
 
-    ResumeUploadSource(UploadSource source, Configuration config, String targetRegionId) {
-        this.source = source;
-        this.sourceId = source.getID();
-        this.fileName = source.getFileName();
-        this.size = source.getSize();
+    ResumeUploadSource(Configuration config, String recordKey, String targetRegionId) {
         this.config = config;
-        this.blockSize = config.resumeV2BlockSize;
+        this.blockSize = getBlockSize(config);
+        this.recordKey = recordKey;
         this.targetRegionId = targetRegionId;
-        this.blockList = createBlockList(config, source.getSize(), blockSize);
         this.resumeVersion = config.resumeVersion;
     }
 
-    private boolean isSameResource(ResumeUploadSource source) {
-        return source != null &&
-                source.sourceId != null && source.sourceId.equals(sourceId) &&
-                source.size == size && source.blockSize == blockSize &&
-                source.fileName != null && source.fileName.equals(fileName) &&
-                source.targetRegionId != null && source.targetRegionId.equals(targetRegionId) &&
-                source.resumeVersion == resumeVersion;
-    }
-
-    boolean copyResourceUploadStateWhenValidAndSame(ResumeUploadSource source) {
-        // resume v2 比服务有效期少 2 天
-        if (!StringUtils.isNullOrEmpty(source.uploadId) && source.expireAt - 1000 * 3600 * 24 * 2 < System.currentTimeMillis()) {
-            return false;
-        }
-
-        if (!isSameResource(source)) {
-            return false;
-        }
-
-        uploadId = source.uploadId;
-        expireAt = source.expireAt;
-        if (blockList != null && blockList.size() > 0 &&
-                source.blockList != null && source.blockList.size() > 0 &&
-                source.blockList.size() == blockList.size()) {
-            for (int i = 0; i < blockList.size(); i++) {
-                Block block = blockList.get(i);
-                Block blockCopy = source.blockList.get(i);
-                block.state = blockCopy.state;
-                block.context = blockCopy.context;
-                block.etag = blockCopy.etag;
-            }
-        }
-        return true;
-    }
-
+    // 所有块数据是否均已上传
     boolean isAllBlocksUploaded() {
+        if (blockList == null || blockList.size() == 0) {
+            return true;
+        }
+
         boolean isAllBlockUploaded = true;
-        for (Block block : blockList) {
-            if (block.state != Block.UploadState.Uploaded) {
+        for (ResumeUploadSource.Block block : blockList) {
+            if (!block.isUploaded()) {
                 isAllBlockUploaded = false;
                 break;
             }
@@ -88,47 +49,42 @@ class ResumeUploadSource {
         return isAllBlockUploaded;
     }
 
-    byte[] getBlockData(Block block) throws IOException {
-        if (block.data != null) {
-            return block.data;
-        }
+    ;
 
-        byte[] buffer = null;
-        synchronized (this) {
-            while (true) {
-                if (readOffset == block.offset) {
-                    int readSize = 0;
-                    buffer = new byte[block.size];
-                    while (readSize != block.size) {
-                        readSize += source.readData(buffer, readSize, block.size);
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException ignored) {
-                        }
-                    }
-                    block.data = buffer;
-                    readOffset += block.size;
-                    break;
-                } else if (readOffset < block.offset) {
-                    readOffset += source.skip(block.offset - readOffset);
-                } else {
-                    throw new IOException("read block data error");
-                }
-            }
-        }
-        return buffer;
-    }
-
-    synchronized Block getNextUploadingBlock() {
-        Block block = null;
-        for (Block blockP : blockList) {
-            if (blockP.state == Block.UploadState.Waiting) {
-                blockP.state = Block.UploadState.Uploading;
+    // 获取下一个需要上传的块
+    ResumeUploadSource.Block getNextUploadingBlock() throws IOException {
+        ResumeUploadSource.Block block = null;
+        for (ResumeUploadSource.Block blockP : blockList) {
+            if (!blockP.isUploading && !blockP.isUploaded()) {
                 block = blockP;
                 break;
             }
         }
         return block;
+    }
+
+    // 关闭数据流
+    abstract void close() throws IOException;
+
+    // 是否为有效源文件
+    abstract boolean isValid();
+
+    // 获取资源大小
+    abstract long getSize();
+
+    // 获取文件名
+    abstract String getFileName();
+
+    boolean recoverFromRecordInfo(ResumeUploadSource source) {
+        return false;
+    }
+
+    int getBlockSize(Configuration config) {
+        if (resumeVersion == Configuration.ResumeVersion.V2) {
+            return config.resumeV2BlockSize;
+        } else {
+            return Constants.BLOCK_SIZE;
+        }
     }
 
     // 分片 V1 make file 使用
@@ -167,67 +123,43 @@ class ResumeUploadSource {
         return partInfo;
     }
 
-    private List<Block> createBlockList(Configuration config, long fileSize, int blockSize) {
-        long offset = 0;
-        int blockIndex = 1;
-        List<Block> blockList = new ArrayList<>();
-        while (offset < fileSize) {
-            int lastSize = (int) (fileSize - offset);
-            int blockSizeP = Math.min(lastSize, blockSize);
-            Block block = new Block(config, offset, blockSizeP, blockIndex);
-            blockList.add(block);
-            offset += blockSizeP;
-            blockIndex += 1;
-        }
-        return blockList;
-    }
-
     static class Block {
         final int index;
         final long offset;
-        final int size;
+        final Configuration.ResumeVersion resumeVersion;
 
-        private UploadState state;
-        private transient final Configuration config;
-        private transient byte[] data;
+        int size;
+
+        transient byte[] data;
+        transient boolean isUploading;
 
         // context: 块上传上下文信息 【resume v1 特有】
         String context;
         // etag: 块etag【resume v2 特有】
         String etag;
 
-        private Block(Configuration config, long offset, int blockSize, int index) {
-            this.config = config;
+        Block(Configuration config, long offset, int blockSize, int index) {
+            this.resumeVersion = config.resumeVersion;
             this.offset = offset;
             this.size = blockSize;
             this.index = index;
-            this.state = UploadState.Waiting;
+            this.isUploading = false;
             this.etag = null;
             this.context = null;
         }
 
-        void updateState() {
-            if (config.resumeVersion == Configuration.ResumeVersion.V1) {
-                if (StringUtils.isNullOrEmpty(context)) {
-                    state = UploadState.Waiting;
-                } else {
-                    state = UploadState.Uploaded;
-                    data = null;
+        boolean isUploaded() {
+            boolean isUploaded = false;
+            if (resumeVersion == Configuration.ResumeVersion.V1) {
+                if (!StringUtils.isNullOrEmpty(context)) {
+                    isUploaded = true;
                 }
             } else {
-                if (StringUtils.isNullOrEmpty(etag)) {
-                    state = UploadState.Waiting;
-                } else {
-                    state = UploadState.Uploaded;
-                    data = null;
+                if (!StringUtils.isNullOrEmpty(etag)) {
+                    isUploaded = true;
                 }
             }
-        }
-
-        enum UploadState {
-            Waiting,
-            Uploading,
-            Uploaded,
+            return isUploaded;
         }
     }
 }

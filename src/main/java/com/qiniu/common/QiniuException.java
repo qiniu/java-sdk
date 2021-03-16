@@ -13,7 +13,6 @@ public final class QiniuException extends IOException {
     public final Response response;
     private String error;
     private boolean isUnrecoverable = false;
-    private boolean is = false;
 
 
     public QiniuException(Response response) {

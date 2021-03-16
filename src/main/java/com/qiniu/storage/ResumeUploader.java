@@ -12,7 +12,7 @@ public class ResumeUploader {
     final Client client;
     final String key;
     final String upToken;
-    final UploadSource source;
+    final ResumeUploadSource source;
     final Recorder recorder;
     final UploadOptions options;
     final Configuration config;
@@ -25,18 +25,25 @@ public class ResumeUploader {
     public ResumeUploader(Client client, String upToken, String key, File file,
                           StringMap params, String mime, Recorder recorder, Configuration configuration) {
         this(client, key, upToken,
-                new UploadSource(getRecorderKey(key, file, recorder), file),
+                new ResumeUploadSourceFile(file, configuration, getRecorderKey(key, file, recorder), getRegionTargetId(upToken, configuration)),
                 recorder, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
     }
 
-    public ResumeUploader(Client client, String upToken, String key, InputStream inputStream, String fileName, long fileSize,
-                          StringMap params, String mime, Recorder recorder, Configuration configuration) {
+    public ResumeUploader(Client client, String upToken, String key, InputStream stream,
+                          StringMap params, String mime, Configuration configuration) {
         this(client, key, upToken,
-                new UploadSource(null, fileName, fileSize, inputStream),
-                recorder, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
+                new ResumeUploadSourceStream(stream, configuration, null, getRegionTargetId(upToken, configuration)),
+                null, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
     }
 
-    private ResumeUploader(Client client, String key, String upToken, UploadSource source, Recorder recorder, UploadOptions options, Configuration configuration) {
+//    public ResumeUploader(Client client, String upToken, String key, InputStream inputStream,
+//                          String fileName, long fileSize, StringMap params, String mime, Recorder recorder, Configuration configuration) {
+//        this(client, key, upToken,
+//                new ResumeUploadSourceStream(inputStream, configuration, null, getRegionTargetId(upToken, configuration)),
+//                recorder, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
+//    }
+
+    private ResumeUploader(Client client, String key, String upToken, ResumeUploadSource source, Recorder recorder, UploadOptions options, Configuration configuration) {
 
         this.client = client;
         this.key = key;
@@ -81,17 +88,22 @@ public class ResumeUploader {
 
         // 上传数据至服务 - 步骤1
         System.out.println("上传步骤 1: 开始");
-        Response response = uploadPerformer.uploadInit();
-        if (!response.isOK()) {
-            return response;
+        Response response = null;
+        if (uploadPerformer.shouldInit()) {
+            response = uploadPerformer.uploadInit();
+            if (!response.isOK()) {
+                return response;
+            }
         }
         System.out.printf("上传步骤 1: 结束 %s \n", response);
 
         // 上传数据至服务 - 步骤2
         System.out.println("上传步骤 2: 开始");
-        response = uploadData();
-        if (!response.isOK()) {
-            return response;
+        if (!uploadPerformer.isAllBlocksOfSourceUploaded()) {
+            response = uploadData();
+            if (!response.isOK()) {
+                return response;
+            }
         }
         System.out.printf("上传步骤 2: 结束 %s \n", response);
 
@@ -131,5 +143,22 @@ public class ResumeUploader {
             return null;
         }
         return recorder.recorderKeyGenerate(key, file);
+    }
+
+    private static String getRegionTargetId(String upToken, Configuration config) {
+        if (config == null || upToken == null) {
+            return null;
+        }
+
+        UploadToken token = null;
+        try {
+            token = new UploadToken(upToken);
+        } catch (QiniuException ignored) {
+        }
+
+        if (token == null || !token.isValid()) {
+            return null;
+        }
+        return config.region.getRegion(token);
     }
 }

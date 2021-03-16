@@ -8,6 +8,8 @@ import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 
+import java.io.IOException;
+
 abstract class ResumeUploadPerformer {
 
     private final Client client;
@@ -20,11 +22,11 @@ abstract class ResumeUploadPerformer {
     final ResumeUploadSource uploadSource;
     final UploadOptions options;
 
-    ResumeUploadPerformer(Client client, String key, UploadToken token, UploadSource source, Recorder recorder, UploadOptions options, Configuration config) {
+    ResumeUploadPerformer(Client client, String key, UploadToken token, ResumeUploadSource source, Recorder recorder, UploadOptions options, Configuration config) {
         this.client = client;
         this.key = key;
         this.token = token;
-        this.uploadSource = new ResumeUploadSource(source, config, config.region.getRegion(token));
+        this.uploadSource = source;
         this.options = options == null ? UploadOptions.defaultOptions() : options;
         this.recorder = recorder;
         this.config = config;
@@ -35,22 +37,49 @@ abstract class ResumeUploadPerformer {
         return uploadSource.isAllBlocksUploaded();
     }
 
+    abstract boolean shouldInit();
+
     abstract Response uploadInit() throws QiniuException;
 
-    abstract Response uploadNextData() throws QiniuException;
+    Response uploadNextData() throws QiniuException {
+        ResumeUploadSource.Block block = null;
+        synchronized (this) {
+            block = getNextUploadingBlock();
+            if (block != null) {
+                block.isUploading = true;
+            }
+        }
+
+        if (block == null) {
+            return Response.createSuccessResponse();
+        }
+
+        Response response = uploadBlock(block);
+        block.isUploading = false;
+        return response;
+    }
+
+    abstract Response uploadBlock(ResumeUploadSource.Block block) throws QiniuException;
 
     abstract Response completeUpload() throws QiniuException;
 
-    ResumeUploadSource.Block getNextUploadingBlock() {
-        return uploadSource.getNextUploadingBlock();
+    private ResumeUploadSource.Block getNextUploadingBlock() throws QiniuException {
+
+        ResumeUploadSource.Block block = null;
+        try {
+            block = uploadSource.getNextUploadingBlock();
+        } catch (IOException e) {
+            throw new QiniuException(e);
+        }
+        return block;
     }
 
     void recoverUploadProgressFromLocal() {
-        if (recorder == null || StringUtils.isNullOrEmpty(uploadSource.sourceId)) {
+        if (recorder == null || StringUtils.isNullOrEmpty(uploadSource.recordKey)) {
             return;
         }
 
-        byte[] data = recorder.get(uploadSource.sourceId);
+        byte[] data = recorder.get(uploadSource.recordKey);
         if (data == null) {
             return;
         }
@@ -60,25 +89,25 @@ abstract class ResumeUploadPerformer {
             return;
         }
 
-        boolean isCopy = uploadSource.copyResourceUploadStateWhenValidAndSame(source);
+        boolean isCopy = uploadSource.recoverFromRecordInfo(source);
         if (!isCopy) {
             removeUploadProgressFromLocal();
         }
     }
 
     void saveUploadProgressToLocal() {
-        if (recorder == null || StringUtils.isNullOrEmpty(uploadSource.sourceId)) {
+        if (recorder == null || StringUtils.isNullOrEmpty(uploadSource.recordKey)) {
             return;
         }
         String dataString = Json.encode(uploadSource);
-        recorder.set(uploadSource.sourceId, dataString.getBytes(Constants.UTF_8));
+        recorder.set(uploadSource.recordKey, dataString.getBytes(Constants.UTF_8));
     }
 
     void removeUploadProgressFromLocal() {
-        if (recorder == null || StringUtils.isNullOrEmpty(uploadSource.sourceId)) {
+        if (recorder == null || StringUtils.isNullOrEmpty(uploadSource.recordKey)) {
             return;
         }
-        recorder.del(uploadSource.sourceId);
+        recorder.del(uploadSource.recordKey);
     }
 
     private String getUploadHost() throws QiniuException {
@@ -123,7 +152,7 @@ abstract class ResumeUploadPerformer {
                 }
 
                 // 判断是否需要重试
-                if (!e.isUnrecoverable() || (e.response != null && e.response.needRetry())) {
+                if (!e.isUnrecoverable() && (e.response != null && e.response.needRetry())) {
                     shouldRetry = true;
                 } else {
                     throw e;
