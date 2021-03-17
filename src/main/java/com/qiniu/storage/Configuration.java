@@ -7,6 +7,8 @@ import com.qiniu.common.Zone;
 import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * 该类封装了SDK相关配置参数
  */
@@ -46,9 +48,18 @@ public final class Configuration implements Cloneable {
      */
     public int resumeV2BlockSize = Constants.BLOCK_SIZE;
     /**
-     * 每个文件传时的最大并发任务数
+     * 分片上传每个文件传时的最大并发任务数，
+     * 当 resumeMaxConcurrentTaskCount 小于或等于 1 时，使用同步上传，resumeConcurrentTaskExecutorService 不被使用
+     * 当 resumeMaxConcurrentTaskCount 大于 1 时，使用并发上传
      */
-    public int maxCurrentTaskCount = 4;
+    public int resumeMaxConcurrentTaskCount = 1;
+    /**
+     * 分片上传并发任务的 ExecutorService
+     * 当 resumeMaxConcurrentTaskCount 小于或等于 1，此设置无效；
+     * 当 resumeMaxConcurrentTaskCount 大于 1 且 resumeConcurrentTaskExecutorService 为空，则会创建 Executors.newFixedThreadPool(maxConcurrentTaskCount)
+     * 当 resumeMaxConcurrentTaskCount 大于 1 且 resumeConcurrentTaskExecutorService 不为空，则直接使用 resumeConcurrentTaskExecutorService
+     */
+    public ExecutorService resumeConcurrentTaskExecutorService = null;
     /**
      * 分片上传的版本
      */

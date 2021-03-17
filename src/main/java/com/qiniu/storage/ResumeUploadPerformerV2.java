@@ -5,10 +5,7 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.util.*;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 
 class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
@@ -61,9 +58,33 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     private Response initPart(String host) throws QiniuException {
-        String action = String.format(Locale.ENGLISH, "/buckets/%s/objects/%s", this.token.getBucket(), resumeV2EncodeKey(key));
+        String action = String.format(Locale.ENGLISH, "/buckets/%s/objects/%s/uploads", this.token.getBucket(), resumeV2EncodeKey(key));
         String url = host + action;
-        return post(url, null);
+        Response response = post(url, new byte[0], 0, 0);
+        if (response != null && response.isOK()) {
+
+            StringMap jsonMap = response.jsonToMap();
+            if (jsonMap == null) {
+                throw new QiniuException(new Exception("upload's info is empty"));
+            }
+
+            String uploadId = jsonMap.get("uploadId").toString();
+            Object expireAt = jsonMap.get("expireAt");
+            if (uploadId == null || expireAt == null) {
+                throw new QiniuException(new Exception("uploadId or expireAt is empty"));
+            }
+            uploadSource.uploadId = uploadId;
+            if (expireAt instanceof Double) {
+                uploadSource.expireAt = ((Double) expireAt).longValue();
+            } else if (expireAt instanceof Integer) {
+                uploadSource.expireAt = ((Integer) expireAt).longValue();
+            } else if (expireAt instanceof Long) {
+                uploadSource.expireAt = (Long) expireAt;
+            } else {
+                uploadSource.expireAt = new Date().getTime() / 1000;
+            }
+        }
+        return response;
     }
 
     private Response uploadPart(String host, ResumeUploadSource.Block block) throws QiniuException {
@@ -71,7 +92,7 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
         int partIndex = block.index;
         String action = String.format("/buckets/%s/objects/%s/uploads/%s/%d", token.getBucket(), resumeV2EncodeKey(key), uploadId, partIndex);
         String url = host + action;
-        Response response = put(url, block.data);
+        Response response = put(url, block.data, 0, block.size);
 
         if (response != null && response.isOK()) {
 
@@ -96,6 +117,7 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
                 throw new QiniuException(new Exception("block's etag is empty"));
             }
             block.etag = jsonMap.get("etag").toString();
+            block.data = null;
         }
 
         return response;
@@ -103,7 +125,7 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
 
     private Response completeParts(String host) throws QiniuException {
 
-        List<StringMap> partInfoArray = uploadSource.getPartInfo();
+        List<Map<String, Object>> partInfoArray = uploadSource.getPartInfo();
         String uploadId = uploadSource.uploadId;
 
         String action = String.format("/buckets/%s/objects/%s/uploads/%s", token.getBucket(), resumeV2EncodeKey(key), uploadId);
@@ -120,15 +142,15 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
             bodyMap.put("mimeType", options.mimeType);
         }
         if (options.params != null) {
-            bodyMap.put("customVars", options.params);
+            bodyMap.put("customVars", options.params.map());
         }
         if (options.metaDataParam != null) {
-            bodyMap.put("metaData", options.metaDataParam);
+            bodyMap.put("metaData", options.metaDataParam.map());
         }
 
         String bodyString = Json.encode(bodyMap);
         byte[] body = bodyString.getBytes();
-        return post(url, body);
+        return post(url, body, 0, body.length);
     }
 
     private String resumeV2EncodeKey(String key) {

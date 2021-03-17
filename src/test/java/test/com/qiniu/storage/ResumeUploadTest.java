@@ -4,6 +4,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.storage.ConcurrentResumeUploader;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.ResumeUploader;
 import com.qiniu.storage.UploadManager;
@@ -23,6 +24,31 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ResumeUploadTest {
+
+//    private static boolean[][] TestConfigList = {
+//            // isHttps, isResumeV2, isStream, isConcurrent
+//            {false, true, true, true},
+//    };
+
+    private static boolean[][] TestConfigList = {
+            // isHttps, isResumeV2, isStream, isConcurrent
+            {false, true, false, false},
+            {false, false, false, true},
+            {false, false, true, false},
+            {false, false, true, true},
+            {false, true, false, false},
+            {false, true, false, true},
+            {false, true, true, false},
+            {false, true, true, true},
+            {true, false, false, false},
+            {true, false, false, true},
+            {true, false, true, false},
+            {true, false, true, true},
+            {true, true, false, false},
+            {true, true, false, true},
+            {true, true, true, false},
+            {true, true, true, true}
+    };
 
     /**
      * 检测自定义变量foo是否生效
@@ -71,26 +97,27 @@ public class ResumeUploadTest {
      * 检测key、hash、fszie、fname是否符合预期
      *
      * @param size
-     * @param https
+     * @param isHttps
      * @throws IOException
      */
-    private void template(int size, boolean https, boolean isResumeV2, boolean isStream) throws IOException {
+    private void template(int size, boolean isHttps, boolean isResumeV2, boolean isStream, boolean isConcurrent) throws IOException {
         Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
         bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
         bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
         for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             Zone zone = entry.getValue();
-            Configuration c = new Configuration(zone);
+            Configuration config = new Configuration(zone);
             if (isResumeV2) {
-                c.resumeVersion = Configuration.ResumeVersion.V2;
+                config.resumeVersion = Configuration.ResumeVersion.V2;
             }
 
-            c.useHttpsDomains = https;
+            config.useHttpsDomains = isHttps;
             String key = "";
-            key += https ? "_https" : "_http";
+            key += isHttps ? "_https" : "_http";
             key += isResumeV2 ? "_resumeV2" : "_resumeV1";
             key += isStream ? "_stream" : "_file";
+            key += isConcurrent ? "_concurrent" : "_serial";
             final String expectKey = "\r\n?&r=" + size + "k" + key;
             final File f = TempFile.createFile(size);
             final String etag = Etag.file(f);
@@ -103,13 +130,21 @@ public class ResumeUploadTest {
 
             try {
                 ResumeUploader up = null;
-                if (isStream) {
-                    up = new ResumeUploader(new Client(), token, expectKey, new FileInputStream(f), null, null,
-                            new Configuration(zone));
+                if (!isConcurrent) {
+                    if (isStream) {
+                        up = new ResumeUploader(new Client(), token, expectKey, new FileInputStream(f), null, null, config);
+                    } else {
+                        up = new ResumeUploader(new Client(), token, expectKey, f, null, null, null, config);
+                    }
                 } else {
-                    up = new ResumeUploader(new Client(), token, expectKey, f, null, null, null,
-                            new Configuration(zone));
+                    config.resumeMaxConcurrentTaskCount = 3;
+                    if (isStream) {
+                        up = new ConcurrentResumeUploader(new Client(), token, expectKey, new FileInputStream(f), null, null, config);
+                    } else {
+                        up = new ConcurrentResumeUploader(new Client(), token, expectKey, f, null, null, null, config);
+                    }
                 }
+
                 Response r = up.upload();
                 MyRet ret = r.jsonToObject(MyRet.class);
                 assertEquals(expectKey, ret.key);
@@ -119,33 +154,24 @@ public class ResumeUploadTest {
                 assertEquals(String.valueOf(f.length()), ret.fsize);
                 assertEquals(etag, ret.hash);
             } catch (QiniuException e) {
-                assertEquals("", e.response == null ? "e.response is null" : e.response.bodyString());
+                assertEquals("", e.response == null ? e + "e.response is null" : e.response.bodyString());
                 fail();
             }
             TempFile.remove(f);
         }
     }
 
-    private static boolean[][] TestConfigList = {
-            {false, false, true},
-            {false, false, false},
-            {false, true, false},
-            {false, true, true},
-            {true, false, false},
-            {false, false, false}
-    };
-
     @Test
     public void test1K() throws Throwable {
         for (boolean[] config : TestConfigList) {
-            template(1, config[0], config[1], config[2]);
+            template(1, config[0], config[1], config[2], config[3]);
         }
     }
 
     @Test
     public void test600k() throws Throwable {
         for (boolean[] config : TestConfigList) {
-            template(600, config[0], config[1], config[2]);
+            template(600, config[0], config[1], config[2], config[3]);
         }
     }
 
@@ -155,7 +181,7 @@ public class ResumeUploadTest {
             return;
         }
         for (boolean[] config : TestConfigList) {
-            template(1024 * 4, config[0], config[1], config[2]);
+            template(1024 * 4, config[0], config[1], config[2], config[3]);
         }
     }
 
@@ -165,7 +191,7 @@ public class ResumeUploadTest {
             return;
         }
         for (boolean[] config : TestConfigList) {
-            template(1024 * 8, config[0], config[1], config[2]);
+            template(1024 * 8, config[0], config[1], config[2], config[3]);
         }
     }
 
@@ -175,7 +201,7 @@ public class ResumeUploadTest {
             return;
         }
         for (boolean[] config : TestConfigList) {
-            template(1024 * 8 + 1, config[0], config[1], config[2]);
+            template(1024 * 8 + 1, config[0], config[1], config[2], config[3]);
         }
     }
 
@@ -185,7 +211,7 @@ public class ResumeUploadTest {
             return;
         }
         for (boolean[] config : TestConfigList) {
-            template(1024 * 10, config[0], config[1], config[2]);
+            template(1024 * 10, config[0], config[1], config[2], config[3]);
         }
     }
 
@@ -195,7 +221,7 @@ public class ResumeUploadTest {
             return;
         }
         for (boolean[] config : TestConfigList) {
-            template(1024 * 20, config[0], config[1], config[2]);
+            template(1024 * 20, config[0], config[1], config[2], config[3]);
         }
     }
 
@@ -205,7 +231,7 @@ public class ResumeUploadTest {
             return;
         }
         for (boolean[] config : TestConfigList) {
-            template(1024 * 20 + 1, config[0], config[1], config[2]);
+            template(1024 * 20 + 1, config[0], config[1], config[2], config[3]);
         }
     }
 

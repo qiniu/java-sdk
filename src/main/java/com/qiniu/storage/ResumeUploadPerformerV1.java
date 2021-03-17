@@ -50,7 +50,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
         String action = String.format("/mkblk/%d", block.size);
         String url = host + action;
 
-        Response response = post(url, block.data);
+        Response response = post(url, block.data, 0, block.size);
 
         System.out.printf("== make block:%d upload :%s \n", block.index, response);
 
@@ -77,6 +77,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
                 throw new QiniuException(new Exception("block's ctx is empty"));
             }
             block.context = jsonMap.get("ctx").toString();
+            block.data = null;
         }
         return response;
     }
@@ -123,6 +124,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
 
         url = b.toString();
         String s = StringUtils.join(contexts, ",");
-        return post(url, StringUtils.utf8Bytes(s));
+        byte[] data = StringUtils.utf8Bytes(s);
+        return post(url, StringUtils.utf8Bytes(s), (int) 0, data.length);
     }
 }

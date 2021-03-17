@@ -12,6 +12,9 @@ import java.io.IOException;
 
 abstract class ResumeUploadPerformer {
 
+    static String DefaultContentType = "application/octet-stream";
+    static String MultipartFormDataContentType = "multipart/form-data";
+
     private final Client client;
     private final Recorder recorder;
     private final Configuration config;
@@ -34,7 +37,7 @@ abstract class ResumeUploadPerformer {
     }
 
     boolean isAllBlocksOfSourceUploaded() {
-        return uploadSource.isAllBlocksUploaded();
+        return uploadSource.isAllBlocksUploadingOrUploaded();
     }
 
     abstract boolean shouldInit();
@@ -53,7 +56,7 @@ abstract class ResumeUploadPerformer {
         if (block == null) {
             return Response.createSuccessResponse();
         }
-
+        System.out.printf("块信息：index:%d offset:%d size:%d \r\n", block.index, block.offset, block.size);
         Response response = uploadBlock(block);
         block.isUploading = false;
         return response;
@@ -123,17 +126,16 @@ abstract class ResumeUploadPerformer {
         }
     }
 
-    Response post(String url, byte[] data) throws QiniuException {
+    Response post(String url, byte[] data, int offset, int size) throws QiniuException {
         StringMap header = new StringMap();
         header.put("Authorization", "UpToken " + token.getToken());
-        return client.post(url, data, header);
+        return client.post(url, data, offset, size, header, DefaultContentType);
     }
 
-    Response put(String url, byte[] data) throws QiniuException {
+    Response put(String url, byte[] data, int offset, int size) throws QiniuException {
         StringMap header = new StringMap();
         header.put("Authorization", "UpToken " + token.getToken());
-        String contentType = "application/octet-stream";
-        return client.put(url, data, header, contentType);
+        return client.put(url, data, offset, size, header, DefaultContentType);
     }
 
     Response retryUploadAction(UploadAction action) throws QiniuException {

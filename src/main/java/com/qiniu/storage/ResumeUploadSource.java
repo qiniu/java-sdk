@@ -1,14 +1,10 @@
 package com.qiniu.storage;
 
 import com.qiniu.common.Constants;
-import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 abstract class ResumeUploadSource {
 
@@ -33,23 +29,21 @@ abstract class ResumeUploadSource {
         this.resumeVersion = config.resumeVersion;
     }
 
-    // 所有块数据是否均已上传
-    boolean isAllBlocksUploaded() {
+    // 所有块数据是否 正在上传 或者 已上传，为 true 则说明没有需要上传的数据块
+    boolean isAllBlocksUploadingOrUploaded() {
         if (blockList == null || blockList.size() == 0) {
             return true;
         }
 
-        boolean isAllBlockUploaded = true;
+        boolean isAllBlockUploadingOrUploaded = true;
         for (ResumeUploadSource.Block block : blockList) {
-            if (!block.isUploaded()) {
-                isAllBlockUploaded = false;
+            if (!block.isUploading && !block.isUploaded()) {
+                isAllBlockUploadingOrUploaded = false;
                 break;
             }
         }
-        return isAllBlockUploaded;
+        return isAllBlockUploadingOrUploaded;
     }
-
-    ;
 
     // 获取下一个需要上传的块
     ResumeUploadSource.Block getNextUploadingBlock() throws IOException {
@@ -100,7 +94,7 @@ abstract class ResumeUploadSource {
     }
 
     // 分片 V2 complete upload 使用
-    List<StringMap> getPartInfo() {
+    List<Map<String, Object>> getPartInfo() {
 
         // 排序
         Collections.sort(blockList, new Comparator<Block>() {
@@ -110,10 +104,10 @@ abstract class ResumeUploadSource {
             }
         });
 
-        List<StringMap> partInfo = new ArrayList<>();
+        List<Map<String, Object>> partInfo = new ArrayList<>();
         for (int i = 0; i < blockList.size(); i++) {
             Block block = blockList.get(i);
-            StringMap part = new StringMap();
+            Map<String, Object> part = new HashMap<>();
             if (block.etag != null) {
                 part.put("partNumber", block.index);
                 part.put("etag", block.etag);

@@ -9,19 +9,21 @@ public class ResumeUploadSourceStream extends ResumeUploadSource {
     private long readOffset = 0;
     private boolean isAllDataRead;
     private final InputStream inputStream;
+    private final String fileName;
 
-    ResumeUploadSourceStream(InputStream inputStream, Configuration config, String recordKey, String targetRegionId) {
+    ResumeUploadSourceStream(InputStream inputStream, Configuration config, String recordKey, String targetRegionId, String fileName) {
         super(config, recordKey, targetRegionId);
         this.inputStream = inputStream;
+        this.fileName = fileName;
         this.blockList = new LinkedList<>();
     }
 
     @Override
-    boolean isAllBlocksUploaded() {
+    boolean isAllBlocksUploadingOrUploaded() {
         if (!isAllDataRead) {
             return false;
         }
-        return super.isAllBlocksUploaded();
+        return super.isAllBlocksUploadingOrUploaded();
     }
 
     @Override
@@ -31,7 +33,7 @@ public class ResumeUploadSourceStream extends ResumeUploadSource {
             return block;
         }
 
-        block = new Block(config, readOffset, getBlockSize(config), blockList.size());
+        block = new Block(config, readOffset, getBlockSize(config), blockList.size() + 1);
         block.data = getBlockData(block);
         if (block.size == 0) {
             return null;
@@ -53,6 +55,7 @@ public class ResumeUploadSourceStream extends ResumeUploadSource {
         return inputStream != null;
     }
 
+    /// 只有数据流读取结束才有效，即 isAllBlocksUploaded() 为 true 时值有效
     @Override
     long getSize() {
         return readOffset;
@@ -60,10 +63,10 @@ public class ResumeUploadSourceStream extends ResumeUploadSource {
 
     @Override
     String getFileName() {
-        return null;
+        return fileName;
     }
 
-    byte[] getBlockData(ResumeUploadSource.Block block) throws IOException {
+    private byte[] getBlockData(ResumeUploadSource.Block block) throws IOException {
         if (block.data != null) {
             return block.data;
         }

@@ -31,19 +31,18 @@ public class ResumeUploader {
 
     public ResumeUploader(Client client, String upToken, String key, InputStream stream,
                           StringMap params, String mime, Configuration configuration) {
+        this(client, upToken, key, stream, null, params, mime, configuration);
+    }
+
+    public ResumeUploader(Client client, String upToken, String key, InputStream stream,
+                          String fileName, StringMap params, String mime, Configuration configuration) {
         this(client, key, upToken,
-                new ResumeUploadSourceStream(stream, configuration, null, getRegionTargetId(upToken, configuration)),
+                new ResumeUploadSourceStream(stream, configuration, null, getRegionTargetId(upToken, configuration), fileName),
                 null, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
     }
 
-//    public ResumeUploader(Client client, String upToken, String key, InputStream inputStream,
-//                          String fileName, long fileSize, StringMap params, String mime, Recorder recorder, Configuration configuration) {
-//        this(client, key, upToken,
-//                new ResumeUploadSourceStream(inputStream, configuration, null, getRegionTargetId(upToken, configuration)),
-//                recorder, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
-//    }
-
-    private ResumeUploader(Client client, String key, String upToken, ResumeUploadSource source, Recorder recorder, UploadOptions options, Configuration configuration) {
+    private ResumeUploader(Client client, String key, String upToken, ResumeUploadSource source, Recorder recorder,
+                           UploadOptions options, Configuration configuration) {
 
         this.client = client;
         this.key = key;
@@ -118,9 +117,10 @@ public class ResumeUploader {
         return response;
     }
 
-    private Response uploadData() throws QiniuException {
+    Response uploadData() throws QiniuException {
         Response response = null;
         do {
+            System.out.println("上传块开始");
             response = uploadPerformer.uploadNextData();
             if (response != null && response.isOK()) {
                 uploadPerformer.saveUploadProgressToLocal();
