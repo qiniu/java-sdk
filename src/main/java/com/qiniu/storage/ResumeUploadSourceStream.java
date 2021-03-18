@@ -27,13 +27,21 @@ public class ResumeUploadSourceStream extends ResumeUploadSource {
     }
 
     @Override
+    boolean isAllBlocksUploaded() {
+        if (!isAllDataRead) {
+            return false;
+        }
+        return super.isAllBlocksUploaded();
+    }
+
+    @Override
     Block getNextUploadingBlock() throws IOException {
         ResumeUploadSource.Block block = super.getNextUploadingBlock();
         if (block != null) {
             return block;
         }
 
-        block = new Block(config, readOffset, getBlockSize(config), blockList.size() + 1);
+        block = new Block(config, readOffset, getBlockSize(config), blockList.size());
         block.data = getBlockData(block);
         if (block.size == 0) {
             return null;

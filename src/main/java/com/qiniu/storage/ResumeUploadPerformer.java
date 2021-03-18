@@ -1,10 +1,10 @@
 package com.qiniu.storage;
 
+import com.google.gson.Gson;
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 
@@ -36,9 +36,14 @@ abstract class ResumeUploadPerformer {
         this.configHelper = new ConfigHelper(config);
     }
 
-    boolean isAllBlocksOfSourceUploaded() {
+    boolean isAllBlocksUploadingOrUploaded() {
         return uploadSource.isAllBlocksUploadingOrUploaded();
     }
+
+    boolean isAllBlocksUploaded() {
+        return uploadSource.isAllBlocksUploaded();
+    }
+
 
     abstract boolean shouldInit();
 
@@ -57,8 +62,15 @@ abstract class ResumeUploadPerformer {
             return Response.createSuccessResponse();
         }
         System.out.printf("块信息：index:%d offset:%d size:%d \r\n", block.index, block.offset, block.size);
-        Response response = uploadBlock(block);
-        block.isUploading = false;
+
+        Response response = null;
+        try {
+            response = uploadBlock(block);
+            block.isUploading = false;
+        } catch (QiniuException e) {
+            block.isUploading = false;
+            throw e;
+        }
         return response;
     }
 
@@ -86,8 +98,12 @@ abstract class ResumeUploadPerformer {
         if (data == null) {
             return;
         }
-
-        ResumeUploadSource source = Json.decode(new String(data, Constants.UTF_8), ResumeUploadSource.class);
+        String jsonString = new String(data, Constants.UTF_8);
+        ResumeUploadSource source = null;
+        try {
+            source = new Gson().fromJson(jsonString, uploadSource.getClass());
+        } catch (Exception ignored) {
+        }
         if (source == null) {
             return;
         }
@@ -102,7 +118,7 @@ abstract class ResumeUploadPerformer {
         if (recorder == null || StringUtils.isNullOrEmpty(uploadSource.recordKey)) {
             return;
         }
-        String dataString = Json.encode(uploadSource);
+        String dataString = new Gson().toJson(uploadSource);
         recorder.set(uploadSource.recordKey, dataString.getBytes(Constants.UTF_8));
     }
 
@@ -145,6 +161,7 @@ abstract class ResumeUploadPerformer {
 
         do {
             String host = getUploadHost();
+            System.out.println("== action index:" + retryCount);
             try {
                 response = action.uploadAction(host);
             } catch (QiniuException e) {
@@ -154,7 +171,7 @@ abstract class ResumeUploadPerformer {
                 }
 
                 // 判断是否需要重试
-                if (!e.isUnrecoverable() && (e.response != null && e.response.needRetry())) {
+                if (!e.isUnrecoverable() || (e.response != null && e.response.needRetry())) {
                     shouldRetry = true;
                 } else {
                     throw e;
@@ -167,7 +184,16 @@ abstract class ResumeUploadPerformer {
             }
 
             retryCount++;
-        } while (shouldRetry && retryCount < config.retryMax);
+
+            if (shouldRetry) {
+                if (retryCount >= config.retryMax) {
+                    throw QiniuException.unrecoverable("failed after retry times");
+                }
+            } else {
+                break;
+            }
+
+        } while (true);
 
         return response;
     }

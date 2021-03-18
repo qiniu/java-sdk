@@ -17,7 +17,7 @@ public class ResumeUploader {
     final UploadOptions options;
     final Configuration config;
 
-    private ResumeUploadPerformer uploadPerformer;
+    ResumeUploadPerformer uploadPerformer;
 
     /**
      * 构建分片上传文件的对象
@@ -98,7 +98,7 @@ public class ResumeUploader {
 
         // 上传数据至服务 - 步骤2
         System.out.println("上传步骤 2: 开始");
-        if (!uploadPerformer.isAllBlocksOfSourceUploaded()) {
+        if (!uploadPerformer.isAllBlocksUploadingOrUploaded()) {
             response = uploadData();
             if (!response.isOK()) {
                 return response;
@@ -126,7 +126,7 @@ public class ResumeUploader {
                 uploadPerformer.saveUploadProgressToLocal();
             }
             System.out.println("上传块结束");
-        } while (!uploadPerformer.isAllBlocksOfSourceUploaded());
+        } while (!uploadPerformer.isAllBlocksUploadingOrUploaded());
         return response;
     }
 

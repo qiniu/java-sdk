@@ -22,6 +22,7 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
             return true;
         }
 
+        // 服务端是 7 天，此处有效期少 3 天，为 4 天
         long currentTimestamp = new Date().getTime() / 1000;
         long expireAtTimestamp = uploadSource.expireAt - 24 * 3600 * 3;
         return expireAtTimestamp < currentTimestamp;
@@ -89,7 +90,7 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
 
     private Response uploadPart(String host, ResumeUploadSource.Block block) throws QiniuException {
         String uploadId = uploadSource.uploadId;
-        int partIndex = block.index;
+        int partIndex = block.index + 1;
         String action = String.format("/buckets/%s/objects/%s/uploads/%s/%d", token.getBucket(), resumeV2EncodeKey(key), uploadId, partIndex);
         String url = host + action;
         Response response = put(url, block.data, 0, block.size);

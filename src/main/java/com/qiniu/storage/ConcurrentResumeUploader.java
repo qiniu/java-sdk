@@ -34,18 +34,19 @@ public class ConcurrentResumeUploader extends ResumeUploader {
     @Override
     Response uploadData() throws QiniuException {
 
-        int maxRunningBlock = config.resumeMaxConcurrentTaskCount;
+        int maxConcurrentTaskCount = config.resumeMaxConcurrentTaskCount;
         ExecutorService pool = config.resumeConcurrentTaskExecutorService;
 
-        if (maxRunningBlock < 1) {
-            maxRunningBlock = 1;
+        if (maxConcurrentTaskCount < 1) {
+            maxConcurrentTaskCount = 1;
         }
         if (pool == null) {
-            pool = Executors.newFixedThreadPool(maxRunningBlock);
+            pool = Executors.newFixedThreadPool(maxConcurrentTaskCount);
         }
 
+        System.out.println("并发上传 task count:" + maxConcurrentTaskCount);
         List<Future<Response>> futures = new ArrayList<>();
-        for (int i = 0; i < maxRunningBlock; i++) {
+        for (int i = 0; i < maxConcurrentTaskCount; i++) {
             Future<Response> future = pool.submit(new Callable<Response>() {
                 @Override
                 public Response call() throws Exception {
@@ -66,10 +67,19 @@ public class ConcurrentResumeUploader extends ResumeUploader {
             }
 
             try {
-                response = future.get();
+                Response responseP = future.get();
+                if (response == null || (responseP != null && responseP.isOK())) {
+                    response = responseP;
+                }
             } catch (Exception e) {
                 exception = new QiniuException(e);
             }
+
+            System.out.println("并发上传 task complete, index:" + futures.indexOf(future));
+        }
+
+        if (uploadPerformer.isAllBlocksUploaded()) {
+            return response;
         }
 
         if (exception != null) {

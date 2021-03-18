@@ -29,6 +29,12 @@ public final class QiniuException extends IOException {
         return exception;
     }
 
+    public static QiniuException unrecoverable(String msg) {
+        QiniuException exception = new QiniuException(null, msg);
+        exception.isUnrecoverable = true;
+        return exception;
+    }
+
     public QiniuException(Exception e) {
         this(e, null);
     }

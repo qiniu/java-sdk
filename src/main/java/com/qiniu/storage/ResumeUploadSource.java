@@ -13,13 +13,20 @@ abstract class ResumeUploadSource {
     final String targetRegionId;
     final Configuration.ResumeVersion resumeVersion;
 
-    transient final Configuration config;
+    transient Configuration config;
 
     List<Block> blockList;
     // uploadId: 此次文件上传唯一标识 【resume v2 特有】
     String uploadId;
     // expireAt: uploadId 有效期， 单位：秒 【resume v2 特有】
     Long expireAt;
+
+    ResumeUploadSource() {
+        this.targetRegionId = null;
+        this.blockSize = 0;
+        this.recordKey = null;
+        this.resumeVersion = Configuration.ResumeVersion.V1;
+    }
 
     ResumeUploadSource(Configuration config, String recordKey, String targetRegionId) {
         this.config = config;
@@ -43,6 +50,21 @@ abstract class ResumeUploadSource {
             }
         }
         return isAllBlockUploadingOrUploaded;
+    }
+
+    boolean isAllBlocksUploaded() {
+        if (blockList == null || blockList.size() == 0) {
+            return true;
+        }
+
+        boolean isAllBlockUploaded = true;
+        for (ResumeUploadSource.Block block : blockList) {
+            if (!block.isUploaded()) {
+                isAllBlockUploaded = false;
+                break;
+            }
+        }
+        return isAllBlockUploaded;
     }
 
     // 获取下一个需要上传的块
@@ -109,7 +131,7 @@ abstract class ResumeUploadSource {
             Block block = blockList.get(i);
             Map<String, Object> part = new HashMap<>();
             if (block.etag != null) {
-                part.put("partNumber", block.index);
+                part.put("partNumber", block.index + 1);
                 part.put("etag", block.etag);
             }
             partInfo.add(part);
@@ -131,6 +153,12 @@ abstract class ResumeUploadSource {
         String context;
         // etag: 块etag【resume v2 特有】
         String etag;
+
+        Block() {
+            this.offset = 0;
+            this.index = 0;
+            this.resumeVersion = Configuration.ResumeVersion.V1;
+        }
 
         Block(Configuration config, long offset, int blockSize, int index) {
             this.resumeVersion = config.resumeVersion;

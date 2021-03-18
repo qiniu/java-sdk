@@ -8,12 +8,14 @@ import java.util.ArrayList;
 class ResumeUploadSourceFile extends ResumeUploadSource {
 
     private final long size;
+    private final String fileName;
     private transient final File file;
     private transient RandomAccessFile randomAccessFile;
 
     ResumeUploadSourceFile(File file, Configuration config, String recordKey, String targetRegionId) {
         super(config, recordKey, targetRegionId);
         this.file = file;
+        this.fileName = file.getName();
         this.size = file.length();
         createBlockList(config, size, blockSize);
     }
@@ -21,7 +23,7 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
     private void createBlockList(Configuration config, long fileSize, int blockSize) {
         blockList = new ArrayList<>();
         long offset = 0;
-        int blockIndex = 1;
+        int blockIndex = 0;
         while (offset < fileSize) {
             int lastSize = (int) (fileSize - offset);
             int blockSizeP = Math.min(lastSize, blockSize);
@@ -44,7 +46,7 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
 
     @Override
     String getFileName() {
-        return file.getName();
+        return fileName;
     }
 
     @Override
@@ -91,6 +93,8 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
         if (!isSameResource(source)) {
             return false;
         }
+        uploadId = source.uploadId;
+        expireAt = source.expireAt;
         blockList = source.blockList;
         return true;
     }

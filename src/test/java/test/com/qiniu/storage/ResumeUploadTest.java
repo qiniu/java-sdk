@@ -96,8 +96,11 @@ public class ResumeUploadTest {
      * 分片上传
      * 检测key、hash、fszie、fname是否符合预期
      *
-     * @param size
-     * @param isHttps
+     * @param size         文件大小
+     * @param isHttps      是否采用 https 方式, 反之为 http
+     * @param isResumeV2   是否使用分片上传 api v2, 反之为 v1
+     * @param isStream     是否上传 stream, 反之为 file
+     * @param isConcurrent 是否采用并发方式上传
      * @throws IOException
      */
     private void template(int size, boolean isHttps, boolean isResumeV2, boolean isStream, boolean isConcurrent) throws IOException {
