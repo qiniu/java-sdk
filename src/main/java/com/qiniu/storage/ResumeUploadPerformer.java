@@ -12,9 +12,6 @@ import java.io.IOException;
 
 abstract class ResumeUploadPerformer {
 
-    static String DefaultContentType = "application/octet-stream";
-    static String MultipartFormDataContentType = "multipart/form-data";
-
     private final Client client;
     private final Recorder recorder;
     private final Configuration config;
@@ -61,15 +58,19 @@ abstract class ResumeUploadPerformer {
         if (block == null) {
             return Response.createSuccessResponse();
         }
-        System.out.printf("块信息：index:%d offset:%d size:%d \r\n", block.index, block.offset, block.size);
+
+        System.out.printf("上传块开始：index:%d offset:%d size:%d \r\n", block.index, block.offset, block.size);
 
         Response response = null;
         try {
             response = uploadBlock(block);
             block.isUploading = false;
+
         } catch (QiniuException e) {
             block.isUploading = false;
             throw e;
+        } finally {
+            System.out.printf("上传块结束：index:%d offset:%d size:%d \r\n", block.index, block.offset, block.size);
         }
         return response;
     }
@@ -136,37 +137,40 @@ abstract class ResumeUploadPerformer {
     private void changeHost(String host) {
         try {
             configHelper.tryChangeUpHost(token.getToken(), host);
-        } catch (Exception e) {
-            // ignore
-            // use the old up host //
+        } catch (Exception ignored) {
         }
     }
 
     Response post(String url, byte[] data, int offset, int size) throws QiniuException {
         StringMap header = new StringMap();
         header.put("Authorization", "UpToken " + token.getToken());
-        return client.post(url, data, offset, size, header, DefaultContentType);
+        return client.post(url, data, offset, size, header, options.mimeType);
     }
 
     Response put(String url, byte[] data, int offset, int size) throws QiniuException {
         StringMap header = new StringMap();
         header.put("Authorization", "UpToken " + token.getToken());
-        return client.put(url, data, offset, size, header, DefaultContentType);
+        return client.put(url, data, offset, size, header, options.mimeType);
     }
 
     Response retryUploadAction(UploadAction action) throws QiniuException {
         Response response = null;
         int retryCount = 0;
-        boolean shouldRetry = false;
+
 
         do {
+            boolean shouldRetry = false;
             String host = getUploadHost();
             System.out.println("== action index:" + retryCount);
             try {
                 response = action.uploadAction(host);
+                System.out.println("== response:" + response);
             } catch (QiniuException e) {
+                System.out.println("== Exception:" + e);
+
                 // 切换 Host
                 if (e.code() < 0 || e.response != null && e.response.needSwitchServer()) {
+                    System.out.println("== change host");
                     changeHost(host);
                 }
 
@@ -180,19 +184,19 @@ abstract class ResumeUploadPerformer {
 
             // 判断是否需要重试
             if (!shouldRetry && (response == null || response.needRetry())) {
+                System.out.println("== Exception response data:" + (response != null ? response.bodyString() : ""));
                 shouldRetry = true;
             }
 
             retryCount++;
 
-            if (shouldRetry) {
-                if (retryCount >= config.retryMax) {
-                    throw QiniuException.unrecoverable("failed after retry times");
-                }
-            } else {
+            if (!shouldRetry) {
                 break;
             }
 
+            if (retryCount >= config.retryMax) {
+                throw QiniuException.unrecoverable("failed after retry times");
+            }
         } while (true);
 
         return response;

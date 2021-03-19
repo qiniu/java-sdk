@@ -45,12 +45,20 @@ public final class Configuration implements Cloneable {
     public boolean useDefaultUpHostIfNone = true;
     /**
      * 使用分片 V2 上传时的分片大小
+     * 范围为：1M ~ 1GB，
+     * 注：每个文件最大分片数量为 10000
      */
     public int resumeV2BlockSize = Constants.BLOCK_SIZE;
     /**
-     * 分片上传每个文件传时的最大并发任务数，
+     * 分片上传每个文件传时的最大并发任务数，并发数量会影响内存使用，请合理配置
      * 当 resumeMaxConcurrentTaskCount 小于或等于 1 时，使用同步上传，resumeConcurrentTaskExecutorService 不被使用
      * 当 resumeMaxConcurrentTaskCount 大于 1 时，使用并发上传
+     * <p>
+     * 分片上传，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
+     * 在分片 v1 中 blockSize 为 4M；
+     * 分片 v2 可自定义，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
+     * 并发任务数量配置方式：Configuration.resumeMaxConcurrentTaskCount
      */
     public int resumeMaxConcurrentTaskCount = 1;
     /**
