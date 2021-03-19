@@ -25,8 +25,9 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        env:
+        run: |
           QINIU_ACCESS_KEY=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5
           QINIU_TEST_ENV=travis
-        run: ./gradlew build
+          ./gradlew build
+
         
