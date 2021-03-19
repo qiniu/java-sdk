@@ -34,7 +34,7 @@ public class RecordUploadTest {
     FileRecorder recorder = null;
     private Response response = null;
 
-    private static boolean[][] TestConfigList = {
+    private static boolean[][] testConfigList = {
             // isResumeV2, isConcurrent
             {true, false},
             {true, true},
@@ -191,14 +191,14 @@ public class RecordUploadTest {
 
     @Test
     public void test1K() throws Throwable {
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1, config[0], config[1]);
         }
     }
 
     @Test
     public void test600k() throws Throwable {
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(600, config[0], config[1]);
         }
     }
@@ -208,7 +208,7 @@ public class RecordUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 4, config[0], config[1]);
         }
     }
@@ -218,7 +218,7 @@ public class RecordUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 4 + 1, config[0], config[1]);
         }
     }
@@ -228,7 +228,7 @@ public class RecordUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 8 + 1, config[0], config[1]);
         }
     }
@@ -238,7 +238,7 @@ public class RecordUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 25 + 1, config[0], config[1]);
         }
     }
@@ -248,7 +248,7 @@ public class RecordUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 50 + 1, config[0], config[1]);
         }
     }
@@ -258,7 +258,7 @@ public class RecordUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 100 + 1, config[0], config[1]);
         }
     }

@@ -30,7 +30,7 @@ public class ResumeUploadTest {
 //            {false, true, true, true},
 //    };
 
-    private static boolean[][] TestConfigList = {
+    private static boolean[][] testConfigList = {
             // isHttps, isResumeV2, isStream, isConcurrent
             {false, true, false, false},
             {false, false, false, true},
@@ -166,14 +166,14 @@ public class ResumeUploadTest {
 
     @Test
     public void test1K() throws Throwable {
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1, config[0], config[1], config[2], config[3]);
         }
     }
 
     @Test
     public void test600k() throws Throwable {
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(600, config[0], config[1], config[2], config[3]);
         }
     }
@@ -183,7 +183,7 @@ public class ResumeUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 4, config[0], config[1], config[2], config[3]);
         }
     }
@@ -193,7 +193,7 @@ public class ResumeUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 8, config[0], config[1], config[2], config[3]);
         }
     }
@@ -203,7 +203,7 @@ public class ResumeUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 8 + 1, config[0], config[1], config[2], config[3]);
         }
     }
@@ -213,7 +213,7 @@ public class ResumeUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 10, config[0], config[1], config[2], config[3]);
         }
     }
@@ -223,7 +223,7 @@ public class ResumeUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 20, config[0], config[1], config[2], config[3]);
         }
     }
@@ -233,7 +233,7 @@ public class ResumeUploadTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : TestConfigList) {
+        for (boolean[] config : testConfigList) {
             template(1024 * 20 + 1, config[0], config[1], config[2], config[3]);
         }
     }
