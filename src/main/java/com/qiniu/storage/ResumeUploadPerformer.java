@@ -22,7 +22,8 @@ abstract class ResumeUploadPerformer {
     final ResumeUploadSource uploadSource;
     final UploadOptions options;
 
-    ResumeUploadPerformer(Client client, String key, UploadToken token, ResumeUploadSource source, Recorder recorder, UploadOptions options, Configuration config) {
+    ResumeUploadPerformer(Client client, String key, UploadToken token, ResumeUploadSource source,
+                          Recorder recorder, UploadOptions options, Configuration config) {
         this.client = client;
         this.key = key;
         this.token = token;
