@@ -26,7 +26,9 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          QINIU_ACCESS_KEY=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5
+          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
+          QINIU_LINKING_APPID: ${{ secrets.QINIU_LINKING_APPID }}
+          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
           QINIU_TEST_ENV=travis
           ./gradlew build
 
