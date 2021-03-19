@@ -25,11 +25,13 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: |
+        env:
           QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
           QINIU_LINKING_APPID: ${{ secrets.QINIU_LINKING_APPID }}
           QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
-          QINIU_TEST_ENV=travis
+          QINIU_TEST_ENV: travis
+        run: |
+          
           ./gradlew build
 
         
