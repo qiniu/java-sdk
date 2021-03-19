@@ -17,8 +17,6 @@ class UploadToken extends RegionReqInfo {
     }
 
     boolean isValid() {
-        return !StringUtils.isNullOrEmpty(token) &&
-                !StringUtils.isNullOrEmpty(getBucket()) &&
-                !StringUtils.isNullOrEmpty(getAccessKey());
+        return !StringUtils.isNullOrEmpty(token) && !StringUtils.isNullOrEmpty(getBucket()) && !StringUtils.isNullOrEmpty(getAccessKey());
     }
 }

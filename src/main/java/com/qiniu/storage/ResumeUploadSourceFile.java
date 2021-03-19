@@ -9,7 +9,7 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
 
     private final long size;
     private final String fileName;
-    private transient final File file;
+    private final transient File file;
     private transient RandomAccessFile randomAccessFile;
 
     ResumeUploadSourceFile(File file, Configuration config, String recordKey, String targetRegionId) {
@@ -105,12 +105,27 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
         }
 
         ResumeUploadSourceFile sourceFile = (ResumeUploadSourceFile) source;
-        return sourceFile.recordKey != null && sourceFile.recordKey.equals(recordKey) &&
-                sourceFile.size == size && sourceFile.blockSize == blockSize &&
-                sourceFile.blockList != null && sourceFile.blockList.size() > 0 &&
-                sourceFile.getFileName() != null && sourceFile.getFileName().equals(getFileName()) &&
-                sourceFile.targetRegionId != null && sourceFile.targetRegionId.equals(targetRegionId) &&
-                sourceFile.resumeVersion == resumeVersion;
+        if (sourceFile.recordKey == null || !sourceFile.recordKey.equals(recordKey)) {
+            return false;
+        }
+
+        if (sourceFile.size != size || sourceFile.blockSize != blockSize) {
+            return false;
+        }
+
+        if (sourceFile.blockList == null || sourceFile.blockList.size() == 0) {
+            return false;
+        }
+
+        if (sourceFile.getFileName() == null || !sourceFile.getFileName().equals(getFileName())) {
+            return false;
+        }
+
+        if (sourceFile.targetRegionId == null || !sourceFile.targetRegionId.equals(targetRegionId)) {
+            return false;
+        }
+
+        return sourceFile.resumeVersion == resumeVersion;
     }
 
     @Override
