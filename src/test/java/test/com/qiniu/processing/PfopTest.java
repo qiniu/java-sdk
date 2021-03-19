@@ -93,7 +93,7 @@ public class PfopTest {
      * 测试prefop
      * 检测status是否为0（成功）
      */
-    @Test
+//    @Test
     public void testPrefop() {
         try {
             String jobid = "z0.5c81361a38b9f349c8bb5288";
