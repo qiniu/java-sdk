@@ -138,13 +138,13 @@ public class ResumeUploader {
      */
     public Response upload() throws QiniuException {
         try {
-            return _upload();
+            return uploadFlows();
         } finally {
             close();
         }
     }
 
-    private Response _upload() throws QiniuException {
+    private Response uploadFlows() throws QiniuException {
         // 检查参数
         checkParam();
 
