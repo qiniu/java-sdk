@@ -125,7 +125,7 @@ public class Region {
                 iovipHost("iovip-z2.qbox.me").
                 rsHost("rs-z2.qbox.me").
                 rsfHost("rsf-z2.qbox.me").
-                apiHost("api-z2.qiniuapi.com").
+                apiHost("api-z2.qiniu.com").
                 build();
     }
 
@@ -147,7 +147,7 @@ public class Region {
                 iovipHost("iovip-na0.qbox.me").
                 rsHost("rs-na0.qbox.me").
                 rsfHost("rsf-na0.qbox.me").
-                apiHost("api-na0.qiniuapi.com").
+                apiHost("api-na0.qiniu.com").
                 build();
     }
 
@@ -169,7 +169,7 @@ public class Region {
                 iovipHost("iovip-as0.qbox.me").
                 rsHost("rs-as0.qbox.me").
                 rsfHost("rsf-as0.qbox.me").
-                apiHost("api-as0.qiniuapi.com").
+                apiHost("api-as0.qiniu.com").
                 build();
     }
 
@@ -178,6 +178,21 @@ public class Region {
      */
     public static Region xinjiapo() {
         return regionAs0();
+    }
+
+    /**
+     * 雾存储 华东-1
+     */
+    public static Region regionFogCnEast1() {
+        return new Builder().
+                region("fog-cn-east-1").
+                srcUpHost("up-fog-cn-east-1.qiniup.com").
+                accUpHost("upload-fog-cn-east-1.qiniup.com").
+                iovipHost("iovip-fog-cn-east-1.qbox.me").
+                rsHost("rs-fog-cn-east-1.qbox.com").
+                rsfHost("rsf-fog-cn-east-1.qbox.com").
+                apiHost("api-fog-cn-east-1.qiniu.com").
+                build();
     }
 
     /*
