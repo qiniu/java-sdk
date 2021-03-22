@@ -81,7 +81,7 @@ public class Region {
                 iovipHost("iovip-z1.qbox.me").
                 rsHost("rs-z1.qbox.me").
                 rsfHost("rsf-z1.qbox.me").
-                apiHost("api-z1.qiniuapi.com").
+                apiHost("api-z1.qiniu.com").
                 build();
     }
 
