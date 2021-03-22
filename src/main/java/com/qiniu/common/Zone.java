@@ -182,7 +182,7 @@ public class Zone {
     /**
      * 雾存储 华东-1
      */
-    public static Zone regionFogCnEast1() {
+    public static Zone zoneFogCnEast1() {
         return new Builder().region("fog-cn-east-1").
                 upHttp("http://upload-fog-cn-east-1.qiniup.com").upHttps("https://upload-fog-cn-east-1.qiniup.com").
                 upBackupHttp("http://up-fog-cn-east-1.qiniup.com").upBackupHttps("https://up-fog-cn-east-1.qiniup.com").
