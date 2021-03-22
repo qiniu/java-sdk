@@ -189,8 +189,8 @@ public class Region {
                 srcUpHost("up-fog-cn-east-1.qiniup.com").
                 accUpHost("upload-fog-cn-east-1.qiniup.com").
                 iovipHost("iovip-fog-cn-east-1.qbox.me").
-                rsHost("rs-fog-cn-east-1.qbox.com").
-                rsfHost("rsf-fog-cn-east-1.qbox.com").
+                rsHost("rs-fog-cn-east-1.qbox.me").
+                rsfHost("rsf-fog-cn-east-1.qbox.me").
                 apiHost("api-fog-cn-east-1.qiniu.com").
                 build();
     }
