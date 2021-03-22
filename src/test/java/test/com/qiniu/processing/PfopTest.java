@@ -13,10 +13,7 @@ import org.junit.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.fail;
 
@@ -87,24 +84,46 @@ public class PfopTest {
             System.out.println(new Gson().toJson(status));
             Assert.assertEquals(jobid, status.id);
         }
+
+        for (String jobid : ids) {
+            testPfopIsSuccess(jobid);
+        }
     }
 
     /**
      * 测试prefop
      * 检测status是否为0（成功）
      */
-//    @Test
-    public void testPrefop() {
-        try {
-            String jobid = "z0.5c81361a38b9f349c8bb5288";
-            Configuration cfg = new Configuration(Zone.autoZone());
-            OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
-            OperationStatus status = operationManager.prefop(jobid);
-            Assert.assertEquals(0, status.code);
-        } catch (QiniuException ex) {
-            ex.printStackTrace();
-            Assert.assertTrue(ResCode.find(ex.code(), ResCode.getPossibleResCode(612)));
-        }
+    private void testPfopIsSuccess(String jobid) {
+        long maxWaitTime = 30 * 60 * 1000;
+        Date startDate = new Date();
+        OperationStatus status = null;
+        do {
+            try {
+                Configuration cfg = new Configuration(Zone.autoZone());
+                OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
+                status = operationManager.prefop(jobid);
+            } catch (QiniuException ex) {
+                ex.printStackTrace();
+                Assert.assertTrue(ResCode.find(ex.code(), ResCode.getPossibleResCode(612)));
+                break;
+            }
+
+            Date currentDate = new Date();
+            if (currentDate.getTime() - startDate.getTime() > maxWaitTime) {
+                break;
+            }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {
+            }
+
+        } while (status == null || status.code != 0);
+
+        Assert.assertNotNull(status);
+        System.out.println(new Gson().toJson(status));
+        Assert.assertEquals(0, status.code);
     }
 
 }
