@@ -43,7 +43,7 @@ abstract class ResumeUploadPerformer {
     }
 
 
-    abstract boolean shouldInit();
+    abstract boolean shouldUploadInit();
 
     abstract Response uploadInit() throws QiniuException;
 

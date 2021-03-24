@@ -17,7 +17,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
     }
 
     @Override
-    boolean shouldInit() {
+    boolean shouldUploadInit() {
         return false;
     }
 

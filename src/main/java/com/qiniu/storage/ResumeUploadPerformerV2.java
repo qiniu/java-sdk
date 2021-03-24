@@ -16,7 +16,7 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     @Override
-    boolean shouldInit() {
+    boolean shouldUploadInit() {
         // 当 uploadId 无效时需要 init，即：uploadId 不存在 或 uploadId 存在但过了有效期
         if (StringUtils.isNullOrEmpty(uploadSource.uploadId)) {
             return true;

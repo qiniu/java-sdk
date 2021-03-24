@@ -162,7 +162,7 @@ public class ResumeUploader {
         // 上传数据至服务 - 步骤1
         System.out.println("上传步骤 1: 开始");
         Response response = null;
-        if (uploadPerformer.shouldInit()) {
+        if (uploadPerformer.shouldUploadInit()) {
             response = uploadPerformer.uploadInit();
             if (!response.isOK()) {
                 return response;
