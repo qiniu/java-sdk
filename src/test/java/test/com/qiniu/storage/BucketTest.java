@@ -41,7 +41,6 @@ public class BucketTest {
 
     /**
      * 测试列举空间名
-     * todo: 提前创建bucket
      */
     @Test
     public void testBuckets() throws Exception {
@@ -100,6 +99,58 @@ public class BucketTest {
                 }
             }
         });
+    }
+
+    @Test
+    public void testListV2() throws Exception {
+        try {
+            testFileWithHandler(new TestFileHandler() {
+                @Override
+                public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
+                    String prefix = "sdfisjfisjei473ysfGYDEJDSDJWEDJNFD23rje";
+                    FileListing l = bucketManager.listFilesV2(file.getBucketName(), prefix, null, 2, null);
+                    Assert.assertTrue(l.items.length == 0);
+                    Assert.assertNull(l.marker);
+                }
+            });
+
+            testFileWithHandler(new TestFileHandler() {
+                @Override
+                public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
+                    FileListing l = bucketManager.listFilesV2(file.getBucketName(), null, null, 2, null);
+                    Assert.assertNotNull(l.items[0]);
+                    Assert.assertNotNull(l.marker);
+                }
+            });
+        } catch (QiniuException e) {
+            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));
+        }
+    }
+
+
+    @Test
+    public void testListMarkerV2() throws Exception {
+        try {
+            testFileWithHandler(new TestFileHandler() {
+                @Override
+                public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
+                    String marker = null;
+                    int count = 0;
+                    do {
+                        FileListing l = bucketManager.listFilesV2(file.getBucketName(), "pi", marker, 2, null);
+                        marker = l.marker;
+                        for (FileInfo f : l.items) {
+                            Assert.assertNotNull(f.key);
+                        }
+                        count++;
+                    } while (!StringUtils.isNullOrEmpty(marker));
+                    Assert.assertTrue(count > 0);
+                }
+            });
+
+        } catch (QiniuException e) {
+            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));
+        }
     }
 
     /**

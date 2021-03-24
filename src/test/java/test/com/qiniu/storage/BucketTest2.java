@@ -45,6 +45,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBuckets() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         try {
             String[] buckets = bucketManager.buckets();
             Assert.assertTrue(StringUtils.inStringArray(TestConfig.testBucket_z0, buckets));
@@ -65,6 +69,10 @@ public class BucketTest2 {
      */
     @Test
     public void testDomains() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         try {
             String[] domains = bucketManager.domainList(TestConfig.testBucket_z0);
             Assert.assertNotNull(domains);
@@ -78,6 +86,10 @@ public class BucketTest2 {
      */
     @Test
     public void testList() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         try {
             String[] buckets = new String[]{TestConfig.testBucket_z0};
             for (String bucket : buckets) {
@@ -95,6 +107,10 @@ public class BucketTest2 {
      */
     @Test
     public void testListUseDelimiter() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         try {
             Map<String, String> bucketKeyMap = new HashMap<String, String>();
             bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -119,6 +135,10 @@ public class BucketTest2 {
      */
     @Test
     public void testListIterator() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "", 20, null);
@@ -141,6 +161,10 @@ public class BucketTest2 {
      */
     @Test
     public void testListIteratorWithDefaultLimit() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "");
@@ -160,6 +184,10 @@ public class BucketTest2 {
 
     @Test
     public void testListV2() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         try {
             String[] buckets = new String[]{TestConfig.testBucket_z0};
             for (String bucket : buckets) {
@@ -182,6 +210,10 @@ public class BucketTest2 {
 
     @Test
     public void testListMarkerV2() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         try {
             String marker = null;
             int count = 0;
@@ -204,6 +236,10 @@ public class BucketTest2 {
      */
     @Test
     public void testStat() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         //test exists
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -252,6 +288,10 @@ public class BucketTest2 {
      */
     @Test
     public void testDelete() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -295,6 +335,10 @@ public class BucketTest2 {
      */
     @Test
     public void testRename() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -319,6 +363,10 @@ public class BucketTest2 {
      */
     @Test
     public void testCopy() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         Response response;
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -343,6 +391,10 @@ public class BucketTest2 {
      */
     @Test
     public void testChangeMime() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         List<String[]> cases = new ArrayList<String[]>();
         cases.add(new String[]{TestConfig.testBucket_z0, TestConfig.testKey_z0, "image/png"});
 
@@ -363,6 +415,10 @@ public class BucketTest2 {
      */
     @Test
     public void testChangeHeaders() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         List<String[]> cases = new ArrayList<String[]>();
         cases.add(new String[]{TestConfig.testBucket_z0, TestConfig.testKey_z0});
 
@@ -389,6 +445,10 @@ public class BucketTest2 {
     // TODO
     //@Test
     public void testPrefetch() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
@@ -409,6 +469,10 @@ public class BucketTest2 {
      */
     @Test
     public void testFetch() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
@@ -435,6 +499,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBucketInfo() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
@@ -454,6 +522,10 @@ public class BucketTest2 {
      */
     @Test
     public void testPutReferAntiLeech() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             BucketReferAntiLeech leech = new BucketReferAntiLeech();
@@ -509,6 +581,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBucketLifeCycleRule() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             Response response;
@@ -593,6 +669,10 @@ public class BucketTest2 {
     }
 
     private void clearBucketLifeCycleRule(String bucket) throws QiniuException {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         // 获取规则
         BucketLifeCycleRule[] rules = bucketManager.getBucketLifeCycleRule(bucket);
         try {
@@ -614,6 +694,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBucketEvent() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         String[] keys = new String[]{TestConfig.testKey_z0, TestConfig.testKey_na0};
         for (int i = 0; i < buckets.length; i++) {
@@ -724,6 +808,10 @@ public class BucketTest2 {
     }
 
     private void clearBucketEvent(String bucket) throws QiniuException {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         // 获取Event
         BucketEventRule[] rules = bucketManager.getBucketEvents(bucket);
         for (BucketEventRule r : rules) {
@@ -744,6 +832,10 @@ public class BucketTest2 {
      */
     @Test
     public void testCorsRules() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             CorsRule rule1 = new CorsRule(new String[]{"*"}, new String[]{""});
@@ -784,6 +876,10 @@ public class BucketTest2 {
     @Test
     // TODO
     public void testPutBucketSourceConfig() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
@@ -799,6 +895,10 @@ public class BucketTest2 {
      */
     @Test
     public void testPutBucketMaxAge() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             final long[] maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
@@ -830,6 +930,7 @@ public class BucketTest2 {
         if (TestConfig.isTravis()) {
             return;
         }
+
         String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
 
         String[] buckets = new String[]{TestConfig.testBucket_z0};
@@ -871,6 +972,10 @@ public class BucketTest2 {
      */
     @Test
     public void testPutBucketAccessMode() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             Response response;
@@ -904,6 +1009,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBucketQuota() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
@@ -940,6 +1049,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBatchCopy() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -972,6 +1085,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBatchMove() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1007,6 +1124,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBatchRename() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1043,6 +1164,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBatchStat() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1070,6 +1195,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBatchChangeType() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1116,6 +1245,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBatchCopyChgmDelete() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1167,6 +1300,10 @@ public class BucketTest2 {
      */
     @Test
     public void testBatch() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1223,6 +1360,10 @@ public class BucketTest2 {
     //TODO
     //@Test
     public void testSetAndUnsetImage() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             String srcSiteUrl = "http://developer.qiniu.com/";
@@ -1269,6 +1410,10 @@ public class BucketTest2 {
      */
     @Test
     public void testChangeFileType() {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1300,6 +1445,10 @@ public class BucketTest2 {
      */
     @Test
     public void testIndexPage() throws QiniuException {
+        if (TestConfig.isTravis()) {
+            return;
+        }
+
         bucketManager.setIndexPage(TestConfig.testBucket_z0, IndexPageType.HAS);
         BucketInfo info = bucketManager.getBucketInfo(TestConfig.testBucket_z0);
         Assert.assertEquals(0, info.getNoIndexPage());
