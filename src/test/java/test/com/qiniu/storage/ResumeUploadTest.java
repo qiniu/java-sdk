@@ -1,10 +1,10 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
+import com.qiniu.storage.Region;
 import com.qiniu.storage.ResumeUploader;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Etag;
@@ -31,12 +31,14 @@ public class ResumeUploadTest {
     @Test
     public void testXVar() throws IOException {
 
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
+        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile testFile : files) {
+            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
+        }
+        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            Zone zone = entry.getValue();
+            Region region = entry.getValue();
             final String expectKey = "世/界";
             File f = null;
             try {
@@ -52,7 +54,7 @@ public class ResumeUploadTest {
                     new StringMap().put("returnBody", returnBody));
 
             try {
-                UploadManager uploadManager = new UploadManager(new Configuration(zone));
+                UploadManager uploadManager = new UploadManager(new Configuration(region));
                 Response res = uploadManager.put(f, expectKey, token, params, null, true);
                 StringMap m = res.jsonToMap();
                 assertEquals("foo_val", m.get("foo"));
@@ -74,13 +76,15 @@ public class ResumeUploadTest {
      * @throws IOException
      */
     private void template(int size, boolean https) throws IOException {
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
+        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile testFile : files) {
+            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
+        }
+        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            Zone zone = entry.getValue();
-            Configuration c = new Configuration(zone);
+            Region region = entry.getValue();
+            Configuration c = new Configuration(region);
             c.useHttpsDomains = https;
             final String expectKey = "\r\n?&r=" + size + "k";
             final File f = TempFile.createFile(size);
@@ -92,7 +96,7 @@ public class ResumeUploadTest {
 
             try {
                 ResumeUploader up = new ResumeUploader(new Client(), token, expectKey, f, null, null, null,
-                        new Configuration(zone));
+                        new Configuration(region));
                 Response r = up.upload();
                 MyRet ret = r.jsonToObject(MyRet.class);
                 assertEquals(expectKey, ret.key);
@@ -124,25 +128,16 @@ public class ResumeUploadTest {
 
     @Test
     public void test4M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         template(1024 * 4, false);
     }
 
     @Test
     public void test8M1k() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         template(1024 * 8 + 1, false);
     }
 
     @Test
     public void test8M1k2() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         template(1024 * 8 + 1, true);
     }
 
