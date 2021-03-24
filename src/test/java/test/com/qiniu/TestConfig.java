@@ -2,6 +2,7 @@ package test.com.qiniu;
 
 import com.qiniu.storage.Region;
 import com.qiniu.util.Auth;
+import com.qiniu.util.StringUtils;
 
 public final class TestConfig {
 
@@ -21,6 +22,11 @@ public final class TestConfig {
     //sms: ak, sk, auth
     public static final String smsAccessKey = "test";
     public static final String smsSecretKey = "test";
+
+    public static final String testDefaultKey = "do_not_delete/1.png";
+    public static final String getTestDefaultMp4FileKey = "do_not_delete/1.mp4";
+    public static final String testMp4FileKey = "do_not_delete/1.mp4";
+
     //z0
     public static final String testBucket_z0 = "javasdk";
     public static final String testKey_z0 = "do_not_delete/1.png";
@@ -28,7 +34,7 @@ public final class TestConfig {
     public static final String testUrl_z0 = "http://" + testDomain_z0 + "/" + testKey_z0;
     public static final String testDomain_z0_timeStamp = "javasdk-timestamp.peterpy.cn";
     public static final String testUrl_z0_timeStamp = "http://" + testDomain_z0_timeStamp + "/" + testKey_z0;
-    public static final String testMp4FileKey = "do_not_delete/1.mp4";
+
     public static final String testPipeline = "sdktest";
     //na0
     public static final String testBucket_na0 = "java-sdk-na0";
@@ -52,10 +58,20 @@ public final class TestConfig {
     }
 
     public static TestFile[] getTestFileArray() {
+        return getTestFileArray(testDefaultKey, "image/png");
+    }
+
+    public static TestFile[] getTestFileArray(String fileSaveKey, String fileMimeType) {
+        if (StringUtils.isNullOrEmpty(fileSaveKey)) {
+            fileSaveKey = testDefaultKey;
+        }
+        if (StringUtils.isNullOrEmpty(fileMimeType)) {
+            fileMimeType = "application/octet-stream";
+        }
         if (isTravis()) {
             TestFile na0 = new TestFile();
-            na0.key = testKey_na0;
-            na0.mimeType = "image/png";
+            na0.key = fileSaveKey;
+            na0.mimeType = fileMimeType;
             na0.bucketName = testBucket_na0;
             na0.testDomain = testDomain_na0;
             na0.testUrl = "http://" + testDomain_na0 + "/" + testKey_na0;
@@ -65,8 +81,8 @@ public final class TestConfig {
             return new TestFile[]{na0};
         } else {
             TestFile z0 = new TestFile();
-            z0.key = testKey_z0;
-            z0.mimeType = "image/png";
+            z0.key = fileSaveKey;
+            z0.mimeType = fileMimeType;
             z0.bucketName = testBucket_z0;
             z0.testDomain = testDomain_z0;
             z0.testUrl = "http://" + testDomain_z0 + "/" + testKey_z0;
@@ -75,8 +91,8 @@ public final class TestConfig {
             z0.region = Region.region0();
 
             TestFile na0 = new TestFile();
-            na0.key = testKey_na0;
-            na0.mimeType = "image/png";
+            na0.key = fileSaveKey;
+            na0.mimeType = fileMimeType;
             na0.bucketName = testBucket_na0;
             na0.testDomain = testDomain_na0;
             na0.testUrl = "http://" + testDomain_na0 + "/" + testKey_na0;

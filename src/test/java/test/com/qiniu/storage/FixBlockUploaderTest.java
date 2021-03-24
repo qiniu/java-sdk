@@ -37,12 +37,21 @@ public class FixBlockUploaderTest {
     }
 
     private void init2(boolean useHttpsDomains) {
-        config = new Configuration();
-        config.useHttpsDomains = useHttpsDomains;
-        client = new Client(config);
-        up = new FixBlockUploader(blockSize, config, client, null);
-        bucket = TestConfig.testBucket_z0;
-        bm = new BucketManager(TestConfig.testAuth, config);
+        if (TestConfig.isTravis()) {
+            config = new Configuration();
+            config.useHttpsDomains = useHttpsDomains;
+            client = new Client(config);
+            up = new FixBlockUploader(blockSize, config, client, null);
+            bucket = TestConfig.testBucket_na0;
+            bm = new BucketManager(TestConfig.testAuth, config);
+        } else {
+            config = new Configuration();
+            config.useHttpsDomains = useHttpsDomains;
+            client = new Client(config);
+            up = new FixBlockUploader(blockSize, config, client, null);
+            bucket = TestConfig.testBucket_z0;
+            bm = new BucketManager(TestConfig.testAuth, config);
+        }
     }
 
 
