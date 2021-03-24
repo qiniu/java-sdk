@@ -68,40 +68,31 @@ public final class TestConfig {
         if (StringUtils.isNullOrEmpty(fileMimeType)) {
             fileMimeType = "application/octet-stream";
         }
-        if (isTravis()) {
-//            Configuration.defaultApiHost = "api-na0.qiniu.com";
-//            Configuration.defaultRsHost = "rs-na0.qbox.me";
 
-            TestFile na0 = new TestFile();
-            na0.key = fileSaveKey;
-            na0.mimeType = fileMimeType;
-            na0.bucketName = testBucket_na0;
-            na0.testDomain = testDomain_na0;
-            na0.testUrl = "http://" + testDomain_na0 + "/" + testKey_na0;
-            na0.testDomainTimeStamp = testDomain_na0_timeStamp;
-            na0.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + testKey_z0;
-            na0.region = Region.regionNa0();
+        TestFile na0 = new TestFile();
+        na0.key = fileSaveKey;
+        na0.mimeType = fileMimeType;
+        na0.bucketName = testBucket_na0;
+        na0.testDomain = testDomain_na0;
+        na0.testUrl = "http://" + testDomain_na0 + "/" + testKey_na0;
+        na0.testDomainTimeStamp = testDomain_na0_timeStamp;
+        na0.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + testKey_z0;
+        na0.region = Region.regionNa0();
+
+        TestFile z0 = new TestFile();
+        z0.key = fileSaveKey;
+        z0.mimeType = fileMimeType;
+        z0.bucketName = testBucket_z0;
+        z0.testDomain = testDomain_z0;
+        z0.testUrl = "http://" + testDomain_z0 + "/" + testKey_z0;
+        z0.testDomainTimeStamp = testDomain_z0_timeStamp;
+        z0.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + testKey_z0;
+        z0.region = Region.region0();
+
+
+        if (isTravis()) {
             return new TestFile[]{na0};
         } else {
-            TestFile z0 = new TestFile();
-            z0.key = fileSaveKey;
-            z0.mimeType = fileMimeType;
-            z0.bucketName = testBucket_z0;
-            z0.testDomain = testDomain_z0;
-            z0.testUrl = "http://" + testDomain_z0 + "/" + testKey_z0;
-            z0.testDomainTimeStamp = testDomain_z0_timeStamp;
-            z0.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + testKey_z0;
-            z0.region = Region.region0();
-
-            TestFile na0 = new TestFile();
-            na0.key = fileSaveKey;
-            na0.mimeType = fileMimeType;
-            na0.bucketName = testBucket_na0;
-            na0.testDomain = testDomain_na0;
-            na0.testUrl = "http://" + testDomain_na0 + "/" + testKey_na0;
-            na0.testDomainTimeStamp = testDomain_na0_timeStamp;
-            na0.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + testKey_z0;
-            na0.region = Region.regionNa0();
             return new TestFile[]{z0, na0};
         }
     }

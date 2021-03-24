@@ -7,6 +7,7 @@ import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.FixBlockUploader;
+import com.qiniu.storage.Region;
 import com.qiniu.util.EtagV2;
 import com.qiniu.util.StringMap;
 import org.junit.Assert;
@@ -38,14 +39,14 @@ public class FixBlockUploaderTest {
 
     private void init2(boolean useHttpsDomains) {
         if (TestConfig.isTravis()) {
-            config = new Configuration();
+            config = new Configuration(Region.regionNa0());
             config.useHttpsDomains = useHttpsDomains;
             client = new Client(config);
             up = new FixBlockUploader(blockSize, config, client, null);
             bucket = TestConfig.testBucket_na0;
             bm = new BucketManager(TestConfig.testAuth, config);
         } else {
-            config = new Configuration();
+            config = new Configuration(Region.region0());
             config.useHttpsDomains = useHttpsDomains;
             client = new Client(config);
             up = new FixBlockUploader(blockSize, config, client, null);
