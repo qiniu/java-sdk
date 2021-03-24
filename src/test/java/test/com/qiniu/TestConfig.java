@@ -1,5 +1,6 @@
 package test.com.qiniu;
 
+import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringUtils;
@@ -69,6 +70,9 @@ public final class TestConfig {
             fileMimeType = "application/octet-stream";
         }
         if (isTravis()) {
+            Configuration.defaultApiHost = "api-na0.qiniu.com";
+            Configuration.defaultRsHost = "rs-na0.qbox.me";
+
             TestFile na0 = new TestFile();
             na0.key = fileSaveKey;
             na0.mimeType = fileMimeType;
