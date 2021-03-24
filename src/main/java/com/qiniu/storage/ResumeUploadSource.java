@@ -11,7 +11,7 @@ abstract class ResumeUploadSource {
     final String recordKey;
     final int blockSize;
     final String targetRegionId;
-    final Configuration.ResumeVersion resumeVersion;
+    final Configuration.ResumableUploadAPIVersion resumableUploadAPIVersion;
 
     transient Configuration config;
 
@@ -25,7 +25,7 @@ abstract class ResumeUploadSource {
         this.targetRegionId = null;
         this.blockSize = 0;
         this.recordKey = null;
-        this.resumeVersion = Configuration.ResumeVersion.V1;
+        this.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V1;
     }
 
     ResumeUploadSource(Configuration config, String recordKey, String targetRegionId) {
@@ -33,7 +33,7 @@ abstract class ResumeUploadSource {
         this.blockSize = getBlockSize(config);
         this.recordKey = recordKey;
         this.targetRegionId = targetRegionId;
-        this.resumeVersion = config.resumeVersion;
+        this.resumableUploadAPIVersion = config.resumableUploadAPIVersion;
     }
 
     // 所有块数据是否 正在上传 或者 已上传，为 true 则说明没有需要上传的数据块
@@ -96,8 +96,8 @@ abstract class ResumeUploadSource {
     }
 
     int getBlockSize(Configuration config) {
-        if (resumeVersion == Configuration.ResumeVersion.V2) {
-            return config.resumeV2BlockSize;
+        if (resumableUploadAPIVersion == Configuration.ResumableUploadAPIVersion.V2) {
+            return config.resumableUploadAPIV2BlockSize;
         } else {
             return Constants.BLOCK_SIZE;
         }
@@ -142,7 +142,7 @@ abstract class ResumeUploadSource {
     static class Block {
         final int index;
         final long offset;
-        final Configuration.ResumeVersion resumeVersion;
+        final Configuration.ResumableUploadAPIVersion resumableUploadAPIVersion;
 
         int size;
 
@@ -157,11 +157,11 @@ abstract class ResumeUploadSource {
         Block() {
             this.offset = 0;
             this.index = 0;
-            this.resumeVersion = Configuration.ResumeVersion.V1;
+            this.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V1;
         }
 
         Block(Configuration config, long offset, int blockSize, int index) {
-            this.resumeVersion = config.resumeVersion;
+            this.resumableUploadAPIVersion = config.resumableUploadAPIVersion;
             this.offset = offset;
             this.size = blockSize;
             this.index = index;
@@ -172,7 +172,7 @@ abstract class ResumeUploadSource {
 
         boolean isUploaded() {
             boolean isUploaded = false;
-            if (resumeVersion == Configuration.ResumeVersion.V1) {
+            if (resumableUploadAPIVersion == Configuration.ResumableUploadAPIVersion.V1) {
                 if (!StringUtils.isNullOrEmpty(context)) {
                     isUploaded = true;
                 }

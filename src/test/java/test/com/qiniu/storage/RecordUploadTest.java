@@ -353,11 +353,11 @@ public class RecordUploadTest {
                 Configuration config = new Configuration(zone);
 
                 if (isResumeV2) {
-                    config.resumeVersion = Configuration.ResumeVersion.V2;
+                    config.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
                 }
 
                 if (isConcurrent) {
-                    config.resumeMaxConcurrentTaskCount = 3;
+                    config.resumableUploadMaxConcurrentTaskCount = 3;
                     uploader = new ConcurrentResumeUploader(client, token, key, file,
                             null, Client.DefaultMime, recorder, config);
                 } else {

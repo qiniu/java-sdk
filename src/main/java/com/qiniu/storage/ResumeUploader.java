@@ -21,7 +21,7 @@ import java.io.InputStream;
  * 分片上传 v2
  * 参考文档：<a href="https://developer.qiniu.com/kodo/6364/multipartupload-interface">分片上传</a>
  * <p/>
- * 上传通过将一个文件分割为固定大小的块(大小可配置，通过 Configuration.resumeV2BlockSize)，每次上传一个块的内容。
+ * 上传通过将一个文件分割为固定大小的块(大小可配置，通过 Configuration.resumableUploadAPIV2BlockSize)，每次上传一个块的内容。
  * 等待所有块都上传完成之后，再将这些块拼接起来，构成一个完整的文件。
  * <p/>
  * <p>
@@ -47,7 +47,7 @@ public class ResumeUploader {
      * 构建分片上传文件的对象【兼容老版本】
      * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
      * 在分片 v1 中 blockSize 为 4M；
-     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
      * <p>
      * 支持分片上传 v1/v2，支持断点续传
      * 不支持并发【并发使用 ConcurrentResumeUploader】
@@ -74,7 +74,7 @@ public class ResumeUploader {
      * 构建分片上传文件流的对象【兼容老版本】
      * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
      * 在分片 v1 中 blockSize 为 4M；
-     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
      * <p>
      * 支持分片上传 v1/v2，支持并发
      * 不支持断点续传，不支持定义file name，不支持并发【并发使用 ConcurrentResumeUploader】
@@ -98,7 +98,7 @@ public class ResumeUploader {
      * 构建分片上传文件流的对象
      * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
      * 在分片 v1 中 blockSize 为 4M；
-     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
      * <p>
      * 支持分片上传 v1/v2，支持并发，支持定义file name
      * 不支持断点续传，不支持并发【并发使用 ConcurrentResumeUploader】
@@ -150,7 +150,7 @@ public class ResumeUploader {
 
         // 选择上传策略
         UploadToken token = new UploadToken(upToken);
-        if (config.resumeVersion == Configuration.ResumeVersion.V2) {
+        if (config.resumableUploadAPIVersion == Configuration.ResumableUploadAPIVersion.V2) {
             uploadPerformer = new ResumeUploadPerformerV2(client, key, token, source, recorder, options, config);
         } else {
             uploadPerformer = new ResumeUploadPerformerV1(client, key, token, source, recorder, options, config);

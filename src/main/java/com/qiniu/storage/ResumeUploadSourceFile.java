@@ -125,7 +125,7 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
             return false;
         }
 
-        return sourceFile.resumeVersion == resumeVersion;
+        return sourceFile.resumableUploadAPIVersion == resumableUploadAPIVersion;
     }
 
     @Override

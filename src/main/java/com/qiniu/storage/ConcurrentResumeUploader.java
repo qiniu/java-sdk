@@ -27,7 +27,7 @@ import java.util.concurrent.Future;
  * 分片上传 v2
  * 参考文档：<a href="https://developer.qiniu.com/kodo/6364/multipartupload-interface">分片上传</a>
  * <p/>
- * 上传通过将一个文件分割为固定大小的块(大小可配置，通过 Configuration.resumeV2BlockSize)，每次上传一个块的内容。
+ * 上传通过将一个文件分割为固定大小的块(大小可配置，通过 Configuration.resumableUploadAPIV2BlockSize)，每次上传一个块的内容。
  * 等待所有块都上传完成之后，再将这些块拼接起来，构成一个完整的文件。
  * <p/>
  * <p>
@@ -43,9 +43,9 @@ public class ConcurrentResumeUploader extends ResumeUploader {
      * 构建分片上传文件的对象【兼容老版本】
      * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
      * 在分片 v1 中 blockSize 为 4M；
-     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
      * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
-     * 并发任务数量配置方式：Configuration.resumeMaxConcurrentTaskCount
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
      * <p>
      * 支持分片上传 v1/v2，支持断点续传，支持并发
      *
@@ -69,9 +69,9 @@ public class ConcurrentResumeUploader extends ResumeUploader {
      * 构建分片上传文件流的对象【兼容老版本】
      * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
      * 在分片 v1 中 blockSize 为 4M；
-     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
      * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
-     * 并发任务数量配置方式：Configuration.resumeMaxConcurrentTaskCount
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
      * <p>
      * 支持分片上传 v1/v2，支持并发
      * 不支持断点续传，不支持定义file name
@@ -95,9 +95,9 @@ public class ConcurrentResumeUploader extends ResumeUploader {
      * 构建分片上传文件流的对象
      * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
      * 在分片 v1 中 blockSize 为 4M；
-     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
      * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
-     * 并发任务数量配置方式：Configuration.resumeMaxConcurrentTaskCount
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
      * <p>
      * 支持分片上传 v1/v2，支持并发，支持定义file name
      * 不支持断点续传
@@ -122,8 +122,8 @@ public class ConcurrentResumeUploader extends ResumeUploader {
     Response uploadData() throws QiniuException {
 
         // 处理参数
-        int maxConcurrentTaskCount = config.resumeMaxConcurrentTaskCount;
-        ExecutorService pool = config.resumeConcurrentTaskExecutorService;
+        int maxConcurrentTaskCount = config.resumableUploadMaxConcurrentTaskCount;
+        ExecutorService pool = config.resumableUploadConcurrentTaskExecutorService;
 
         if (maxConcurrentTaskCount < 1) {
             maxConcurrentTaskCount = 1;

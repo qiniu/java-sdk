@@ -102,9 +102,9 @@ public final class UploadManager {
      * inputStream size 大于 configuration.putThreshold 时采用分片上传
      * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
      * 在分片 v1 中 blockSize 为 4M；
-     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
      * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
-     * 并发任务数量配置方式：Configuration.resumeMaxConcurrentTaskCount
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
      * 流式分片上传：支持分片上传 v1/v2，支持并发，不支持断点续传
      * <p>
      * inputStream size 小于 configuration.putThreshold 时采用表单上传
@@ -192,9 +192,9 @@ public final class UploadManager {
      * file size 大于 configuration.putThreshold 时采用分片上传
      * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
      * 在分片 v1 中 blockSize 为 4M；
-     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
      * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
-     * 并发任务数量配置方式：Configuration.resumeMaxConcurrentTaskCount
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
      * 分片上传：支持分片上传 v1/v2，支持并发，支持断点续传
      * <p>
      * file size 小于 configuration.putThreshold 时采用表单上传
@@ -221,9 +221,9 @@ public final class UploadManager {
      * file size 大于 configuration.putThreshold 时采用分片上传
      * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
      * 在分片 v1 中 blockSize 为 4M；
-     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
      * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
-     * 并发任务数量配置方式：Configuration.resumeMaxConcurrentTaskCount
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
      * 分片上传：支持分片上传 v1/v2，支持并发，支持断点续传
      * <p>
      * file size 小于 configuration.putThreshold 时采用表单上传
@@ -244,9 +244,9 @@ public final class UploadManager {
      * file size 大于 configuration.putThreshold 时采用分片上传
      * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
      * 在分片 v1 中 blockSize 为 4M；
-     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
      * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
-     * 并发任务数量配置方式：Configuration.resumeMaxConcurrentTaskCount
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
      * 分片上传：支持分片上传 v1/v2，支持并发，支持断点续传
      * <p>
      * file size 小于 configuration.putThreshold 时采用表单上传
@@ -271,7 +271,7 @@ public final class UploadManager {
             return new FormUploader(client, token, key, file, params, mime, checkCrc, configuration).upload();
         }
 
-        if (configuration.resumeMaxConcurrentTaskCount > 1) {
+        if (configuration.resumableUploadMaxConcurrentTaskCount > 1) {
             ResumeUploader uploader = new ConcurrentResumeUploader(client, token, key, file,
                     params, mime, recorder, configuration);
             return uploader.upload();
@@ -317,9 +317,9 @@ public final class UploadManager {
      * inputStream size 大于 configuration.putThreshold 时采用分片上传
      * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
      * 在分片 v1 中 blockSize 为 4M；
-     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumeV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
      * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
-     * 并发任务数量配置方式：Configuration.resumeMaxConcurrentTaskCount
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
      * 流式分片上传：支持分片上传 v1/v2，支持并发，不支持断点续传
      * <p>
      * inputStream size 小于 configuration.putThreshold 时采用表单上传
@@ -346,7 +346,7 @@ public final class UploadManager {
             throw new IllegalArgumentException(message);
         }
 
-        if (configuration.resumeMaxConcurrentTaskCount > 1) {
+        if (configuration.resumableUploadMaxConcurrentTaskCount > 1) {
             ResumeUploader uploader = new ConcurrentResumeUploader(client, token, key, stream,
                     params, mime, configuration);
             return uploader.upload();

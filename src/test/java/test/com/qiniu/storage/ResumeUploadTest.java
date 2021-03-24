@@ -112,7 +112,7 @@ public class ResumeUploadTest {
             Zone zone = entry.getValue();
             Configuration config = new Configuration(zone);
             if (isResumeV2) {
-                config.resumeVersion = Configuration.ResumeVersion.V2;
+                config.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
             }
 
             config.useHttpsDomains = isHttps;
@@ -140,7 +140,7 @@ public class ResumeUploadTest {
                         up = new ResumeUploader(new Client(), token, expectKey, f, null, null, null, config);
                     }
                 } else {
-                    config.resumeMaxConcurrentTaskCount = 3;
+                    config.resumableUploadMaxConcurrentTaskCount = 3;
                     if (isStream) {
                         up = new ConcurrentResumeUploader(new Client(), token, expectKey, new FileInputStream(f), null, null, config);
                     } else {
