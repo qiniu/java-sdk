@@ -60,7 +60,7 @@ abstract class ResumeUploadPerformer {
             return Response.createSuccessResponse();
         }
 
-        System.out.printf("上传块开始：index:%d offset:%d size:%d \r\n", block.index, block.offset, block.size);
+        System.out.printf("上传块开始：index:%d offset:%d size:%d %n", block.index, block.offset, block.size);
 
         Response response = null;
         try {
@@ -71,7 +71,7 @@ abstract class ResumeUploadPerformer {
             block.isUploading = false;
             throw e;
         } finally {
-            System.out.printf("上传块结束：index:%d offset:%d size:%d \r\n", block.index, block.offset, block.size);
+            System.out.printf("上传块结束：index:%d offset:%d size:%d %n", block.index, block.offset, block.size);
         }
         return response;
     }
