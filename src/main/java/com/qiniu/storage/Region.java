@@ -191,7 +191,7 @@ public class Region {
                 iovipHost("iovip-fog-cn-east-1.qbox.me").
                 rsHost("rs-fog-cn-east-1.qbox.me").
                 rsfHost("rsf-fog-cn-east-1.qbox.me").
-                apiHost("api-fog-cn-east-1.qiniu.com").
+                apiHost("api-fog-cn-east-1.qiniuapi.com").
                 build();
     }
 

@@ -187,9 +187,9 @@ public class Zone {
                 upHttp("http://upload-fog-cn-east-1.qiniup.com").upHttps("https://upload-fog-cn-east-1.qiniup.com").
                 upBackupHttp("http://up-fog-cn-east-1.qiniup.com").upBackupHttps("https://up-fog-cn-east-1.qiniup.com").
                 iovipHttp("http://iovip-fog-cn-east-1.qbox.me").iovipHttps("https://iovip-fog-cn-east-1.qbox.me").
-                rsHttp("http://rs-fog-cn-east-1.qiniu.me").rsHttps("https://rs-fog-cn-east-1.qbox.me").
-                rsfHttp("http://rsf-fog-cn-east-1.qiniu.me").rsfHttps("https://rsf-fog-cn-east-1.qbox.me").
-                apiHttp("http://api-fog-cn-east-1.qiniu.com").apiHttps("https://api-fog-cn-east-1.qiniu.com").
+                rsHttp("http://rs-fog-cn-east-1.qiniu.com").rsHttps("https://rs-fog-cn-east-1.qbox.me").
+                rsfHttp("http://rsf-fog-cn-east-1.qiniu.com").rsfHttps("https://rsf-fog-cn-east-1.qbox.me").
+                apiHttp("http://api-fog-cn-east-1.qiniuapi.com").apiHttps("https://api-fog-cn-east-1.qiniuapi.com").
                 build();
     }
 
