@@ -69,12 +69,12 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
                 throw new QiniuException(new Exception("upload's info is empty"));
             }
 
-            String uploadId = jsonMap.get("uploadId").toString();
+            Object uploadId = jsonMap.get("uploadId");
             Object expireAt = jsonMap.get("expireAt");
             if (uploadId == null || expireAt == null) {
                 throw new QiniuException(new Exception("uploadId or expireAt is empty"));
             }
-            uploadSource.uploadId = uploadId;
+            uploadSource.uploadId = uploadId.toString();
             if (expireAt instanceof Double) {
                 uploadSource.expireAt = ((Double) expireAt).longValue();
             } else if (expireAt instanceof Integer) {
