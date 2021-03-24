@@ -6,6 +6,7 @@ import com.qiniu.common.Zone;
 import com.qiniu.processing.OperationManager;
 import com.qiniu.processing.OperationStatus;
 import com.qiniu.storage.Configuration;
+import com.qiniu.storage.Region;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.Assert;
@@ -25,17 +26,19 @@ public class PfopTest {
      */
     @Test
     public void testPfop() throws QiniuException {
-        Map<String, Zone> cases = new HashMap<String, Zone>();
-        cases.put(TestConfig.testBucket_z0, Zone.autoZone());
-        cases.put(TestConfig.testBucket_na0, Zone.autoZone());
+        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile testFile : files) {
+            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
+        }
         List<String> ids = new ArrayList<>();
 
         Configuration cfg = new Configuration();
         OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
 
-        for (Map.Entry<String, Zone> entry : cases.entrySet()) {
+        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            Zone zone = entry.getValue();
+            Region region = entry.getValue();
 
             String notifyURL = null;
             boolean force = true;
