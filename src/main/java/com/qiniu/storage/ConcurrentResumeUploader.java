@@ -173,7 +173,7 @@ public class ConcurrentResumeUploader extends ResumeUploader {
             return response;
         }
 
-        // 未完成 如果有异常则有异常，理论上未完成必定有异常
+        // 未完成 如果有异常则抛出异常，理论上未完成必定有异常
         if (exception != null) {
             throw exception;
         }
