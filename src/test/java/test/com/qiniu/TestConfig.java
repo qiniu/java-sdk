@@ -1,5 +1,7 @@
 package test.com.qiniu;
 
+import com.qiniu.common.AutoZone;
+import com.qiniu.common.Zone;
 import com.qiniu.storage.Region;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringUtils;
@@ -102,13 +104,64 @@ public final class TestConfig {
         fog.regionId = "fog-cn-east-1";
         fog.region = Region.regionFogCnEast1();
 
+        TestFile fog1 = new TestFile();
+        fog1.key = fileSaveKey;
+        fog1.mimeType = fileMimeType;
+        fog1.bucketName = "java-sdk-fog-cn-east1";
+        fog1.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
+        fog1.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
+        fog1.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
+        fog1.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
+        fog1.regionId = "fog-cn-east-1";
+        fog1.region = toRegion(Zone.zoneFogCnEast1());
+
         if (isTravis()) {
             return new TestFile[]{na0};
         } else {
-            return new TestFile[]{fog, z0, na0};
+            return new TestFile[]{fog1}; //, fog1, z0, na0};
         }
     }
 
+    private static Region toRegion(Zone zone) {
+        if (zone instanceof AutoZone) {
+            AutoZone autoZone = (AutoZone) zone;
+            return Region.autoRegion(autoZone.ucServer);
+        }
+        return new Region.Builder()
+                .region(zone.getRegion())
+                .accUpHost(getHosts(zone.getUpHttps(null), zone.getUpHttp(null)))
+                .srcUpHost(getHosts(zone.getUpBackupHttps(null), zone.getUpBackupHttp(null)))
+                .iovipHost(getHost(zone.getIovipHttps(null), zone.getIovipHttp(null)))
+                .rsHost(getHost(zone.getRsHttps(), zone.getRsHttp()))
+                .rsfHost(getHost(zone.getRsfHttps(), zone.getRsfHttp()))
+                .apiHost(getHost(zone.getApiHttps(), zone.getApiHttp()))
+                .build();
+    }
+
+    private static String getHost(String https, String http) {
+        return toDomain(https);
+    }
+
+    private static String[] getHosts(String https, String http) {
+        // http, s1 would not be null
+        String s1 = toDomain(http);
+        String s2 = toDomain(https);
+        if (s2 != null && !s2.equalsIgnoreCase(s1)) {
+            return new String[]{s1, s2};
+        }
+        return new String[]{s1};
+    }
+
+    private static String toDomain(String d1) {
+        if (StringUtils.isNullOrEmpty(d1)) {
+            return null;
+        }
+        int s = d1.indexOf("://");
+        if (s > -1) {
+            return d1.substring(s + 3);
+        }
+        return d1;
+    }
 
     public static class TestFile {
         // 文件名

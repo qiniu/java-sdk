@@ -183,12 +183,13 @@ public class Zone {
      * 雾存储 华东-1
      */
     public static Zone zoneFogCnEast1() {
-        return new Builder().region("fog-cn-east-1")
+        return new Builder()
+                .region("fog-cn-east-1")
                 .upHttp("http://upload-fog-cn-east-1.qiniup.com").upHttps("https://upload-fog-cn-east-1.qiniup.com")
                 .upBackupHttp("http://up-fog-cn-east-1.qiniup.com").upBackupHttps("https://up-fog-cn-east-1.qiniup.com")
                 .iovipHttp("http://iovip-fog-cn-east-1.qbox.me").iovipHttps("https://iovip-fog-cn-east-1.qbox.me")
-                .rsHttp("http://rs-fog-cn-east-1.qiniu.com").rsHttps("https://rs-fog-cn-east-1.qbox.me")
-                .rsfHttp("http://rsf-fog-cn-east-1.qiniu.com").rsfHttps("https://rsf-fog-cn-east-1.qbox.me")
+                .rsHttp("http://rs-fog-cn-east-1.qbox.me").rsHttps("https://rs-fog-cn-east-1.qbox.me")
+                .rsfHttp("http://rsf-fog-cn-east-1.qbox.me").rsfHttps("https://rsf-fog-cn-east-1.qbox.me")
                 .apiHttp("http://api-fog-cn-east-1.qiniuapi.com").apiHttps("https://api-fog-cn-east-1.qiniuapi.com")
                 .build();
     }
