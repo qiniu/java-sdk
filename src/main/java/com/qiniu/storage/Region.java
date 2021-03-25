@@ -184,15 +184,15 @@ public class Region {
      * 雾存储 华东-1
      */
     public static Region regionFogCnEast1() {
-        return new Builder().
-                region("fog-cn-east-1").
-                srcUpHost("up-fog-cn-east-1.qiniup.com").
-                accUpHost("upload-fog-cn-east-1.qiniup.com").
-                iovipHost("iovip-fog-cn-east-1.qbox.me").
-                rsHost("rs-fog-cn-east-1.qbox.me").
-                rsfHost("rsf-fog-cn-east-1.qbox.me").
-                apiHost("api-fog-cn-east-1.qiniuapi.com").
-                build();
+        return new Builder()
+                .region("fog-cn-east-1")
+                .srcUpHost("up-fog-cn-east-1.qiniup.com")
+                .accUpHost("upload-fog-cn-east-1.qiniup.com")
+                .iovipHost("iovip-fog-cn-east-1.qbox.me")
+                .rsHost("rs-fog-cn-east-1.qbox.me")
+                .rsfHost("rsf-fog-cn-east-1.qbox.me")
+                .apiHost("api-fog-cn-east-1.qiniuapi.com")
+                .build();
     }
 
     /*

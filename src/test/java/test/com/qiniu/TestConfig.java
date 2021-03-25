@@ -74,9 +74,10 @@ public final class TestConfig {
         na0.mimeType = fileMimeType;
         na0.bucketName = testBucket_na0;
         na0.testDomain = testDomain_na0;
-        na0.testUrl = "http://" + testDomain_na0 + "/" + testKey_na0;
+        na0.testUrl = "http://" + testDomain_na0 + "/" + fileSaveKey;
         na0.testDomainTimeStamp = testDomain_na0_timeStamp;
-        na0.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + testKey_z0;
+        na0.testUrlTimeStamp = "http://" + testDomain_na0_timeStamp + "/" + fileSaveKey;
+        na0.regionId = "na0";
         na0.region = Region.regionNa0();
 
         TestFile z0 = new TestFile();
@@ -84,16 +85,27 @@ public final class TestConfig {
         z0.mimeType = fileMimeType;
         z0.bucketName = testBucket_z0;
         z0.testDomain = testDomain_z0;
-        z0.testUrl = "http://" + testDomain_z0 + "/" + testKey_z0;
+        z0.testUrl = "http://" + testDomain_z0 + "/" + fileSaveKey;
         z0.testDomainTimeStamp = testDomain_z0_timeStamp;
-        z0.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + testKey_z0;
+        z0.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + fileSaveKey;
+        z0.regionId = "z0";
         z0.region = Region.region0();
 
+        TestFile fog = new TestFile();
+        fog.key = fileSaveKey;
+        fog.mimeType = fileMimeType;
+        fog.bucketName = "java-sdk-fog-cn-east1";
+        fog.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
+        fog.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
+        fog.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
+        fog.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
+        fog.regionId = "fog-cn-east-1";
+        fog.region = Region.regionFogCnEast1();
 
         if (isTravis()) {
             return new TestFile[]{na0};
         } else {
-            return new TestFile[]{z0, na0};
+            return new TestFile[]{fog, z0, na0};
         }
     }
 
@@ -113,6 +125,8 @@ public final class TestConfig {
         String testDomain;
         // 测试带时间戳的 domain
         String testDomainTimeStamp;
+        // region id
+        String regionId;
         // 文件所在 region
         Region region;
 
@@ -144,8 +158,16 @@ public final class TestConfig {
             return testDomainTimeStamp;
         }
 
+        public String getRegionId() {
+            return regionId;
+        }
+
         public Region getRegion() {
             return region;
+        }
+
+        public boolean isFog() {
+            return regionId.equals("fog-cn-east-1");
         }
     }
 
