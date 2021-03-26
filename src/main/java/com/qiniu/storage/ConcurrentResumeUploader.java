@@ -120,7 +120,6 @@ public class ConcurrentResumeUploader extends ResumeUploader {
 
     @Override
     Response uploadData() throws QiniuException {
-
         // 处理参数
         int maxConcurrentTaskCount = config.resumableUploadMaxConcurrentTaskCount;
         ExecutorService pool = config.resumableUploadConcurrentTaskExecutorService;
@@ -131,6 +130,15 @@ public class ConcurrentResumeUploader extends ResumeUploader {
         if (pool == null) {
             pool = Executors.newFixedThreadPool(maxConcurrentTaskCount);
         }
+
+        try {
+            return uploadDataWithPool(pool, maxConcurrentTaskCount);
+        } finally {
+            pool.shutdown();
+        }
+    }
+
+    private Response uploadDataWithPool(ExecutorService pool, int maxConcurrentTaskCount) throws QiniuException {
 
         // 开启并发任务
         System.out.println("并发上传 task count:" + maxConcurrentTaskCount);

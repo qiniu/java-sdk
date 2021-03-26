@@ -61,19 +61,12 @@ abstract class ResumeUploadPerformer {
         }
 
         System.out.printf("上传块开始：index:%d offset:%d size:%d %n", block.index, block.offset, block.size);
-
-        Response response = null;
         try {
-            response = uploadBlock(block);
-            block.isUploading = false;
-
-        } catch (QiniuException e) {
-            block.isUploading = false;
-            throw e;
+            return uploadBlock(block);
         } finally {
+            block.isUploading = false;
             System.out.printf("上传块结束：index:%d offset:%d size:%d %n", block.index, block.offset, block.size);
         }
-        return response;
     }
 
     abstract Response uploadBlock(ResumeUploadSource.Block block) throws QiniuException;
