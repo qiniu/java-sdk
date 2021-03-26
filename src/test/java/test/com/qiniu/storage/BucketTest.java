@@ -886,6 +886,11 @@ public class BucketTest {
         testFileWithHandler(new TestFileHandler() {
             @Override
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
+                // 雾存储没有域名
+                if (file.isFog()) {
+                    return;
+                }
+
                 String bucket = file.getBucketName();
                 String url = file.getTestUrl();
                 System.out.println(bucket + "  -- " + url);
