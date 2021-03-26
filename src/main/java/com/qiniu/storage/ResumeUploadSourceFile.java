@@ -1,9 +1,12 @@
 package com.qiniu.storage;
 
+import com.qiniu.util.StringUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Date;
 
 class ResumeUploadSourceFile extends ResumeUploadSource {
 
@@ -93,10 +96,24 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
         if (!isSameResource(source)) {
             return false;
         }
-        uploadId = source.uploadId;
-        expireAt = source.expireAt;
-        blockList = source.blockList;
-        return true;
+
+        boolean needRecovered = true;
+        if (source.resumableUploadAPIVersion == Configuration.ResumableUploadAPIVersion.V2) {
+            if (StringUtils.isNullOrEmpty(uploadId)) {
+                return false;
+            }
+            // 服务端是 7 天，此处有效期少 1 天，为 6 天
+            long currentTimestamp = new Date().getTime() / 1000;
+            long expireAtTimestamp = expireAt - 24 * 3600;
+            needRecovered = expireAtTimestamp > currentTimestamp;
+        }
+
+        if (needRecovered) {
+            uploadId = source.uploadId;
+            expireAt = source.expireAt;
+            blockList = source.blockList;
+        }
+        return needRecovered;
     }
 
     private boolean isSameResource(ResumeUploadSource source) {

@@ -17,15 +17,10 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
 
     @Override
     boolean shouldUploadInit() {
-        // 当 uploadId 无效时需要 init，即：uploadId 不存在 或 uploadId 存在但过了有效期
-        if (StringUtils.isNullOrEmpty(uploadSource.uploadId)) {
-            return true;
-        }
-
-        // 服务端是 7 天，此处有效期少 1 天，为 6 天
-        long currentTimestamp = new Date().getTime() / 1000;
-        long expireAtTimestamp = uploadSource.expireAt - 24 * 3600;
-        return expireAtTimestamp < currentTimestamp;
+        // uploadId 无效时需要 init,
+        // 当 uploadId 不存在即无效
+        // 当 uploadId 存在，则必为断点续传，断点续传进度信息恢复时会检测有效性，即存在必有效
+        return StringUtils.isNullOrEmpty(uploadSource.uploadId);
     }
 
     @Override
