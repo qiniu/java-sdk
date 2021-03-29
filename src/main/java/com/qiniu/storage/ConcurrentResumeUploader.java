@@ -178,8 +178,6 @@ public class ConcurrentResumeUploader extends ResumeUploader {
             } catch (Exception e) {
                 exception = new QiniuException(e);
             }
-
-            System.out.println("并发上传 task complete, index:" + futures.indexOf(future));
         }
 
         // 所有块上传完成说明上传成功

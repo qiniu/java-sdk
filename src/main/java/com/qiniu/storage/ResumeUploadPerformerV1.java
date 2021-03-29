@@ -52,8 +52,6 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
 
         Response response = post(url, block.data, 0, block.size);
 
-        System.out.printf("== make block:%d upload :%s \n", block.index, response);
-
         if (response.isOK()) {
 
             StringMap jsonMap = response.jsonToMap();

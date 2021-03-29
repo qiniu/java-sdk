@@ -60,12 +60,10 @@ abstract class ResumeUploadPerformer {
             return Response.createSuccessResponse();
         }
 
-        System.out.printf("上传块开始：index:%d offset:%d size:%d %n", block.index, block.offset, block.size);
         try {
             return uploadBlock(block);
         } finally {
             block.isUploading = false;
-            System.out.printf("上传块结束：index:%d offset:%d size:%d %n", block.index, block.offset, block.size);
         }
     }
 
@@ -178,7 +176,6 @@ abstract class ResumeUploadPerformer {
 
             // 判断是否需要重试
             if (!shouldRetry && (response == null || response.needRetry())) {
-                System.out.println("== Exception response data:" + (response != null ? response.bodyString() : ""));
                 shouldRetry = true;
             }
 
