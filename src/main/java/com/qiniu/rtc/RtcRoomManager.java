@@ -8,6 +8,8 @@ import com.qiniu.rtc.model.RoomAccess;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 
+import java.util.Objects;
+
 public class RtcRoomManager {
     private final Auth auth;
     private final String host;
@@ -73,6 +75,46 @@ public class RtcRoomManager {
         }
         builder.append(param);
         return builder.toString();
+    }
+
+    /**
+     *
+     * @param appId
+     * @param roomName
+     * @param start 开始时间：20200317000000
+     * @param end 结束时间：20200317200000
+     * @param G 查询的粒度，可选(5min, hour, day, month)，默认为day
+     * @param total 表示查询房间的总时⻓ int64
+     * @param kind 表示类型，Audio/SD/HD/UHD string
+     * @return Response
+     * @throws QiniuException
+     */
+    public Response getCalculateForRoom(String appId, String roomName, String start, String end, String G, int total, String kind) throws QiniuException {
+        if (appId == null || roomName == null || start == null || end == null) {
+            return Response.createInvalidArgument("some request param is null");
+        }
+        StringBuilder builder = new StringBuilder();
+        builder.append(host);
+        builder.append("/v3/apps/").append(appId).append("/rooms/").append(roomName).append("/metric?");
+        if (start != null) {
+            builder.append("start=").append(start).append("&");
+        }
+        if (end != null) {
+            builder.append("end=").append(end);
+        }
+        if (G != null) {
+            builder.append("&granule=").append(G);
+        }
+        if (total > 0) {
+            builder.append("&total=").append(total);
+        }
+        if (kind != null) {
+            builder.append("&kind=").append(kind);
+        }
+        String url = builder.toString();
+        StringMap headers = auth.authorizationV2(builder.toString());
+        System.out.println("url："+url);
+        return client.get(url, headers);
     }
 
     /**

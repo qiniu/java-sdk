@@ -136,7 +136,10 @@ public final class Response {
                 address, duration, error, body);
     }
 
-
+    public static Response createInvalidArgument( String error) {
+        return new Response(null, InvalidArgument, "", "", "",
+                "", 0, error, null);
+    }
     private static String via(okhttp3.Response response) {
         String via;
         if (!(via = response.header("X-Via", "")).equals("")) {
