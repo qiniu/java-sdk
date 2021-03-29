@@ -127,14 +127,20 @@ public class ConcurrentResumeUploader extends ResumeUploader {
         if (maxConcurrentTaskCount < 1) {
             maxConcurrentTaskCount = 1;
         }
+
+        // 外部传入 pool 不 shutdown，内部创建需要 shutdown
+        boolean needPollShutdown = false;
         if (pool == null) {
+            needPollShutdown = true;
             pool = Executors.newFixedThreadPool(maxConcurrentTaskCount);
         }
 
         try {
             return uploadDataWithPool(pool, maxConcurrentTaskCount);
         } finally {
-            pool.shutdown();
+            if (needPollShutdown) {
+                pool.shutdown();
+            }
         }
     }
 
