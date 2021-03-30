@@ -153,16 +153,12 @@ abstract class ResumeUploadPerformer {
         do {
             boolean shouldRetry = false;
             String host = getUploadHost();
-            System.out.println("== action index:" + retryCount);
             try {
                 response = action.uploadAction(host);
-                System.out.println("== response:" + response);
             } catch (QiniuException e) {
-                System.out.println("== Exception:" + e);
 
                 // 切换 Host
                 if (e.code() < 0 || e.response != null && e.response.needSwitchServer()) {
-                    System.out.println("== change host");
                     changeHost(host);
                 }
 
