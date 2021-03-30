@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 import static org.junit.Assert.*;
@@ -52,16 +50,14 @@ public class RecordUploadTest {
      */
     private void template(final int size, boolean isResumeV2, boolean isConcurrent) throws IOException {
 
-        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
-        for (TestConfig.TestFile testFile : files) {
-            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
-        }
-
-        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
-
-            String bucket = entry.getKey();
-            final Region region = entry.getValue();
+        for (TestConfig.TestFile file : files) {
+            // 雾存储不支持 v1
+            if (file.isFog() && !isResumeV2) {
+                continue;
+            }
+            String bucket = file.getBucketName();
+            final Region region = file.getRegion();
 
             System.out.println("\n\n");
             System.out.printf("bucket:%s zone:%s \n", bucket, region);

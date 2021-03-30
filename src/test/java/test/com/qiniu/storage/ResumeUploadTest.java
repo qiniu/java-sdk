@@ -13,8 +13,6 @@ import test.com.qiniu.TestConfig;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -54,14 +52,14 @@ public class ResumeUploadTest {
     @Test
     public void testXVar() throws IOException {
 
-        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
-        for (TestConfig.TestFile testFile : files) {
-            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
-        }
-        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
-            String bucket = entry.getKey();
-            Region region = entry.getValue();
+        for (TestConfig.TestFile file : files) {
+            // 雾存储不支持 v1
+            if (file.isFog()) {
+                continue;
+            }
+            String bucket = file.getBucketName();
+            Region region = file.getRegion();
             final String expectKey = "世/界";
             File f = null;
             try {
@@ -102,14 +100,14 @@ public class ResumeUploadTest {
      * @throws IOException
      */
     private void template(int size, boolean isHttps, boolean isResumeV2, boolean isStream, boolean isConcurrent) throws IOException {
-        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
-        for (TestConfig.TestFile testFile : files) {
-            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
-        }
-        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
-            String bucket = entry.getKey();
-            Region region = entry.getValue();
+        for (TestConfig.TestFile file : files) {
+            // 雾存储不支持 v1
+            if (file.isFog() && !isResumeV2) {
+                continue;
+            }
+            String bucket = file.getBucketName();
+            Region region = file.getRegion();
             Configuration config = new Configuration(region);
             if (isResumeV2) {
                 config.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
