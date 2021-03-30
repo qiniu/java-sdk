@@ -45,6 +45,7 @@ class AutoRegion extends Region {
         this.inferDomainsMap.put("up-fs.qiniup.com", region2());
         this.inferDomainsMap.put("up-na0.qiniup.com", regionNa0());
         this.inferDomainsMap.put("up-as0.qiniup.com", regionAs0());
+        this.inferDomainsMap.put("up-fog-cn-east-1.qiniup.com", regionFogCnEast1());
     }
 
     /**

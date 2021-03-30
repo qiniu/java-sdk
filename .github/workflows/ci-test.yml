@@ -30,8 +30,5 @@ jobs:
           QINIU_LINKING_APPID: ${{ secrets.QINIU_LINKING_APPID }}
           QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
           QINIU_TEST_ENV: travis
-        run: |
-          
-          ./gradlew build
-
-        
+        run:
+          ./gradlew build --stacktrace --info

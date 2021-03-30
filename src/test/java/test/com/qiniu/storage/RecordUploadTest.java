@@ -1,11 +1,11 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.Constants;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.ConcurrentResumeUploader;
 import com.qiniu.storage.Configuration;
+import com.qiniu.storage.Region;
 import com.qiniu.storage.ResumeUploader;
 import com.qiniu.storage.persistent.FileRecorder;
 import com.qiniu.util.Etag;
@@ -52,16 +52,19 @@ public class RecordUploadTest {
      */
     private void template(final int size, boolean isResumeV2, boolean isConcurrent) throws IOException {
 
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
+        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile testFile : files) {
+            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
+        }
+
+        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
 
             String bucket = entry.getKey();
-            final Zone zone = entry.getValue();
+            final Region region = entry.getValue();
 
             System.out.println("\n\n");
-            System.out.printf("bucket:%s zone:%s \n", bucket, zone.getRegion());
+            System.out.printf("bucket:%s zone:%s \n", bucket, region);
 
             response = null;
             String key = "";
@@ -86,7 +89,7 @@ public class RecordUploadTest {
                         int i = r.nextInt(10000);
                         try {
                             System.out.println("UP: " + i + ",  enter run");
-                            response = up.up(zone);
+                            response = up.up(region);
                             System.out.println("UP:  " + i + ", left run");
                         } catch (Exception e) {
                             System.out.println("UP:  " + i + ", exception run");
@@ -133,7 +136,7 @@ public class RecordUploadTest {
                 // 若第一部分上传部分未全部成功,再次上传
                 if (response == null) {
                     try {
-                        response = new Up(f, expectKey, token, isResumeV2, isConcurrent).up(zone);
+                        response = new Up(f, expectKey, token, isResumeV2, isConcurrent).up(region);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -205,9 +208,6 @@ public class RecordUploadTest {
 
     @Test
     public void test4M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 4, config[0], config[1]);
         }
@@ -215,9 +215,6 @@ public class RecordUploadTest {
 
     @Test
     public void test4M1K() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 4 + 1, config[0], config[1]);
         }
@@ -225,9 +222,6 @@ public class RecordUploadTest {
 
     @Test
     public void test8M1k() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 8 + 1, config[0], config[1]);
         }
@@ -235,9 +229,6 @@ public class RecordUploadTest {
 
     @Test
     public void test25M1k() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 25 + 1, config[0], config[1]);
         }
@@ -245,9 +236,6 @@ public class RecordUploadTest {
 
     @Test
     public void test50M1k() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 50 + 1, config[0], config[1]);
         }
@@ -255,9 +243,6 @@ public class RecordUploadTest {
 
     @Test
     public void test100M1k() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 100 + 1, config[0], config[1]);
         }
@@ -342,7 +327,7 @@ public class RecordUploadTest {
             System.out.println("UP closed");
         }
 
-        public Response up(Zone zone) throws Exception {
+        public Response up(Region region) throws Exception {
             int i = r.nextInt(10000);
             try {
                 System.out.println("UP: " + i + ",  enter up");
@@ -350,7 +335,7 @@ public class RecordUploadTest {
                     recorder = new FileRecorder(file.getParentFile());
                 }
 
-                Configuration config = new Configuration(zone);
+                Configuration config = new Configuration(region);
 
                 if (isResumeV2) {
                     config.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;

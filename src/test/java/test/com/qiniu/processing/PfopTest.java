@@ -6,6 +6,7 @@ import com.qiniu.common.Zone;
 import com.qiniu.processing.OperationManager;
 import com.qiniu.processing.OperationStatus;
 import com.qiniu.storage.Configuration;
+import com.qiniu.storage.Region;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.Assert;
@@ -13,10 +14,7 @@ import org.junit.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.fail;
 
@@ -28,17 +26,19 @@ public class PfopTest {
      */
     @Test
     public void testPfop() throws QiniuException {
-        Map<String, Zone> cases = new HashMap<String, Zone>();
-        cases.put(TestConfig.testBucket_z0, Zone.autoZone());
-        cases.put(TestConfig.testBucket_na0, Zone.autoZone());
+        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile testFile : files) {
+            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
+        }
         List<String> ids = new ArrayList<>();
 
         Configuration cfg = new Configuration();
         OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
 
-        for (Map.Entry<String, Zone> entry : cases.entrySet()) {
+        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            Zone zone = entry.getValue();
+            Region region = entry.getValue();
 
             String notifyURL = null;
             boolean force = true;
@@ -87,24 +87,46 @@ public class PfopTest {
             System.out.println(new Gson().toJson(status));
             Assert.assertEquals(jobid, status.id);
         }
+
+        for (String jobid : ids) {
+            testPfopIsSuccess(jobid);
+        }
     }
 
     /**
      * 测试prefop
      * 检测status是否为0（成功）
      */
-//    @Test
-    public void testPrefop() {
-        try {
-            String jobid = "z0.5c81361a38b9f349c8bb5288";
-            Configuration cfg = new Configuration(Zone.autoZone());
-            OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
-            OperationStatus status = operationManager.prefop(jobid);
-            Assert.assertEquals(0, status.code);
-        } catch (QiniuException ex) {
-            ex.printStackTrace();
-            Assert.assertTrue(ResCode.find(ex.code(), ResCode.getPossibleResCode(612)));
-        }
+    private void testPfopIsSuccess(String jobid) {
+        long maxWaitTime = 30 * 60 * 1000;
+        Date startDate = new Date();
+        OperationStatus status = null;
+        do {
+            try {
+                Configuration cfg = new Configuration(Zone.autoZone());
+                OperationManager operationManager = new OperationManager(TestConfig.testAuth, cfg);
+                status = operationManager.prefop(jobid);
+            } catch (QiniuException ex) {
+                ex.printStackTrace();
+                Assert.assertTrue(ResCode.find(ex.code(), ResCode.getPossibleResCode(612)));
+                break;
+            }
+
+            Date currentDate = new Date();
+            if (currentDate.getTime() - startDate.getTime() > maxWaitTime) {
+                break;
+            }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {
+            }
+
+        } while (status == null || status.code != 0);
+
+        Assert.assertNotNull(status);
+        System.out.println(new Gson().toJson(status));
+        Assert.assertEquals(0, status.code);
     }
 
 }
