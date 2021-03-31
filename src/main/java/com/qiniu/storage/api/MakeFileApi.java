@@ -53,40 +53,41 @@ public class MakeFileApi extends Api {
         }
 
         @Override
-        public void buildAction() throws QiniuException {
-            String action = String.format("/mkfile/%s/mimeType/%s", fileSize,
+        public void buildPath() throws QiniuException {
+            pathList.add("mkfile");
+            pathList.add(fileSize + "");
+            pathList.add("mimeType");
+            pathList.add(UrlSafeBase64.encodeToString(fileMineType));
+
+            String path = String.format("/mkfile/%s/mimeType/%s", fileSize,
                     UrlSafeBase64.encodeToString(fileMineType));
             if (!StringUtils.isNullOrEmpty(fileName)) {
-                action = String.format("%s/fname/%s", action, UrlSafeBase64.encodeToString(fileName));
+                pathList.add("fname");
+                pathList.add(UrlSafeBase64.encodeToString(fileName));
             }
 
-            final StringBuilder b = new StringBuilder(action);
             if (key != null) {
-                b.append("/key/");
-                b.append(UrlSafeBase64.encodeToString(key));
+                pathList.add("key");
+                pathList.add(UrlSafeBase64.encodeToString(key));
             }
 
             params.forEach(new StringMap.Consumer() {
                 @Override
                 public void accept(String key, Object value) {
-                    b.append("/");
-                    b.append(key);
-                    b.append("/");
-                    b.append(UrlSafeBase64.encodeToString("" + value));
+                    pathList.add(key);
+                    pathList.add(UrlSafeBase64.encodeToString("" + value));
                 }
             });
 
             metaDataParam.forEach(new StringMap.Consumer() {
                 @Override
                 public void accept(String key, Object value) {
-                    b.append("/");
-                    b.append(key);
-                    b.append("/");
-                    b.append(UrlSafeBase64.encodeToString("" + value));
+                    pathList.add(key);
+                    pathList.add(UrlSafeBase64.encodeToString("" + value));
                 }
             });
 
-            this.action = action;
+            super.buildQuery();
         }
 
         public void setBody(String[] contexts) throws QiniuException {

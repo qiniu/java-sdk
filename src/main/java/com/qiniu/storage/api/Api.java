@@ -5,6 +5,9 @@ import com.qiniu.http.Client;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * api 基类
  */
@@ -22,16 +25,31 @@ public class Api {
      */
     public static class Request {
         /**
-         * 请求的域名
-         * URL = host + action
+         * 请求 url 的 scheme + host
+         * eg: https://upload.qiniu.com
          */
         public final String host;
 
         /**
-         * 请求的 action
-         * URL = host + action
+         * 请求 url 的 path
          */
-        String action;
+        private String path;
+
+        /**
+         * 请求 url 的 信息，最终会被按顺序拼接作为 path /item0/item1
+         */
+        public final List<String> pathList = new ArrayList<>();
+
+        /**
+         * 请求 url 的 query
+         * 由 queryInfo 拼接
+         */
+        private String query;
+
+        /**
+         * 请求 url 的 query 信息，最终会被拼接作为 query key0=value0&key1=value1
+         */
+        public final StringMap queryInfo = new StringMap();
 
         /**
          * 请求头
@@ -58,18 +76,81 @@ public class Api {
             this.header.put("Authorization", "UpToken " + token);
         }
 
-        public String getAction() throws QiniuException {
-            if (StringUtils.isNullOrEmpty(action)) {
-                buildAction();
+        /**
+         * 获取 query 字符串
+         *
+         * @return query 字符串
+         * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
+         */
+        public String getQuery() throws QiniuException {
+            if (StringUtils.isNullOrEmpty(query)) {
+                buildQuery();
             }
-            return action;
+            return query;
         }
 
-        public void buildAction() throws QiniuException {
+        /**
+         * 直接设置 query 字符串
+         *
+         * @param query query 字符串
+         */
+        public void setQuery(String query) {
+            this.query = query;
         }
 
-        public void setAction(String action) {
-            this.action = action;
+        /**
+         * 根据 queryInfo 组装 query 字符串
+         *
+         * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
+         */
+        public void buildQuery() throws QiniuException {
+            StringBuilder builder = new StringBuilder();
+            for (String key : queryInfo.map().keySet()) {
+                if (builder.length() > 0) {
+                    builder.append("&");
+                }
+                builder.append(key);
+                builder.append("=");
+                builder.append(queryInfo.get(key));
+            }
+            query = builder.toString();
+        }
+
+        /**
+         * 获取 url 的 path 信息
+         *
+         * @return path 信息
+         */
+        public String getPath() throws QiniuException {
+            if (StringUtils.isNullOrEmpty(path)) {
+                buildPath();
+            }
+            return path;
+        }
+
+        /**
+         * 配置 url 的 path 信息
+         *
+         * @param path 信息
+         */
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        /**
+         * 根据 queryInfo 组装 query 字符串
+         *
+         * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
+         */
+        public void buildPath() throws QiniuException {
+            StringBuilder builder = new StringBuilder();
+            for (String item : pathList) {
+                if (StringUtils.isNullOrEmpty(item)) {
+                    builder.append("/");
+                    builder.append(item);
+                }
+            }
+            path = builder.toString();
         }
 
         /**
@@ -77,8 +158,22 @@ public class Api {
          *
          * @return url
          */
-        String getUrl() {
-            return host + action;
+        String getUrl() throws QiniuException {
+            StringBuilder result = new StringBuilder();
+            result.append(host);
+
+            String path = getPath();
+            if (path != null) {
+                result.append(path);
+            }
+
+            String query = getQuery();
+            if (query != null) {
+                result.append('?');
+                result.append(query);
+            }
+
+            return result.toString();
         }
 
         /**

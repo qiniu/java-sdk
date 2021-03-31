@@ -31,8 +31,10 @@ public class MakeBlockApi extends Api {
         }
 
         @Override
-        public void buildAction() throws QiniuException {
-            action = String.format("/mkblk/%d", blockSize);
+        public void buildQuery() throws QiniuException {
+            pathList.add("mkblk");
+            pathList.add(blockSize + "");
+            super.buildQuery();
         }
     }
 
