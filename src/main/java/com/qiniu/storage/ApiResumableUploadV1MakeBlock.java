@@ -1,11 +1,11 @@
-package com.qiniu.storage.api;
+package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 
-public class MakeBlockApi extends Api {
+public class ApiResumableUploadV1MakeBlock extends Api {
 
-    public MakeBlockApi(Client client) {
+    public ApiResumableUploadV1MakeBlock(Client client) {
         super(client);
     }
 
@@ -45,29 +45,11 @@ public class MakeBlockApi extends Api {
         }
 
         public Long getCrc() {
-            if (jsonMap == null) {
-                return null;
-            }
-
-            Object crc = jsonMap.get("crc");
-            if (crc == null) {
-                return null;
-            }
-
-            return new Long(crc.toString());
+            return getLongValueFromDataMap("crc");
         }
 
         public String getCtx() {
-            if (jsonMap == null) {
-                return null;
-            }
-
-            Object ctx = jsonMap.get("ctx");
-            if (ctx == null) {
-                return null;
-            }
-
-            return ctx.toString();
+            return getStringValueFromDataMap("ctx");
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.qiniu.storage.api;
+package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
@@ -6,8 +6,8 @@ import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 
-public class MakeFileApi extends Api {
-    public MakeFileApi(Client client) {
+public class ApiResumableUploadV1MakeFile extends Api {
+    public ApiResumableUploadV1MakeFile(Client client) {
         super(client);
     }
 
@@ -103,20 +103,6 @@ public class MakeFileApi extends Api {
 
         public Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
-        }
-
-        public long getCrc() throws QiniuException {
-            if (jsonMap.get("crc") == null) {
-                throw new QiniuException(new Exception("block's crc32 is empty"));
-            }
-            return new Long(jsonMap.get("crc").toString());
-        }
-
-        public String getCtx() throws QiniuException {
-            if (jsonMap.get("ctx") == null) {
-                throw new QiniuException(new Exception("block's ctx is empty"));
-            }
-            return jsonMap.get("ctx").toString();
         }
     }
 }

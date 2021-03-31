@@ -1,4 +1,4 @@
-package com.qiniu.storage.api;
+package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
@@ -74,6 +74,7 @@ public class Api {
          * 上传凭证
          */
         private String token;
+        private UploadToken uploadToken;
 
         /**
          * 构造请求对象
@@ -138,15 +139,6 @@ public class Api {
             }
             queryPairs.add(new Pair<String, String>(key, value));
             query = null;
-        }
-
-        /**
-         * 设置上传凭证
-         *
-         * @param token 上传凭证
-         */
-        public void setToken(String token) {
-            this.token = token;
         }
 
         /**
@@ -261,6 +253,27 @@ public class Api {
                 this.bodyContentType = contentType;
             }
         }
+
+        /**
+         * 设置上传凭证
+         *
+         * @param token 上传凭证
+         */
+        public void setToken(String token) {
+            this.token = token;
+        }
+
+        /**
+         * 获取上传凭证
+         *
+         * @return 上传凭证
+         */
+        UploadToken getUploadToken() throws QiniuException {
+            if (uploadToken == null) {
+                uploadToken = new UploadToken(token);
+            }
+            return uploadToken;
+        }
     }
 
 
@@ -272,7 +285,7 @@ public class Api {
         /**
          * 响应数据
          */
-        public final StringMap jsonMap;
+        public final StringMap dataMap;
 
         /**
          * 原响应结果
@@ -280,8 +293,52 @@ public class Api {
         public final com.qiniu.http.Response response;
 
         public Response(com.qiniu.http.Response response) throws QiniuException {
-            this.jsonMap = response.jsonToMap();
+            this.dataMap = response.jsonToMap();
             this.response = response;
+        }
+
+        public String getStringValueFromDataMap(String keyPath) {
+            Object value = getValueFromDataMap(keyPath);
+            if (value == null) {
+                return null;
+            }
+            return value.toString();
+        }
+
+        public Long getLongValueFromDataMap(String keyPath) {
+            Object value = getValueFromDataMap(keyPath);
+            if (value == null) {
+                return null;
+            }
+            if (value instanceof Double) {
+                return ((Double) value).longValue();
+            } else if (value instanceof Integer) {
+                return ((Integer) value).longValue();
+            } else if (value instanceof Long) {
+                return (Long) value;
+            } else {
+                return null;
+            }
+        }
+
+        public Object getValueFromDataMap(String keyPath) {
+            if (dataMap == null || StringUtils.isNullOrEmpty(keyPath)) {
+                return null;
+            }
+
+            Object value = dataMap.map();
+            String[] keys = keyPath.split(".");
+
+            for (String key : keys) {
+                if (value instanceof Map) {
+                    value = ((Map) value).get(key);
+                } else {
+                    value = null;
+                    break;
+                }
+            }
+
+            return value;
         }
     }
 }
