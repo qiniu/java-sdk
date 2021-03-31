@@ -12,8 +12,8 @@ public class MakeFileApi extends Api {
     }
 
     public Response request(Request request) throws QiniuException {
-        com.qiniu.http.Response response = client.post(request.getUrl(), request.body, request.bodyOffset, request.bodySize,
-                request.header, request.bodyContentType);
+        com.qiniu.http.Response response = client.post(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
+                request.getHeader(), request.bodyContentType);
         return new Response(response);
     }
 
@@ -23,13 +23,16 @@ public class MakeFileApi extends Api {
     public static class Request extends Api.Request {
         String key;
         String fileName;
-        long fileSize;
-        String fileMineType;
+        Long fileSize;
+        String fileMimeType;
         public final StringMap params = new StringMap();
         public final StringMap metaDataParam = new StringMap();
 
-        public Request(String host, String token) {
-            super(host, token);
+        public Request(String host, String token, Long fileSize, String[] blockContexts) {
+            super(host);
+            setToken(token);
+            this.fileSize = fileSize;
+            this.setBlockContexts(blockContexts);
         }
 
         public Request setKey(String key) {
@@ -42,58 +45,54 @@ public class MakeFileApi extends Api {
             return this;
         }
 
-        public Request setFileSize(long fileSize) {
-            this.fileSize = fileSize;
+        public Request setFileMimeType(String fileMimeType) {
+            this.fileMimeType = fileMimeType;
             return this;
         }
 
-        public Request setFileMineType(String fileMineType) {
-            this.fileMineType = fileMineType;
-            return this;
+        private void setBlockContexts(String[] contexts) {
+            String s = StringUtils.join(contexts, ",");
+            byte[] body = StringUtils.utf8Bytes(s);
+            setBody(body, body.length, 0, null);
         }
 
         @Override
         public void buildPath() throws QiniuException {
-            pathList.add("mkfile");
-            pathList.add(fileSize + "");
-            pathList.add("mimeType");
-            pathList.add(UrlSafeBase64.encodeToString(fileMineType));
+            addPathSegment("mkfile");
+            addPathSegment(fileSize + "");
 
-            String path = String.format("/mkfile/%s/mimeType/%s", fileSize,
-                    UrlSafeBase64.encodeToString(fileMineType));
+            if (!StringUtils.isNullOrEmpty(fileMimeType)) {
+                addPathSegment("mimeType");
+                addPathSegment(UrlSafeBase64.encodeToString(fileMimeType));
+            }
+
             if (!StringUtils.isNullOrEmpty(fileName)) {
-                pathList.add("fname");
-                pathList.add(UrlSafeBase64.encodeToString(fileName));
+                addPathSegment("fname");
+                addPathSegment(UrlSafeBase64.encodeToString(fileName));
             }
 
             if (key != null) {
-                pathList.add("key");
-                pathList.add(UrlSafeBase64.encodeToString(key));
+                addPathSegment("key");
+                addPathSegment(UrlSafeBase64.encodeToString(key));
             }
 
             params.forEach(new StringMap.Consumer() {
                 @Override
                 public void accept(String key, Object value) {
-                    pathList.add(key);
-                    pathList.add(UrlSafeBase64.encodeToString("" + value));
+                    addPathSegment(key);
+                    addPathSegment(UrlSafeBase64.encodeToString("" + value));
                 }
             });
 
             metaDataParam.forEach(new StringMap.Consumer() {
                 @Override
                 public void accept(String key, Object value) {
-                    pathList.add(key);
-                    pathList.add(UrlSafeBase64.encodeToString("" + value));
+                    addPathSegment(key);
+                    addPathSegment(UrlSafeBase64.encodeToString("" + value));
                 }
             });
 
             super.buildQuery();
-        }
-
-        public void setBody(String[] contexts) throws QiniuException {
-            String s = StringUtils.join(contexts, ",");
-            byte[] body = StringUtils.utf8Bytes(s);
-            setBody(body, body.length, 0, null);
         }
     }
 

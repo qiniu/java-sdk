@@ -4,9 +4,14 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
+import javafx.util.Pair;
 
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * api 基类
@@ -24,11 +29,12 @@ public class Api {
      * api 请求基类
      */
     public static class Request {
+
         /**
-         * 请求 url 的 scheme + host
+         * 请求的 urlPrefix， scheme + host
          * eg: https://upload.qiniu.com
          */
-        public final String host;
+        private final String urlPrefix;
 
         /**
          * 请求 url 的 path
@@ -36,9 +42,9 @@ public class Api {
         private String path;
 
         /**
-         * 请求 url 的 信息，最终会被按顺序拼接作为 path /item0/item1
+         * 请求 url 的 信息，最终会被按顺序拼接作为 path /Segment0/Segment1
          */
-        public final List<String> pathList = new ArrayList<>();
+        private final List<String> pathList = new ArrayList<>();
 
         /**
          * 请求 url 的 query
@@ -49,12 +55,12 @@ public class Api {
         /**
          * 请求 url 的 query 信息，最终会被拼接作为 query key0=value0&key1=value1
          */
-        public final StringMap queryInfo = new StringMap();
+        private final List<Pair<String, String>> queryPairs = new ArrayList<>();
 
         /**
          * 请求头
          */
-        public final StringMap header = new StringMap();
+        private final Map<String, String> header = new HashMap<>();
 
         /**
          * 请求数据是在 body 中，从 bodyOffset 开始，获取 bodySize 大小的数据
@@ -65,15 +71,82 @@ public class Api {
         String bodyContentType = Client.DefaultMime;
 
         /**
+         * 上传凭证
+         */
+        private String token;
+
+        /**
          * 构造请求对象
          * URL = host + action
          *
-         * @param host  请求使用的 host
-         * @param token 请求凭证
+         * @param host 请求使用的 host
          */
-        public Request(String host, String token) {
-            this.host = host;
-            this.header.put("Authorization", "UpToken " + token);
+        public Request(String host) {
+            this.urlPrefix = host;
+        }
+
+        public String getUrlPrefix() {
+            return urlPrefix;
+        }
+
+        /**
+         * 添加 path 信息，注意 path 添加顺序
+         * 所有的 path item 最终会按照顺序被拼接作为 path
+         * eg: /item0/item1
+         *
+         * @param segment 被添加 path segment
+         */
+        public void addPathSegment(String segment) {
+            if (segment == null) {
+                return;
+            }
+            pathList.add(segment);
+            path = null;
+        }
+
+        /**
+         * 获取 url 的 path 信息
+         *
+         * @return path 信息
+         */
+        public String getPath() throws QiniuException {
+            if (path == null) {
+                buildPath();
+            }
+            return path;
+        }
+
+        /**
+         * 根据 queryInfo 组装 query 字符串
+         *
+         * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
+         */
+        public void buildPath() throws QiniuException {
+            path = "/" + StringUtils.join(pathList, "/");
+        }
+
+
+        /**
+         * 增加 query 键值对
+         *
+         * @param key   key
+         * @param value value
+         */
+        public void addQueryPair(String key, String value) {
+            if (StringUtils.isNullOrEmpty(key) || value == null) {
+                return;
+            }
+            queryPairs.add(new Pair<String, String>(key, value));
+            query = null;
+        }
+
+        /**
+         * 设置上传凭证
+         *
+         * @param token 上传凭证
+         */
+        public void setToken(String token) {
+            this.token = token;
         }
 
         /**
@@ -90,67 +163,61 @@ public class Api {
         }
 
         /**
-         * 直接设置 query 字符串
-         *
-         * @param query query 字符串
-         */
-        public void setQuery(String query) {
-            this.query = query;
-        }
-
-        /**
          * 根据 queryInfo 组装 query 字符串
          *
          * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
          */
         public void buildQuery() throws QiniuException {
+
             StringBuilder builder = new StringBuilder();
-            for (String key : queryInfo.map().keySet()) {
+
+            for (Pair<String, String> pair : queryPairs) {
                 if (builder.length() > 0) {
                     builder.append("&");
                 }
-                builder.append(key);
-                builder.append("=");
-                builder.append(queryInfo.get(key));
+
+                try {
+                    builder.append(URLEncoder.encode(pair.getKey(), "UTF-8"));
+                    if (pair.getValue() != null) {
+                        builder.append("=");
+                        builder.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
+                    }
+                } catch (Exception e) {
+                    throw new QiniuException(e);
+                }
             }
+
             query = builder.toString();
         }
 
         /**
-         * 获取 url 的 path 信息
+         * 增加请求头
          *
-         * @return path 信息
+         * @param key   key
+         * @param value value
          */
-        public String getPath() throws QiniuException {
-            if (StringUtils.isNullOrEmpty(path)) {
-                buildPath();
+        public void addHeaderField(String key, String value) {
+            if (StringUtils.isNullOrEmpty(key) || StringUtils.isNullOrEmpty(value)) {
+                return;
             }
-            return path;
+            header.put(key, value);
         }
 
-        /**
-         * 配置 url 的 path 信息
-         *
-         * @param path 信息
-         */
-        public void setPath(String path) {
-            this.path = path;
-        }
 
         /**
-         * 根据 queryInfo 组装 query 字符串
+         * 获取请求头信息
          *
-         * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
+         * @return 请求头信息
          */
-        public void buildPath() throws QiniuException {
-            StringBuilder builder = new StringBuilder();
-            for (String item : pathList) {
-                if (StringUtils.isNullOrEmpty(item)) {
-                    builder.append("/");
-                    builder.append(item);
-                }
+        public StringMap getHeader() {
+            StringMap header = new StringMap();
+            for (String key : this.header.keySet()) {
+                header.put(key, this.header.get(key));
             }
-            path = builder.toString();
+
+            header.put("Authorization", "UpToken " + token);
+
+            return header;
         }
 
         /**
@@ -158,27 +225,28 @@ public class Api {
          *
          * @return url
          */
-        String getUrl() throws QiniuException {
-            StringBuilder result = new StringBuilder();
-            result.append(host);
+        URL getUrl() throws QiniuException {
+            try {
+                URL url = new URL(urlPrefix);
+                String file = url.getFile();
+                String path = getPath();
+                if (StringUtils.isNullOrEmpty(path)) {
+                    file += path;
+                }
 
-            String path = getPath();
-            if (path != null) {
-                result.append(path);
+                String query = getQuery();
+                if (StringUtils.isNullOrEmpty(query)) {
+                    file += '?' + query;
+                }
+                return new URL(url.getProtocol(), url.getHost(), url.getPort(), file);
+            } catch (Exception e) {
+                throw new QiniuException(e);
             }
-
-            String query = getQuery();
-            if (query != null) {
-                result.append('?');
-                result.append(query);
-            }
-
-            return result.toString();
         }
 
         /**
          * 设置请求体
-         * 请求数据：在 body 中，从 bodyOffset 开始，获取 bodySize 大小的数据
+         * 请求数据：在 body 中，从 bodyOffset 开始，获取 bodySize 大小的数据作为请求体
          *
          * @param body        请求数据源
          * @param size        请求数据大小

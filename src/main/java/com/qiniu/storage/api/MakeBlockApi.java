@@ -10,8 +10,8 @@ public class MakeBlockApi extends Api {
     }
 
     public Response request(Request request) throws QiniuException {
-        com.qiniu.http.Response response = client.post(request.getUrl(), request.body, request.bodyOffset, request.bodySize,
-                request.header, request.bodyContentType);
+        com.qiniu.http.Response response = client.post(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
+                request.getHeader(), request.bodyContentType);
         return new Response(response);
     }
 
@@ -19,22 +19,19 @@ public class MakeBlockApi extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-        int blockSize = -1;
+        Integer blockSize;
 
-        public Request(String host, String token) {
-            super(host, token);
-        }
-
-        public Request setBlockSize(int blockSize) {
+        public Request(String host, String token, Integer blockSize) {
+            super(host);
+            setToken(token);
             this.blockSize = blockSize;
-            return this;
         }
 
         @Override
-        public void buildQuery() throws QiniuException {
-            pathList.add("mkblk");
-            pathList.add(blockSize + "");
-            super.buildQuery();
+        public void buildPath() throws QiniuException {
+            addPathSegment("mkblk");
+            addPathSegment(blockSize + "");
+            super.buildPath();
         }
     }
 
@@ -47,18 +44,30 @@ public class MakeBlockApi extends Api {
             super(response);
         }
 
-        public long getCrc() throws QiniuException {
-            if (jsonMap.get("crc") == null) {
-                throw new QiniuException(new Exception("block's crc32 is empty"));
+        public Long getCrc() {
+            if (jsonMap == null) {
+                return null;
             }
-            return new Long(jsonMap.get("crc").toString());
+
+            Object crc = jsonMap.get("crc");
+            if (crc == null) {
+                return null;
+            }
+
+            return new Long(crc.toString());
         }
 
-        public String getCtx() throws QiniuException {
-            if (jsonMap.get("ctx") == null) {
-                throw new QiniuException(new Exception("block's ctx is empty"));
+        public String getCtx() {
+            if (jsonMap == null) {
+                return null;
             }
-            return jsonMap.get("ctx").toString();
+
+            Object ctx = jsonMap.get("ctx");
+            if (ctx == null) {
+                return null;
+            }
+
+            return ctx.toString();
         }
     }
 }
