@@ -163,13 +163,6 @@ public class ConcurrentResumeUploader extends ResumeUploader {
         Response response = null;
         QiniuException exception = null;
         for (Future<Response> future : futures) {
-            while (!future.isDone()) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ignored) {
-                }
-            }
-
             try {
                 Response responseP = future.get();
                 if (response == null || (responseP != null && responseP.isOK())) {

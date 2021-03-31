@@ -87,18 +87,11 @@ public class ResumeUploadSourceStream extends ResumeUploadSource {
                     buffer = new byte[block.size];
                     while (readSize < block.size) {
                         int ret = inputStream.read(buffer, readSize, block.size - readSize);
-
                         if (ret < 0) {
                             isAllDataRead = true;
                             break;
                         }
-
                         readSize += ret;
-
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException ignored) {
-                        }
                     }
                     block.data = buffer;
                     block.size = readSize;
