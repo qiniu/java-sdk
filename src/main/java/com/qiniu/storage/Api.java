@@ -78,14 +78,17 @@ public class Api {
 
         /**
          * 构造请求对象
-         * URL = host + action
          *
-         * @param host 请求使用的 host
+         * @param urlPrefix 请求的 urlPrefix， scheme + host
          */
-        public Request(String host) {
-            this.urlPrefix = host;
+        public Request(String urlPrefix) {
+            this.urlPrefix = urlPrefix;
         }
 
+        /**
+         * 获取请求的 urlPrefix， scheme + host
+         * eg: https://upload.qiniu.com
+         */
         public String getUrlPrefix() {
             return urlPrefix;
         }
