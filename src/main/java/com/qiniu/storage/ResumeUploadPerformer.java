@@ -12,7 +12,7 @@ import java.io.IOException;
 
 abstract class ResumeUploadPerformer {
 
-    private final Client client;
+    final Client client;
     private final Recorder recorder;
     private final Configuration config;
     private final ConfigHelper configHelper;

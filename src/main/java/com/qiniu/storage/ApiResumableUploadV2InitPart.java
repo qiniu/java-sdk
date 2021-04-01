@@ -10,20 +10,24 @@ public class ApiResumableUploadV2InitPart extends Api {
     }
 
     public Response request(Request request) throws QiniuException {
-        com.qiniu.http.Response response = client.post(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
-                request.getHeader(), request.bodyContentType);
-        return new Response(response);
+        return new Response(requestByClient(request));
     }
 
     /**
      * 请求信息
      */
     public static class Request extends Api.Request {
-        String key;
+        private String key;
 
         public Request(String host, String token) {
             super(host);
             setToken(token);
+            setMethod(Api.Request.HTTP_METHOD_POST);
+        }
+
+        public Request setKey(String key) {
+            this.key = key;
+            return this;
         }
 
         @Override
@@ -58,7 +62,6 @@ public class ApiResumableUploadV2InitPart extends Api {
 
         public Long getExpireAt() {
             return getLongValueFromDataMap("expireAt");
-
         }
     }
 }

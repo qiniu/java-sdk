@@ -4,9 +4,6 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.util.Crc32;
-import com.qiniu.util.StringMap;
-import com.qiniu.util.StringUtils;
-import com.qiniu.util.UrlSafeBase64;
 
 class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
 
@@ -41,88 +38,50 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
         return retryUploadAction(new UploadAction() {
             @Override
             public Response uploadAction(String host) throws QiniuException {
-                return makeFile(host, uploadSource.getFileName());
+                return makeFile(host);
             }
         });
     }
 
     private Response makeBlock(String host, ResumeUploadSource.Block block) throws QiniuException {
-        String action = String.format("/mkblk/%d", block.size);
-        String url = host + action;
-
-        Response response = post(url, block.data, 0, block.size);
+        ApiResumableUploadV1MakeBlock api = new ApiResumableUploadV1MakeBlock(client);
+        ApiResumableUploadV1MakeBlock.Request request = new ApiResumableUploadV1MakeBlock.Request(host, token.getToken(), block.size)
+                .setBlockData(block.data, 0, block.size, null);
+        ApiResumableUploadV1MakeBlock.Response response = api.request(request);
 
         if (response.isOK()) {
-
-            StringMap jsonMap = response.jsonToMap();
-            if (jsonMap == null) {
-                throw new QiniuException(new Exception("block's info is empty"));
-            }
-
             if (options.checkCrc) {
-                if (jsonMap.get("crc") == null) {
+                Long serverCrc = response.getCrc();
+                if (serverCrc == null) {
                     throw new QiniuException(new Exception("block's crc32 is empty"));
                 }
 
                 long crc = Crc32.bytes(block.data, 0, block.size);
-                long serverCrc = new Long(jsonMap.get("crc").toString());
                 if ((long) serverCrc != crc) {
                     throw new QiniuException(new Exception("block's crc32 is not match"));
                 }
             }
 
-            if (jsonMap.get("ctx") == null) {
+            String ctx = response.getCtx();
+            if (ctx == null) {
                 throw new QiniuException(new Exception("block's ctx is empty"));
             }
-            block.context = jsonMap.get("ctx").toString();
+            block.context = ctx;
             block.data = null;
         }
-        return response;
+
+        return response.getResponse();
     }
 
-    private Response makeFile(String host, String fileName) throws QiniuException {
+    private Response makeFile(String host) throws QiniuException {
         String[] contexts = uploadSource.getAllBlockContextList();
-        String action = String.format("/mkfile/%s/mimeType/%s", uploadSource.getSize(),
-                UrlSafeBase64.encodeToString(options.mimeType));
-        if (!StringUtils.isNullOrEmpty(fileName)) {
-            action = String.format("%s/fname/%s", action, UrlSafeBase64.encodeToString(fileName));
-        }
-
-        String url = host + action;
-
-        final StringBuilder b = new StringBuilder(url);
-        if (key != null) {
-            b.append("/key/");
-            b.append(UrlSafeBase64.encodeToString(key));
-        }
-
-        if (options.params != null) {
-            options.params.forEach(new StringMap.Consumer() {
-                @Override
-                public void accept(String key, Object value) {
-                    b.append("/");
-                    b.append(key);
-                    b.append("/");
-                    b.append(UrlSafeBase64.encodeToString("" + value));
-                }
-            });
-        }
-
-        if (options.metaDataParam != null) {
-            options.metaDataParam.forEach(new StringMap.Consumer() {
-                @Override
-                public void accept(String key, Object value) {
-                    b.append("/");
-                    b.append(key);
-                    b.append("/");
-                    b.append(UrlSafeBase64.encodeToString("" + value));
-                }
-            });
-        }
-
-        url = b.toString();
-        String s = StringUtils.join(contexts, ",");
-        byte[] data = StringUtils.utf8Bytes(s);
-        return post(url, StringUtils.utf8Bytes(s), (int) 0, data.length);
+        ApiResumableUploadV1MakeFile api = new ApiResumableUploadV1MakeFile(client);
+        final ApiResumableUploadV1MakeFile.Request request = new ApiResumableUploadV1MakeFile.Request(host, token.getToken(), uploadSource.getSize(), contexts)
+                .setKey(key)
+                .setFileMimeType(options.mimeType)
+                .setFileName(uploadSource.getFileName())
+                .setCustomParam(options.params.map())
+                .setCustomMetaParam(options.metaDataParam.map());
+        return api.request(request).getResponse();
     }
 }

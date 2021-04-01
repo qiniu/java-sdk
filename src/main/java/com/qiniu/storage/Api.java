@@ -18,17 +18,36 @@ import java.util.Map;
  */
 public class Api {
 
-    final Client client;
+    private final Client client;
 
     public Api(Client client) {
         this.client = client;
     }
 
+    com.qiniu.http.Response requestByClient(Request request) throws QiniuException {
+        request.prepareToRequest();
+
+        if (request.method.equals(Request.HTTP_METHOD_GET)) {
+            return client.get(request.getUrl().toString(), request.getHeader());
+        } else if (request.method.equals(Request.HTTP_METHOD_POST)) {
+            return client.post(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
+                    request.getHeader(), request.bodyContentType);
+        } else if (request.method.equals(Request.HTTP_METHOD_PUT)) {
+            return client.put(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
+                    request.getHeader(), request.bodyContentType);
+        } else {
+            throw QiniuException.unrecoverable("暂不支持这种请求方式");
+        }
+    }
 
     /**
      * api 请求基类
      */
     public static class Request {
+
+        public static String HTTP_METHOD_GET = "GET";
+        public static String HTTP_METHOD_POST = "POST";
+        public static String HTTP_METHOD_PUT = "PUT";
 
         /**
          * 请求的 urlPrefix， scheme + host
@@ -58,6 +77,11 @@ public class Api {
         private final List<Pair<String, String>> queryPairs = new ArrayList<>();
 
         /**
+         * Http 请求方式
+         */
+        private String method;
+
+        /**
          * 请求头
          */
         private final Map<String, String> header = new HashMap<>();
@@ -65,10 +89,10 @@ public class Api {
         /**
          * 请求数据是在 body 中，从 bodyOffset 开始，获取 bodySize 大小的数据
          */
-        byte[] body = new byte[0];
-        int bodySize = 0;
-        int bodyOffset = 0;
-        String bodyContentType = Client.DefaultMime;
+        private byte[] body = new byte[0];
+        private int bodySize = 0;
+        private int bodyOffset = 0;
+        private String bodyContentType = Client.DefaultMime;
 
         /**
          * 上传凭证
@@ -125,7 +149,7 @@ public class Api {
          *
          * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
          */
-        public void buildPath() throws QiniuException {
+        void buildPath() throws QiniuException {
             path = "/" + StringUtils.join(pathList, "/");
         }
 
@@ -162,7 +186,7 @@ public class Api {
          *
          * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
          */
-        public void buildQuery() throws QiniuException {
+        void buildQuery() throws QiniuException {
 
             StringBuilder builder = new StringBuilder();
 
@@ -183,6 +207,15 @@ public class Api {
             }
 
             query = builder.toString();
+        }
+
+        /**
+         * 设置 Http 请求方式
+         *
+         * @param method Http 请求方式
+         */
+        void setMethod(String method) {
+            this.method = method;
         }
 
         /**
@@ -230,12 +263,12 @@ public class Api {
                 URL url = new URL(urlPrefix);
                 String file = url.getFile();
                 String path = getPath();
-                if (StringUtils.isNullOrEmpty(path)) {
+                if (!StringUtils.isNullOrEmpty(path)) {
                     file += path;
                 }
 
                 String query = getQuery();
-                if (StringUtils.isNullOrEmpty(query)) {
+                if (!StringUtils.isNullOrEmpty(query)) {
                     file += '?' + query;
                 }
                 return new URL(url.getProtocol(), url.getHost(), url.getPort(), file);
@@ -249,16 +282,33 @@ public class Api {
          * 请求数据：在 body 中，从 bodyOffset 开始，获取 bodySize 大小的数据作为请求体
          *
          * @param body        请求数据源
-         * @param size        请求数据大小
          * @param offset      请求数据在 body 中的偏移量
+         * @param size        请求数据大小
          * @param contentType 请求数据类型
          */
-        public void setBody(byte[] body, int size, int offset, String contentType) {
+        public void setBody(byte[] body, int offset, int size, String contentType) {
             this.body = body;
-            this.bodySize = size;
             this.bodyOffset = offset;
+            this.bodySize = size;
             if (!StringUtils.isNullOrEmpty(contentType)) {
                 this.bodyContentType = contentType;
+            }
+        }
+
+        boolean hasBody() {
+            return body != null && body.length > 0 && bodySize > 0;
+        }
+
+        /**
+         * 构造 body 信息，如果需要设置请求体，子类需要重写
+         *
+         * @throws QiniuException
+         */
+        void buildBodyInfo() throws QiniuException {
+            if (body == null) {
+                body = new byte[0];
+                bodySize = 0;
+                bodyOffset = 0;
             }
         }
 
@@ -283,6 +333,23 @@ public class Api {
             return uploadToken;
         }
 
+        /**
+         * 准备上传 做一些参数检查 以及 参数构造
+         *
+         * @throws QiniuException 异常，一般为参数缺失
+         */
+        private void prepareToRequest() throws QiniuException {
+            buildPath();
+            buildQuery();
+            buildBodyInfo();
+        }
+
+        /**
+         * 抛出参数异常
+         *
+         * @param paramName 异常参数
+         * @throws QiniuException 异常
+         */
         void throwInvalidRequestParamException(String paramName) throws QiniuException {
             if (StringUtils.isNullOrEmpty(paramName)) {
                 return;
@@ -300,16 +367,28 @@ public class Api {
         /**
          * 响应数据
          */
-        public final StringMap dataMap;
+        private final StringMap dataMap;
 
         /**
          * 原响应结果
          */
-        public final com.qiniu.http.Response response;
+        private final com.qiniu.http.Response response;
 
         public Response(com.qiniu.http.Response response) throws QiniuException {
             this.dataMap = response.jsonToMap();
             this.response = response;
+        }
+
+        public StringMap getDataMap() {
+            return dataMap;
+        }
+
+        public com.qiniu.http.Response getResponse() {
+            return response;
+        }
+
+        public boolean isOK() {
+            return response.isOK();
         }
 
         public String getStringValueFromDataMap(String keyPath) {
@@ -343,6 +422,9 @@ public class Api {
 
             Object value = dataMap.map();
             String[] keys = keyPath.split(".");
+            if (keys.length < 2) {
+                return dataMap.get(keyPath);
+            }
 
             for (String key : keys) {
                 if (value instanceof Map) {

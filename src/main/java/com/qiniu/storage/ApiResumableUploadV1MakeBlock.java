@@ -10,9 +10,7 @@ public class ApiResumableUploadV1MakeBlock extends Api {
     }
 
     public Response request(Request request) throws QiniuException {
-        com.qiniu.http.Response response = client.post(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
-                request.getHeader(), request.bodyContentType);
-        return new Response(response);
+        return new Response(requestByClient(request));
     }
 
     /**
@@ -24,7 +22,13 @@ public class ApiResumableUploadV1MakeBlock extends Api {
         public Request(String host, String token, Integer blockSize) {
             super(host);
             setToken(token);
+            setMethod(Api.Request.HTTP_METHOD_POST);
             this.blockSize = blockSize;
+        }
+
+        public Request setBlockData(byte[] data, int offset, int size, String contentType) {
+            super.setBody(data, offset, size, contentType);
+            return this;
         }
 
         @Override
@@ -36,6 +40,13 @@ public class ApiResumableUploadV1MakeBlock extends Api {
             addPathSegment("mkblk");
             addPathSegment(blockSize + "");
             super.buildPath();
+        }
+
+        @Override
+        void buildBodyInfo() throws QiniuException {
+            if (!hasBody()) {
+                throwInvalidRequestParamException("block data");
+            }
         }
     }
 

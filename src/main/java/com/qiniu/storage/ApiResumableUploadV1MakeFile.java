@@ -2,9 +2,10 @@ package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
-import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
+
+import java.util.Map;
 
 public class ApiResumableUploadV1MakeFile extends Api {
     public ApiResumableUploadV1MakeFile(Client client) {
@@ -12,27 +13,27 @@ public class ApiResumableUploadV1MakeFile extends Api {
     }
 
     public Response request(Request request) throws QiniuException {
-        com.qiniu.http.Response response = client.post(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
-                request.getHeader(), request.bodyContentType);
-        return new Response(response);
+        return new Response(requestByClient(request));
     }
 
     /**
      * 请求信息
      */
     public static class Request extends Api.Request {
-        String key;
-        String fileName;
-        Long fileSize;
-        String fileMimeType;
-        public final StringMap params = new StringMap();
-        public final StringMap metaDataParam = new StringMap();
+        private String key;
+        private String fileName;
+        private Long fileSize;
+        private String fileMimeType;
+        private String[] blockContexts;
+        private Map<String, Object> params;
+        private Map<String, Object> metaDataParam;
 
         public Request(String host, String token, Long fileSize, String[] blockContexts) {
             super(host);
             setToken(token);
+            setMethod(Api.Request.HTTP_METHOD_POST);
             this.fileSize = fileSize;
-            this.setBlockContexts(blockContexts);
+            this.blockContexts = blockContexts;
         }
 
         public Request setKey(String key) {
@@ -50,20 +51,20 @@ public class ApiResumableUploadV1MakeFile extends Api {
             return this;
         }
 
-        private void setBlockContexts(String[] contexts) {
-            String s = StringUtils.join(contexts, ",");
-            byte[] body = StringUtils.utf8Bytes(s);
-            setBody(body, body.length, 0, null);
+        public Request setCustomParam(Map<String, Object> params) {
+            this.params = params;
+            return this;
+        }
+
+        public Request setCustomMetaParam(Map<String, Object> params) {
+            this.metaDataParam = params;
+            return this;
         }
 
         @Override
         public void buildPath() throws QiniuException {
             if (fileSize == null) {
                 throwInvalidRequestParamException("file size");
-            }
-
-            if (body == null) {
-                throwInvalidRequestParamException("contexts");
             }
 
             addPathSegment("mkfile");
@@ -84,23 +85,32 @@ public class ApiResumableUploadV1MakeFile extends Api {
                 addPathSegment(UrlSafeBase64.encodeToString(key));
             }
 
-            params.forEach(new StringMap.Consumer() {
-                @Override
-                public void accept(String key, Object value) {
+            if (params != null && params.size() > 0) {
+                for (String key : params.keySet()) {
                     addPathSegment(key);
-                    addPathSegment(UrlSafeBase64.encodeToString("" + value));
+                    addPathSegment(UrlSafeBase64.encodeToString("" + params.get(key)));
                 }
-            });
+            }
 
-            metaDataParam.forEach(new StringMap.Consumer() {
-                @Override
-                public void accept(String key, Object value) {
+            if (metaDataParam != null && metaDataParam.size() > 0) {
+                for (String key : metaDataParam.keySet()) {
                     addPathSegment(key);
-                    addPathSegment(UrlSafeBase64.encodeToString("" + value));
+                    addPathSegment(UrlSafeBase64.encodeToString("" + metaDataParam.get(key)));
                 }
-            });
+            }
 
-            super.buildQuery();
+            super.buildPath();
+        }
+
+        @Override
+        void buildBodyInfo() throws QiniuException {
+            if (blockContexts == null) {
+                throwInvalidRequestParamException("contexts");
+            }
+
+            String s = StringUtils.join(blockContexts, ",");
+            byte[] body = StringUtils.utf8Bytes(s);
+            setBody(body, 0, body.length, null);
         }
     }
 

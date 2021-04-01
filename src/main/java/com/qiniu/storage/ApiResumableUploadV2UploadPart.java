@@ -11,9 +11,7 @@ public class ApiResumableUploadV2UploadPart extends Api {
     }
 
     public Response request(Request request) throws QiniuException {
-        com.qiniu.http.Response response = client.post(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
-                request.getHeader(), request.bodyContentType);
-        return new Response(response);
+        return new Response(requestByClient(request));
     }
 
     /**
@@ -27,8 +25,19 @@ public class ApiResumableUploadV2UploadPart extends Api {
         public Request(String host, String token, String uploadId, Integer partIndex) {
             super(host);
             setToken(token);
+            setMethod(Api.Request.HTTP_METHOD_PUT);
             this.uploadId = uploadId;
             this.partIndex = partIndex;
+        }
+
+        public Request setKey(String key) {
+            this.key = key;
+            return this;
+        }
+
+        public Request setUploadData(byte[] body, int offset, int size, String contentType) {
+            super.setBody(body, offset, size, contentType);
+            return this;
         }
 
         @Override
@@ -53,6 +62,13 @@ public class ApiResumableUploadV2UploadPart extends Api {
             addPathSegment(uploadId);
             addPathSegment(partIndex + "");
             super.buildPath();
+        }
+
+        @Override
+        void buildBodyInfo() throws QiniuException {
+            if (!hasBody()) {
+                throwInvalidRequestParamException("block data");
+            }
         }
     }
 
