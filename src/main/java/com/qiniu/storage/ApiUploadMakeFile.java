@@ -7,8 +7,8 @@ import com.qiniu.util.UrlSafeBase64;
 
 import java.util.Map;
 
-public class ApiResumableUploadV1MakeFile extends Api {
-    public ApiResumableUploadV1MakeFile(Client client) {
+public class ApiUploadMakeFile extends Api {
+    public ApiUploadMakeFile(Client client) {
         super(client);
     }
 

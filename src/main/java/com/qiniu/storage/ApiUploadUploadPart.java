@@ -4,9 +4,9 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.util.StringUtils;
 
-public class ApiResumableUploadV2UploadPart extends Api {
+public class ApiUploadUploadPart extends Api {
 
-    public ApiResumableUploadV2UploadPart(Client client) {
+    public ApiUploadUploadPart(Client client) {
         super(client);
     }
 

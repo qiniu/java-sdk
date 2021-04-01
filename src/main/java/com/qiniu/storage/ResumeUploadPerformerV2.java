@@ -53,9 +53,9 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     private Response initPart(String host) throws QiniuException {
-        ApiResumableUploadV2InitPart api = new ApiResumableUploadV2InitPart(client);
-        ApiResumableUploadV2InitPart.Request request = new ApiResumableUploadV2InitPart.Request(host, this.token.getToken()).setKey(key);
-        ApiResumableUploadV2InitPart.Response response = api.request(request);
+        ApiUploadInitPart api = new ApiUploadInitPart(client);
+        ApiUploadInitPart.Request request = new ApiUploadInitPart.Request(host, this.token.getToken()).setKey(key);
+        ApiUploadInitPart.Response response = api.request(request);
 
         if (response.isOK()) {
             String uploadId = response.getUploadId();
@@ -76,12 +76,12 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     private Response uploadPart(String host, ResumeUploadSource.Block block) throws QiniuException {
-        ApiResumableUploadV2UploadPart api = new ApiResumableUploadV2UploadPart(client);
-        ApiResumableUploadV2UploadPart.Request request = new ApiResumableUploadV2UploadPart.Request(host, this.token.getToken(),
+        ApiUploadUploadPart api = new ApiUploadUploadPart(client);
+        ApiUploadUploadPart.Request request = new ApiUploadUploadPart.Request(host, this.token.getToken(),
                 uploadSource.uploadId, block.index + 1)
                 .setKey(key)
                 .setUploadData(block.data, 0, block.size, null);
-        ApiResumableUploadV2UploadPart.Response response = api.request(request);
+        ApiUploadUploadPart.Response response = api.request(request);
 
         if (response.isOK()) {
 
@@ -109,8 +109,8 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     private Response completeParts(String host) throws QiniuException {
-        ApiResumableUploadV2CompleteParts api = new ApiResumableUploadV2CompleteParts(client);
-        ApiResumableUploadV2CompleteParts.Request request = new ApiResumableUploadV2CompleteParts.Request(host, this.token.getToken(),
+        ApiUploadCompleteParts api = new ApiUploadCompleteParts(client);
+        ApiUploadCompleteParts.Request request = new ApiUploadCompleteParts.Request(host, this.token.getToken(),
                 uploadSource.uploadId, uploadSource.getPartInfo())
                 .setKey(key)
                 .setFileMimeType(options.mimeType)

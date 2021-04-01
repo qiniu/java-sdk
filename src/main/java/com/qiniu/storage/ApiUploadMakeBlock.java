@@ -3,9 +3,9 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 
-public class ApiResumableUploadV1MakeBlock extends Api {
+public class ApiUploadMakeBlock extends Api {
 
-    public ApiResumableUploadV1MakeBlock(Client client) {
+    public ApiUploadMakeBlock(Client client) {
         super(client);
     }
 

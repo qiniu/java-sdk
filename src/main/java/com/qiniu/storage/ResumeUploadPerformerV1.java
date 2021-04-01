@@ -44,10 +44,10 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
     }
 
     private Response makeBlock(String host, ResumeUploadSource.Block block) throws QiniuException {
-        ApiResumableUploadV1MakeBlock api = new ApiResumableUploadV1MakeBlock(client);
-        ApiResumableUploadV1MakeBlock.Request request = new ApiResumableUploadV1MakeBlock.Request(host, token.getToken(), block.size)
+        ApiUploadMakeBlock api = new ApiUploadMakeBlock(client);
+        ApiUploadMakeBlock.Request request = new ApiUploadMakeBlock.Request(host, token.getToken(), block.size)
                 .setBlockData(block.data, 0, block.size, null);
-        ApiResumableUploadV1MakeBlock.Response response = api.request(request);
+        ApiUploadMakeBlock.Response response = api.request(request);
 
         if (response.isOK()) {
             if (options.checkCrc) {
@@ -75,8 +75,8 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
 
     private Response makeFile(String host) throws QiniuException {
         String[] contexts = uploadSource.getAllBlockContextList();
-        ApiResumableUploadV1MakeFile api = new ApiResumableUploadV1MakeFile(client);
-        final ApiResumableUploadV1MakeFile.Request request = new ApiResumableUploadV1MakeFile.Request(host, token.getToken(), uploadSource.getSize(), contexts)
+        ApiUploadMakeFile api = new ApiUploadMakeFile(client);
+        final ApiUploadMakeFile.Request request = new ApiUploadMakeFile.Request(host, token.getToken(), uploadSource.getSize(), contexts)
                 .setKey(key)
                 .setFileMimeType(options.mimeType)
                 .setFileName(uploadSource.getFileName())

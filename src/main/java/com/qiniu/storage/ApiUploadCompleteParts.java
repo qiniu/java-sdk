@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ApiResumableUploadV2CompleteParts extends Api {
+public class ApiUploadCompleteParts extends Api {
 
-    public ApiResumableUploadV2CompleteParts(Client client) {
+    public ApiUploadCompleteParts(Client client) {
         super(client);
     }
 
