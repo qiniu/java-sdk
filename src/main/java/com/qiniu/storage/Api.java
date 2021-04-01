@@ -204,8 +204,13 @@ public class Api {
          *
          * @return 请求头信息
          */
-        public StringMap getHeader() {
+        public StringMap getHeader() throws QiniuException {
+            if (token == null || !getUploadToken().isValid()) {
+                throwInvalidRequestParamException("token");
+            }
+
             StringMap header = new StringMap();
+
             for (String key : this.header.keySet()) {
                 header.put(key, this.header.get(key));
             }
@@ -276,6 +281,13 @@ public class Api {
                 uploadToken = new UploadToken(token);
             }
             return uploadToken;
+        }
+
+        void throwInvalidRequestParamException(String paramName) throws QiniuException {
+            if (StringUtils.isNullOrEmpty(paramName)) {
+                return;
+            }
+            throw QiniuException.unrecoverable(paramName + " is invalid");
         }
     }
 

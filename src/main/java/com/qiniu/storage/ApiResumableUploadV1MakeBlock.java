@@ -29,6 +29,10 @@ public class ApiResumableUploadV1MakeBlock extends Api {
 
         @Override
         public void buildPath() throws QiniuException {
+            if (blockSize == null) {
+                throwInvalidRequestParamException("block size");
+            }
+
             addPathSegment("mkblk");
             addPathSegment(blockSize + "");
             super.buildPath();

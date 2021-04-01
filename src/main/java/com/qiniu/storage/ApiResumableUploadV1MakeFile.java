@@ -58,6 +58,14 @@ public class ApiResumableUploadV1MakeFile extends Api {
 
         @Override
         public void buildPath() throws QiniuException {
+            if (fileSize == null) {
+                throwInvalidRequestParamException("file size");
+            }
+
+            if (body == null) {
+                throwInvalidRequestParamException("contexts");
+            }
+
             addPathSegment("mkfile");
             addPathSegment(fileSize + "");
 

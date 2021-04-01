@@ -28,6 +28,11 @@ public class ApiResumableUploadV2InitPart extends Api {
 
         @Override
         public void buildPath() throws QiniuException {
+            UploadToken token = getUploadToken();
+            if (token == null || !token.isValid()) {
+                throwInvalidRequestParamException("token");
+            }
+
             String bucket = getUploadToken().getBucket();
             addPathSegment("buckets");
             addPathSegment(bucket);

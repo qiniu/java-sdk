@@ -2,6 +2,7 @@ package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.util.StringUtils;
 
 public class ApiResumableUploadV2CompleteParts extends Api {
 
@@ -32,7 +33,15 @@ public class ApiResumableUploadV2CompleteParts extends Api {
 
         @Override
         public void buildPath() throws QiniuException {
-            String bucket = getUploadToken().getBucket();
+            UploadToken token = getUploadToken();
+            if (token == null || !token.isValid()) {
+                throwInvalidRequestParamException("token");
+            }
+            if (StringUtils.isNullOrEmpty(uploadId)) {
+                throwInvalidRequestParamException("uploadId");
+            }
+
+            String bucket = token.getBucket();
             addPathSegment("buckets");
             addPathSegment(bucket);
             addPathSegment("objects");
