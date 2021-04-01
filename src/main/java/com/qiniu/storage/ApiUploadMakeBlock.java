@@ -5,6 +5,7 @@ import com.qiniu.http.Client;
 
 /**
  * 分片上传 v1 版 api: 创建块
+ * 本接口用于为后续分片上传创建一个新的块，同时上传第一片数据。
  * <p>
  * https://developer.qiniu.com/kodo/1286/mkblk
  */

@@ -6,6 +6,7 @@ import com.qiniu.util.StringUtils;
 
 /**
  * 分片上传 v2 版 api: 分块上传数据
+ * 初始化一个 Multipart Upload 任务之后，可以根据指定的 EncodedObjectName 和 UploadId 来分 Part 上传数据。
  * <p>
  * https://developer.qiniu.com/kodo/6366/upload-part
  */

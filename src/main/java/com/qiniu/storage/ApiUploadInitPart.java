@@ -5,6 +5,8 @@ import com.qiniu.http.Client;
 
 /**
  * 分片上传 v2 版 api: 初始化任务
+ * 使用 Multipart Upload 方式上传数据前，必须先调用 API 来获取一个全局唯一的 UploadId ，后续的块数据通过 uploadPart API 上传，
+ * 整个文件完成 completeMultipartUpload API ，已经上传块的删除 abortMultipartUpload API 都依赖该 UploadId 。
  * <p>
  * https://developer.qiniu.com/kodo/6365/initialize-multipartupload
  */

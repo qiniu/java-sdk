@@ -9,6 +9,7 @@ import java.util.Map;
 
 /**
  * 分片上传 v1 版 api: 创建文件
+ * 将上传好的所有数据块按指定顺序合并成一个资源文件。
  * <p>
  * https://developer.qiniu.com/kodo/1287/mkfile
  */
