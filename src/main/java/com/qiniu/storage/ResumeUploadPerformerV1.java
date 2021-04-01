@@ -51,7 +51,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
 
         if (response.isOK()) {
             if (options.checkCrc) {
-                Long serverCrc = response.getCrc();
+                Long serverCrc = response.getCrc32();
                 if (serverCrc == null) {
                     throw new QiniuException(new Exception("block's crc32 is empty"));
                 }

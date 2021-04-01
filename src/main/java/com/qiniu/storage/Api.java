@@ -25,6 +25,14 @@ public class Api {
     }
 
     com.qiniu.http.Response requestByClient(Request request) throws QiniuException {
+        if (client == null) {
+            ApiUtils.throwInvalidRequestParamException("client");
+        }
+
+        if (request == null) {
+            ApiUtils.throwInvalidRequestParamException("request");
+        }
+
         request.prepareToRequest();
 
         if (request.method.equals(Request.HTTP_METHOD_GET)) {
@@ -239,7 +247,7 @@ public class Api {
          */
         public StringMap getHeader() throws QiniuException {
             if (token == null || !getUploadToken().isValid()) {
-                throwInvalidRequestParamException("token");
+                ApiUtils.throwInvalidRequestParamException("token");
             }
 
             StringMap header = new StringMap();
@@ -343,19 +351,6 @@ public class Api {
             buildQuery();
             buildBodyInfo();
         }
-
-        /**
-         * 抛出参数异常
-         *
-         * @param paramName 异常参数
-         * @throws QiniuException 异常
-         */
-        void throwInvalidRequestParamException(String paramName) throws QiniuException {
-            if (StringUtils.isNullOrEmpty(paramName)) {
-                return;
-            }
-            throw QiniuException.unrecoverable(paramName + " is invalid");
-        }
     }
 
 
@@ -374,24 +369,68 @@ public class Api {
          */
         private final com.qiniu.http.Response response;
 
-        public Response(com.qiniu.http.Response response) throws QiniuException {
+        /**
+         * 构建 Response
+         *
+         * @param response com.qiniu.http.Response
+         * @throws QiniuException 解析 data 异常
+         */
+        Response(com.qiniu.http.Response response) throws QiniuException {
             this.dataMap = response.jsonToMap();
             this.response = response;
         }
 
+        /**
+         * 获取 response data map
+         *
+         * @return data map
+         */
         public StringMap getDataMap() {
             return dataMap;
         }
 
+        /**
+         * 获取 com.qiniu.http.Response，信息量更大
+         *
+         * @return com.qiniu.http.Response
+         */
         public com.qiniu.http.Response getResponse() {
             return response;
         }
 
+        /**
+         * 请求是否成功
+         *
+         * @return 是否成功
+         */
         public boolean isOK() {
             return response.isOK();
         }
 
-        public String getStringValueFromDataMap(String keyPath) {
+        /**
+         * 根据 key 读取 data map 的 String value
+         *
+         * @param key key
+         * @return key 对应的 String value
+         */
+        public String getStringValueFromDataMap(String key) {
+            if (StringUtils.isNullOrEmpty(key)) {
+                return null;
+            }
+            return getStringValueFromDataMap(new String[]{key});
+        }
+
+        /**
+         * 根据 keyPath 读取 data map 中对应的 String value
+         * eg：
+         * dataMap: {"key00" : { "key10" : "key10_value"}}
+         * keyPath = new String[]{"key00", "key10"}
+         * 调用方法后 value = key10_value
+         *
+         * @param keyPath keyPath
+         * @return keyPath 对应的 String value
+         */
+        public String getStringValueFromDataMap(String[] keyPath) {
             Object value = getValueFromDataMap(keyPath);
             if (value == null) {
                 return null;
@@ -399,7 +438,30 @@ public class Api {
             return value.toString();
         }
 
-        public Long getLongValueFromDataMap(String keyPath) {
+        /**
+         * 根据 key 读取 data map 的 Long value
+         *
+         * @param key key
+         * @return key 对应的 Long value
+         */
+        public Long getLongValueFromDataMap(String key) {
+            if (StringUtils.isNullOrEmpty(key)) {
+                return null;
+            }
+            return getLongValueFromDataMap(new String[]{key});
+        }
+
+        /**
+         * 根据 keyPath 读取 data map 中对应的 Long value
+         * eg：
+         * dataMap: {"key00" : { "key10" : 10}}
+         * keyPath = new String[]{"key00", "key10"}
+         * 调用方法后 value = 10
+         *
+         * @param keyPath keyPath
+         * @return keyPath 对应的 Long value
+         */
+        public Long getLongValueFromDataMap(String[] keyPath) {
             Object value = getValueFromDataMap(keyPath);
             if (value == null) {
                 return null;
@@ -415,18 +477,23 @@ public class Api {
             }
         }
 
-        public Object getValueFromDataMap(String keyPath) {
-            if (dataMap == null || StringUtils.isNullOrEmpty(keyPath)) {
+        /**
+         * 根据 keyPath 读取 data map 中对应的 value
+         * eg：
+         * dataMap: {"key00" : { "key10" : "key10_value"}}
+         * keyPath = new String[]{"key00", "key10"}
+         * 调用方法后 value = key10_value
+         *
+         * @param keyPath keyPath
+         * @return keyPath 对应的 value
+         */
+        public Object getValueFromDataMap(String[] keyPath) {
+            if (dataMap == null || keyPath == null || keyPath.length == 0) {
                 return null;
             }
 
             Object value = dataMap.map();
-            String[] keys = keyPath.split(".");
-            if (keys.length < 2) {
-                return dataMap.get(keyPath);
-            }
-
-            for (String key : keys) {
+            for (String key : keyPath) {
                 if (value instanceof Map) {
                     value = ((Map) value).get(key);
                 } else {
