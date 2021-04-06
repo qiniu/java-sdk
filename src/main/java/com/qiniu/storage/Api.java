@@ -130,6 +130,21 @@ public class Api {
         }
 
         /**
+         * 获取 请求的 Host
+         *
+         * @return Host
+         * @throws QiniuException 解析 urlPrefix 时的异常
+         */
+        public String getHost() throws QiniuException {
+            try {
+                URL url = new URL(urlPrefix);
+                return url.getHost();
+            } catch (Exception e) {
+                throw new QiniuException(e);
+            }
+        }
+
+        /**
          * 添加 path 信息，注意 path 添加顺序
          * 所有的 path item 最终会按照顺序被拼接作为 path
          * eg: /item0/item1
@@ -261,7 +276,7 @@ public class Api {
             }
 
             header.put("Authorization", "UpToken " + token);
-
+            header.put("Host", getHost());
             return header;
         }
 

@@ -32,8 +32,9 @@ class ApiUtils {
      */
     static void throwInvalidRequestParamException(String paramName) throws QiniuException {
         if (StringUtils.isNullOrEmpty(paramName)) {
-            return;
+            throw QiniuException.unrecoverable("");
+        } else {
+            throw QiniuException.unrecoverable(paramName + " is invalid, set before request!");
         }
-        throw QiniuException.unrecoverable(paramName + " is invalid");
     }
 }
