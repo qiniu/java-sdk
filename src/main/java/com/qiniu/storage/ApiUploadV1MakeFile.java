@@ -29,7 +29,8 @@ import java.util.Map;
  * 注意事项：
  * 1. 除了最后一个 block 外， 其他 block 的大小必须为 4M
  * 2. block 中所有的 chunk size 总和必须和 block size 相同
- * 3. 同一个 block 中的块上传需要依赖该块中上一次上传的返回的 ctx, 所以同一个块的上传无法实现并发，
+ * 3. 一个 block 中包含 1个 或多个 chunk
+ * 4. 同一个 block 中的块上传需要依赖该块中上一次上传的返回的 ctx, 所以同一个块的上传无法实现并发，
  * 如果想实现并发，可以使一个 block 中仅包含一个 chunk, 也即 chunk size = 4M, make block 接口
  * 不依赖 ctx，可以实现并发；需要注意的一点是 ctx 的顺序必须与 block 在文件中的顺序一致。
  * <p>
