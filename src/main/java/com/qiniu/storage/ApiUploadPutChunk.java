@@ -3,20 +3,14 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 
-/**
- * 分片上传 v1 版 api: 创建块
- * 本接口用于为后续分片上传创建一个新的块，同时上传第一片数据。
- * <p>
- * https://developer.qiniu.com/kodo/1286/mkblk
- */
-public class ApiUploadMakeBlock extends Api {
+public class ApiUploadPutChunk extends Api {
 
     /**
      * api 构建函数
      *
      * @param client 请求client【必须】
      */
-    public ApiUploadMakeBlock(Client client) {
+    public ApiUploadPutChunk(Client client) {
         super(client);
     }
 
@@ -35,30 +29,34 @@ public class ApiUploadMakeBlock extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-        private Integer blockSize;
+        private String blockLastContext;
+        private Integer chunkOffset;
 
         /**
          * 请求构造函数
          *
-         * @param urlPrefix 请求 scheme + host 【必须】
-         * @param token     请求凭证【必须】
-         * @param blockSize 块大小【必须】
+         * @param urlPrefix        请求 scheme + host 【必须】
+         * @param token            请求凭证【必须】
+         * @param blockLastContext 该分块上传上次返回的context【必须】
+         *                         包括 ApiUploadMakeBlock 返回的 context 和 该接口返回的 context
+         * @param chunkOffset      分片在该块中的偏移量
          */
-        public Request(String urlPrefix, String token, Integer blockSize) {
+        public Request(String urlPrefix, String token, String blockLastContext, Integer chunkOffset) {
             super(urlPrefix);
             setToken(token);
             setMethod(Api.Request.HTTP_METHOD_POST);
-            this.blockSize = blockSize;
+            this.blockLastContext = blockLastContext;
+            this.chunkOffset = chunkOffset;
         }
 
         /**
          * 配置上传块数据【必须】
          * 块数据：在 data 中，从 offset 开始的 size 大小的数据
          *
-         * @param data        块数据源
-         * @param offset      块数据在 data 中的偏移量
-         * @param size        块数据大小
-         * @param contentType 块数据类型
+         * @param data        分片数据源
+         * @param offset      分片数据在 data 中的偏移量
+         * @param size        分片数据大小
+         * @param contentType 分片数据类型
          * @return Request
          */
         public Request setBlockData(byte[] data, int offset, int size, String contentType) {
@@ -68,12 +66,16 @@ public class ApiUploadMakeBlock extends Api {
 
         @Override
         public void buildPath() throws QiniuException {
-            if (blockSize == null) {
-                ApiUtils.throwInvalidRequestParamException("block size");
+            if (chunkOffset == null) {
+                ApiUtils.throwInvalidRequestParamException("chunk offset");
+            }
+            if (blockLastContext == null) {
+                ApiUtils.throwInvalidRequestParamException("block last context");
             }
 
-            addPathSegment("mkblk");
-            addPathSegment(blockSize + "");
+            addPathSegment("bput");
+            addPathSegment(blockLastContext);
+            addPathSegment(chunkOffset + "");
             super.buildPath();
         }
 
