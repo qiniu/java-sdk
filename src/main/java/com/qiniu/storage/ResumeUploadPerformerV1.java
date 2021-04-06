@@ -46,7 +46,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
     private Response makeBlock(String host, ResumeUploadSource.Block block) throws QiniuException {
         ApiUploadV1MakeBlock api = new ApiUploadV1MakeBlock(client);
         ApiUploadV1MakeBlock.Request request = new ApiUploadV1MakeBlock.Request(host, token.getToken(), block.size)
-                .setBlockData(block.data, 0, block.size, null);
+                .setFirstChunkData(block.data, 0, block.size, null);
         ApiUploadV1MakeBlock.Response response = api.request(request);
 
         if (response.isOK()) {

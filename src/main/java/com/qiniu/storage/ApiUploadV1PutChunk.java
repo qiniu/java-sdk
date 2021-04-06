@@ -3,6 +3,28 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 
+/**
+ * 分片上传 v1 版 api: 上传片
+ * 上传指定块的一片数据，具体数据量可根据现场环境调整。同一块的每片数据必须串行上传。
+ * <p>
+ * <p>
+ * 一个文件被分成多个 block ，一个块可以被分成多个 chunk
+ * |----------------------------- file -----------------------------|
+ * |------ block ------|------ block ------|------ block ------|...
+ * |- chunk -|- chunk -|- chunk -|- chunk -|- chunk -|- chunk -|...
+ * |- ctx01 -|- ctx02 -|- ctx10 -|- ctx12 -|- ctx20 -|- ctx22 -|...
+ * allBlockCtx = [ctx02, ctx12, ctx22, ...]
+ * <p>
+ * 注意事项：
+ * 1. 除了最后一个 block 外， 其他 block 的大小必须为 4M
+ * 2. block 中所有的 chunk size 总和必须和 block size 相同
+ * 3. 同一个 block 中的块上传需要依赖该块中上一次上传的返回的 ctx, 所以同一个块的上传无法实现并发，
+ * 如果想实现并发，可以使一个 block 中仅包含一个 chunk, 也即 chunk size = 4M, make block 接口
+ * 不依赖 ctx，可以实现并发；需要注意的一点是 ctx 的顺序必须与 block 在文件中的顺序一致。
+ * <p>
+ * <p>
+ * https://developer.qiniu.com/kodo/1251/bput
+ */
 public class ApiUploadV1PutChunk extends Api {
 
     /**
@@ -50,7 +72,7 @@ public class ApiUploadV1PutChunk extends Api {
         }
 
         /**
-         * 配置上传块数据【必须】
+         * 配置块中上传片数据【必须】
          * 块数据：在 data 中，从 offset 开始的 size 大小的数据
          *
          * @param data        分片数据源
@@ -59,7 +81,7 @@ public class ApiUploadV1PutChunk extends Api {
          * @param contentType 分片数据类型
          * @return Request
          */
-        public Request setBlockData(byte[] data, int offset, int size, String contentType) {
+        public Request setChunkData(byte[] data, int offset, int size, String contentType) {
             super.setBody(data, offset, size, contentType);
             return this;
         }
