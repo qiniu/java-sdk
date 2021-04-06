@@ -53,9 +53,9 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     private Response initPart(String host) throws QiniuException {
-        ApiUploadInitPart api = new ApiUploadInitPart(client);
-        ApiUploadInitPart.Request request = new ApiUploadInitPart.Request(host, this.token.getToken()).setKey(key);
-        ApiUploadInitPart.Response response = api.request(request);
+        ApiUploadV2InitUpload api = new ApiUploadV2InitUpload(client);
+        ApiUploadV2InitUpload.Request request = new ApiUploadV2InitUpload.Request(host, this.token.getToken()).setKey(key);
+        ApiUploadV2InitUpload.Response response = api.request(request);
 
         if (response.isOK()) {
             String uploadId = response.getUploadId();
@@ -76,12 +76,12 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     private Response uploadPart(String host, ResumeUploadSource.Block block) throws QiniuException {
-        ApiUploadUploadPart api = new ApiUploadUploadPart(client);
-        ApiUploadUploadPart.Request request = new ApiUploadUploadPart.Request(host, this.token.getToken(),
+        ApiUploadV2UploadPart api = new ApiUploadV2UploadPart(client);
+        ApiUploadV2UploadPart.Request request = new ApiUploadV2UploadPart.Request(host, this.token.getToken(),
                 uploadSource.uploadId, block.index + 1)
                 .setKey(key)
                 .setUploadData(block.data, 0, block.size, null);
-        ApiUploadUploadPart.Response response = api.request(request);
+        ApiUploadV2UploadPart.Response response = api.request(request);
 
         if (response.isOK()) {
 
@@ -109,8 +109,8 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     private Response completeParts(String host) throws QiniuException {
-        ApiUploadCompleteParts api = new ApiUploadCompleteParts(client);
-        ApiUploadCompleteParts.Request request = new ApiUploadCompleteParts.Request(host, this.token.getToken(),
+        ApiUploadV2CompleteUpload api = new ApiUploadV2CompleteUpload(client);
+        ApiUploadV2CompleteUpload.Request request = new ApiUploadV2CompleteUpload.Request(host, this.token.getToken(),
                 uploadSource.uploadId, uploadSource.getPartInfo())
                 .setKey(key)
                 .setFileMimeType(options.mimeType)

@@ -9,14 +9,14 @@ import com.qiniu.http.Client;
  * <p>
  * https://developer.qiniu.com/kodo/1286/mkblk
  */
-public class ApiUploadMakeBlock extends Api {
+public class ApiUploadV1MakeBlock extends Api {
 
     /**
      * api 构建函数
      *
      * @param client 请求client【必须】
      */
-    public ApiUploadMakeBlock(Client client) {
+    public ApiUploadV1MakeBlock(Client client) {
         super(client);
     }
 

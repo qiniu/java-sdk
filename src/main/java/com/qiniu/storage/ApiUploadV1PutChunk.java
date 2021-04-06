@@ -3,14 +3,14 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 
-public class ApiUploadPutChunk extends Api {
+public class ApiUploadV1PutChunk extends Api {
 
     /**
      * api 构建函数
      *
      * @param client 请求client【必须】
      */
-    public ApiUploadPutChunk(Client client) {
+    public ApiUploadV1PutChunk(Client client) {
         super(client);
     }
 

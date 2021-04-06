@@ -43,6 +43,9 @@ public class Api {
         } else if (request.method.equals(Request.HTTP_METHOD_PUT)) {
             return client.put(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
                     request.getHeader(), request.bodyContentType);
+        } else if (request.method.equals(Request.HTTP_METHOD_DELETE)) {
+            return client.delete(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
+                    request.getHeader(), request.bodyContentType);
         } else {
             throw QiniuException.unrecoverable("暂不支持这种请求方式");
         }
@@ -56,6 +59,7 @@ public class Api {
         public static String HTTP_METHOD_GET = "GET";
         public static String HTTP_METHOD_POST = "POST";
         public static String HTTP_METHOD_PUT = "PUT";
+        public static String HTTP_METHOD_DELETE = "DELETE";
 
         /**
          * 请求的 urlPrefix， scheme + host
@@ -475,6 +479,58 @@ public class Api {
             } else {
                 return null;
             }
+        }
+
+        /**
+         * 根据 key 读取 data map 的 Integer value
+         *
+         * @param key key
+         * @return key 对应的 Integer value
+         */
+        public Integer getIntegerValueFromDataMap(String key) {
+            if (StringUtils.isNullOrEmpty(key)) {
+                return null;
+            }
+            return getIntegerValueFromDataMap(new String[]{key});
+        }
+
+        /**
+         * 根据 keyPath 读取 data map 中对应的 Integer value
+         * eg：
+         * dataMap: {"key00" : { "key10" : 10}}
+         * keyPath = new String[]{"key00", "key10"}
+         * 调用方法后 value = 10
+         *
+         * @param keyPath keyPath
+         * @return keyPath 对应的 Integer value
+         */
+        public Integer getIntegerValueFromDataMap(String[] keyPath) {
+            Object value = getValueFromDataMap(keyPath);
+            if (value == null) {
+                return null;
+            }
+            if (value instanceof Double) {
+                return ((Double) value).intValue();
+            } else if (value instanceof Integer) {
+                return (Integer) value;
+            } else if (value instanceof Long) {
+                return ((Long) value).intValue();
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * 根据 key 读取 data map 中对应的 value
+         *
+         * @param key key
+         * @return key 对应的 value
+         */
+        public Object getValueFromDataMap(String key) {
+            if (StringUtils.isNullOrEmpty(key)) {
+                return null;
+            }
+            return getStringValueFromDataMap(new String[]{key});
         }
 
         /**

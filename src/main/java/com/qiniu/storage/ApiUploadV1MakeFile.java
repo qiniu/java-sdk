@@ -13,14 +13,14 @@ import java.util.Map;
  * <p>
  * https://developer.qiniu.com/kodo/1287/mkfile
  */
-public class ApiUploadMakeFile extends Api {
+public class ApiUploadV1MakeFile extends Api {
 
     /**
      * api 构建函数
      *
      * @param client 请求client【必须】
      */
-    public ApiUploadMakeFile(Client client) {
+    public ApiUploadV1MakeFile(Client client) {
         super(client);
     }
 

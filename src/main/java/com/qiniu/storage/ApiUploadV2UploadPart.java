@@ -10,14 +10,14 @@ import com.qiniu.util.StringUtils;
  * <p>
  * https://developer.qiniu.com/kodo/6366/upload-part
  */
-public class ApiUploadUploadPart extends Api {
+public class ApiUploadV2UploadPart extends Api {
 
     /**
      * api 构建函数
      *
      * @param client 请求client【必须】
      */
-    public ApiUploadUploadPart(Client client) {
+    public ApiUploadV2UploadPart(Client client) {
         super(client);
     }
 

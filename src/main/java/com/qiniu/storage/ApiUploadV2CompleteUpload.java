@@ -11,20 +11,20 @@ import java.util.Map;
 
 /**
  * 分片上传 v2 版 api: 完成文件上传
- * 在将所有数据 Part 都上传完成后，必须调用 ApiUploadCompleteParts API 来完成整个文件的 Multipart Upload。用户需要提供有效数据的
+ * 在将所有数据 Part 都上传完成后，必须调用 ApiUploadV2CompleteUpload API 来完成整个文件的 Multipart Upload。用户需要提供有效数据的
  * Part 列表（ 包括 PartNumber 和调用 uploadPart API 服务端返回的 Etag ）。服务端收到用户提交的 Part 列表后，会逐一验证每个数据
  * Part 的有效性。当所有的数据 Part 验证通过后，会把这些数据 Part 组合成一个完整的 Object。
  * <p>
  * https://developer.qiniu.com/kodo/6368/complete-multipart-upload
  */
-public class ApiUploadCompleteParts extends Api {
+public class ApiUploadV2CompleteUpload extends Api {
 
     /**
      * api 构建函数
      *
      * @param client 请求client 【必须】
      */
-    public ApiUploadCompleteParts(Client client) {
+    public ApiUploadV2CompleteUpload(Client client) {
         super(client);
     }
 

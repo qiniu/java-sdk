@@ -10,14 +10,14 @@ import com.qiniu.http.Client;
  * <p>
  * https://developer.qiniu.com/kodo/6365/initialize-multipartupload
  */
-public class ApiUploadInitPart extends Api {
+public class ApiUploadV2InitUpload extends Api {
 
     /**
      * api 构建函数
      *
      * @param client 请求client【必须】
      */
-    public ApiUploadInitPart(Client client) {
+    public ApiUploadV2InitUpload(Client client) {
         super(client);
     }
 
