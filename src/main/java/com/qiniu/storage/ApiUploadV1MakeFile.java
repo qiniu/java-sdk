@@ -75,6 +75,16 @@ public class ApiUploadV1MakeFile extends ApiUpload {
          * 请求构造函数
          *
          * @param urlPrefix     请求 scheme + host 【必须】
+         *                      host:
+         *                      华东机房(region0): up.qiniup.com 或 upload.qiniup.com
+         *                      华北机房(region1): up-z1.qiniup.com 或 upload-z1.qiniup.com
+         *                      华南机房(region2): up-z2.qiniup.com 或 upload-z2.qiniup.com
+         *                      北美机房(regionNa0): up-na0.qiniup.com 或 upload-na0.qiniup.com
+         *                      新加坡机房(regionAs0): up-as0.qiniup.com 或 upload-as0.qiniup.com
+         *                      雾存储华东一区(regionFogCnEast1): up-fog-cn-east-1.qiniup.com 或 upload-fog-cn-east-1.qiniup.com
+         *                      注意事项：
+         *                      1. token 中签名的 bucket 所在机房必须和 host 的机房一致
+         *                      2. 如果不能提前知道机房信息，可调用 ApiQueryRegion api 获取 region 上传 Hosts
          * @param token         请求凭证【必须】
          * @param fileSize      文件大小，单位字节 【必须】
          * @param blockContexts 所有数据块的 ctx 集合，每个数据块的 ctx 为最后一个数据片上传后得到的 ctx 【必须】

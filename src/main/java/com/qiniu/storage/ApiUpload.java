@@ -11,7 +11,7 @@ public class ApiUpload extends Api {
     }
 
     /**
-     * api 请求基类
+     * upload api 请求基类
      */
     public static class Request extends Api.Request {
 
