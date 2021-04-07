@@ -5,6 +5,7 @@ import com.qiniu.http.Client;
 import com.qiniu.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 
 public class ApiQueryRegion extends ApiUpload {
 
@@ -57,7 +58,7 @@ public class ApiQueryRegion extends ApiUpload {
 
         @Override
         public void buildPath() throws QiniuException {
-            addPathSegment("v2");
+            addPathSegment("v4");
             addPathSegment("query");
             super.buildPath();
         }
@@ -65,6 +66,18 @@ public class ApiQueryRegion extends ApiUpload {
 
     /**
      * 响应信息
+     * dataMap：
+     * { "hosts":[
+     * { "region": "z1",
+     * "ttl": 86400,
+     * "io": { "domains": [ "iovip-z1.qbox.me" ] },
+     * "up": { "domains": [ "upload-z1.qiniup.com", "up-z1.qiniup.com" ], "old": [ "upload-z1.qbox.me", "up-z1.qbox.me"] },
+     * "uc": { "domains": [ "uc.qbox.me" ]},
+     * "rs": { "domains": [ "rs-z1.qbox.me" ] },
+     * "rsf": { "domains": [ "rsf-z1.qbox.me" ] },
+     * "api": { "domains": [ "api-z1.qiniu.com" ] },
+     * "s3": { "domains": [ "s3-cn-north-1.qiniucs.com" ], "region_alias": "cn-north-1" } }
+     * ] }
      */
     public static class Response extends ApiUpload.Response {
 
@@ -73,22 +86,104 @@ public class ApiQueryRegion extends ApiUpload {
         }
 
         /**
-         * 获取目标资源的 hash 值，可用于 Etag 头部
-         * eg:
-         * [
-         * { "size": 2097152, "etag": "FqlKj-XMsZumHEwIc9OR6YeYL7vT", "partNumber": 1, "putTime": 1590725018},
-         * { "size": 2097152, "etag": "FqvtxHpe3j-rEzkImMUWDsmvu27D", "partNumber": 2, "putTime": 1590725019}
-         * ]
+         * 获取默认 region 的 id
          *
-         * @return 目标资源的 hash 值
+         * @return region id
          */
-        public List getParts() {
-            Object value = getValueFromDataMap("parts");
-            if (value instanceof List) {
-                return (List) value;
-            } else {
+        public String getDefaultRegionId() {
+            return getRegionId(getDefaultRegion());
+        }
+
+        /**
+         * 获取 region id
+         *
+         * @return region id
+         */
+        public String getRegionId(Map<String, Object> region) {
+            if (region == null) {
                 return null;
             }
+
+            Object regionId = ApiUtils.getValueFromMap(region, new String[]{"region"});
+            return regionId.toString();
+        }
+
+        /**
+         * 获取默认 region 缓存有效期
+         *
+         * @return region 缓存有效期
+         */
+        public Long getDefaultRegionTTL() {
+            return getRegionTTL(getDefaultRegion());
+        }
+
+        /**
+         * 获取 region 缓存有效期
+         *
+         * @return region 缓存有效期
+         */
+        public Long getRegionTTL(Map<String, Object> region) {
+            if (region == null) {
+                return null;
+            }
+
+            Object ttl = ApiUtils.getValueFromMap(region, new String[]{"ttl"});
+            return ApiUtils.objectToLong(ttl);
+        }
+
+        /**
+         * 获取默认 region 上传的 Host 列表
+         *
+         * @return Host 列表
+         */
+        public List<String> getDefaultRegionUpHosts() {
+            return getRegionUpHosts(getDefaultRegion());
+        }
+
+        /**
+         * 获取 region 上传的 Host 列表
+         *
+         * @return Host 列表
+         */
+        public List<String> getRegionUpHosts(Map<String, Object> region) {
+            if (region == null) {
+                return null;
+            }
+
+            Object domains = ApiUtils.getValueFromMap(region, new String[]{"up", "domains"});
+            if (!(domains instanceof List)) {
+                return null;
+            }
+            return (List<String>) domains;
+        }
+
+        /**
+         * 获取默认的 region， 默认第一个
+         *
+         * @return 默认的 region
+         */
+        private Map<String, Object> getDefaultRegion() {
+            return getRegion(0);
+        }
+
+        /**
+         * 根据 region index 获取 region
+         * data map 中 region 有多个，可以根据 region 下标获取 region
+         *
+         * @param index region 下标
+         * @return region
+         */
+        public Map<String, Object> getRegion(int index) {
+            Object value = getValueFromDataMap("hosts");
+            if (!(value instanceof List) || ((List) value).size() < index) {
+                return null;
+            }
+
+            Object regionObject = ((List) value).get(index);
+            if (!(regionObject instanceof Map)) {
+                return null;
+            }
+            return (Map<String, Object>) regionObject;
         }
     }
 }

@@ -447,18 +447,7 @@ public class Api {
          */
         public Long getLongValueFromDataMap(String[] keyPath) {
             Object value = getValueFromDataMap(keyPath);
-            if (value == null) {
-                return null;
-            }
-            if (value instanceof Double) {
-                return ((Double) value).longValue();
-            } else if (value instanceof Integer) {
-                return ((Integer) value).longValue();
-            } else if (value instanceof Long) {
-                return (Long) value;
-            } else {
-                return null;
-            }
+            return ApiUtils.objectToLong(value);
         }
 
         /**
@@ -486,18 +475,7 @@ public class Api {
          */
         public Integer getIntegerValueFromDataMap(String[] keyPath) {
             Object value = getValueFromDataMap(keyPath);
-            if (value == null) {
-                return null;
-            }
-            if (value instanceof Double) {
-                return ((Double) value).intValue();
-            } else if (value instanceof Integer) {
-                return (Integer) value;
-            } else if (value instanceof Long) {
-                return ((Long) value).intValue();
-            } else {
-                return null;
-            }
+            return ApiUtils.objectToInteger(value);
         }
 
         /**
@@ -524,21 +502,10 @@ public class Api {
          * @return keyPath 对应的 value
          */
         public Object getValueFromDataMap(String[] keyPath) {
-            if (dataMap == null || keyPath == null || keyPath.length == 0) {
+            if (dataMap == null) {
                 return null;
             }
-
-            Object value = dataMap.map();
-            for (String key : keyPath) {
-                if (value instanceof Map) {
-                    value = ((Map) value).get(key);
-                } else {
-                    value = null;
-                    break;
-                }
-            }
-
-            return value;
+            return ApiUtils.getValueFromMap(dataMap.map(), keyPath);
         }
     }
 }
