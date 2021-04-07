@@ -7,8 +7,30 @@ import com.qiniu.util.StringUtils;
 import java.util.List;
 
 /**
- * 分片上传 v2 版 api: 列举已上传分片
+ * 分片上传 v2 版 api: 列举已上传分片信息
  * API 可列举出指定 UploadId 所属任务所有已经上传成功 Part。
+ * <p>
+ * <p>
+ * 一个文件被分成多个 part，上传所有的 part，然后在七牛云根据 part 信息合成文件
+ * |----------------------------- file -----------------------------|
+ * |------ part ------|------ part ------|------ part ------|...
+ * |----- etag01 -----|----- etag02 -----|----- etag03 -----|...
+ * allBlockCtx = [{"partNumber":1, "etag", etag01}, {"partNumber":2, "etag", etag02}, {"partNumber":3, "etag", etag03}, ...]
+ * <p>
+ * 上传过程：
+ * 1. 调用 ApiUploadV2InitUpload api 创建一个 upload 任务，获取 uploadId
+ * 2. 重复调用 ApiUploadV2UploadPart api 直到文件所有的 part 均上传完毕, part 的大小可以不相同
+ * 3. 调用 ApiUploadV2CompleteUpload api 组装 api
+ * 选用接口：
+ * 1. ApiUploadV2ListParts 列举已上传的 part 信息
+ * 2. ApiUploadV2AbortUpload 终止上传
+ * <p>
+ * 注意事项：
+ * 1. partNumber 范围是 1 ~ 10000
+ * 2. 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB
+ * 3. 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖
+ * 4. ApiUploadV2InitUpload、ApiUploadV2UploadPart、ApiUploadV2CompleteUpload 等分片 V2 API的 key 需要统一（要么有设置且相同，要么均不设置）
+ * <p>
  * <p>
  * https://developer.qiniu.com/kodo/6858/listparts
  */
@@ -163,6 +185,11 @@ public class ApiUploadV2ListParts extends Api {
 
         /**
          * 获取目标资源的 hash 值，可用于 Etag 头部
+         * eg:
+         * [
+         * { "size": 2097152, "etag": "FqlKj-XMsZumHEwIc9OR6YeYL7vT", "partNumber": 1, "putTime": 1590725018},
+         * { "size": 2097152, "etag": "FqvtxHpe3j-rEzkImMUWDsmvu27D", "partNumber": 2, "putTime": 1590725019}
+         * ]
          *
          * @return 目标资源的 hash 值
          */

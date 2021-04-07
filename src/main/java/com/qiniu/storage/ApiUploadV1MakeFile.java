@@ -127,7 +127,7 @@ public class ApiUploadV1MakeFile extends Api {
         /**
          * 自定义变量【可选】
          * CustomVarKey 和 CustomVarValue 都是 string
-         * 注：CustomVarKey 必须增加前缀 x:, 如 {"x:foo", "foo"}
+         * 注：CustomVarKey 必须增加前缀 x:, 如 {"x:foo", "foo"}, SDK 内部不会检查 key 的格式
          * https://developer.qiniu.com/kodo/1235/vars
          *
          * @param params 自定义变量
@@ -142,7 +142,7 @@ public class ApiUploadV1MakeFile extends Api {
          * 用户自定义文件 metadata 信息的 key 和 value【可选】
          * 可以设置多个，MetaKey 和 MetaValue 都是 string，其中 可以由字母、数字、
          * 下划线、减号组成，且长度小于等于 50，单个文件 MetaKey 和 Metavalue 总和大小不能超过 1024 字节
-         * 注：自定义 meta data 的 key 需要增加前缀 x-qn-meta-, 如 {"x-qn-meta-key", "foo"}
+         * 注：自定义 meta data 的 key 需要增加前缀 x-qn-meta-, 如 {"x-qn-meta-key", "foo"}, SDK 内部不会检查 key 的格式
          *
          * @param params meta data
          * @return Request

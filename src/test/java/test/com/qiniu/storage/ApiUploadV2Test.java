@@ -1,7 +1,6 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.storage.*;
 import com.qiniu.util.Md5;
@@ -14,6 +13,7 @@ import test.com.qiniu.TestConfig;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,10 +23,6 @@ public class ApiUploadV2Test {
 
     @Test
     public void testUpload() {
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-//        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-
         long fileSize = 1024 * 7 + 2341; // 单位： k
         File f = null;
         try {
@@ -56,7 +52,11 @@ public class ApiUploadV2Test {
          */
         int defaultPartSize = 1024 * 1024 * 2;
 
-        for (String bucket : bucketKeyMap.keySet()) {
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile testFile : files) {
+            String bucket = testFile.getBucketName();
+            Region region = testFile.getRegion();
+
             RandomAccessFile file = null;
             try {
                 file = new RandomAccessFile(f, "r");
@@ -72,8 +72,15 @@ public class ApiUploadV2Test {
             String token = TestConfig.testAuth.uploadToken(bucket, key, 3600,
                     new StringMap().put("returnBody", returnBody));
 
-            Zone zone = bucketKeyMap.get(bucket);
-            String urlPrefix = zone.getUpHttp(null);
+            String urlPrefix = null;
+            try {
+                Field hostsFiled = Region.class.getDeclaredField("srcUpHosts");
+                hostsFiled.setAccessible(true);
+                List<String> hosts = (List<String>) hostsFiled.get(region);
+                urlPrefix = "http://" + hosts.get(0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             Configuration configuration = new Configuration();
             Client client = new Client(configuration);
@@ -201,10 +208,6 @@ public class ApiUploadV2Test {
 
     @Test
     public void testAbortUpload() {
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-//        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-
         long fileSize = 1024 * 7 + 2341; // 单位： k
         File f = null;
         try {
@@ -234,7 +237,11 @@ public class ApiUploadV2Test {
          */
         int defaultPartSize = 1024 * 1024 * 2;
 
-        for (String bucket : bucketKeyMap.keySet()) {
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile testFile : files) {
+            String bucket = testFile.getBucketName();
+            Region region = testFile.getRegion();
+
             RandomAccessFile file = null;
             try {
                 file = new RandomAccessFile(f, "r");
@@ -250,8 +257,15 @@ public class ApiUploadV2Test {
             String token = TestConfig.testAuth.uploadToken(bucket, key, 3600,
                     new StringMap().put("returnBody", returnBody));
 
-            Zone zone = bucketKeyMap.get(bucket);
-            String urlPrefix = zone.getUpHttp(null);
+            String urlPrefix = null;
+            try {
+                Field hostsFiled = Region.class.getDeclaredField("srcUpHosts");
+                hostsFiled.setAccessible(true);
+                List<String> hosts = (List<String>) hostsFiled.get(region);
+                urlPrefix = "http://" + hosts.get(0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             Configuration configuration = new Configuration();
             Client client = new Client(configuration);

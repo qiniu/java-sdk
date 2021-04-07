@@ -8,6 +8,28 @@ import com.qiniu.util.StringUtils;
  * 分片上传 v2 版 api: 分块上传数据
  * 初始化一个 Multipart Upload 任务之后，可以根据指定的 EncodedObjectName 和 UploadId 来分 Part 上传数据。
  * <p>
+ * <p>
+ * 一个文件被分成多个 part，上传所有的 part，然后在七牛云根据 part 信息合成文件
+ * |----------------------------- file -----------------------------|
+ * |------ part ------|------ part ------|------ part ------|...
+ * |----- etag01 -----|----- etag02 -----|----- etag03 -----|...
+ * allBlockCtx = [{"partNumber":1, "etag", etag01}, {"partNumber":2, "etag", etag02}, {"partNumber":3, "etag", etag03}, ...]
+ * <p>
+ * 上传过程：
+ * 1. 调用 ApiUploadV2InitUpload api 创建一个 upload 任务，获取 uploadId
+ * 2. 重复调用 ApiUploadV2UploadPart api 直到文件所有的 part 均上传完毕, part 的大小可以不相同
+ * 3. 调用 ApiUploadV2CompleteUpload api 组装 api
+ * 选用接口：
+ * 1. ApiUploadV2ListParts 列举已上传的 part 信息
+ * 2. ApiUploadV2AbortUpload 终止上传
+ * <p>
+ * 注意事项：
+ * 1. partNumber 范围是 1 ~ 10000
+ * 2. 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB
+ * 3. 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖
+ * 4. ApiUploadV2InitUpload、ApiUploadV2UploadPart、ApiUploadV2CompleteUpload 等分片 V2 API的 key 需要统一（要么有设置且相同，要么均不设置）
+ * <p>
+ * <p>
  * https://developer.qiniu.com/kodo/6366/upload-part
  */
 public class ApiUploadV2UploadPart extends Api {

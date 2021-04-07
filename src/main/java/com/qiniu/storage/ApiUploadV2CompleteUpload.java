@@ -15,6 +15,28 @@ import java.util.Map;
  * Part 列表（ 包括 PartNumber 和调用 uploadPart API 服务端返回的 Etag ）。服务端收到用户提交的 Part 列表后，会逐一验证每个数据
  * Part 的有效性。当所有的数据 Part 验证通过后，会把这些数据 Part 组合成一个完整的 Object。
  * <p>
+ * <p>
+ * 一个文件被分成多个 part，上传所有的 part，然后在七牛云根据 part 信息合成文件
+ * |----------------------------- file -----------------------------|
+ * |------ part ------|------ part ------|------ part ------|...
+ * |----- etag01 -----|----- etag02 -----|----- etag03 -----|...
+ * allBlockCtx = [{"partNumber":1, "etag", etag01}, {"partNumber":2, "etag", etag02}, {"partNumber":3, "etag", etag03}, ...]
+ * <p>
+ * 上传过程：
+ * 1. 调用 ApiUploadV2InitUpload api 创建一个 upload 任务，获取 uploadId
+ * 2. 重复调用 ApiUploadV2UploadPart api 直到文件所有的 part 均上传完毕, part 的大小可以不相同
+ * 3. 调用 ApiUploadV2CompleteUpload api 组装 api
+ * 选用接口：
+ * 1. ApiUploadV2ListParts 列举已上传的 part 信息
+ * 2. ApiUploadV2AbortUpload 终止上传
+ * <p>
+ * 注意事项：
+ * 1. partNumber 范围是 1 ~ 10000
+ * 2. 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB
+ * 3. 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖
+ * 4. ApiUploadV2InitUpload、ApiUploadV2UploadPart、ApiUploadV2CompleteUpload 等分片 V2 API的 key 需要统一（要么有设置且相同，要么均不设置）
+ * <p>
+ * <p>
  * https://developer.qiniu.com/kodo/6368/complete-multipart-upload
  */
 public class ApiUploadV2CompleteUpload extends Api {
@@ -61,9 +83,15 @@ public class ApiUploadV2CompleteUpload extends Api {
          * @param token     请求凭证 【必须】
          * @param uploadId  在服务端申请的 MultipartUpload 任务 id; 服务端处理 completeMultipartUpload 请求成功后，该 UploadId
          *                  就会变成无效，再次请求与该 UploadId 相关操作都会失败。【必须】
-         * @param partsInfo 已经上传 Part 列表 （ 包括 PartNumber （ int ）和调用 uploadPart API 服务端返回的 Etag （ string ）） 【必须】
+         * @param partsInfo 已经上传 Part 列表【必须】
+         *                  包括 PartNumber(int) 和调用 uploadPart API 服务端返回的 Etag(string)
          *                  eg：[{ "etag": "<Etag>", "partNumber": <PartNumber> }, ...]
-         *                  用户提交的 Part 列表中，Part 号码可以不连续，但必须是升序;
+         *                  注意事项：
+         *                  1. 每一个上传的 Part 都有一个标识它的号码 PartNumber，范围是 1 - 10000，单个 Part大小范围 1 MB - 1 GB。
+         *                  Multipart Upload 要求除最后一个 Part 以外，其他的 Part 大小都要大于等于 1 MB。因不确定是否为最后一个 Part，
+         *                  uploadPart API 并不会立即校验上传 Part 的大小，当 completeMultipartUpload API 调用的时候才会校验。
+         *                  2. 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖。
+         *                  3. 用户提交的 Part 列表中，Part 号码可以不连续，但必须是升序;
          */
         public Request(String urlPrefix, String token, String uploadId, List<Map<String, Object>> partsInfo) {
             super(urlPrefix);
@@ -112,7 +140,7 @@ public class ApiUploadV2CompleteUpload extends Api {
         /**
          * 自定义变量【可选】
          * CustomVarKey 和 CustomVarValue 都是 string
-         * 注：CustomVarKey 必须增加前缀 x:, 如 {"x:foo", "foo"}
+         * 注：CustomVarKey 必须增加前缀 x:, 如 {"x:foo", "foo"}, SDK 内部不会检查 key 的格式
          * https://developer.qiniu.com/kodo/1235/vars
          *
          * @param params 自定义变量
@@ -127,7 +155,7 @@ public class ApiUploadV2CompleteUpload extends Api {
          * 用户自定义文件 metadata 信息的 key 和 value 【可选】
          * 可以设置多个，MetaKey 和 MetaValue 都是 string，其中 可以由字母、数字、
          * 下划线、减号组成，且长度小于等于 50，单个文件 MetaKey 和 Metavalue 总和大小不能超过 1024 字节
-         * 注：自定义 meta data 的 key 需要增加前缀 x-qn-meta-, 如 {"x-qn-meta-key", "foo"}
+         * 注：自定义 meta data 的 key 需要增加前缀 x-qn-meta-, 如 {"x-qn-meta-key", "foo"}, SDK 内部不会检查 key 的格式
          *
          * @param params meta data
          * @return Request
