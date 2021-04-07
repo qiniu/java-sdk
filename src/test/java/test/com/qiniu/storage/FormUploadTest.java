@@ -1,7 +1,6 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UpCompletionHandler;
@@ -15,8 +14,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -31,8 +28,12 @@ public class FormUploadTest {
      */
     @Test
     public void testSimple() {
-        hello(uploadManager, TestConfig.testBucket_z0);
-        hello(uploadManager, TestConfig.testBucket_na0);
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+            hello(uploadManager, file.getBucketName());
+        }
     }
 
     /**
@@ -40,16 +41,12 @@ public class FormUploadTest {
      */
     @Test
     public void testHello2() {
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
-            String bucket = entry.getKey();
-            Zone zone = entry.getValue();
-            Configuration c = new Configuration(zone);
-            c.useHttpsDomains = true;
-            UploadManager uploadManager = new UploadManager(c);
-            hello(uploadManager, bucket);
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            config.useHttpsDomains = true;
+            UploadManager uploadManager = new UploadManager(config);
+            hello(uploadManager, file.getBucketName());
         }
     }
 
@@ -88,8 +85,12 @@ public class FormUploadTest {
      */
     @Test
     public void testNoKey() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-        for (String bucket : buckets) {
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+
+            String bucket = file.getBucketName();
             StringMap params = new StringMap().put("x:foo", "foo_val");
             String token = TestConfig.testAuth.uploadToken(bucket, null);
             Response r = null;
@@ -120,15 +121,21 @@ public class FormUploadTest {
     public void testInvalidToken() {
         final String expectKey = "你好";
 
-        try {
-            uploadManager.put("hello".getBytes(), expectKey, TestConfig.dummyUptoken);
-            fail();
-        } catch (QiniuException e) {
-            if (e.code() != -1) {
-                assertEquals(401, e.code());
-                assertNotNull(e.response.reqId);
-            } else {
-                e.printStackTrace();
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+
+            try {
+                uploadManager.put("hello".getBytes(), expectKey, TestConfig.dummyUptoken);
+                fail();
+            } catch (QiniuException e) {
+                if (e.code() != -1) {
+                    assertEquals(401, e.code());
+                    assertNotNull(e.response.reqId);
+                } else {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -140,11 +147,18 @@ public class FormUploadTest {
     @Test
     public void testNoData() {
         final String expectKey = "你好";
-        try {
-            uploadManager.put((byte[]) null, expectKey, TestConfig.dummyInvalidUptoken);
-            fail();
-        } catch (Exception e) {
-            assertTrue(e instanceof IllegalArgumentException);
+
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+
+            try {
+                uploadManager.put((byte[]) null, expectKey, TestConfig.dummyInvalidUptoken);
+                fail();
+            } catch (Exception e) {
+                assertTrue(e instanceof IllegalArgumentException);
+            }
         }
     }
 
@@ -157,11 +171,17 @@ public class FormUploadTest {
     @Test
     public void testNoToken() throws Throwable {
         final String expectKey = "你好";
-        try {
-            uploadManager.put(new byte[0], expectKey, null);
-            fail();
-        } catch (Exception e) {
-            assertTrue(e instanceof IllegalArgumentException);
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+
+            try {
+                uploadManager.put(new byte[0], expectKey, null);
+                fail();
+            } catch (Exception e) {
+                assertTrue(e instanceof IllegalArgumentException);
+            }
         }
     }
 
@@ -172,11 +192,17 @@ public class FormUploadTest {
     @Test
     public void testEmptyToken() {
         final String expectKey = "你好";
-        try {
-            uploadManager.put(new byte[0], expectKey, "");
-            fail();
-        } catch (Exception e1) {
-            assertTrue(e1 instanceof IllegalArgumentException);
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+
+            try {
+                uploadManager.put(new byte[0], expectKey, "");
+                fail();
+            } catch (Exception e1) {
+                assertTrue(e1 instanceof IllegalArgumentException);
+            }
         }
     }
 
@@ -186,9 +212,14 @@ public class FormUploadTest {
      */
     @Test
     public void testFile() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-        for (String bucket : buckets) {
-            final String expectKey = "世/界";
+        final String expectKey = "世/界";
+
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+
+            String bucket = file.getBucketName();
             File f = null;
             try {
                 f = TempFile.createFile(1);
@@ -215,11 +246,15 @@ public class FormUploadTest {
      */
     @Test
     public void testAsync() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-        for (String bucket : buckets) {
-            final String expectKey = "你好?&=\r\n";
-            StringMap params = new StringMap().put("x:foo", "foo_val");
+        final String expectKey = "你好?&=\r\n";
+        StringMap params = new StringMap().put("x:foo", "foo_val");
 
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+
+            String bucket = file.getBucketName();
             String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
             final CountDownLatch signal = new CountDownLatch(1);
             try {
@@ -257,9 +292,14 @@ public class FormUploadTest {
      */
     @Test
     public void testXVar() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-        for (String bucket : buckets) {
-            final String expectKey = "世/界";
+        final String expectKey = "世/界";
+
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+
+            String bucket = file.getBucketName();
             File f = null;
             try {
                 f = TempFile.createFile(1);
@@ -290,9 +330,14 @@ public class FormUploadTest {
      */
     @Test
     public void testFname() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-        for (String bucket : buckets) {
-            final String expectKey = "世/界";
+        final String expectKey = "世/界";
+
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+
+            String bucket = file.getBucketName();
             File f = null;
             try {
                 f = TempFile.createFile(1);
@@ -324,9 +369,14 @@ public class FormUploadTest {
      */
     @Test
     public void testSizeMin() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-        for (String bucket : buckets) {
-            final String expectKey = "世/界";
+        final String expectKey = "世/界";
+
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+
+            String bucket = file.getBucketName();
             File f = null;
             try {
                 f = TempFile.createFile(1);
@@ -357,9 +407,14 @@ public class FormUploadTest {
      */
     @Test
     public void testSizeMin2() {
-        String[] buckets = new String[]{TestConfig.testBucket_z0, TestConfig.testBucket_na0};
-        for (String bucket : buckets) {
-            final String expectKey = "世/界";
+        final String expectKey = "世/界";
+
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+
+            String bucket = file.getBucketName();
             File f = null;
             try {
                 f = TempFile.createFile(1);
@@ -386,20 +441,18 @@ public class FormUploadTest {
      */
     @Test
     public void testFormLargeSize() {
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
-            String bucket = entry.getKey();
-            Zone zone = entry.getValue();
-            Configuration c = new Configuration(zone);
-            c.putThreshold = 25 * 1024 * 1024;
-            UploadManager uploadManager = new UploadManager(c);
+        final String expectKey = "yyyyyy";
 
-            final String expectKey = "yyyyyy";
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            config.putThreshold = 25 * 1024 * 1024;
+            UploadManager uploadManager = new UploadManager(config);
+
+            String bucket = file.getBucketName();
             File f = null;
             try {
-                f = TempFile.createFile(c.putThreshold / 1024 - 1);
+                f = TempFile.createFile(config.putThreshold / 1024 - 1);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -424,21 +477,19 @@ public class FormUploadTest {
     @SuppressWarnings("resource")
     @Test
     public void testFormLargeSize2() {
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
-            String bucket = entry.getKey();
-            Zone zone = entry.getValue();
-            Configuration c = new Configuration(zone);
-            c.putThreshold = 25 * 1024 * 1024;
-            UploadManager uploadManager = new UploadManager(c);
+        final String expectKey = "xxxxxxx";
 
-            final String expectKey = "xxxxxxx";
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            config.putThreshold = 25 * 1024 * 1024;
+            UploadManager uploadManager = new UploadManager(config);
+
+            String bucket = file.getBucketName();
             byte[] bb = null;
             File f = null;
             try {
-                f = TempFile.createFile(c.putThreshold / 1024 - 1);
+                f = TempFile.createFile(config.putThreshold / 1024 - 1);
                 bb = new byte[(int) (f.length())];
                 FileInputStream fis = new FileInputStream(f);
                 fis.read(bb, 0, (int) (f.length()));
@@ -482,22 +533,31 @@ public class FormUploadTest {
      */
     public void testFormUploadWithInputStream(long kiloSize, long size) {
 
-        String token = TestConfig.testAuth.uploadToken(TestConfig.testBucket_z0, TestConfig.testBucket_z0,
-                3600, null);
-        System.out.println("token=" + token);
-
         try {
             File file = TempFile.createFile(kiloSize);
             InputStream inputStream = new FileInputStream(file);
             System.out.println("length=" + file.length());
             System.out.println("size=" + size);
-            Response response = uploadManager.put(inputStream, size, TestConfig.testBucket_z0, token, null,
-                    null, false);
-            System.out.println("code=" + response.statusCode);
-            System.out.println("reqid=" + response.reqId);
-            System.out.println(response.bodyString());
-            assertNotNull(response.reqId);
-            assertEquals(200, response.statusCode);
+
+            TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+            for (TestConfig.TestFile testFile : files) {
+                Configuration config = new Configuration(testFile.getRegion());
+                config.putThreshold = 25 * 1024 * 1024;
+                UploadManager uploadManager = new UploadManager(config);
+
+                String bucket = testFile.getBucketName();
+                String token = TestConfig.testAuth.uploadToken(bucket, bucket,
+                        3600, null);
+                System.out.println("token=" + token);
+
+                Response response = uploadManager.put(inputStream, size, bucket, token, null,
+                        null, false);
+                System.out.println("code=" + response.statusCode);
+                System.out.println("reqid=" + response.reqId);
+                System.out.println(response.bodyString());
+                assertNotNull(response.reqId);
+                assertEquals(200, response.statusCode);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

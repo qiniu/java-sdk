@@ -1,13 +1,9 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.storage.ConcurrentResumeUploader;
-import com.qiniu.storage.Configuration;
-import com.qiniu.storage.ResumeUploader;
-import com.qiniu.storage.UploadManager;
+import com.qiniu.storage.*;
 import com.qiniu.util.Etag;
 import com.qiniu.util.StringMap;
 import org.junit.Test;
@@ -17,8 +13,6 @@ import test.com.qiniu.TestConfig;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -58,12 +52,14 @@ public class ResumeUploadTest {
     @Test
     public void testXVar() throws IOException {
 
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
-            String bucket = entry.getKey();
-            Zone zone = entry.getValue();
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            // 雾存储不支持 v1
+            if (file.isFog()) {
+                continue;
+            }
+            String bucket = file.getBucketName();
+            Region region = file.getRegion();
             final String expectKey = "世/界";
             File f = null;
             try {
@@ -79,7 +75,7 @@ public class ResumeUploadTest {
                     new StringMap().put("returnBody", returnBody));
 
             try {
-                UploadManager uploadManager = new UploadManager(new Configuration(zone));
+                UploadManager uploadManager = new UploadManager(new Configuration(region));
                 Response res = uploadManager.put(f, expectKey, token, params, null, true);
                 StringMap m = res.jsonToMap();
                 assertEquals("foo_val", m.get("foo"));
@@ -104,13 +100,15 @@ public class ResumeUploadTest {
      * @throws IOException
      */
     private void template(int size, boolean isHttps, boolean isResumeV2, boolean isStream, boolean isConcurrent) throws IOException {
-        Map<String, Zone> bucketKeyMap = new HashMap<String, Zone>();
-        bucketKeyMap.put(TestConfig.testBucket_z0, Zone.zone0());
-        bucketKeyMap.put(TestConfig.testBucket_na0, Zone.zoneNa0());
-        for (Map.Entry<String, Zone> entry : bucketKeyMap.entrySet()) {
-            String bucket = entry.getKey();
-            Zone zone = entry.getValue();
-            Configuration config = new Configuration(zone);
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            // 雾存储不支持 v1
+            if (file.isFog() && !isResumeV2) {
+                continue;
+            }
+            String bucket = file.getBucketName();
+            Region region = file.getRegion();
+            Configuration config = new Configuration(region);
             if (isResumeV2) {
                 config.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
             }
@@ -129,7 +127,7 @@ public class ResumeUploadTest {
             String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600,
                     new StringMap().put("returnBody", returnBody));
 
-            System.out.printf("\r\nkey:%s zone:%s\n", expectKey, zone.getRegion());
+            System.out.printf("\r\nkey:%s zone:%s\n", expectKey, region);
 
             try {
                 ResumeUploader up = null;
@@ -147,7 +145,6 @@ public class ResumeUploadTest {
                         up = new ConcurrentResumeUploader(new Client(), token, expectKey, f, null, null, null, config);
                     }
                 }
-
                 Response r = up.upload();
                 MyRet ret = r.jsonToObject(MyRet.class);
                 assertEquals(expectKey, ret.key);
@@ -190,9 +187,6 @@ public class ResumeUploadTest {
 
     @Test
     public void test8M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 8, config[0], config[1], config[2], config[3]);
         }
@@ -200,9 +194,6 @@ public class ResumeUploadTest {
 
     @Test
     public void test8M1k() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 8 + 1, config[0], config[1], config[2], config[3]);
         }
@@ -210,9 +201,6 @@ public class ResumeUploadTest {
 
     @Test
     public void test10M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 10, config[0], config[1], config[2], config[3]);
         }
@@ -220,9 +208,6 @@ public class ResumeUploadTest {
 
     @Test
     public void test20M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 20, config[0], config[1], config[2], config[3]);
         }
@@ -230,9 +215,6 @@ public class ResumeUploadTest {
 
     @Test
     public void test20M1K() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 20 + 1, config[0], config[1], config[2], config[3]);
         }

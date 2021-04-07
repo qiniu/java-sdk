@@ -160,7 +160,6 @@ public class ResumeUploader {
         uploadPerformer.recoverUploadProgressFromLocal();
 
         // 上传数据至服务 - 步骤1
-        System.out.println("上传步骤 1: 开始");
         Response response = null;
         if (uploadPerformer.shouldUploadInit()) {
             response = uploadPerformer.uploadInit();
@@ -168,25 +167,20 @@ public class ResumeUploader {
                 return response;
             }
         }
-        System.out.printf("上传步骤 1: 结束 %s \n", response);
 
         // 上传数据至服务 - 步骤2
-        System.out.println("上传步骤 2: 开始");
         if (!uploadPerformer.isAllBlocksUploaded()) {
             response = uploadData();
             if (!response.isOK()) {
                 return response;
             }
         }
-        System.out.printf("上传步骤 2: 结束 %s \n", response);
 
         // 上传数据至服务 - 步骤3
-        System.out.println("上传步骤 3: 开始");
         response = uploadPerformer.completeUpload();
         if (response.isOK()) {
             uploadPerformer.removeUploadProgressFromLocal();
         }
-        System.out.printf("上传步骤 3: 结束 %s \n", response);
 
         return response;
     }

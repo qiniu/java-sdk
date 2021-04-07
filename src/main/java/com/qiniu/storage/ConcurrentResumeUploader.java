@@ -147,7 +147,6 @@ public class ConcurrentResumeUploader extends ResumeUploader {
     private Response uploadDataWithPool(ExecutorService pool, int maxConcurrentTaskCount) throws QiniuException {
 
         // 开启并发任务
-        System.out.println("并发上传 task count:" + maxConcurrentTaskCount);
         List<Future<Response>> futures = new ArrayList<>();
         for (int i = 0; i < maxConcurrentTaskCount; i++) {
             Future<Response> future = pool.submit(new Callable<Response>() {
@@ -163,13 +162,6 @@ public class ConcurrentResumeUploader extends ResumeUploader {
         Response response = null;
         QiniuException exception = null;
         for (Future<Response> future : futures) {
-            while (!future.isDone()) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ignored) {
-                }
-            }
-
             try {
                 Response responseP = future.get();
                 if (response == null || (responseP != null && responseP.isOK())) {
