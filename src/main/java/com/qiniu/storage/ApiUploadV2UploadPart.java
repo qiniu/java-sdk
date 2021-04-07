@@ -49,6 +49,9 @@ public class ApiUploadV2UploadPart extends Api {
          *                   服务端处理 completeMultipartUpload 请求成功后，该 UploadId
          *                   就会变成无效，再次请求与该 UploadId 相关操作都会失败。
          * @param partNumber 每一个上传的 Part 都有一个标识它的号码
+         *                   注：1. partNumber 范围是 1 ~ 10000
+         *                   2. 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB
+         *                   3. 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖
          */
         public Request(String urlPrefix, String token, String uploadId, Integer partNumber) {
             super(urlPrefix);
@@ -73,6 +76,7 @@ public class ApiUploadV2UploadPart extends Api {
         /**
          * 配置上传块数据【必须】
          * 块数据：在 data 中，从 offset 开始的 size 大小的数据
+         * 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB
          *
          * @param data        块数据源
          * @param offset      块数据在 data 中的偏移量

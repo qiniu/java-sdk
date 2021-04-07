@@ -43,11 +43,14 @@ public class ApiUploadV2CompleteUpload extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
+        public static final String PART_ETG = "etag";
+        public static final String PART_NUMBER = "partNumber";
+
         private String key;
         private String fileName;
         private String fileMimeType;
         private String uploadId;
-        private List<Map<String, Object>> parts;
+        private List<Map<String, Object>> partsInfo;
         private Map<String, Object> params;
         private Map<String, Object> metaDataParam;
 
@@ -58,16 +61,16 @@ public class ApiUploadV2CompleteUpload extends Api {
          * @param token     请求凭证 【必须】
          * @param uploadId  在服务端申请的 MultipartUpload 任务 id; 服务端处理 completeMultipartUpload 请求成功后，该 UploadId
          *                  就会变成无效，再次请求与该 UploadId 相关操作都会失败。【必须】
-         * @param parts     已经上传 Part 列表 （ 包括 PartNumber （ int ）和调用 uploadPart API 服务端返回的 Etag （ string ）） 【必须】
+         * @param partsInfo 已经上传 Part 列表 （ 包括 PartNumber （ int ）和调用 uploadPart API 服务端返回的 Etag （ string ）） 【必须】
          *                  eg：[{ "etag": "<Etag>", "partNumber": <PartNumber> }, ...]
          *                  用户提交的 Part 列表中，Part 号码可以不连续，但必须是升序;
          */
-        public Request(String urlPrefix, String token, String uploadId, List<Map<String, Object>> parts) {
+        public Request(String urlPrefix, String token, String uploadId, List<Map<String, Object>> partsInfo) {
             super(urlPrefix);
             setToken(token);
             setMethod(Api.Request.HTTP_METHOD_POST);
             this.uploadId = uploadId;
-            this.parts = parts;
+            this.partsInfo = partsInfo;
         }
 
         /**
@@ -156,12 +159,12 @@ public class ApiUploadV2CompleteUpload extends Api {
 
         @Override
         void buildBodyInfo() throws QiniuException {
-            if (parts == null) {
+            if (partsInfo == null) {
                 ApiUtils.throwInvalidRequestParamException("partInfo");
             }
 
             Map<String, Object> bodyMap = new HashMap<>();
-            bodyMap.put("parts", parts);
+            bodyMap.put("parts", partsInfo);
 
             if (fileName != null) {
                 bodyMap.put("fname", fileName);

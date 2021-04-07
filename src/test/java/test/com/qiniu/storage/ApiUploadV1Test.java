@@ -48,6 +48,13 @@ public class ApiUploadV1Test {
          * |- ctx01 -|- ctx02 -|- ctx10 -|- ctx12 -|- ctx20 -|- ctx22 -|...
          * allBlockCtx = [ctx02, ctx12, ctx22, ...]
          *
+         * 上传过程：
+         * 1. 把文件分成 block，把块分成 chunk
+         * 2. 调用 ApiUploadV1MakeBlock 创建 block，并附带 block 的第一个 chunk
+         * 3. 如果 block 中还有 chunk 未上传，则调用 ApiUploadV1PutChunk 上传 chunk, 直到该 block 中所有的 chunk 上传完毕
+         * 4. 回到【步骤 2】继续上传 block，循环【步骤 2】~【步骤 3】直到所有 block 上传完毕
+         * 3. 调用 ApiUploadV1MakeFile 根据 allBlockCtx 创建文件
+         *
          * 注：
          * 1. 除了最后一个 block 外， 其他 block 的大小必须为 4M
          * 2. block 中所有的 chunk size 总和必须和 block size 相同
@@ -85,7 +92,7 @@ public class ApiUploadV1Test {
             long blockOffset = 0; // 块在文件中的偏移量
 
             // 1. 上传文件
-            while (blockOffset != fileSize) {
+            while (blockOffset < fileSize) {
 
                 // 1.1 初始化将要上传块的信息
                 // block 大小: 保证 block 大小除最后一块外，其他均为 4M, 最后一块大小 <= 4M
@@ -97,7 +104,7 @@ public class ApiUploadV1Test {
                 String blockLastCtx = ""; // 当前上传块上次上传操作返回的 ctx
 
                 // 1.2 上传 block 数据
-                while (chunkOffset != blockSize) {
+                while (chunkOffset < blockSize) {
                     // 1.2.1 读取片数据
                     long chunkSize = fileSize - blockOffset - chunkOffset;
                     if (chunkSize > defaultChunkSize) {

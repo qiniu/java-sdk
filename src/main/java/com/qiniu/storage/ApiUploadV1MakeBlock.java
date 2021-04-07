@@ -5,7 +5,7 @@ import com.qiniu.http.Client;
 
 /**
  * 分片上传 v1 版 api: 创建块
- * 本接口用于为后续分片上传创建一个新的块，同时上传第一片数据。
+ * 本接口用于为后续分片上传创建一个新的 block，同时上传该块第一个 chunk 数据。
  * <p>
  * <p>
  * 一个文件被分成多个 block ，一个块可以被分成多个 chunk
@@ -68,7 +68,7 @@ public class ApiUploadV1MakeBlock extends Api {
          * @param urlPrefix 请求 scheme + host 【必须】
          * @param token     请求凭证【必须】
          * @param blockSize 块大小【必须】
-         *                  每块均为 4MB，最后一块大小不超过 4MB。
+         *                  除最后一块外每块均为 4MB，最后一块大小不超过 4MB。
          */
         public Request(String urlPrefix, String token, Integer blockSize) {
             super(urlPrefix);

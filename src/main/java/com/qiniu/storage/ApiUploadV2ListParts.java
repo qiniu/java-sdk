@@ -76,8 +76,9 @@ public class ApiUploadV2ListParts extends Api {
          *
          * @param maxParts 响应中的最大 Part 数目
          */
-        public void setMaxParts(Integer maxParts) {
+        public Request setMaxParts(Integer maxParts) {
             this.maxParts = maxParts;
+            return this;
         }
 
         /**
@@ -86,8 +87,9 @@ public class ApiUploadV2ListParts extends Api {
          *
          * @param partNumberMarker 指定列举的起始位置
          */
-        public void setPartNumberMarker(Integer partNumberMarker) {
+        public Request setPartNumberMarker(Integer partNumberMarker) {
             this.partNumberMarker = partNumberMarker;
+            return this;
         }
 
         @Override
@@ -96,7 +98,7 @@ public class ApiUploadV2ListParts extends Api {
                 addQueryPair("max-parts", maxParts + "");
             }
             if (partNumberMarker != null) {
-                addQueryPair("part-number-mark", partNumberMarker + "");
+                addQueryPair("part-number-marker", partNumberMarker + "");
             }
             super.buildQuery();
         }
@@ -151,7 +153,7 @@ public class ApiUploadV2ListParts extends Api {
 
         /**
          * 获取下次继续列举的起始位置
-         * 表示列举结束，没有更多分片
+         * 0 表示列举结束，没有更多分片
          *
          * @return 下次继续列举的起始位置
          */

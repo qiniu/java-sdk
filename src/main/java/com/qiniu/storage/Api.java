@@ -545,7 +545,7 @@ public class Api {
             if (StringUtils.isNullOrEmpty(key)) {
                 return null;
             }
-            return getStringValueFromDataMap(new String[]{key});
+            return getValueFromDataMap(new String[]{key});
         }
 
         /**
