@@ -33,7 +33,7 @@ import com.qiniu.http.Client;
  * <p>
  * https://developer.qiniu.com/kodo/1251/bput
  */
-public class ApiUploadV1PutChunk extends Api {
+public class ApiUploadV1PutChunk extends ApiUpload {
 
     /**
      * api 构建函数
@@ -58,7 +58,7 @@ public class ApiUploadV1PutChunk extends Api {
     /**
      * 请求信息
      */
-    public static class Request extends Api.Request {
+    public static class Request extends ApiUpload.Request {
         private String blockLastContext;
         private Integer chunkOffset;
 
@@ -120,7 +120,7 @@ public class ApiUploadV1PutChunk extends Api {
     /**
      * 响应信息
      */
-    public static class Response extends Api.Response {
+    public static class Response extends ApiUpload.Response {
 
         Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);

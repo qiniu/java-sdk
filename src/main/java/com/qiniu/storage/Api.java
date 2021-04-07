@@ -107,12 +107,6 @@ public class Api {
         private String bodyContentType = Client.DefaultMime;
 
         /**
-         * 上传凭证
-         */
-        private String token;
-        private UploadToken uploadToken;
-
-        /**
          * 构造请求对象
          *
          * @param urlPrefix 请求的 urlPrefix， scheme + host
@@ -265,18 +259,10 @@ public class Api {
          * @return 请求头信息
          */
         public StringMap getHeader() throws QiniuException {
-            if (token == null || !getUploadToken().isValid()) {
-                ApiUtils.throwInvalidRequestParamException("token");
-            }
-
             StringMap header = new StringMap();
-
             for (String key : this.header.keySet()) {
                 header.put(key, this.header.get(key));
             }
-
-            header.put("Authorization", "UpToken " + token);
-            header.put("Host", getHost());
             return header;
         }
 
@@ -340,32 +326,11 @@ public class Api {
         }
 
         /**
-         * 设置上传凭证
-         *
-         * @param token 上传凭证
-         */
-        public void setToken(String token) {
-            this.token = token;
-        }
-
-        /**
-         * 获取上传凭证
-         *
-         * @return 上传凭证
-         */
-        UploadToken getUploadToken() throws QiniuException {
-            if (uploadToken == null) {
-                uploadToken = new UploadToken(token);
-            }
-            return uploadToken;
-        }
-
-        /**
          * 准备上传 做一些参数检查 以及 参数构造
          *
          * @throws QiniuException 异常，一般为参数缺失
          */
-        private void prepareToRequest() throws QiniuException {
+        void prepareToRequest() throws QiniuException {
             buildPath();
             buildQuery();
             buildBodyInfo();

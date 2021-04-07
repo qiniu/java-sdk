@@ -34,7 +34,7 @@ import java.util.List;
  * <p>
  * https://developer.qiniu.com/kodo/6858/listparts
  */
-public class ApiUploadV2ListParts extends Api {
+public class ApiUploadV2ListParts extends ApiUpload {
 
     /**
      * api 构建函数
@@ -59,7 +59,7 @@ public class ApiUploadV2ListParts extends Api {
     /**
      * 请求信息
      */
-    public static class Request extends Api.Request {
+    public static class Request extends ApiUpload.Request {
         private String key;
         private String uploadId;
         private Integer maxParts;
@@ -149,7 +149,7 @@ public class ApiUploadV2ListParts extends Api {
     /**
      * 响应信息
      */
-    public static class Response extends Api.Response {
+    public static class Response extends ApiUpload.Response {
 
         Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);

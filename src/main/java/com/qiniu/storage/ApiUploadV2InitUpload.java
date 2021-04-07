@@ -32,7 +32,7 @@ import com.qiniu.http.Client;
  * <p>
  * https://developer.qiniu.com/kodo/6365/initialize-multipartupload
  */
-public class ApiUploadV2InitUpload extends Api {
+public class ApiUploadV2InitUpload extends ApiUpload {
 
     /**
      * api 构建函数
@@ -57,7 +57,7 @@ public class ApiUploadV2InitUpload extends Api {
     /**
      * 请求信息
      */
-    public static class Request extends Api.Request {
+    public static class Request extends ApiUpload.Request {
         private String key;
 
         /**
@@ -103,7 +103,7 @@ public class ApiUploadV2InitUpload extends Api {
     /**
      * 响应信息
      */
-    public static class Response extends Api.Response {
+    public static class Response extends ApiUpload.Response {
 
         Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);

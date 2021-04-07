@@ -37,7 +37,7 @@ import java.util.Map;
  * <p>
  * https://developer.qiniu.com/kodo/1287/mkfile
  */
-public class ApiUploadV1MakeFile extends Api {
+public class ApiUploadV1MakeFile extends ApiUpload {
 
     /**
      * api 构建函数
@@ -62,7 +62,7 @@ public class ApiUploadV1MakeFile extends Api {
     /**
      * 请求信息
      */
-    public static class Request extends Api.Request {
+    public static class Request extends ApiUpload.Request {
         private String key;
         private String fileName;
         private Long fileSize;
@@ -208,7 +208,7 @@ public class ApiUploadV1MakeFile extends Api {
     /**
      * 响应信息
      */
-    public static class Response extends Api.Response {
+    public static class Response extends ApiUpload.Response {
 
         Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);

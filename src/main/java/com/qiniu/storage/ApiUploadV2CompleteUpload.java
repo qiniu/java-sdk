@@ -39,7 +39,7 @@ import java.util.Map;
  * <p>
  * https://developer.qiniu.com/kodo/6368/complete-multipart-upload
  */
-public class ApiUploadV2CompleteUpload extends Api {
+public class ApiUploadV2CompleteUpload extends ApiUpload {
 
     /**
      * api 构建函数
@@ -64,7 +64,7 @@ public class ApiUploadV2CompleteUpload extends Api {
     /**
      * 请求信息
      */
-    public static class Request extends Api.Request {
+    public static class Request extends ApiUpload.Request {
         public static final String PART_ETG = "etag";
         public static final String PART_NUMBER = "partNumber";
 
@@ -216,7 +216,7 @@ public class ApiUploadV2CompleteUpload extends Api {
     /**
      * 响应信息
      */
-    public static class Response extends Api.Response {
+    public static class Response extends ApiUpload.Response {
 
         Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
