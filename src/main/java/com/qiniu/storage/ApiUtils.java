@@ -96,7 +96,7 @@ class ApiUtils {
      * @param keyPath keyPath
      * @return keyPath 对应的 value
      */
-    static Object getValueFromMap(Map<String, Object> map, String[] keyPath) {
+    static Object getValueFromMap(Map<String, Object> map, String... keyPath) {
         if (map == null || keyPath == null || keyPath.length == 0) {
             return null;
         }

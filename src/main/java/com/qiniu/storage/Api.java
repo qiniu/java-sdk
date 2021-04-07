@@ -392,19 +392,6 @@ public class Api {
         }
 
         /**
-         * 根据 key 读取 data map 的 String value
-         *
-         * @param key key
-         * @return key 对应的 String value
-         */
-        public String getStringValueFromDataMap(String key) {
-            if (StringUtils.isNullOrEmpty(key)) {
-                return null;
-            }
-            return getStringValueFromDataMap(new String[]{key});
-        }
-
-        /**
          * 根据 keyPath 读取 data map 中对应的 String value
          * eg：
          * dataMap: {"key00" : { "key10" : "key10_value"}}
@@ -414,25 +401,12 @@ public class Api {
          * @param keyPath keyPath
          * @return keyPath 对应的 String value
          */
-        public String getStringValueFromDataMap(String[] keyPath) {
+        public String getStringValueFromDataMap(String... keyPath) {
             Object value = getValueFromDataMap(keyPath);
             if (value == null) {
                 return null;
             }
             return value.toString();
-        }
-
-        /**
-         * 根据 key 读取 data map 的 Long value
-         *
-         * @param key key
-         * @return key 对应的 Long value
-         */
-        public Long getLongValueFromDataMap(String key) {
-            if (StringUtils.isNullOrEmpty(key)) {
-                return null;
-            }
-            return getLongValueFromDataMap(new String[]{key});
         }
 
         /**
@@ -445,22 +419,9 @@ public class Api {
          * @param keyPath keyPath
          * @return keyPath 对应的 Long value
          */
-        public Long getLongValueFromDataMap(String[] keyPath) {
+        public Long getLongValueFromDataMap(String... keyPath) {
             Object value = getValueFromDataMap(keyPath);
             return ApiUtils.objectToLong(value);
-        }
-
-        /**
-         * 根据 key 读取 data map 的 Integer value
-         *
-         * @param key key
-         * @return key 对应的 Integer value
-         */
-        public Integer getIntegerValueFromDataMap(String key) {
-            if (StringUtils.isNullOrEmpty(key)) {
-                return null;
-            }
-            return getIntegerValueFromDataMap(new String[]{key});
         }
 
         /**
@@ -473,22 +434,9 @@ public class Api {
          * @param keyPath keyPath
          * @return keyPath 对应的 Integer value
          */
-        public Integer getIntegerValueFromDataMap(String[] keyPath) {
+        public Integer getIntegerValueFromDataMap(String... keyPath) {
             Object value = getValueFromDataMap(keyPath);
             return ApiUtils.objectToInteger(value);
-        }
-
-        /**
-         * 根据 key 读取 data map 中对应的 value
-         *
-         * @param key key
-         * @return key 对应的 value
-         */
-        public Object getValueFromDataMap(String key) {
-            if (StringUtils.isNullOrEmpty(key)) {
-                return null;
-            }
-            return getValueFromDataMap(new String[]{key});
         }
 
         /**
@@ -501,7 +449,7 @@ public class Api {
          * @param keyPath keyPath
          * @return keyPath 对应的 value
          */
-        public Object getValueFromDataMap(String[] keyPath) {
+        public Object getValueFromDataMap(String... keyPath) {
             if (dataMap == null) {
                 return null;
             }
