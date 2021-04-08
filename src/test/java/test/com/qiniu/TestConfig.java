@@ -97,10 +97,10 @@ public final class TestConfig {
         fog.key = fileSaveKey;
         fog.mimeType = fileMimeType;
         fog.bucketName = "java-sdk-fog-cn-east1";
-        fog.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
-        fog.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
-        fog.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
-        fog.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
+//        fog.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
+//        fog.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
+//        fog.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
+//        fog.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
         fog.regionId = "fog-cn-east-1";
         fog.region = Region.regionFogCnEast1();
 
@@ -108,10 +108,10 @@ public final class TestConfig {
         fog1.key = fileSaveKey;
         fog1.mimeType = fileMimeType;
         fog1.bucketName = "java-sdk-fog-cn-east1";
-        fog1.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
-        fog1.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
-        fog1.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
-        fog1.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
+//        fog1.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
+//        fog1.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
+//        fog1.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
+//        fog1.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
         fog1.regionId = "fog-cn-east-1";
         fog1.region = toRegion(Zone.zoneFogCnEast1());
 

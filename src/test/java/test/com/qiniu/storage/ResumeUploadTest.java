@@ -1,10 +1,12 @@
 package test.com.qiniu.storage;
 
+import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.*;
 import com.qiniu.util.Etag;
+import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
 import org.junit.Test;
 import test.com.qiniu.TempFile;
@@ -13,9 +15,10 @@ import test.com.qiniu.TestConfig;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class ResumeUploadTest {
 
@@ -111,6 +114,7 @@ public class ResumeUploadTest {
             Configuration config = new Configuration(region);
             if (isResumeV2) {
                 config.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
+                config.resumableUploadAPIV2BlockSize = 2 * 1024 * 1024;
             }
 
             config.useHttpsDomains = isHttps;
@@ -119,9 +123,9 @@ public class ResumeUploadTest {
             key += isResumeV2 ? "_resumeV2" : "_resumeV1";
             key += isStream ? "_stream" : "_file";
             key += isConcurrent ? "_concurrent" : "_serial";
+            key += "_" + new Date().getTime();
             final String expectKey = "\r\n?&r=" + size + "k" + key;
             final File f = TempFile.createFile(size);
-            final String etag = Etag.file(f);
             final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
                     + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
             String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600,
@@ -146,19 +150,55 @@ public class ResumeUploadTest {
                     }
                 }
                 Response r = up.upload();
+                assertTrue(r + "", r.isOK());
+
                 MyRet ret = r.jsonToObject(MyRet.class);
                 assertEquals(expectKey, ret.key);
                 if (!isStream) {
                     assertEquals(f.getName(), ret.fname);
                 }
                 assertEquals(String.valueOf(f.length()), ret.fsize);
-                assertEquals(etag, ret.hash);
+
+                boolean checkMd5 = false;
+                if (config.resumableUploadAPIVersion == Configuration.ResumableUploadAPIVersion.V2
+                        && config.resumableUploadAPIV2BlockSize != Constants.BLOCK_SIZE) {
+                    checkMd5 = true;
+                }
+                if (checkMd5) {
+                    String md5 = Md5.md5(f);
+                    String serverMd5 = getFileMD5(file.getTestDomain(), expectKey);
+                    System.out.println("      md5:" + md5);
+                    System.out.println("serverMd5:" + serverMd5);
+                    assertNotNull(serverMd5);
+                    assertEquals(md5, serverMd5);
+                } else {
+                    final String etag = Etag.file(f);
+                    System.out.println("      etag:" + etag);
+                    System.out.println("serverEtag:" + ret.hash);
+                    assertNotNull(ret.hash);
+                    assertEquals(etag, ret.hash);
+                }
             } catch (QiniuException e) {
                 assertEquals("", e.response == null ? e + "e.response is null" : e.response.bodyString());
                 fail();
             }
             TempFile.remove(f);
         }
+    }
+
+    private String getFileMD5(String bucketDomain, String key) {
+        String url = "http://" + bucketDomain + "/" + URLEncoder.encode(key) + "?qhash/md5";
+        Client client = new Client();
+
+        String md5 = null;
+        try {
+            Response response = client.get(url);
+            StringMap data = response.jsonToMap();
+            md5 = data.get("hash").toString();
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        }
+        return md5;
     }
 
     @Test
