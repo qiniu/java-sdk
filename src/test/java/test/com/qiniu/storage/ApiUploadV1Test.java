@@ -114,7 +114,7 @@ public class ApiUploadV1Test {
                     if (chunkSize > defaultChunkSize) {
                         chunkSize = defaultChunkSize;
                     }
-                    byte[] chunkData = getUploadData(file, chunkOffset, (int) chunkSize);
+                    byte[] chunkData = getUploadData(file, blockOffset + chunkOffset, (int) chunkSize);
 
                     // 1.2.2 上传块
                     if (chunkOffset == 0) {

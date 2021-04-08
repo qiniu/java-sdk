@@ -2,7 +2,6 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.util.Auth;
 import test.com.qiniu.TempFile;
-import test.com.qiniu.TestConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,8 +14,8 @@ import java.util.Map;
 public class UploadDemo {
 
     //设置好账号的ACCESS_KEY和SECRET_KEY
-    String ACCESS_KEY = TestConfig.testAccessKey; // "Access_Key";
-    String SECRET_KEY = TestConfig.testSecretKey; // "Secret_Key";
+    String ACCESS_KEY = "Access_Key";
+    String SECRET_KEY = "Secret_Key";
     /**
      * 要上传的空间对应的 urlPrefix scheme + host
      * host:
@@ -27,9 +26,9 @@ public class UploadDemo {
      * 新加坡机房(regionAs0): up-as0.qiniup.com 或 upload-as0.qiniup.com
      * 雾存储华东一区(regionFogCnEast1): up-fog-cn-east-1.qiniup.com 或 upload-fog-cn-east-1.qiniup.com
      */
-    String urlPrefix = "http://up.qiniup.com";
+    String urlPrefix = "urlPrefix" // http://up.qiniup.com";
     // 要上传的空间
-    String bucketName = TestConfig.testBucket_z0; // "Bucket_Name";
+    String bucketName = "Bucket_Name";
     //上传到七牛后保存的文件名
     String key = "my-java.png";
 

@@ -109,8 +109,9 @@ public class UploadDemo {
             if (blockSize > defaultBlockSize) {
                 blockSize = defaultBlockSize;
             }
-            long chunkOffset = 0; // 片在块中的偏移量
+
             String blockLastCtx = ""; // 当前上传块上次上传操作返回的 ctx
+            long chunkOffset = 0; // 片在块中的偏移量
 
             // 1.2 上传 block 数据
             while (chunkOffset < blockSize) {
@@ -119,7 +120,7 @@ public class UploadDemo {
                 if (chunkSize > defaultChunkSize) {
                     chunkSize = defaultChunkSize;
                 }
-                byte[] chunkData = getUploadData(file, chunkOffset, (int) chunkSize);
+                byte[] chunkData = getUploadData(file, blockOffset + chunkOffset, (int) chunkSize);
 
                 // 1.2.2 上传块
                 if (chunkOffset == 0) {
