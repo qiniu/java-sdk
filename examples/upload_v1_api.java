@@ -1,4 +1,22 @@
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Client;
+import com.qiniu.storage.ApiUploadV1MakeBlock;
+import com.qiniu.storage.ApiUploadV1MakeFile;
+import com.qiniu.storage.ApiUploadV1PutChunk;
+import com.qiniu.storage.Configuration;
+import com.qiniu.util.Auth;
+import test.com.qiniu.TempFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class UploadDemo {
+
     //设置好账号的ACCESS_KEY和SECRET_KEY
     String ACCESS_KEY = "Access_Key";
     String SECRET_KEY = "Secret_Key";
@@ -12,18 +30,18 @@ public class UploadDemo {
      * 新加坡机房(regionAs0): up-as0.qiniup.com 或 upload-as0.qiniup.com
      * 雾存储华东一区(regionFogCnEast1): up-fog-cn-east-1.qiniup.com 或 upload-fog-cn-east-1.qiniup.com
      */
-    String urlPrefix = "";
+    String urlPrefix = "urlPrefix"; // http://up.qiniup.com
     //要上传的空间
-    String bucket = "Bucket_Name";
+    String bucketName = "Bucket_Name";
     //上传到七牛后保存的文件名
-    String key = "my-java.png";
+    String key = "java-api-test.zip";
 
     //密钥配置
     Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
 
     //简单上传，使用默认策略，只需要设置上传的空间名就可以了
     public String getUpToken() {
-        return auth.uploadToken(bucketname);
+        return auth.uploadToken(bucketName);
     }
 
     public static void main(String args[]) throws IOException {
@@ -75,8 +93,6 @@ public class UploadDemo {
 
         String fileName = "java_api_v1.zip";
         String token = getUpToken();
-
-        String urlPrefix = "";
 
         Configuration configuration = new Configuration();
         Client client = new Client(configuration);

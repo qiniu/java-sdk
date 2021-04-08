@@ -1,7 +1,22 @@
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Client;
+import com.qiniu.util.Auth;
+import test.com.qiniu.TempFile;
+import test.com.qiniu.TestConfig;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class UploadDemo {
+
     //设置好账号的ACCESS_KEY和SECRET_KEY
-    String ACCESS_KEY = "Access_Key";
-    String SECRET_KEY = "Secret_Key";
+    String ACCESS_KEY = TestConfig.testAccessKey; // "Access_Key";
+    String SECRET_KEY = TestConfig.testSecretKey; // "Secret_Key";
     /**
      * 要上传的空间对应的 urlPrefix scheme + host
      * host:
@@ -12,9 +27,9 @@ public class UploadDemo {
      * 新加坡机房(regionAs0): up-as0.qiniup.com 或 upload-as0.qiniup.com
      * 雾存储华东一区(regionFogCnEast1): up-fog-cn-east-1.qiniup.com 或 upload-fog-cn-east-1.qiniup.com
      */
-    String urlPrefix = "";
+    String urlPrefix = "http://up.qiniup.com";
     // 要上传的空间
-    String bucket = "Bucket_Name";
+    String bucketName = TestConfig.testBucket_z0; // "Bucket_Name";
     //上传到七牛后保存的文件名
     String key = "my-java.png";
 
@@ -23,7 +38,7 @@ public class UploadDemo {
 
     //简单上传，使用默认策略，只需要设置上传的空间名就可以了
     public String getUpToken() {
-        return auth.uploadToken(bucketname);
+        return auth.uploadToken(bucketName);
     }
 
     public static void main(String args[]) throws IOException {
@@ -31,6 +46,8 @@ public class UploadDemo {
     }
 
     public void testUpload() {
+
+        String fileName = "java_api_v2_test.zip";
         long fileSize = 1024 * 7 + 2341; // 单位： k
         File f = null;
         try {
@@ -67,12 +84,7 @@ public class UploadDemo {
             e.printStackTrace();
         }
 
-        String fileName = "java_api_v2_test.zip";
-
-        final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
-                + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\",\"foo\":\"$(x:foo)\"}";
-        String token = TestConfig.testAuth.uploadToken(bucket, key, 3600,
-                new StringMap().put("returnBody", returnBody));
+        String token = getUpToken();
 
         Configuration configuration = new Configuration();
         Client client = new Client(configuration);
@@ -153,7 +165,6 @@ public class UploadDemo {
             }
         }
         System.out.println("list parts info:" + listPartInfo);
-        Assert.assertTrue(listPartInfo + "", listPartInfo.size() == lastPartNum);
 
         // 3. 组装文件
         String fooKey = "foo";
@@ -171,5 +182,31 @@ public class UploadDemo {
         } catch (QiniuException e) {
             e.printStackTrace();
         }
+
+        f.delete();
+    }
+
+    private byte[] getUploadData(RandomAccessFile file, long offset, int size) {
+        byte[] uploadData = new byte[size];
+        try {
+            file.seek(offset);
+            int readSize = 0;
+            while (readSize != size) {
+                int s = 0;
+                try {
+                    s = file.read(uploadData, readSize, size - readSize);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (s >= 0) {
+                    readSize += s;
+                } else {
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            uploadData = null;
+        }
+        return uploadData;
     }
 }
