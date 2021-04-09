@@ -901,9 +901,16 @@ public class BucketTest {
                     response = bucketManager.putBucketAccessStyleMode(bucket, AccessStyleMode.OPEN);
                     System.out.println(response);
                     Assert.assertEquals(200, response.statusCode);
+
+                    try {
+                        Thread.sleep(20000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                     try {
                         response = client.get(url + "?v" + r.nextDouble());
-                        Assert.fail(msg + url + "should be 401" + ": " + response.statusCode);
+                        Assert.fail(msg + url + "should be 401" + ": " + response.statusCode + " reqId:" + response.reqId);
                     } catch (QiniuException e) {
                         System.out.println(e.response);
                         System.out.println(e.response.statusCode);

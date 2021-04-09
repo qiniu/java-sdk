@@ -119,7 +119,7 @@ public final class TestConfig {
             return new TestFile[]{na0};
         } else {
 //            return new TestFile[]{fog, fog1, z0, na0};
-            return new TestFile[]{na0};
+            return new TestFile[]{z0};
         }
     }
 

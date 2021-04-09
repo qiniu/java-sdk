@@ -175,12 +175,14 @@ public class ResumeUploadTest {
                     checkMd5 = true;
                 }
                 if (checkMd5) {
-                    String md5 = Md5.md5(f);
-                    String serverMd5 = getFileMD5(file.getTestDomain(), expectKey);
-                    System.out.println("      md5:" + md5);
-                    System.out.println("serverMd5:" + serverMd5);
-                    assertNotNull(serverMd5);
-                    assertEquals(md5, serverMd5);
+                    if (file.isFog()) {
+                        String md5 = Md5.md5(f);
+                        String serverMd5 = getFileMD5(file.getTestDomain(), expectKey);
+                        System.out.println("      md5:" + md5);
+                        System.out.println("serverMd5:" + serverMd5);
+                        assertNotNull(serverMd5);
+                        assertEquals(md5, serverMd5);
+                    }
                 } else {
                     final String etag = Etag.file(f);
                     System.out.println("      etag:" + etag);
