@@ -155,6 +155,10 @@ abstract class ResumeUploadPerformer {
             String host = getUploadHost();
             try {
                 response = action.uploadAction(host);
+                // 判断是否需要重试
+                if (response == null || response.needRetry()) {
+                    shouldRetry = true;
+                }
             } catch (QiniuException e) {
 
                 // 切换 Host
@@ -170,17 +174,11 @@ abstract class ResumeUploadPerformer {
                 }
             }
 
-            // 判断是否需要重试
-            if (!shouldRetry && (response == null || response.needRetry())) {
-                shouldRetry = true;
-            }
-
-            retryCount++;
-
             if (!shouldRetry) {
                 break;
             }
 
+            retryCount++;
             if (retryCount >= config.retryMax) {
                 throw QiniuException.unrecoverable("failed after retry times");
             }
