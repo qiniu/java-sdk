@@ -81,7 +81,7 @@ public final class UploadOptions {
         public UploadOptions build() {
             mimeType = mime(mimeType);
             params = filterParam(params);
-            metaDataParam = filterMetaData(params);
+            metaDataParam = filterMetaData(metaDataParam);
             return new UploadOptions(params, metaDataParam, mimeType, checkCrc);
         }
 

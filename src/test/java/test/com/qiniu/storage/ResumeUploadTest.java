@@ -5,6 +5,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.*;
+import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Etag;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
@@ -126,38 +127,47 @@ public class ResumeUploadTest {
             key += "_" + new Date().getTime();
             final String expectKey = "\r\n?&r=" + size + "k" + key;
             final File f = TempFile.createFile(size);
+            final String fooKey = "foo";
+            final String fooValue = "fooValue";
+            final String metaDataKey = "metaDataKey";
+            final String metaDataValue = "metaDataValue";
             final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
-                    + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\"}";
+                    + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\",\"foo\":\"$(x:foo)\"}";
             String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600,
                     new StringMap().put("returnBody", returnBody));
 
             System.out.printf("\r\nkey:%s zone:%s\n", expectKey, region);
 
+
+            StringMap param = new StringMap();
+            param.put("x:" + fooKey, fooValue);
+            param.put("x-qn-meta-" + metaDataKey, metaDataValue);
             try {
                 ResumeUploader up = null;
                 if (!isConcurrent) {
                     if (isStream) {
-                        up = new ResumeUploader(new Client(), token, expectKey, new FileInputStream(f), null, null, config);
+                        up = new ResumeUploader(new Client(), token, expectKey, new FileInputStream(f), param, null, config);
                     } else {
-                        up = new ResumeUploader(new Client(), token, expectKey, f, null, null, null, config);
+                        up = new ResumeUploader(new Client(), token, expectKey, f, param, null, null, config);
                     }
                 } else {
                     config.resumableUploadMaxConcurrentTaskCount = 3;
                     if (isStream) {
-                        up = new ConcurrentResumeUploader(new Client(), token, expectKey, new FileInputStream(f), null, null, config);
+                        up = new ConcurrentResumeUploader(new Client(), token, expectKey, new FileInputStream(f), param, null, config);
                     } else {
-                        up = new ConcurrentResumeUploader(new Client(), token, expectKey, f, null, null, null, config);
+                        up = new ConcurrentResumeUploader(new Client(), token, expectKey, f, param, null, null, config);
                     }
                 }
                 Response r = up.upload();
                 assertTrue(r + "", r.isOK());
 
-                MyRet ret = r.jsonToObject(MyRet.class);
-                assertEquals(expectKey, ret.key);
+                StringMap ret = r.jsonToMap();
+                assertEquals(expectKey, ret.get("key"));
                 if (!isStream) {
-                    assertEquals(f.getName(), ret.fname);
+                    assertEquals(f.getName(), ret.get("fname"));
                 }
-                assertEquals(String.valueOf(f.length()), ret.fsize);
+                assertEquals(String.valueOf(f.length()), ret.get("fsize").toString());
+                assertEquals(fooValue, ret.get(fooKey).toString());
 
                 boolean checkMd5 = false;
                 if (config.resumableUploadAPIVersion == Configuration.ResumableUploadAPIVersion.V2
@@ -174,10 +184,13 @@ public class ResumeUploadTest {
                 } else {
                     final String etag = Etag.file(f);
                     System.out.println("      etag:" + etag);
-                    System.out.println("serverEtag:" + ret.hash);
-                    assertNotNull(ret.hash);
-                    assertEquals(etag, ret.hash);
+                    System.out.println("serverEtag:" + ret.get("hash"));
+                    assertNotNull(ret.get("hash"));
+                    assertEquals(etag, ret.get("hash"));
                 }
+
+                FileInfo fileInfo = getFileInfo(config, bucket, expectKey);
+                assertEquals(fileInfo + "", metaDataValue, fileInfo.meta.get(metaDataKey).toString());
             } catch (QiniuException e) {
                 assertEquals("", e.response == null ? e + "e.response is null" : e.response.bodyString());
                 fail();
@@ -199,6 +212,16 @@ public class ResumeUploadTest {
             e.printStackTrace();
         }
         return md5;
+    }
+
+    private FileInfo getFileInfo(Configuration cfg, String bucket, String key) {
+        BucketManager manager = new BucketManager(TestConfig.testAuth, cfg);
+        try {
+            return manager.stat(bucket, key);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Test
