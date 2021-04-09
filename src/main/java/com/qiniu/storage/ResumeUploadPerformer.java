@@ -163,7 +163,7 @@ abstract class ResumeUploadPerformer {
                 }
 
                 // 判断是否需要重试
-                if (!e.isUnrecoverable() || (e.response != null && e.response.needRetry())) {
+                if (!e.isUnrecoverable() && e.response != null && e.response.needRetry()) {
                     shouldRetry = true;
                 } else {
                     throw e;
