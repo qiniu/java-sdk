@@ -149,8 +149,8 @@ abstract class ResumeUploadPerformer {
         Response response = null;
         int retryCount = 0;
 
-
         do {
+            boolean shouldSwitchHost = false;
             boolean shouldRetry = false;
             String host = getUploadHost();
             try {
@@ -159,18 +159,21 @@ abstract class ResumeUploadPerformer {
                 if (response == null || response.needRetry()) {
                     shouldRetry = true;
                 }
+                // 判断是否需要切换 host
+                if (response == null || response.needSwitchServer()) {
+                    shouldSwitchHost = true;
+                }
             } catch (QiniuException e) {
 
-                // 切换 Host
-                if (e.code() < 0 || e.response != null && e.response.needSwitchServer()) {
-                    changeHost(host);
-                }
-
                 // 判断是否需要重试
-                if (!e.isUnrecoverable() && e.response != null && e.response.needRetry()) {
+                if (!e.isUnrecoverable() && (e.response == null || e.response.needRetry())) {
                     shouldRetry = true;
                 } else {
                     throw e;
+                }
+
+                if (!e.isUnrecoverable() && (e.response == null || e.response.needSwitchServer())) {
+                    shouldSwitchHost = true;
                 }
             }
 
@@ -182,6 +185,11 @@ abstract class ResumeUploadPerformer {
             if (retryCount >= config.retryMax) {
                 throw QiniuException.unrecoverable("failed after retry times");
             }
+
+            if (shouldSwitchHost) {
+                changeHost(host);
+            }
+
         } while (true);
 
         return response;
