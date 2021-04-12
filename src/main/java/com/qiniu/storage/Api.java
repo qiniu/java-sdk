@@ -340,7 +340,7 @@ public class Api {
              *
              * @return key for this pair
              */
-            public K getKey() {
+            K getKey() {
                 return key;
             }
 
@@ -354,7 +354,7 @@ public class Api {
              *
              * @return value for this pair
              */
-            public V getValue() {
+            V getValue() {
                 return value;
             }
 
@@ -364,7 +364,7 @@ public class Api {
              * @param key   The key for this pair
              * @param value The value to use for this pair
              */
-            public Pair(K key, V value) {
+            Pair(K key, V value) {
                 this.key = key;
                 this.value = value;
             }
