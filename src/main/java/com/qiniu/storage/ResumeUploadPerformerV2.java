@@ -3,9 +3,8 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.util.*;
-
-import java.util.*;
+import com.qiniu.util.Md5;
+import com.qiniu.util.StringUtils;
 
 
 class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
@@ -54,110 +53,70 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     private Response initPart(String host) throws QiniuException {
-        String action = String.format(Locale.ENGLISH, "/buckets/%s/objects/%s/uploads", this.token.getBucket(), resumeV2EncodeKey(key));
-        String url = host + action;
-        Response response = post(url, new byte[0], 0, 0);
-        if (response != null && response.isOK()) {
+        ApiUploadV2InitUpload api = new ApiUploadV2InitUpload(client);
+        ApiUploadV2InitUpload.Request request = new ApiUploadV2InitUpload.Request(host, this.token.getToken()).setKey(key);
+        ApiUploadV2InitUpload.Response response = api.request(request);
 
-            StringMap jsonMap = response.jsonToMap();
-            if (jsonMap == null) {
-                throw new QiniuException(new Exception("upload's info is empty"));
+        if (response.isOK()) {
+            String uploadId = response.getUploadId();
+            if (uploadId == null) {
+                throw new QiniuException(new Exception("uploadId is empty"));
             }
 
-            Object uploadId = jsonMap.get("uploadId");
-            Object expireAt = jsonMap.get("expireAt");
-            if (uploadId == null || expireAt == null) {
-                throw new QiniuException(new Exception("uploadId or expireAt is empty"));
+            Long expireAt = response.getExpireAt();
+            if (expireAt == null) {
+                throw new QiniuException(new Exception("expireAt is empty"));
             }
-            uploadSource.uploadId = uploadId.toString();
-            if (expireAt instanceof Double) {
-                uploadSource.expireAt = ((Double) expireAt).longValue();
-            } else if (expireAt instanceof Integer) {
-                uploadSource.expireAt = ((Integer) expireAt).longValue();
-            } else if (expireAt instanceof Long) {
-                uploadSource.expireAt = (Long) expireAt;
-            } else {
-                uploadSource.expireAt = new Date().getTime() / 1000;
-            }
+
+            uploadSource.uploadId = uploadId;
+            uploadSource.expireAt = expireAt;
         }
-        return response;
+
+        return response.getResponse();
     }
 
     private Response uploadPart(String host, ResumeUploadSource.Block block) throws QiniuException {
-        String uploadId = uploadSource.uploadId;
-        int partIndex = block.index + 1;
-        String action = String.format("/buckets/%s/objects/%s/uploads/%s/%d", token.getBucket(), resumeV2EncodeKey(key), uploadId, partIndex);
-        String url = host + action;
-        Response response = put(url, block.data, 0, block.size);
+        ApiUploadV2UploadPart api = new ApiUploadV2UploadPart(client);
+        ApiUploadV2UploadPart.Request request = new ApiUploadV2UploadPart.Request(host, this.token.getToken(),
+                uploadSource.uploadId, block.index + 1)
+                .setKey(key)
+                .setUploadData(block.data, 0, block.size, null);
+        ApiUploadV2UploadPart.Response response = api.request(request);
 
-        if (response != null && response.isOK()) {
-
-            StringMap jsonMap = response.jsonToMap();
-            if (jsonMap == null) {
-                throw new QiniuException(new Exception("block's info is empty"));
-            }
+        if (response.isOK()) {
 
             if (options.checkCrc) {
-                if (jsonMap.get("md5") == null) {
+                String serverMd5 = response.getMd5();
+                if (serverMd5 == null) {
                     throw new QiniuException(new Exception("block's md5 is empty"));
                 }
 
                 String md5 = Md5.md5(block.data);
-                String serverMd5 = jsonMap.get("md5").toString();
                 if (!serverMd5.equals(md5)) {
                     throw new QiniuException(new Exception("block's md5 is not match"));
                 }
             }
 
-            if (jsonMap.get("etag") == null) {
+            String etag = response.getEtag();
+            if (etag == null) {
                 throw new QiniuException(new Exception("block's etag is empty"));
             }
-            block.etag = jsonMap.get("etag").toString();
+            block.etag = etag;
             block.data = null;
         }
 
-        return response;
+        return response.getResponse();
     }
 
     private Response completeParts(String host) throws QiniuException {
-
-        List<Map<String, Object>> partInfoArray = uploadSource.getPartInfo();
-        String uploadId = uploadSource.uploadId;
-
-        String action = String.format("/buckets/%s/objects/%s/uploads/%s", token.getBucket(), resumeV2EncodeKey(key), uploadId);
-        String url = host + action;
-
-        HashMap<String, Object> bodyMap = new HashMap<>();
-        if (partInfoArray != null) {
-            bodyMap.put("parts", partInfoArray);
-        }
-        if (uploadSource.getFileName() != null) {
-            bodyMap.put("fname", uploadSource.getFileName());
-        }
-        if (options.mimeType != null) {
-            bodyMap.put("mimeType", options.mimeType);
-        }
-        if (options.params != null) {
-            bodyMap.put("customVars", options.params.map());
-        }
-        if (options.metaDataParam != null) {
-            bodyMap.put("metaData", options.metaDataParam.map());
-        }
-
-        String bodyString = Json.encode(bodyMap);
-        byte[] body = bodyString.getBytes();
-        return post(url, body, 0, body.length);
-    }
-
-    private String resumeV2EncodeKey(String key) {
-        String encodeKey = null;
-        if (key == null) {
-            encodeKey = "~";
-        } else if (key.equals("")) {
-            encodeKey = "";
-        } else {
-            encodeKey = UrlSafeBase64.encodeToString(key);
-        }
-        return encodeKey;
+        ApiUploadV2CompleteUpload api = new ApiUploadV2CompleteUpload(client);
+        ApiUploadV2CompleteUpload.Request request = new ApiUploadV2CompleteUpload.Request(host, this.token.getToken(),
+                uploadSource.uploadId, uploadSource.getPartInfo())
+                .setKey(key)
+                .setFileMimeType(options.mimeType)
+                .setFileName(uploadSource.getFileName())
+                .setCustomParam(options.params.map())
+                .setCustomMetaParam(options.metaDataParam.map());
+        return api.request(request).getResponse();
     }
 }
