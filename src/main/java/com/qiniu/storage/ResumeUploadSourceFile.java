@@ -70,7 +70,7 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
         randomAccessFile.seek(block.offset);
 
         while (readSize != block.size) {
-            int ret = randomAccessFile.read(buffer, 0, block.size);
+            int ret = randomAccessFile.read(buffer, readSize, block.size - readSize);
             if (ret < 0) {
                 break;
             }
