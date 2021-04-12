@@ -53,11 +53,6 @@ public class Api {
      */
     public static class Request {
 
-        public static String HTTP_METHOD_GET = "GET";
-        public static String HTTP_METHOD_POST = "POST";
-        public static String HTTP_METHOD_PUT = "PUT";
-        public static String HTTP_METHOD_DELETE = "DELETE";
-
         /**
          * 请求的 urlPrefix， scheme + host
          * eg: https://upload.qiniu.com
