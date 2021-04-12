@@ -2,6 +2,7 @@ package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.MethodType;
 
 /**
  * 分片上传 v1 版 api: 上传片
@@ -78,7 +79,7 @@ public class ApiUploadV1PutChunk extends ApiUpload {
         public Request(String urlPrefix, String token, String blockLastContext, Integer chunkOffset) {
             super(urlPrefix);
             setToken(token);
-            setMethod(Api.Request.HTTP_METHOD_POST);
+            setMethod(MethodType.POST);
             this.blockLastContext = blockLastContext;
             this.chunkOffset = chunkOffset;
         }

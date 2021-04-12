@@ -2,6 +2,7 @@ package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.MethodType;
 import com.qiniu.util.StringUtils;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public class ApiQueryRegion extends ApiUpload {
         public Request(String urlPrefix, String token) {
             super(StringUtils.isNullOrEmpty(urlPrefix) ? DEFAULT_URL_PREFIX : urlPrefix);
             setToken(token);
-            setMethod(Api.Request.HTTP_METHOD_GET);
+            setMethod(MethodType.GET);
         }
 
         @Override

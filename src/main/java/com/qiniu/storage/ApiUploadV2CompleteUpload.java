@@ -2,6 +2,7 @@ package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.MethodType;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringUtils;
 
@@ -100,7 +101,7 @@ public class ApiUploadV2CompleteUpload extends ApiUpload {
         public Request(String urlPrefix, String token, String uploadId, List<Map<String, Object>> partsInfo) {
             super(urlPrefix);
             setToken(token);
-            setMethod(Api.Request.HTTP_METHOD_POST);
+            setMethod(MethodType.POST);
             this.uploadId = uploadId;
             this.partsInfo = partsInfo;
         }

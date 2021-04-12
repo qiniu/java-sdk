@@ -2,6 +2,7 @@ package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.MethodType;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 
@@ -87,7 +88,7 @@ public class ApiUploadV1MakeFile extends ApiUpload {
         public Request(String urlPrefix, String token, Long fileSize, String[] blockContexts) {
             super(urlPrefix);
             setToken(token);
-            setMethod(Api.Request.HTTP_METHOD_POST);
+            setMethod(MethodType.POST);
             this.fileSize = fileSize;
             this.blockContexts = blockContexts;
         }

@@ -2,6 +2,7 @@ package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.MethodType;
 import com.qiniu.util.StringUtils;
 
 /**
@@ -82,7 +83,7 @@ public class ApiUploadV2UploadPart extends ApiUpload {
         public Request(String urlPrefix, String token, String uploadId, Integer partNumber) {
             super(urlPrefix);
             setToken(token);
-            setMethod(Api.Request.HTTP_METHOD_PUT);
+            setMethod(MethodType.PUT);
             this.uploadId = uploadId;
             this.partNumber = partNumber;
         }

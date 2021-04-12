@@ -2,6 +2,7 @@ package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.MethodType;
 
 /**
  * 分片上传 v2 版 api: 初始化任务
@@ -73,7 +74,7 @@ public class ApiUploadV2InitUpload extends ApiUpload {
         public Request(String urlPrefix, String token) {
             super(urlPrefix);
             setToken(token);
-            setMethod(Api.Request.HTTP_METHOD_POST);
+            setMethod(MethodType.POST);
         }
 
         /**

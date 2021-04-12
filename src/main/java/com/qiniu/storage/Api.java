@@ -2,6 +2,7 @@ package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.MethodType;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 
@@ -31,15 +32,15 @@ public class Api {
 
         request.prepareToRequest();
 
-        if (request.method.equals(Request.HTTP_METHOD_GET)) {
+        if (request.method == MethodType.GET) {
             return client.get(request.getUrl().toString(), request.getHeader());
-        } else if (request.method.equals(Request.HTTP_METHOD_POST)) {
+        } else if (request.method == MethodType.POST) {
             return client.post(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
                     request.getHeader(), request.bodyContentType);
-        } else if (request.method.equals(Request.HTTP_METHOD_PUT)) {
+        } else if (request.method == MethodType.PUT) {
             return client.put(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
                     request.getHeader(), request.bodyContentType);
-        } else if (request.method.equals(Request.HTTP_METHOD_DELETE)) {
+        } else if (request.method == MethodType.DELETE) {
             return client.delete(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
                     request.getHeader(), request.bodyContentType);
         } else {
@@ -87,7 +88,7 @@ public class Api {
         /**
          * Http 请求方式
          */
-        private String method;
+        private MethodType method;
 
         /**
          * 请求头
@@ -231,7 +232,7 @@ public class Api {
          *
          * @param method Http 请求方式
          */
-        void setMethod(String method) {
+        void setMethod(MethodType method) {
             this.method = method;
         }
 
