@@ -1,331 +1,253 @@
 package com.qiniu.storage;
 
-import com.google.gson.Gson;
-import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.storage.model.ResumeBlockInfo;
-import com.qiniu.util.Crc32;
 import com.qiniu.util.StringMap;
-import com.qiniu.util.StringUtils;
-import com.qiniu.util.UrlSafeBase64;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
+import java.io.InputStream;
 
 /**
- * 分片上传
- * 参考文档：<a href="http://developer.qiniu.com/docs/v6/api/overview/up/chunked-upload.html">分片上传</a>
+ * 同步分片上传
+ * <p>
+ * 分片上传 v1
+ * 参考文档：<a href="https://developer.qiniu.com/kodo/7443/shard-to-upload">分片上传</a>
  * <p/>
- * 分片上传通过将一个文件分割为固定大小的块(4M)，每次上传一个块的内容（服务端只分块，没有分片）。
+ * 上传通过将一个文件分割为固定大小的块(4M)，每次上传一个块的内容（服务端只分块，没有分片）。
  * 等待所有块都上传完成之后，再将这些块拼接起来，构成一个完整的文件。
+ * <p/>
+ * <p>
+ * 分片上传 v2
+ * 参考文档：<a href="https://developer.qiniu.com/kodo/6364/multipartupload-interface">分片上传</a>
+ * <p/>
+ * 上传通过将一个文件分割为固定大小的块(大小可配置，通过 Configuration.resumableUploadAPIV2BlockSize)，每次上传一个块的内容。
+ * 等待所有块都上传完成之后，再将这些块拼接起来，构成一个完整的文件。
+ * <p/>
+ * <p>
  * 另外分片上传还支持纪录上传进度，如果本次上传被暂停，那么下次还可以从上次
  * 上次完成的文件偏移位置，继续开始上传，这样就实现了断点续传功能。
- * <p/>
+ * <p>
  * 服务端网络较稳定，较大文件（如500M以上）才需要将块记录保存下来。
  * 小文件没有必要，可以有效地实现大文件的上传。
  */
-public final class ResumeUploader {
-    private final String upToken;
-    private final String key;
-    private final File f;
-    private final long size;
-    private final StringMap params;
-    private final String mime;
-    private final String[] contexts;
-    private final ConfigHelper configHelper;
+public class ResumeUploader {
     private final Client client;
-    private final byte[] blockBuffer;
+    private final String key;
+    private final String upToken;
+    private final ResumeUploadSource source;
     private final Recorder recorder;
-    private final long modifyTime;
-    private final RecordHelper helper;
-    private FileInputStream file;
-    private String host = null;
-    private int retryMax;
+    private final UploadOptions options;
+
+    final Configuration config;
+
+    ResumeUploadPerformer uploadPerformer;
 
     /**
-     * 构建分片上传文件的对象
+     * 构建分片上传文件的对象【兼容老版本】
+     * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
+     * 在分片 v1 中 blockSize 为 4M；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * <p>
+     * 支持分片上传 v1/v2，支持断点续传
+     * 不支持并发【并发使用 ConcurrentResumeUploader】
+     *
+     * @param client        上传 client【必须】
+     * @param upToken       上传凭证【必须】
+     * @param key           文件保存名称【可选】
+     * @param file          文件【必须】
+     * @param params        自定义参数【可选】
+     *                      自定义文件 metadata 信息，key 需要增加前缀 x-qn-meta- ：如 params.put("x-qn-meta-key", "foo")
+     *                      用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
+     * @param mime          文件 mime type【可选】
+     * @param recorder      断点续传信息记录对象【可选】
+     * @param configuration 上传配置信息【必须】
      */
     public ResumeUploader(Client client, String upToken, String key, File file,
                           StringMap params, String mime, Recorder recorder, Configuration configuration) {
-        this.configHelper = new ConfigHelper(configuration);
-        this.client = client;
-        this.upToken = upToken;
-        this.key = key;
-        this.f = file;
-        this.size = file.length();
-        this.params = params;
-        this.mime = mime == null ? Client.DefaultMime : mime;
-        long count = (size + Constants.BLOCK_SIZE - 1) / Constants.BLOCK_SIZE;
-        this.contexts = new String[(int) count];
-        this.blockBuffer = new byte[Constants.BLOCK_SIZE];
-        this.recorder = recorder;
-        this.modifyTime = f.lastModified();
-        helper = new RecordHelper();
-        retryMax = configuration.retryMax;
+        this(client, key, upToken,
+                new ResumeUploadSourceFile(file, configuration, getRecorderKey(key, file, recorder), getRegionTargetId(upToken, configuration)),
+                recorder, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
     }
 
     /**
-     * 同步上传文件
+     * 构建分片上传文件流的对象【兼容老版本】
+     * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
+     * 在分片 v1 中 blockSize 为 4M；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * <p>
+     * 支持分片上传 v1/v2，支持并发
+     * 不支持断点续传，不支持定义file name，不支持并发【并发使用 ConcurrentResumeUploader】
+     *
+     * @param client        上传 client 【必须】
+     * @param upToken       上传凭证 【必须】
+     * @param key           文件保存名称 【可选】
+     * @param stream        文件流 【必须】
+     * @param params        自定义参数【可选】
+     *                      自定义文件 metadata 信息，key 需要增加前缀 x-qn-meta- ：如 params.put("x-qn-meta-key", "foo")
+     *                      用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
+     * @param mime          文件 mime type【可选】
+     * @param configuration 上传配置信息 【必须】
+     */
+    public ResumeUploader(Client client, String upToken, String key, InputStream stream,
+                          StringMap params, String mime, Configuration configuration) {
+        this(client, upToken, key, stream, null, params, mime, configuration);
+    }
+
+    /**
+     * 构建分片上传文件流的对象
+     * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
+     * 在分片 v1 中 blockSize 为 4M；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * <p>
+     * 支持分片上传 v1/v2，支持并发，支持定义file name
+     * 不支持断点续传，不支持并发【并发使用 ConcurrentResumeUploader】
+     *
+     * @param client        上传 client 【必须】
+     * @param upToken       上传凭证 【必须】
+     * @param key           文件保存名称 【可选】
+     * @param stream        文件流 【必须】
+     * @param fileName      文件名 【可选】
+     * @param params        自定义参数【可选】
+     *                      自定义文件 metadata 信息，key 需要增加前缀 x-qn-meta- ：如 params.put("x-qn-meta-key", "foo")
+     *                      用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
+     * @param mime          文件 mime type 【可选】
+     * @param configuration 上传配置信息 【必须】
+     */
+    public ResumeUploader(Client client, String upToken, String key, InputStream stream,
+                          String fileName, StringMap params, String mime, Configuration configuration) {
+        this(client, key, upToken,
+                new ResumeUploadSourceStream(stream, configuration, null, getRegionTargetId(upToken, configuration), fileName),
+                null, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
+    }
+
+    private ResumeUploader(Client client, String key, String upToken, ResumeUploadSource source, Recorder recorder,
+                           UploadOptions options, Configuration configuration) {
+
+        this.client = client;
+        this.key = key;
+        this.upToken = upToken;
+        this.source = source;
+        this.recorder = recorder;
+        this.options = options == null ? UploadOptions.defaultOptions() : options;
+        this.config = configuration;
+    }
+
+    /**
+     * 上传文件
      */
     public Response upload() throws QiniuException {
         try {
-            return upload0();
+            return uploadFlows();
         } finally {
             close();
         }
     }
 
-    private Response upload0() throws QiniuException {
-        if (host == null) {
-            this.host = configHelper.upHost(upToken);
-        }
-        long uploaded = helper.recoveryFromRecord();
-        try {
-            this.file = new FileInputStream(f);
-        } catch (FileNotFoundException e) {
-            throw new QiniuException(e);
-        }
-        boolean retry = false;
-        int contextIndex = blockIdx(uploaded);
-        try {
-            file.skip(uploaded);
-        } catch (IOException e) {
-            close();
-            throw new QiniuException(e);
-        }
-        while (uploaded < size) {
-            int blockSize = nextBlockSize(uploaded);
-            try {
-                file.read(blockBuffer, 0, blockSize);
-            } catch (IOException e) {
-                close();
-                throw new QiniuException(e);
-            }
+    private Response uploadFlows() throws QiniuException {
+        // 检查参数
+        checkParam();
 
-            long crc = Crc32.bytes(blockBuffer, 0, blockSize);
-            Response response = null;
-            QiniuException temp = null;
-            try {
-                response = makeBlock(blockBuffer, blockSize);
-            } catch (QiniuException e) {
-                if (e.code() < 0 || (e.response != null && e.response.needSwitchServer())) {
-                    changeHost(upToken, host);
-                }
-                if (e.response == null || e.response.needRetry()) {
-                    retry = true;
-                    temp = e;
-                } else {
-                    close();
-                    throw e;
-                }
-            }
-
-            if (!retry) {
-                ResumeBlockInfo blockInfo0 = response.jsonToObject(ResumeBlockInfo.class);
-                if (blockInfo0.crc32 != crc) {
-                    retry = true;
-                    temp = new QiniuException(new Exception("block's crc32 is not match"));
-                }
-            }
-
-            if (retry) {
-                if (retryMax > 0) {
-                    retryMax--;
-                    try {
-                        response = makeBlock(blockBuffer, blockSize);
-                        retry = false;
-                    } catch (QiniuException e) {
-                        close();
-                        throw e;
-                    }
-                } else {
-                    close();
-                    throw temp;
-                }
-            }
-
-            ResumeBlockInfo blockInfo = response.jsonToObject(ResumeBlockInfo.class);
-            if (blockInfo.crc32 != crc) {
-                throw new QiniuException(new Exception("block's crc32 is not match"));
-            }
-            contexts[contextIndex++] = blockInfo.ctx;
-            uploaded += blockSize;
-            helper.record(uploaded);
+        // 选择上传策略
+        UploadToken token = new UploadToken(upToken);
+        if (config.resumableUploadAPIVersion == Configuration.ResumableUploadAPIVersion.V2) {
+            uploadPerformer = new ResumeUploadPerformerV2(client, key, token, source, recorder, options, config);
+        } else {
+            uploadPerformer = new ResumeUploadPerformerV1(client, key, token, source, recorder, options, config);
         }
-        close();
 
-        try {
-            return makeFile();
-        } catch (QiniuException e) {
-            try {
-                return makeFile();
-            } catch (QiniuException e1) {
-                throw e1;
+        // 恢复本地断点续传数据
+        uploadPerformer.recoverUploadProgressFromLocal();
+
+        // 上传数据至服务 - 步骤1
+        Response response = null;
+        if (uploadPerformer.shouldUploadInit()) {
+            response = uploadPerformer.uploadInit();
+            if (!response.isOK()) {
+                return response;
             }
-        } finally {
-            helper.removeRecord();
         }
+
+        // 上传数据至服务 - 步骤2
+        if (!uploadPerformer.isAllBlocksUploaded()) {
+            response = uploadData();
+            if (!response.isOK()) {
+                return response;
+            }
+        }
+
+        // 上传数据至服务 - 步骤3
+        response = uploadPerformer.completeUpload();
+        if (response.isOK()) {
+            uploadPerformer.removeUploadProgressFromLocal();
+        }
+
+        return response;
     }
 
-    private void changeHost(String upToken, String host) {
-        try {
-            this.host = configHelper.tryChangeUpHost(upToken, host);
-        } catch (Exception e) {
-            // ignore
-            // use the old up host //
-        }
-    }
-
-    private Response makeBlock(byte[] block, int blockSize) throws QiniuException {
-        String url = host + "/mkblk/" + blockSize;
-        return post(url, block, 0, blockSize);
+    Response uploadData() throws QiniuException {
+        Response response = null;
+        do {
+            response = uploadPerformer.uploadNextData();
+            if (response != null && response.isOK()) {
+                uploadPerformer.saveUploadProgressToLocal();
+            }
+        } while (!uploadPerformer.isAllBlocksUploadingOrUploaded());
+        return response;
     }
 
     private void close() {
         try {
-            file.close();
+            source.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private String fileUrl() {
-        String url = host + "/mkfile/" + size + "/mimeType/" + UrlSafeBase64.encodeToString(mime)
-                + "/fname/" + UrlSafeBase64.encodeToString(f.getName());
-        final StringBuilder b = new StringBuilder(url);
-        if (key != null) {
-            b.append("/key/");
-            b.append(UrlSafeBase64.encodeToString(key));
+    private void checkParam() throws QiniuException {
+        if (client == null) {
+            throw QiniuException.unrecoverable(new Exception("client can't be empty"));
         }
-        if (params != null) {
-            params.forEach(new StringMap.Consumer() {
-                @Override
-                public void accept(String key, Object value) {
-                    b.append("/");
-                    b.append(key);
-                    b.append("/");
-                    b.append(UrlSafeBase64.encodeToString("" + value));
-                }
-            });
+
+        if (config == null) {
+            throw QiniuException.unrecoverable(new Exception("Configuration can't be empty"));
         }
-        return b.toString();
+
+        if (config.zone == null && config.region == null) {
+            throw QiniuException.unrecoverable(new Exception("Configuration.region can't be empty"));
+        }
+
+        if (!source.isValid()) {
+            throw QiniuException.unrecoverable(new Exception("InputStream or File is invalid"));
+        }
+
+        UploadToken token = new UploadToken(upToken);
+        if (!token.isValid()) {
+            throw QiniuException.unrecoverable(new Exception("token is invalid"));
+        }
     }
 
-    private Response makeFile() throws QiniuException {
-        String url = fileUrl();
-        String s = StringUtils.join(contexts, ",");
-        return post(url, StringUtils.utf8Bytes(s));
+    private static String getRecorderKey(String key, File file, Recorder recorder) {
+        if (recorder == null) {
+            return null;
+        }
+        return recorder.recorderKeyGenerate(key, file);
     }
 
-    private Response post(String url, byte[] data) throws QiniuException {
-        return client.post(url, data, new StringMap().put("Authorization", "UpToken " + upToken));
-    }
-
-    private Response post(String url, byte[] data, int offset, int size) throws QiniuException {
-        return client.post(url, data, offset, size, new StringMap().put("Authorization", "UpToken " + upToken),
-                Client.DefaultMime);
-    }
-
-    private int nextBlockSize(long uploaded) {
-        if (size < uploaded + Constants.BLOCK_SIZE) {
-            return (int) (size - uploaded);
-        }
-        return Constants.BLOCK_SIZE;
-    }
-
-    private int blockIdx(long offset) {
-        return (int) (offset / Constants.BLOCK_SIZE);
-    }
-
-    private class RecordHelper {
-
-        long recoveryFromRecord() {
-            try {
-                return recoveryFromRecord0();
-            } catch (Exception e) {
-                e.printStackTrace();
-                // ignore
-
-                return 0;
-            }
+    private static String getRegionTargetId(String upToken, Configuration config) {
+        if (config == null || upToken == null) {
+            return null;
         }
 
-        long recoveryFromRecord0() {
-            if (recorder == null) {
-                return 0;
-            }
-
-            String recorderKey = recorder.recorderKeyGenerate(key, f);
-
-            byte[] data = recorder.get(recorderKey);
-            if (data == null) {
-                return 0;
-            }
-            String jsonStr = new String(data);
-            Record r = new Gson().fromJson(jsonStr, Record.class);
-            if (r.offset == 0 || r.modify_time != modifyTime || r.size != size
-                    || r.contexts == null || r.contexts.length == 0) {
-                return 0;
-            }
-            for (int i = 0; i < r.contexts.length; i++) {
-                contexts[i] = r.contexts[i];
-            }
-
-            return r.offset;
+        UploadToken token = null;
+        try {
+            token = new UploadToken(upToken);
+        } catch (QiniuException ignored) {
         }
 
-        void removeRecord() {
-            try {
-                if (recorder != null) {
-                    String recorderKey = recorder.recorderKeyGenerate(key, f);
-                    recorder.del(recorderKey);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                // ignore
-            }
+        if (token == null || !token.isValid()) {
+            return null;
         }
-
-        // save json value
-        //{
-        //    "size":filesize,
-        //    "offset":lastSuccessOffset,
-        //    "modify_time": lastFileModifyTime,
-        //    "contexts": contexts
-        //}
-        void record(long offset) {
-            try {
-                if (recorder == null || offset == 0) {
-                    return;
-                }
-                String recorderKey = recorder.recorderKeyGenerate(key, f);
-                String data = new Gson().toJson(new Record(size, offset, modifyTime, contexts));
-                recorder.set(recorderKey, data.getBytes());
-            } catch (Exception e) {
-                e.printStackTrace();
-                // ignore
-            }
-        }
-
-        private class Record {
-            long size;
-            long offset;
-            // CHECKSTYLE:OFF
-            long modify_time;
-            // CHECKSTYLE:ON
-            String[] contexts;
-
-            Record(long size, long offset, long modify_time, String[] contexts) {
-                this.size = size;
-                this.offset = offset;
-                this.modify_time = modify_time;
-                this.contexts = contexts;
-            }
-        }
+        return config.region.getRegion(token);
     }
 }

@@ -29,5 +29,3 @@ jobs:
           QINIU_TEST_ENV: travis
         run:
           ./gradlew build --stacktrace --info
-
-        

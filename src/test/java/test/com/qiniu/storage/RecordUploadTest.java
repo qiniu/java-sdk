@@ -3,6 +3,7 @@ package test.com.qiniu.storage;
 import com.qiniu.common.Constants;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.storage.ConcurrentResumeUploader;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.storage.ResumeUploader;
@@ -17,8 +18,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 import static org.junit.Assert.*;
@@ -33,33 +32,53 @@ public class RecordUploadTest {
     FileRecorder recorder = null;
     private Response response = null;
 
+    private static boolean[][] testConfigList = {
+            // isResumeV2, isConcurrent
+            {true, false},
+            {true, true},
+            {false, false},
+            {false, true}
+    };
 
     /**
      * 断点续传
      *
-     * @param size
+     * @param size         文件大小
+     * @param isResumeV2   是否使用分片上传 api v2, 反之为 v1
+     * @param isConcurrent 是否采用并发方式上传
      * @throws IOException
      */
-    private void template(final int size) throws IOException {
-        Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
-        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
-        for (TestConfig.TestFile testFile : files) {
-            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
-        }
+    private void template(final int size, boolean isResumeV2, boolean isConcurrent) throws IOException {
 
-        for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
-            String bucket = entry.getKey();
-            final Region region = entry.getValue();
+        TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            // 雾存储不支持 v1
+            if (file.isFog() && !isResumeV2) {
+                continue;
+            }
+            String bucket = file.getBucketName();
+            final Region region = file.getRegion();
+
+            System.out.println("\n\n");
+            System.out.printf("bucket:%s zone:%s \n", bucket, region);
+
             response = null;
-            final String expectKey = "\r\n?&r=" + size + "k";
+            String key = "";
+            key += isResumeV2 ? "_resumeV2" : "_resumeV1";
+            key += isConcurrent ? "_concurrent" : "_serial";
+            final String expectKey = "\r\n?&r=" + size + "k" + key;
             final File f = TempFile.createFile(size);
             recorder = new FileRecorder(f.getParentFile());
+
+            System.out.printf("key:%s \n", expectKey);
+
+            final Complete complete = new Complete();
             try {
                 final String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
                 final String recordKey = recorder.recorderKeyGenerate(expectKey, f);
 
                 // 开始第一部分上传
-                final Up up = new Up(f, expectKey, token);
+                final Up up = new Up(f, expectKey, token, isResumeV2, isConcurrent);
                 new Thread() {
                     @Override
                     public void run() {
@@ -72,6 +91,7 @@ public class RecordUploadTest {
                             System.out.println("UP:  " + i + ", exception run");
                             e.printStackTrace();
                         }
+                        complete.isComplete = true;
                     }
                 }.start();
 
@@ -93,8 +113,8 @@ public class RecordUploadTest {
                     for (int i = 150; i > 0; --i) {
                         byte[] data = getRecord(recorder, recordKey);
                         if (data != null) {
+                            doSleep(1000);
                             up.close();
-                            doSleep(100);
                             break;
                         }
                         doSleep(200);
@@ -104,11 +124,15 @@ public class RecordUploadTest {
                 }
 
                 System.out.println("response is " + response);
+                while (!complete.isComplete) {
+                    doSleep(200);
+                }
 
+                System.out.println("\r\n断点续传:");
                 // 若第一部分上传部分未全部成功,再次上传
                 if (response == null) {
                     try {
-                        response = new Up(f, expectKey, token).up(region);
+                        response = new Up(f, expectKey, token, isResumeV2, isConcurrent).up(region);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -166,32 +190,58 @@ public class RecordUploadTest {
 
     @Test
     public void test1K() throws Throwable {
-        template(1);
+        for (boolean[] config : testConfigList) {
+            template(1, config[0], config[1]);
+        }
     }
 
     @Test
     public void test600k() throws Throwable {
-        template(600);
+        for (boolean[] config : testConfigList) {
+            template(600, config[0], config[1]);
+        }
     }
 
     @Test
     public void test4M() throws Throwable {
-        template(1024 * 4);
+        for (boolean[] config : testConfigList) {
+            template(1024 * 4, config[0], config[1]);
+        }
     }
 
     @Test
     public void test4M1K() throws Throwable {
-        template(1024 * 4 + 1);
+        for (boolean[] config : testConfigList) {
+            template(1024 * 4 + 1, config[0], config[1]);
+        }
     }
 
     @Test
     public void test8M1k() throws Throwable {
-        template(1024 * 8 + 1);
+        for (boolean[] config : testConfigList) {
+            template(1024 * 8 + 1, config[0], config[1]);
+        }
     }
 
     @Test
     public void test25M1k() throws Throwable {
-        template(1024 * 25 + 1);
+        for (boolean[] config : testConfigList) {
+            template(1024 * 25 + 1, config[0], config[1]);
+        }
+    }
+
+    @Test
+    public void test50M1k() throws Throwable {
+        for (boolean[] config : testConfigList) {
+            template(1024 * 50 + 1, config[0], config[1]);
+        }
+    }
+
+    @Test
+    public void test100M1k() throws Throwable {
+        for (boolean[] config : testConfigList) {
+            template(1024 * 100 + 1, config[0], config[1]);
+        }
     }
 
     @Test
@@ -244,12 +294,16 @@ public class RecordUploadTest {
         private final File file;
         private final String key;
         private final String token;
+        private final boolean isResumeV2;
+        private final boolean isConcurrent;
         ResumeUploader uploader = null;
 
-        Up(File file, String key, String token) {
+        Up(File file, String key, String token, boolean isResumeV2, boolean isConcurrent) {
             this.file = file;
             this.key = key;
             this.token = token;
+            this.isResumeV2 = isResumeV2;
+            this.isConcurrent = isConcurrent;
         }
 
         public void close() {
@@ -277,8 +331,21 @@ public class RecordUploadTest {
                     recorder = new FileRecorder(file.getParentFile());
                 }
 
-                uploader = new ResumeUploader(client, token, key, file,
-                        null, Client.DefaultMime, recorder, new Configuration(region));
+                Configuration config = new Configuration(region);
+
+                if (isResumeV2) {
+                    config.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
+                }
+
+                if (isConcurrent) {
+                    config.resumableUploadMaxConcurrentTaskCount = 3;
+                    uploader = new ConcurrentResumeUploader(client, token, key, file,
+                            null, Client.DefaultMime, recorder, config);
+                } else {
+                    uploader = new ResumeUploader(client, token, key, file,
+                            null, Client.DefaultMime, recorder, config);
+                }
+
                 Response res = uploader.upload();
                 System.out.println("UP:  " + i + ", left up");
                 return res;
@@ -287,5 +354,9 @@ public class RecordUploadTest {
                 throw e;
             }
         }
+    }
+
+    static class Complete {
+        boolean isComplete = false;
     }
 }

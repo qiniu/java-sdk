@@ -24,7 +24,7 @@ public final class UploadManager {
     /**
      * 构建一个非断点续传的上传对象
      *
-     * @param config 配置类对象
+     * @param config 配置类对象【必须】
      */
     public UploadManager(Configuration config) {
         this(config, null);
@@ -35,8 +35,8 @@ public final class UploadManager {
      * 分块上传中，将每一块上传的记录保存下来。上传中断后可在上一次断点记录基础上上传剩余部分。
      * 对于不同的文件上传需要支持断点续传的情况，请定义不同的UploadManager对象，而不要共享。
      *
-     * @param config   配置类对象
-     * @param recorder 断点记录对象
+     * @param config   配置类对象【必须】
+     * @param recorder 断点记录对象【可选】
      */
     public UploadManager(Configuration config, Recorder recorder) {
         configuration = config.clone();
@@ -44,6 +44,14 @@ public final class UploadManager {
         this.recorder = recorder;
     }
 
+    /**
+     * 构建一个支持断点续传的上传对象。只在文件采用分片上传时才会有效。
+     * 分块上传中，将每一块上传的记录保存下来。上传中断后可在上一次断点记录基础上上传剩余部分。
+     * 对于不同的文件上传需要支持断点续传的情况，请定义不同的UploadManager对象，而不要共享。
+     *
+     * @param client   上传 client【必须】
+     * @param recorder 断点记录对象【可选】
+     */
     public UploadManager(Client client, Recorder recorder) {
         this.client = client;
         this.recorder = recorder;
@@ -90,17 +98,29 @@ public final class UploadManager {
 
     /**
      * 上传字节流，小文件走表单，大文件走分片
+     * <p>
+     * inputStream size 大于 configuration.putThreshold 时采用分片上传
+     * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
+     * 在分片 v1 中 blockSize 为 4M；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
+     * 流式分片上传：支持分片上传 v1/v2，支持并发，不支持断点续传
+     * <p>
+     * inputStream size 小于 configuration.putThreshold 时采用表单上传
+     * 表单上传会占用 inputStream size 大小内存
      *
-     * @param inputStream
-     * @param size
-     * @param key
-     * @param token
-     * @param params
-     * @param mime
-     * @param checkCrc
+     * @param inputStream 文件流【必须】
+     * @param size        文件大小【必须】
+     * @param key         保存文件名【可选】
+     * @param token       上传凭证【必须】
+     * @param params      自定义参数【可选】
+     *                    自定义文件 metadata 信息，key 需要增加前缀 x-qn-meta- ：如 params.put("x-qn-meta-key", "foo")
+     *                    用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
+     * @param mime        文件 mime type【可选】
+     * @param checkCrc    是否检测 crc【可选】
      * @return
-     * @throws QiniuException
-     * @throws IOException
+     * @throws QiniuException 上传失败异常
      */
     public Response put(InputStream inputStream, long size, String key, String token, StringMap params,
                         String mime, boolean checkCrc) throws QiniuException {
@@ -117,27 +137,33 @@ public final class UploadManager {
     }
 
     /**
-     * 上传字节数组
+     * 上传字节数组，表单上传
+     * 表单上传：不支持分片上传 v1/v2，不支持并发，不支持断点续传
      *
-     * @param data  上传的数据
-     * @param key   上传数据保存的文件名
-     * @param token 上传凭证
+     * @param data  上传的数据【必须】
+     * @param key   上传数据保存的文件名【可选】
+     * @param token 上传凭证【必须】
+     * @return
+     * @throws QiniuException 上传失败异常
      */
     public Response put(final byte[] data, final String key, final String token) throws QiniuException {
         return put(data, key, token, null, null, false);
     }
 
     /**
-     * 上传字节数组
+     * 上传字节数组，表单上传
+     * 表单上传：不支持分片上传 v1/v2，不支持并发，不支持断点续传
      *
-     * @param data     上传的数据
-     * @param key      上传数据保存的文件名
-     * @param token    上传凭证
-     * @param params   自定义参数，如 params.put("x:foo", "foo")
-     * @param mime     指定文件mimetype
-     * @param checkCrc 是否验证crc32
+     * @param data     上传的数据【必须】
+     * @param key      上传数据保存的文件名【可选】
+     * @param token    上传凭证【必须】
+     * @param params   自定义参数【可选】
+     *                 自定义文件 metadata 信息，key 需要增加前缀 x-qn-meta- ：如 params.put("x-qn-meta-key", "foo")
+     *                 用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
+     * @param mime     指定文件mimetype【可选】
+     * @param checkCrc 是否验证crc32【可选】
      * @return
-     * @throws QiniuException
+     * @throws QiniuException 上传失败异常
      */
     public Response put(final byte[] data, final String key, final String token, StringMap params,
                         String mime, boolean checkCrc) throws QiniuException {
@@ -152,9 +178,9 @@ public final class UploadManager {
     /**
      * 上传文件
      *
-     * @param filePath 上传的文件路径
-     * @param key      上传文件保存的文件名
-     * @param token    上传凭证
+     * @param filePath 上传的文件路径【必须】
+     * @param key      上传文件保存的文件名【可选】
+     * @param token    上传凭证【必须】
      */
     public Response put(String filePath, String key, String token) throws QiniuException {
         return put(filePath, key, token, null, null, false);
@@ -162,13 +188,27 @@ public final class UploadManager {
 
     /**
      * 上传文件
+     * <p>
+     * file size 大于 configuration.putThreshold 时采用分片上传
+     * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
+     * 在分片 v1 中 blockSize 为 4M；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
+     * 分片上传：支持分片上传 v1/v2，支持并发，支持断点续传
+     * <p>
+     * file size 小于 configuration.putThreshold 时采用表单上传
+     * 表单上传会占用 inputStream size 大小内存
+     * 表单上传：不支持分片上传 v1/v2，不支持并发，不支持断点续传
      *
-     * @param filePath 上传的文件路径
-     * @param key      上传文件保存的文件名
-     * @param token    上传凭证
-     * @param params   自定义参数，如 params.put("x:foo", "foo")
-     * @param mime     指定文件mimetype
-     * @param checkCrc 是否验证crc32
+     * @param filePath 上传的文件路径【必须】
+     * @param key      上传文件保存的文件名【可选】
+     * @param token    上传凭证【必须】
+     * @param params   自定义参数【可选】
+     *                 自定义文件 metadata 信息，key 需要增加前缀 x-qn-meta- ：如 params.put("x-qn-meta-key", "foo")
+     *                 用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
+     * @param mime     指定文件mimetype【可选】
+     * @param checkCrc 是否验证crc32【可选】
      */
     public Response put(String filePath, String key, String token, StringMap params,
                         String mime, boolean checkCrc) throws QiniuException {
@@ -177,10 +217,22 @@ public final class UploadManager {
 
     /**
      * 上传文件
+     * <p>
+     * file size 大于 configuration.putThreshold 时采用分片上传
+     * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
+     * 在分片 v1 中 blockSize 为 4M；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
+     * 分片上传：支持分片上传 v1/v2，支持并发，支持断点续传
+     * <p>
+     * file size 小于 configuration.putThreshold 时采用表单上传
+     * 表单上传会占用 inputStream size 大小内存
+     * 表单上传：不支持分片上传 v1/v2，不支持并发，不支持断点续传
      *
-     * @param file  上传的文件对象
-     * @param key   上传文件保存的文件名
-     * @param token 上传凭证
+     * @param file  上传的文件对象【必须】
+     * @param key   上传文件保存的文件名【可选】
+     * @param token 上传凭证【必须】
      */
     public Response put(File file, String key, String token) throws QiniuException {
         return put(file, key, token, null, null, false);
@@ -188,12 +240,24 @@ public final class UploadManager {
 
     /**
      * 上传文件
+     * *
+     * file size 大于 configuration.putThreshold 时采用分片上传
+     * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
+     * 在分片 v1 中 blockSize 为 4M；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
+     * 分片上传：支持分片上传 v1/v2，支持并发，支持断点续传
+     * <p>
+     * file size 小于 configuration.putThreshold 时采用表单上传
+     * 表单上传会占用 inputStream size 大小内存
+     * 表单上传：不支持分片上传 v1/v2，不支持并发，不支持断点续传
      *
-     * @param file     上传的文件对象
-     * @param key      上传文件保存的文件名
-     * @param token    上传凭证
-     * @param mime     指定文件mimetype
-     * @param checkCrc 是否验证crc32
+     * @param file     上传的文件对象【必须】
+     * @param key      上传文件保存的文件名【可选】
+     * @param token    上传凭证【必须】
+     * @param mime     指定文件mimetype【可选】
+     * @param checkCrc 是否验证crc32【可选】
      */
     public Response put(File file, String key, String token, StringMap params,
                         String mime, boolean checkCrc) throws QiniuException {
@@ -207,21 +271,32 @@ public final class UploadManager {
             return new FormUploader(client, token, key, file, params, mime, checkCrc, configuration).upload();
         }
 
-        ResumeUploader uploader = new ResumeUploader(client, token, key, file,
-                params, mime, recorder, configuration);
-        return uploader.upload();
+        if (configuration.resumableUploadMaxConcurrentTaskCount > 1) {
+            ResumeUploader uploader = new ConcurrentResumeUploader(client, token, key, file,
+                    params, mime, recorder, configuration);
+            return uploader.upload();
+        } else {
+            ResumeUploader uploader = new ResumeUploader(client, token, key, file,
+                    params, mime, recorder, configuration);
+            return uploader.upload();
+        }
     }
 
     /**
-     * 异步上传数据
+     * 异步上传数据，表单上传
+     * <p>
+     * 不支持分片上传 v1/v2，不支持并发，不支持断点续传
      *
-     * @param data     上传的数据
+     * @param data     上传的数据【必须】
      * @param key      上传数据保存的文件名
-     * @param token    上传凭证
-     * @param params   自定义参数，如 params.put("x:foo", "foo")
-     * @param mime     指定文件mimetype
-     * @param checkCrc 是否验证crc32
-     * @param handler  上传完成的回调函数
+     * @param token    上传凭证【必须】
+     * @param params   自定义参数【可选】
+     *                 自定义文件 metadata 信息，key 需要增加前缀 x-qn-meta- ：如 params.put("x-qn-meta-key", "foo")
+     *                 用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
+     * @param mime     指定文件mimetype【可选】
+     * @param checkCrc 是否验证crc32【可选】
+     * @param handler  上传完成的回调函数【必须】
+     * @throws IOException 上传异常
      */
     public void asyncPut(final byte[] data, final String key, final String token, StringMap params,
                          String mime, boolean checkCrc, UpCompletionHandler handler) throws IOException {
@@ -234,13 +309,30 @@ public final class UploadManager {
     }
 
     /**
-     * 流式上传，通常情况建议文件上传，可以使用持久化的断点记录。
+     * 流式上传，通常情况建议文件上传，文件上传可以使用持久化的断点记录。
+     * <p>
+     * 支持分片上传 v1/v2，支持并发
+     * 不支持断点续传
+     * <p>
+     * inputStream size 大于 configuration.putThreshold 时采用分片上传
+     * 分片上传时，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
+     * 在分片 v1 中 blockSize 为 4M；
+     * 分片 v2 可自定义 blockSize，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
+     * 流式分片上传：支持分片上传 v1/v2，支持并发，不支持断点续传
+     * <p>
+     * inputStream size 小于 configuration.putThreshold 时采用表单上传
+     * 表单上传会占用 inputStream size 大小内存
+     * 表单上传：不支持分片上传 v1/v2，不支持并发，不支持断点续传
      *
-     * @param stream sha
-     * @param key    上传文件保存的文件名
-     * @param token  上传凭证
-     * @param params 自定义参数，如 params.put("x:foo", "foo")
-     * @param mime   指定文件mimetype
+     * @param stream 文件流【必须】
+     * @param key    上传文件保存的文件名【可选】
+     * @param token  上传凭证【必须】
+     * @param params 自定义参数【可选】
+     *               自定义文件 metadata 信息，key 需要增加前缀 x-qn-meta- ：如 params.put("x-qn-meta-key", "foo")
+     *               用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
+     * @param mime   指定文件mimetype【可选】
      */
     public Response put(InputStream stream, String key, String token, StringMap params,
                         String mime) throws QiniuException {
@@ -253,8 +345,15 @@ public final class UploadManager {
         if (message != null) {
             throw new IllegalArgumentException(message);
         }
-        StreamUploader uploader = new StreamUploader(client, token, key, stream,
-                params, mime, configuration);
-        return uploader.upload();
+
+        if (configuration.resumableUploadMaxConcurrentTaskCount > 1) {
+            ResumeUploader uploader = new ConcurrentResumeUploader(client, token, key, stream,
+                    params, mime, configuration);
+            return uploader.upload();
+        } else {
+            ResumeUploader uploader = new ResumeUploader(client, token, key, stream,
+                    params, mime, configuration);
+            return uploader.upload();
+        }
     }
 }

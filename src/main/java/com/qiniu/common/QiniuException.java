@@ -9,8 +9,10 @@ import java.io.IOException;
  * 七牛SDK异常封装类，封装了http响应数据
  */
 public final class QiniuException extends IOException {
+
     public final Response response;
     private String error;
+    private boolean isUnrecoverable = false;
 
 
     public QiniuException(Response response) {
@@ -19,6 +21,18 @@ public final class QiniuException extends IOException {
         if (response != null) {
             response.close();
         }
+    }
+
+    public static QiniuException unrecoverable(Exception e) {
+        QiniuException exception = new QiniuException(e);
+        exception.isUnrecoverable = true;
+        return exception;
+    }
+
+    public static QiniuException unrecoverable(String msg) {
+        QiniuException exception = new QiniuException(null, msg);
+        exception.isUnrecoverable = true;
+        return exception;
     }
 
     public QiniuException(Exception e) {
@@ -36,7 +50,11 @@ public final class QiniuException extends IOException {
     }
 
     public int code() {
-        return response != null ? response.statusCode : -1;
+        return response != null ? response.statusCode : Response.NetworkError;
+    }
+
+    public boolean isUnrecoverable() {
+        return isUnrecoverable;
     }
 
     public String error() {

@@ -136,6 +136,11 @@ public final class Response {
                 address, duration, error, body);
     }
 
+    public static Response createSuccessResponse() {
+        return new Response(null, 200, "inter:reqId", null, "inter:via",
+                null, 0, null, new byte[0]);
+    }
+
 
     private static String via(okhttp3.Response response) {
         String via;

@@ -7,6 +7,8 @@ import com.qiniu.common.Zone;
 import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * 该类封装了SDK相关配置参数
  */
@@ -41,6 +43,35 @@ public final class Configuration implements Cloneable {
      * upload-na0.qiniup.com, upload-as0.qiniup.com
      */
     public boolean useDefaultUpHostIfNone = true;
+    /**
+     * 使用分片 V2 上传时的分片大小
+     * 范围为：1M ~ 1GB，
+     * 注：每个文件最大分片数量为 10000
+     */
+    public int resumableUploadAPIV2BlockSize = Constants.BLOCK_SIZE;
+    /**
+     * 分片上传每个文件传时的最大并发任务数，并发数量会影响内存使用，请合理配置
+     * 当 resumableUploadMaxConcurrentTaskCount 小于或等于 1 时，使用同步上传，resumableUploadConcurrentTaskExecutorService 不被使用
+     * 当 resumableUploadMaxConcurrentTaskCount 大于 1 时，使用并发上传
+     * <p>
+     * 分片上传，每个上传操作会占用 blockSize 大小内存，blockSize 也即分片大小，
+     * 在分片 v1 中 blockSize 为 4M；
+     * 分片 v2 可自定义，定义方式为：Configuration.resumableUploadAPIV2BlockSize，范围为：1M ~ 1GB，分片 v2 需要注意每个文件最大分片数量为 10000；
+     * 当采用并发分片时，占用内存大小和当时启用并发任务数量有关，即：blockSize * 并发数量，
+     * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
+     */
+    public int resumableUploadMaxConcurrentTaskCount = 1;
+    /**
+     * 分片上传并发任务的 ExecutorService
+     * 当 resumableUploadMaxConcurrentTaskCount 小于或等于 1，此设置无效；
+     * 当 resumableUploadMaxConcurrentTaskCount 大于 1 且 resumableUploadConcurrentTaskExecutorService 为空，则会创建 Executors.newFixedThreadPool(maxConcurrentTaskCount)
+     * 当 resumableUploadMaxConcurrentTaskCount 大于 1 且 resumableUploadConcurrentTaskExecutorService 不为空，则直接使用 resumableUploadConcurrentTaskExecutorService
+     */
+    public ExecutorService resumableUploadConcurrentTaskExecutorService = null;
+    /**
+     * 分片上传的版本
+     */
+    public ResumableUploadAPIVersion resumableUploadAPIVersion = ResumableUploadAPIVersion.V1;
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */
@@ -177,6 +208,11 @@ public final class Configuration implements Cloneable {
     @Deprecated
     public String ucHost() {
         return configHelper.ucHost();
+    }
+
+
+    public enum ResumableUploadAPIVersion {
+        V1, V2
     }
 
 }
