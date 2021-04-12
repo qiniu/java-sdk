@@ -8,6 +8,9 @@ import java.util.Map;
 
 class ApiUtils {
 
+    private ApiUtils() {
+    }
+    
     /**
      * 分片上传 v2 对 key encode
      *
