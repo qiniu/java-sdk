@@ -98,7 +98,7 @@ public class ApiUploadV1MakeBlock extends ApiUpload {
         }
 
         @Override
-        public void buildPath() throws QiniuException {
+        protected void buildPath() throws QiniuException {
             if (blockSize == null) {
                 ApiUtils.throwInvalidRequestParamException("block size");
             }
@@ -109,7 +109,7 @@ public class ApiUploadV1MakeBlock extends ApiUpload {
         }
 
         @Override
-        void buildBodyInfo() throws QiniuException {
+        protected void buildBodyInfo() throws QiniuException {
             if (!hasBody()) {
                 ApiUtils.throwInvalidRequestParamException("block data");
             }
@@ -121,7 +121,7 @@ public class ApiUploadV1MakeBlock extends ApiUpload {
      */
     public static class Response extends ApiUpload.Response {
 
-        Response(com.qiniu.http.Response response) throws QiniuException {
+        protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
         }
 

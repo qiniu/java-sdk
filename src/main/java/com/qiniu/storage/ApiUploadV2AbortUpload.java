@@ -94,7 +94,7 @@ public class ApiUploadV2AbortUpload extends ApiUpload {
         }
 
         @Override
-        public void buildPath() throws QiniuException {
+        protected void buildPath() throws QiniuException {
             UploadToken token = getUploadToken();
             if (token == null || !token.isValid()) {
                 ApiUtils.throwInvalidRequestParamException("token");
@@ -119,7 +119,7 @@ public class ApiUploadV2AbortUpload extends ApiUpload {
      */
     public static class Response extends ApiUpload.Response {
 
-        Response(com.qiniu.http.Response response) throws QiniuException {
+        protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
         }
     }

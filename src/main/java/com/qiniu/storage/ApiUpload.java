@@ -13,7 +13,7 @@ public class ApiUpload extends Api {
     /**
      * upload api 请求基类
      */
-    public static class Request extends Api.Request {
+    protected static class Request extends Api.Request {
 
         /**
          * 上传凭证
@@ -49,7 +49,7 @@ public class ApiUpload extends Api {
          *
          * @param token 上传凭证
          */
-        public void setToken(String token) {
+        protected void setToken(String token) {
             this.token = token;
         }
 
@@ -58,12 +58,12 @@ public class ApiUpload extends Api {
          *
          * @return 上传凭证
          */
-        UploadToken getUploadToken() throws QiniuException {
+        protected UploadToken getUploadToken() throws QiniuException {
             return new UploadToken(token);
         }
 
         @Override
-        void prepareToRequest() throws QiniuException {
+        protected void prepareToRequest() throws QiniuException {
             if (token == null || !getUploadToken().isValid()) {
                 ApiUtils.throwInvalidRequestParamException("token");
             }
@@ -84,7 +84,7 @@ public class ApiUpload extends Api {
          * @param response com.qiniu.http.Response
          * @throws QiniuException 解析 data 异常
          */
-        Response(com.qiniu.http.Response response) throws QiniuException {
+        protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
         }
     }

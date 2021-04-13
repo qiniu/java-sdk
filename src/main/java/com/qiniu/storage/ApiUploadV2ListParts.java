@@ -120,7 +120,7 @@ public class ApiUploadV2ListParts extends ApiUpload {
         }
 
         @Override
-        void buildQuery() throws QiniuException {
+        protected void buildQuery() throws QiniuException {
             if (maxParts != null) {
                 addQueryPair("max-parts", maxParts + "");
             }
@@ -131,7 +131,7 @@ public class ApiUploadV2ListParts extends ApiUpload {
         }
 
         @Override
-        public void buildPath() throws QiniuException {
+        protected void buildPath() throws QiniuException {
             UploadToken token = getUploadToken();
             if (token == null || !token.isValid()) {
                 ApiUtils.throwInvalidRequestParamException("token");
@@ -156,7 +156,7 @@ public class ApiUploadV2ListParts extends ApiUpload {
      */
     public static class Response extends ApiUpload.Response {
 
-        Response(com.qiniu.http.Response response) throws QiniuException {
+        protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
         }
 

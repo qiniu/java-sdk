@@ -50,7 +50,7 @@ public class ApiQueryRegion extends ApiUpload {
         }
 
         @Override
-        void buildQuery() throws QiniuException {
+        protected void buildQuery() throws QiniuException {
             UploadToken token = getUploadToken();
             addQueryPair("ak", token.getAccessKey());
             addQueryPair("bucket", token.getBucket());
@@ -58,7 +58,7 @@ public class ApiQueryRegion extends ApiUpload {
         }
 
         @Override
-        public void buildPath() throws QiniuException {
+        protected void buildPath() throws QiniuException {
             addPathSegment("v4");
             addPathSegment("query");
             super.buildPath();
@@ -82,7 +82,7 @@ public class ApiQueryRegion extends ApiUpload {
      */
     public static class Response extends ApiUpload.Response {
 
-        Response(com.qiniu.http.Response response) throws QiniuException {
+        protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
         }
 

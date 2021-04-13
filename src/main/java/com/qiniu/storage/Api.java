@@ -17,11 +17,11 @@ public class Api {
 
     private final Client client;
 
-    public Api(Client client) {
+    protected Api(Client client) {
         this.client = client;
     }
 
-    com.qiniu.http.Response requestByClient(Request request) throws QiniuException {
+    protected com.qiniu.http.Response requestByClient(Request request) throws QiniuException {
         if (client == null) {
             ApiUtils.throwInvalidRequestParamException("client");
         }
@@ -67,7 +67,7 @@ public class Api {
         /**
          * 请求 url 的 信息，最终会被按顺序拼接作为 path /Segment0/Segment1
          */
-        private final List<String> pathList = new ArrayList<>();
+        private final List<String> pathSegments = new ArrayList<>();
 
         /**
          * 请求 url 的 query
@@ -103,7 +103,7 @@ public class Api {
          *
          * @param urlPrefix 请求的 urlPrefix， scheme + host
          */
-        public Request(String urlPrefix) {
+        protected Request(String urlPrefix) {
             this.urlPrefix = urlPrefix;
         }
 
@@ -137,11 +137,11 @@ public class Api {
          *
          * @param segment 被添加 path segment
          */
-        public void addPathSegment(String segment) {
+        protected void addPathSegment(String segment) {
             if (segment == null) {
                 return;
             }
-            pathList.add(segment);
+            pathSegments.add(segment);
             path = null;
         }
 
@@ -162,8 +162,8 @@ public class Api {
          *
          * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
          */
-        void buildPath() throws QiniuException {
-            path = "/" + StringUtils.join(pathList, "/");
+        protected void buildPath() throws QiniuException {
+            path = "/" + StringUtils.join(pathSegments, "/");
         }
 
 
@@ -173,7 +173,7 @@ public class Api {
          * @param key   key
          * @param value value
          */
-        public void addQueryPair(String key, String value) {
+        protected void addQueryPair(String key, String value) {
             if (StringUtils.isNullOrEmpty(key) || value == null) {
                 return;
             }
@@ -199,7 +199,7 @@ public class Api {
          *
          * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
          */
-        void buildQuery() throws QiniuException {
+        protected void buildQuery() throws QiniuException {
 
             StringBuilder builder = new StringBuilder();
 
@@ -227,7 +227,7 @@ public class Api {
          *
          * @param method Http 请求方式
          */
-        void setMethod(MethodType method) {
+        protected void setMethod(MethodType method) {
             this.method = method;
         }
 
@@ -237,7 +237,7 @@ public class Api {
          * @param key   key
          * @param value value
          */
-        public void addHeaderField(String key, String value) {
+        protected void addHeaderField(String key, String value) {
             if (StringUtils.isNullOrEmpty(key) || StringUtils.isNullOrEmpty(value)) {
                 return;
             }
@@ -263,7 +263,7 @@ public class Api {
          *
          * @return url
          */
-        URL getUrl() throws QiniuException {
+        public URL getUrl() throws QiniuException {
             try {
                 URL url = new URL(urlPrefix);
                 String file = url.getFile();
@@ -291,7 +291,7 @@ public class Api {
          * @param size        请求数据大小
          * @param contentType 请求数据类型
          */
-        public void setBody(byte[] body, int offset, int size, String contentType) {
+        protected void setBody(byte[] body, int offset, int size, String contentType) {
             this.body = body;
             this.bodyOffset = offset;
             this.bodySize = size;
@@ -300,7 +300,7 @@ public class Api {
             }
         }
 
-        boolean hasBody() {
+        public boolean hasBody() {
             return body != null && body.length > 0 && bodySize > 0;
         }
 
@@ -309,7 +309,7 @@ public class Api {
          *
          * @throws QiniuException
          */
-        void buildBodyInfo() throws QiniuException {
+        protected void buildBodyInfo() throws QiniuException {
             if (body == null) {
                 body = new byte[0];
                 bodySize = 0;
@@ -322,13 +322,16 @@ public class Api {
          *
          * @throws QiniuException 异常，一般为参数缺失
          */
-        void prepareToRequest() throws QiniuException {
+        protected void prepareToRequest() throws QiniuException {
             buildPath();
             buildQuery();
             buildBodyInfo();
         }
 
-        static class Pair<K, V> {
+        void test() {
+        }
+
+        private static class Pair<K, V> {
 
             /**
              * Key of this <code>Pair</code>.
@@ -452,7 +455,7 @@ public class Api {
          * @param response com.qiniu.http.Response
          * @throws QiniuException 解析 data 异常
          */
-        Response(com.qiniu.http.Response response) throws QiniuException {
+        protected Response(com.qiniu.http.Response response) throws QiniuException {
             this.dataMap = response.jsonToMap();
             this.response = response;
         }

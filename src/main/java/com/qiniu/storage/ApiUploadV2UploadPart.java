@@ -117,7 +117,7 @@ public class ApiUploadV2UploadPart extends ApiUpload {
         }
 
         @Override
-        public void buildPath() throws QiniuException {
+        protected void buildPath() throws QiniuException {
             UploadToken token = getUploadToken();
             if (token == null || !token.isValid()) {
                 ApiUtils.throwInvalidRequestParamException("token");
@@ -141,7 +141,7 @@ public class ApiUploadV2UploadPart extends ApiUpload {
         }
 
         @Override
-        void buildBodyInfo() throws QiniuException {
+        protected void buildBodyInfo() throws QiniuException {
             if (!hasBody()) {
                 ApiUtils.throwInvalidRequestParamException("block data");
             }
@@ -153,7 +153,7 @@ public class ApiUploadV2UploadPart extends ApiUpload {
      */
     public static class Response extends ApiUpload.Response {
 
-        Response(com.qiniu.http.Response response) throws QiniuException {
+        protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
         }
 
