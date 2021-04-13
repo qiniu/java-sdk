@@ -71,7 +71,7 @@ public class ApiUploadV2UploadPart extends ApiUpload {
          *                   host 参考: https://developer.qiniu.com/kodo/1671/region-endpoint-fq
          *                   注意事项：
          *                   1. token 中签名的 bucket 所在机房必须和 host 的机房一致
-         *                   2. 如果不能提前知道机房信息，可调用 ApiQueryRegion api 获取 region 上传 Hosts
+         *                   2. 如果不能提前知道机房信息，可调用 {@link ApiQueryRegion} api 获取 region 上传 Hosts
          * @param token      请求凭证【必须】
          * @param uploadId   在服务端申请的 MultipartUpload 任务 id; 【必须】
          *                   服务端处理 completeMultipartUpload 请求成功后，该 UploadId

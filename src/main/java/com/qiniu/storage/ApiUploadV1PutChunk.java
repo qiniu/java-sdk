@@ -70,7 +70,7 @@ public class ApiUploadV1PutChunk extends ApiUpload {
          *                         host 参考: https://developer.qiniu.com/kodo/1671/region-endpoint-fq
          *                         注意事项：
          *                         1. token 中签名的 bucket 所在机房必须和 host 的机房一致
-         *                         2. 如果不能提前知道机房信息，可调用 ApiQueryRegion api 获取 region 上传 Hosts
+         *                         2. 如果不能提前知道机房信息，可调用 {@link ApiQueryRegion} api 获取 region 上传 Hosts
          * @param token            请求凭证【必须】
          * @param blockLastContext 该分块上传上次返回的context【必须】
          *                         包括 ApiUploadMakeBlock 返回的 context 和 该接口返回的 context

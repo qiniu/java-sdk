@@ -69,7 +69,7 @@ public class ApiUploadV2InitUpload extends ApiUpload {
          *                  host 参考: https://developer.qiniu.com/kodo/1671/region-endpoint-fq
          *                  注意事项：
          *                  1. token 中签名的 bucket 所在机房必须和 host 的机房一致
-         *                  2. 如果不能提前知道机房信息，可调用 ApiQueryRegion api 获取 region 上传 Hosts
+         *                  2. 如果不能提前知道机房信息，可调用 {@link ApiQueryRegion} api 获取 region 上传 Hosts
          * @param token     请求凭证【必须】
          */
         public Request(String urlPrefix, String token) {
