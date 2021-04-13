@@ -13,7 +13,7 @@ public class ApiUpload extends Api {
     /**
      * upload api 请求基类
      */
-    protected static class Request extends Api.Request {
+    public static class Request extends Api.Request {
 
         /**
          * 上传凭证
