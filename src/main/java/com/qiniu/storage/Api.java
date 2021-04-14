@@ -174,7 +174,7 @@ public class Api {
          * @param value value
          */
         protected void addQueryPair(String key, String value) {
-            if (StringUtils.isNullOrEmpty(key) || value == null) {
+            if (StringUtils.isNullOrEmpty(key)) {
                 return;
             }
             queryPairs.add(new Pair<String, String>(key, value));
