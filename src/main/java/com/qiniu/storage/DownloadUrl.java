@@ -4,25 +4,21 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DownloadUrl {
 
-    private boolean useHttps = false;
-
     private String domain;
-
+    private boolean useHttps = false;
     private String key;
-
-    private Long deadline;
-
     private Auth auth;
-
-    private String attname;
-
-    private String fop;
-
+    private Long deadline;
     private String style;
-
     private String styleSeparator;
+    private String fop;
+    private String attname;
+    private List<Api.Request.Pair<String, String>> customQuerys = new ArrayList<>();
 
     protected void setDomain(String domain) {
         this.domain = domain;
@@ -45,6 +41,11 @@ public class DownloadUrl {
 
     public DownloadUrl setFop(String fop) {
         this.fop = fop;
+        return this;
+    }
+
+    public DownloadUrl addCustomQuery(String queryName, String queryValue) {
+        customQuerys.add(new Api.Request.Pair<String, String>(queryName, queryValue));
         return this;
     }
 
@@ -75,6 +76,10 @@ public class DownloadUrl {
 
         if (!StringUtils.isNullOrEmpty(fop)) {
             request.addQueryPair(fop, null);
+        }
+
+        for (Api.Request.Pair<String, String> pair : customQuerys) {
+            request.addQueryPair(pair.getKey(), pair.getValue());
         }
 
         if (!StringUtils.isNullOrEmpty(attname)) {

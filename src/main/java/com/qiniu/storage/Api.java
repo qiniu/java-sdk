@@ -331,7 +331,7 @@ public class Api {
         void test() {
         }
 
-        private static class Pair<K, V> {
+        protected static class Pair<K, V> {
 
             /**
              * Key of this <code>Pair</code>.
@@ -367,7 +367,7 @@ public class Api {
              * @param key   The key for this pair
              * @param value The value to use for this pair
              */
-            Pair(K key, V value) {
+            protected Pair(K key, V value) {
                 this.key = key;
                 this.value = value;
             }
