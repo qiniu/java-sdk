@@ -17,11 +17,11 @@ public class DownloadPrivateCloudUrl extends DownloadUrl {
      * 如果知道下载的 domain 信息可以使用此接口
      * 如果不知道 domain 信息，可以使用 {@link DownloadPrivateCloudUrl#DownloadPrivateCloudUrl(Configuration, String, String, String)}
      *
-     * @param domain     下载 domain, eg: qiniu.com
-     * @param useHttps   是否使用 https
-     * @param bucketName bucket 名称
-     * @param key        下载资源在七牛云存储的 key
-     * @param accessKey  七牛账户 accessKey
+     * @param domain     下载 domain, eg: qiniu.com 【必须】
+     * @param useHttps   是否使用 https 【必须】
+     * @param bucketName bucket 名称 【必须】
+     * @param key        下载资源在七牛云存储的 key 【必须】
+     * @param accessKey  七牛账户 accessKey 【必须】
      */
     public DownloadPrivateCloudUrl(String domain, boolean useHttps, String bucketName, String key, String accessKey) {
         super(domain, useHttps, key);
@@ -38,10 +38,10 @@ public class DownloadPrivateCloudUrl extends DownloadUrl {
      * 2. 获取 {@link Configuration#region} 中的 ioHost({@link Configuration#ioHost(String, String)} ) 作为 domain
      * 注：需要配置正确的 {@link Configuration#defaultUcHost}
      *
-     * @param cfg        查询 domain 时的Configuration
-     * @param bucketName
-     * @param key
-     * @param accessKey
+     * @param cfg        查询 domain 时的Configuration 【必须】
+     * @param bucketName bucket 名称【必须】
+     * @param key        下载资源在七牛云存储的 key【必须】
+     * @param accessKey  七牛账户 accessKey【必须】
      */
     public DownloadPrivateCloudUrl(Configuration cfg, String bucketName, String key, String accessKey) {
         super(null, cfg.useHttpsDomains, key);

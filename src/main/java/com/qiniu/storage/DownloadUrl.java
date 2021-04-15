@@ -20,6 +20,7 @@ public class DownloadUrl {
     private Long deadline;
     private String style;
     private String styleSeparator;
+    private String styleParam;
     private String fop;
     private String attname;
     private List<Api.Request.Pair<String, String>> customQuerys = new ArrayList<>();
@@ -27,9 +28,9 @@ public class DownloadUrl {
     /**
      * 构造器
      *
-     * @param domain   下载 domain, eg: qiniu.com
-     * @param useHttps 是否使用 https
-     * @param key      下载资源在七牛云存储的 key
+     * @param domain   下载 domain, eg: qiniu.com【必须】
+     * @param useHttps 是否使用 https【必须】
+     * @param key      下载资源在七牛云存储的 key【必须】
      */
     public DownloadUrl(String domain, boolean useHttps, String key) {
         this.domain = domain;
@@ -56,6 +57,7 @@ public class DownloadUrl {
     }
 
     /**
+     * 浏览器访问时指定下载文件名【可选】
      * 默认情况下，如果在浏览器中访问一个资源URL，浏览器都会试图直接在浏览器中打开这个资源，例如一张图片。
      * 如果希望浏览器的动作是下载而不是打开，可以给该资源URL添加参数 attname 来指定文件名
      *
@@ -68,7 +70,7 @@ public class DownloadUrl {
     }
 
     /**
-     * 配置 fop
+     * 配置 fop【可选】
      * 开发者可以在访问资源时制定执行一个或多个数据处理指令，以直接获取经过处理后的结果。比较典型的一个场景是图片查看，客户端可以上传一
      * 张高精度的图片，然后在查看图片的时候根据屏幕规格生成一张大小适宜的缩略图。这样既可以明显降低网络流量，而且可以提高图片显示速度，
      * 还能降低移动设备的内存占用.
@@ -85,7 +87,7 @@ public class DownloadUrl {
     }
 
     /**
-     * 配置 style
+     * 配置 style【可选】
      * 如果觉得 fop 这样的形式够冗长，还可以为这些串行的 fop 集合定义一个友好别名。如此一来，就可以用友好URL风格进行访问，这个别名就是 style 。
      * eg:
      * > 对 userBucket 的 fop（imageView2/2/w/320/h/480） 使用 style 的方式, 分隔符为 "-"
@@ -96,18 +98,20 @@ public class DownloadUrl {
      * <p>
      * https://developer.qiniu.com/dora/6217/directions-for-use-pfop
      *
-     * @param style          style 名
-     * @param styleSeparator url 和数据处理之间的分隔符
+     * @param style          style 名【必须】
+     * @param styleSeparator url 和数据处理之间的分隔符【必须】
+     * @param styleParam     style 参数【可选】
      * @return DownloadUrl
      */
-    public DownloadUrl setStyle(String style, String styleSeparator) {
+    public DownloadUrl setStyle(String style, String styleSeparator, String styleParam) {
         this.style = style;
         this.styleSeparator = styleSeparator;
+        this.styleParam = styleParam;
         return this;
     }
 
     /**
-     * URL 增加自定义 query 信息
+     * URL 增加自定义 query 信息 【可选】
      *
      * @param queryName  query 名
      * @param queryValue query 值
@@ -122,8 +126,8 @@ public class DownloadUrl {
      * 构建带有有效期的下载 URL 字符串
      * 一般构建私有资源的下载 URL 字符串；公开资源可以直接使用 {@link DownloadUrl#buildURL }
      *
-     * @param auth     凭证信息
-     * @param deadline 有效期时间戳，单位：秒
+     * @param auth     凭证信息【必须】
+     * @param deadline 有效期时间戳，单位：秒 【必须】
      * @return 下载 URL 字符串
      * @throws QiniuException 构建异常，一般为参数缺失
      */
@@ -147,7 +151,10 @@ public class DownloadUrl {
         willSetKeyForUrl(request);
         String keyAndStyle = UrlUtils.urlEncode(key);
         if (!StringUtils.isNullOrEmpty(style) && !StringUtils.isNullOrEmpty(styleSeparator)) {
-            keyAndStyle += styleSeparator + style;
+            keyAndStyle += UrlUtils.urlEncode(styleSeparator + style);
+            if (!StringUtils.isNullOrEmpty(styleParam)) {
+                keyAndStyle += "@" + UrlUtils.urlEncode(styleParam);
+            }
         }
         request.addPathSegment(keyAndStyle);
         didSetKeyForUrl(request);
