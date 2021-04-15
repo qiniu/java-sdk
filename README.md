@@ -12,12 +12,12 @@
 <dependency>
   <groupId>com.qiniu</groupId>
   <artifactId>qiniu-java-sdk</artifactId>
-  <version>[7.4.0, 7.4.99]</version>
+  <version>[7.5.0, 7.5.99]</version>
 </dependency>
 ```
 或者 Gradle:
 ```groovy
-compile 'com.qiniu:qiniu-java-sdk:7.4.+'
+compile 'com.qiniu:qiniu-java-sdk:7.5.+'
 ```
 
 ## 运行环境
@@ -33,7 +33,16 @@ import com.qiniu.util.Auth;
 import com.qiniu.storage.Configuration;
 import com.qiniu.http.Response;
 ...
+// 分片上传 v1
     Configuration cfg = new Configuration();
+    UploadManager uploadManager = new UploadManager(cfg);
+    Auth auth = Auth.create(accessKey, secretKey);
+    String token = auth.uploadToken(bucketName);
+    Response r = upManager.put("hello world".getBytes(), "yourkey", token);
+    
+// 分片上传 v2
+    Configuration cfg = new Configuration();
+    cfg.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
     UploadManager uploadManager = new UploadManager(cfg);
     Auth auth = Auth.create(accessKey, secretKey);
     String token = auth.uploadToken(bucketName);
