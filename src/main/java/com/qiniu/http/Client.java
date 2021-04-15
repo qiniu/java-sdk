@@ -204,6 +204,19 @@ public final class Client {
         return delete(url, rbody, headers);
     }
 
+    public Response delete(String url, byte[] body, int offset, int size,
+                           StringMap headers, String contentType) throws QiniuException {
+        RequestBody rbody;
+        if (body != null && body.length > 0) {
+            MediaType t = MediaType.parse(contentType);
+            rbody = RequestBody.create(t, body, offset, size);
+        } else {
+            MediaType t = MediaType.parse(contentType);
+            rbody = RequestBody.create(t, new byte[0]);
+        }
+        return delete(url, rbody, headers);
+    }
+
     public Response post(String url, byte[] body, StringMap headers) throws QiniuException {
         return post(url, body, headers, DefaultMime);
     }
