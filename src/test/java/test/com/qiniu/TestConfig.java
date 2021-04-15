@@ -44,6 +44,9 @@ public final class TestConfig {
     public static final String testDomain_na0 = "javasdk-na0.peterpy.cn";
     public static final String testDomain_na0_timeStamp = "javasdk-na0-timestamp.peterpy.cn";
     public static final String testUrl_na0 = "http://" + testDomain_na0 + "/" + testKey_na0;
+    public static final String testPrivateBucket_na0 = "private-na0";
+    public static final String testPrivateBucketDomain_na0 = "private-na0.sdk.qiniu-solutions.com";
+
     //sg
     public static final String testBucket_as0 = "sdk-as0";
     //code

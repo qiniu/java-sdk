@@ -1,6 +1,8 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
+import com.qiniu.http.Client;
+import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.DownloadPrivateCloudUrl;
 import com.qiniu.storage.DownloadUrl;
@@ -10,6 +12,7 @@ import org.junit.Test;
 import test.com.qiniu.TestConfig;
 
 import java.net.URLEncoder;
+import java.util.Date;
 
 public class DownloadUrlTest {
 
@@ -50,23 +53,38 @@ public class DownloadUrlTest {
 
     @Test
     public void testUrlWithDeadline() {
-        long deadline = 161394222;
         String key = TestConfig.testKey_na0;
-        String domain = TestConfig.testDomain_na0_timeStamp;
+        String domain = TestConfig.testPrivateBucketDomain_na0;
         Auth auth = TestConfig.testAuth;
 
         try {
+            long expire = 100;
+            long deadline = new Date().getTime() / 1000 + expire;
             String url = new DownloadUrl(domain, false, key).buildURL(auth, deadline);
-            String urlExpire = "http://javasdk-na0-timestamp.peterpy.cn/do_not_delete/1.png?e=" + deadline + "&token=";
-            System.out.println("create url:" + url + " expire url:" + urlExpire);
-            Assert.assertTrue("create url:" + url + " expire url:" + urlExpire, url.contains(urlExpire));
+            System.out.println("create url:" + url);
+            Client client = new Client();
+            Response response = client.get(url);
+            Assert.assertTrue(response.toString(), response.isOK());
 
-            url = new DownloadUrl(domain, true, key).buildURL(auth, deadline);
-            urlExpire = "https://javasdk-na0-timestamp.peterpy.cn/do_not_delete/1.png?e=" + deadline + "&token=";
-            System.out.println("create url:" + url + " expire url:" + urlExpire);
-            Assert.assertTrue("create url:" + url + " expire url:" + urlExpire, url.contains(urlExpire));
+            try {
+                Thread.sleep((expire + 5) * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            testNoAuthority(url);
         } catch (QiniuException e) {
-            Assert.assertTrue(e.error(), false);
+            Assert.assertTrue(e.response.toString(), false);
+        }
+    }
+
+    private void testNoAuthority(String url) {
+        try {
+            Client client = new Client();
+            Response response = client.get(url);
+            Assert.assertFalse(url, response.isOK());
+        } catch (QiniuException e) {
+            Assert.assertNotNull("except no authority:" + url + "\n but no response:" + e, e.response);
+            Assert.assertTrue("except no authority:" + url + "\n but:" + e.response, e.response.statusCode == 401);
         }
     }
 
