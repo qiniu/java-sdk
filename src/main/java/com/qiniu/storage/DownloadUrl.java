@@ -111,7 +111,8 @@ public class DownloadUrl {
     }
 
     /**
-     * URL 增加自定义 query 信息 【可选】
+     * URL 增加 query 信息 【可选】
+     * query 信息必须为七牛云支持的，否则会被视为无效
      *
      * @param queryName  query 名
      * @param queryValue query 值
