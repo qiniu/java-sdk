@@ -3,12 +3,26 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.util.StringUtils;
 
+/**
+ * 私有云下载 URL 类
+ */
 public class DownloadPrivateCloudUrl extends DownloadUrl {
 
     private final Configuration cfg;
     private final String bucketName;
     private final String accessKey;
 
+    /**
+     * 构造器
+     * 如果知道下载的 domain 信息可以使用此接口
+     * 如果不知道 domain 信息，可以使用 {@link DownloadPrivateCloudUrl#DownloadPrivateCloudUrl(Configuration, String, String, String)}
+     *
+     * @param domain     下载 domain, eg: qiniu.com
+     * @param useHttps   是否使用 https
+     * @param bucketName bucket 名称
+     * @param key        下载资源在七牛云存储的 key
+     * @param accessKey  七牛账户 accessKey
+     */
     public DownloadPrivateCloudUrl(String domain, boolean useHttps, String bucketName, String key, String accessKey) {
         super(domain, useHttps, key);
         this.cfg = null;
@@ -16,6 +30,19 @@ public class DownloadPrivateCloudUrl extends DownloadUrl {
         this.accessKey = accessKey;
     }
 
+    /**
+     * 构造器
+     * 如果不知道 domain 信息，可使用此接口；内部有查询 domain 逻辑
+     * 查询 domain 流程：
+     * 1. 根据 {@link Configuration#defaultUcHost} 查找 bucketName 所在的{@link Configuration#region}
+     * 2. 获取 {@link Configuration#region} 中的 ioHost({@link Configuration#ioHost(String, String)} ) 作为 domain
+     * 注：需要配置正确的 {@link Configuration#defaultUcHost}
+     *
+     * @param cfg        查询 domain 时的Configuration
+     * @param bucketName
+     * @param key
+     * @param accessKey
+     */
     public DownloadPrivateCloudUrl(Configuration cfg, String bucketName, String key, String accessKey) {
         super(null, cfg.useHttpsDomains, key);
         this.cfg = cfg;
