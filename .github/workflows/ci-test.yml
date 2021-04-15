@@ -29,4 +29,5 @@ jobs:
           QINIU_TEST_ENV: travis
         run: |
           ./gradlew build --stacktrace --info
+          ./gradlew codeCoverageReport
           bash <(curl -s https://codecov.io/bash)
