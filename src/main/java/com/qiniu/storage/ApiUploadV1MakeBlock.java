@@ -4,6 +4,8 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
 
+import java.io.InputStream;
+
 /**
  * 分片上传 v1 版 api: 创建块
  * 本接口用于为后续分片上传创建一个新的 block，同时上传该块第一个 chunk 数据。
@@ -83,8 +85,12 @@ public class ApiUploadV1MakeBlock extends ApiUpload {
         }
 
         /**
-         * 配置块第一个上传片数据【必须】
+         * 配置块第一个上传片数据
+         * 块数据 size 必须不大于 4M，block 中所有 chunk 的 size 总和必须为 4M, SDK 内部不做 block/chunk size 检测
          * 块数据：在 data 中，从 offset 开始的 size 大小的数据
+         * 注：
+         * 必须通过 {@link ApiUploadV1MakeBlock.Request#setFirstChunkData(byte[], int, int, String)} 或
+         * {@link ApiUploadV1MakeBlock.Request#setFirstChunkData(InputStream, String)} 配置块第一个上传片数据
          *
          * @param data        块数据源
          * @param offset      块数据在 data 中的偏移量
@@ -94,6 +100,22 @@ public class ApiUploadV1MakeBlock extends ApiUpload {
          */
         public Request setFirstChunkData(byte[] data, int offset, int size, String contentType) {
             super.setBody(data, offset, size, contentType);
+            return this;
+        }
+
+        /**
+         * 配置块第一个上传片数据
+         * 块数据 size 必须不大于 4M，block 中所有 chunk 的 size 总和必须为 4M, SDK 内部不做 block/chunk size 检测
+         * 注：
+         * 必须通过 {@link ApiUploadV1MakeBlock.Request#setFirstChunkData(byte[], int, int, String)} 或
+         * {@link ApiUploadV1MakeBlock.Request#setFirstChunkData(InputStream, String)} 配置块第一个上传片数据
+         *
+         * @param data        块数据源
+         * @param contentType 块数据类型
+         * @return Request
+         */
+        public Request setFirstChunkData(InputStream data, String contentType) {
+            super.setBody(data, contentType);
             return this;
         }
 
@@ -111,7 +133,7 @@ public class ApiUploadV1MakeBlock extends ApiUpload {
         @Override
         protected void buildBodyInfo() throws QiniuException {
             if (!hasBody()) {
-                ApiUtils.throwInvalidRequestParamException("block data");
+                ApiUtils.throwInvalidRequestParamException("block first chunk data");
             }
         }
     }
