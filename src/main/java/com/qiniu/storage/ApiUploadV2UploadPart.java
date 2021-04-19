@@ -5,6 +5,8 @@ import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
 import com.qiniu.util.StringUtils;
 
+import java.io.InputStream;
+
 /**
  * 分片上传 v2 版 api: 分块上传数据
  * 初始化一个 Multipart Upload 任务之后，可以根据指定的 EncodedObjectName 和 UploadId 来分 Part 上传数据。
@@ -102,9 +104,12 @@ public class ApiUploadV2UploadPart extends ApiUpload {
         }
 
         /**
-         * 配置上传块数据【必须】
+         * 配置上传块数据
          * 块数据：在 data 中，从 offset 开始的 size 大小的数据
          * 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB
+         * 注：
+         * 必须通过 {@link ApiUploadV2UploadPart.Request#setUploadData(byte[], int, int, String)} 或
+         * {@link ApiUploadV2UploadPart.Request#setUploadData(InputStream, String)} 配置上传块数据
          *
          * @param data        块数据源
          * @param offset      块数据在 data 中的偏移量
@@ -114,6 +119,23 @@ public class ApiUploadV2UploadPart extends ApiUpload {
          */
         public Request setUploadData(byte[] data, int offset, int size, String contentType) {
             super.setBody(data, offset, size, contentType);
+            return this;
+        }
+
+        /**
+         * 配置上传块数据
+         * 块数据：在 data 中，从 offset 开始的 size 大小的数据
+         * 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB
+         * 注：
+         * 必须通过 {@link ApiUploadV2UploadPart.Request#setUploadData(byte[], int, int, String)} 或
+         * {@link ApiUploadV2UploadPart.Request#setUploadData(InputStream, String)} 配置上传块数据
+         *
+         * @param data        块数据源
+         * @param contentType 块数据类型
+         * @return Request
+         */
+        public Request setUploadData(InputStream data, String contentType) {
+            super.setBody(data, contentType);
             return this;
         }
 

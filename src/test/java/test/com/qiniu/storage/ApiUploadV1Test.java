@@ -10,6 +10,7 @@ import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -22,7 +23,16 @@ import java.util.Map;
 public class ApiUploadV1Test {
 
     @Test
-    public void testUpload() {
+    public void testUploadBytes() {
+        testUpload(true);
+    }
+
+    @Test
+    public void testUploadStream() {
+        testUpload(false);
+    }
+
+    public void testUpload(boolean isUploadBytes) {
 
         long fileSize = 1024 * 7 + 2341; // 单位： k
         File f = null;
@@ -121,7 +131,12 @@ public class ApiUploadV1Test {
                         // 1.2.2.1 块中第一片，采用 make block 接口
                         ApiUploadV1MakeBlock makeBlockApi = new ApiUploadV1MakeBlock(client);
                         ApiUploadV1MakeBlock.Request makeBlockRequest = new ApiUploadV1MakeBlock.Request(urlPrefix, token, (int) blockSize);
-                        makeBlockRequest.setFirstChunkData(chunkData, 0, (int) chunkSize, null);
+                        if (isUploadBytes) {
+                            makeBlockRequest.setFirstChunkData(chunkData, 0, (int) chunkSize, null);
+                        } else {
+                            makeBlockRequest.setFirstChunkData(new ByteArrayInputStream(chunkData), null);
+                        }
+
                         try {
                             ApiUploadV1MakeBlock.Response makeBlockResponse = makeBlockApi.request(makeBlockRequest);
                             blockLastCtx = makeBlockResponse.getCtx();
@@ -142,7 +157,11 @@ public class ApiUploadV1Test {
                         // 1.2.2.2 非块中第一片，采用 make block 接口
                         ApiUploadV1PutChunk putChunkApi = new ApiUploadV1PutChunk(client);
                         ApiUploadV1PutChunk.Request putChunkRequest = new ApiUploadV1PutChunk.Request(urlPrefix, token, blockLastCtx, (int) chunkOffset);
-                        putChunkRequest.setChunkData(chunkData, 0, (int) chunkSize, null);
+                        if (isUploadBytes) {
+                            putChunkRequest.setChunkData(chunkData, 0, (int) chunkSize, null);
+                        } else {
+                            putChunkRequest.setChunkData(new ByteArrayInputStream(chunkData), null);
+                        }
                         try {
                             ApiUploadV1PutChunk.Response putChunkResponse = putChunkApi.request(putChunkRequest);
                             blockLastCtx = putChunkResponse.getCtx();

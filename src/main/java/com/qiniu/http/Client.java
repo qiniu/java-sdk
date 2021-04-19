@@ -279,12 +279,12 @@ public final class Client {
         return post(url, rbody, headers);
     }
 
-    private Response post(String url, RequestBody body, StringMap headers) throws QiniuException {
+    public Response post(String url, RequestBody body, StringMap headers) throws QiniuException {
         Request.Builder requestBuilder = new Request.Builder().url(url).post(body);
         return send(requestBuilder, headers);
     }
 
-    private Response put(String url, RequestBody body, StringMap headers) throws QiniuException {
+    public Response put(String url, RequestBody body, StringMap headers) throws QiniuException {
         Request.Builder requestBuilder = new Request.Builder().url(url).put(body);
         return send(requestBuilder, headers);
     }
