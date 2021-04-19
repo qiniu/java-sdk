@@ -139,7 +139,7 @@ public class ApiUploadV1PutChunk extends ApiUpload {
         @Override
         protected void buildBodyInfo() throws QiniuException {
             if (!hasBody()) {
-                ApiUtils.throwInvalidRequestParamException("block data");
+                ApiUtils.throwInvalidRequestParamException("block chunk data");
             }
         }
     }

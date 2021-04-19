@@ -133,7 +133,7 @@ public class ApiUploadV1MakeBlock extends ApiUpload {
         @Override
         protected void buildBodyInfo() throws QiniuException {
             if (!hasBody()) {
-                ApiUtils.throwInvalidRequestParamException("block data");
+                ApiUtils.throwInvalidRequestParamException("block first chunk data");
             }
         }
     }

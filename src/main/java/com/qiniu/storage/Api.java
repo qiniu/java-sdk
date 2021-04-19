@@ -8,6 +8,7 @@ import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import okio.BufferedSink;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -99,7 +100,7 @@ public class Api {
          * 请求时，每次从流中读取的数据大小
          * 注： body 使用 InputStream 时才有效
          */
-        private long streamBodySinkSize = 1024 * 10;
+        private long streamBodySinkSize = 1024 * 8;
 
         /**
          * 构造请求对象
@@ -317,7 +318,8 @@ public class Api {
 
         /**
          * 使用 streamBody 时，每次读取 streamBody 的大小，读取后发送
-         * 默认：1024*10
+         * 默认：{@link Api.Request#streamBodySinkSize}
+         * 相关：{@link RequestStreamBody#writeTo(BufferedSink) sinkSize}
          *
          * @param streamBodySinkSize 每次读取 streamBody 的大小
          */

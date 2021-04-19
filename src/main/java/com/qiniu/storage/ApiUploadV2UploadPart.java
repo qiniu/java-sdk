@@ -124,7 +124,6 @@ public class ApiUploadV2UploadPart extends ApiUpload {
 
         /**
          * 配置上传块数据
-         * 块数据：在 data 中，从 offset 开始的 size 大小的数据
          * 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB
          * 注：
          * 必须通过 {@link ApiUploadV2UploadPart.Request#setUploadData(byte[], int, int, String)} 或
@@ -166,7 +165,7 @@ public class ApiUploadV2UploadPart extends ApiUpload {
         @Override
         protected void buildBodyInfo() throws QiniuException {
             if (!hasBody()) {
-                ApiUtils.throwInvalidRequestParamException("block data");
+                ApiUtils.throwInvalidRequestParamException("upload data");
             }
         }
     }
