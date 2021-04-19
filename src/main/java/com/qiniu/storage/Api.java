@@ -241,7 +241,7 @@ public class Api {
          * @param key   key
          * @param value value
          */
-        protected void addHeaderField(String key, String value) {
+        public void addHeaderField(String key, String value) {
             if (StringUtils.isNullOrEmpty(key) || StringUtils.isNullOrEmpty(value)) {
                 return;
             }
