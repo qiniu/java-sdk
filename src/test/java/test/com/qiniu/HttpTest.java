@@ -136,7 +136,7 @@ public class HttpTest {
         Field field = client.getClass().getDeclaredField("httpClient");
         field.setAccessible(true);
         OkHttpClient okHttpClient = (OkHttpClient) field.get(client);
-        okHttpClient = okHttpClient.newBuilder().connectTimeout(1, TimeUnit.MILLISECONDS).build();
+        okHttpClient = okHttpClient.newBuilder().connectTimeout(50, TimeUnit.MICROSECONDS).build();
         field.set(client, okHttpClient);
 
         try {
@@ -169,6 +169,8 @@ public class HttpTest {
         }
 
         try {
+            okHttpClient = okHttpClient.newBuilder().connectTimeout(10000, TimeUnit.MILLISECONDS).build();
+            field.set(client, okHttpClient);
             Response response = client.get("http://www.qiniu.com/?v=543");
             Assert.fail("should be timeout, detail:" + response);
         } catch (QiniuException e) {
