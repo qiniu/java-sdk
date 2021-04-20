@@ -169,18 +169,18 @@ public class HttpTest {
         }
 
         try {
-            client.get("http://www.qiniu.com/?v=543");
-            Assert.fail("should be timeout");
+            Response response = client.get("http://www.qiniu.com/?v=543");
+            Assert.fail("should be timeout, detail:" + response);
         } catch (QiniuException e) {
             e.printStackTrace();
             Assert.assertTrue("http, must have port 80, detail:" + e.getMessage(), e.getMessage().indexOf(":80") > 10);
         }
         try {
-            client.get("https://www.qiniu.com/?v=kgd");
-            Assert.fail("should be timeout");
+            Response response = client.get("https://www.qiniu.com/?v=kgd");
+            Assert.fail("should be timeout, detail:" + response);
         } catch (QiniuException e) {
             e.printStackTrace();
-            Assert.assertTrue("https, must have port 443", e.getMessage().indexOf(":443") > 10);
+            Assert.assertTrue("https, must have port 443, detail:" + e.getMessage(), e.getMessage().indexOf(":443") > 10);
         }
     }
 }
