@@ -41,7 +41,7 @@ public final class TestConfig {
     //na0
     public static final String testBucket_na0 = "java-sdk-na0";
     public static final String testKey_na0 = "do_not_delete/1.png";
-    public static final String testChineseKey_na0 = "do_not_delete/水 果.png";
+    public static final String testChineseKey_na0 = "do_not_delete/水 果-iphone.png";
     public static final String testDomain_na0 = "javasdk-na0.peterpy.cn";
     public static final String testDomain_na0_timeStamp = "javasdk-na0-timestamp.peterpy.cn";
     public static final String testUrl_na0 = "http://" + testDomain_na0 + "/" + testKey_na0;
