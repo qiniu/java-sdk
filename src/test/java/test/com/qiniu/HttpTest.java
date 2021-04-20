@@ -136,7 +136,7 @@ public class HttpTest {
         Field field = client.getClass().getDeclaredField("httpClient");
         field.setAccessible(true);
         OkHttpClient okHttpClient = (OkHttpClient) field.get(client);
-        okHttpClient = okHttpClient.newBuilder().connectTimeout(3, TimeUnit.MILLISECONDS).build();
+        okHttpClient = okHttpClient.newBuilder().connectTimeout(1, TimeUnit.MILLISECONDS).build();
         field.set(client, okHttpClient);
 
         try {
