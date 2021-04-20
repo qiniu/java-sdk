@@ -173,7 +173,7 @@ public class HttpTest {
             Assert.fail("should be timeout");
         } catch (QiniuException e) {
             e.printStackTrace();
-            Assert.assertTrue("http, must have port 80", e.getMessage().indexOf(":80") > 10);
+            Assert.assertTrue("http, must have port 80, detail:" + e.getMessage(), e.getMessage().indexOf(":80") > 10);
         }
         try {
             client.get("https://www.qiniu.com/?v=kgd");
