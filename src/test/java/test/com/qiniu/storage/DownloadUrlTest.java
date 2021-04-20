@@ -22,9 +22,9 @@ public class DownloadUrlTest {
         String domain = TestConfig.testDomain_na0;
 
         String attname = "download" + key;
-        String fop = ""; //""imageView2/2/w/320/h/480";
-        String style = ""; // ""iphone";
-        String styleSeparator = ""; // "-";
+        String fop = "imageView2/2/w/320/h/480";
+        String style = "iphone";
+        String styleSeparator = "-";
         String styleParam = "";
         String customQueryKey = "Key";
         String customQueryValue = "Value";
