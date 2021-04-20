@@ -77,7 +77,8 @@ public class DownloadPrivateCloudUrl extends DownloadUrl {
             ApiUtils.throwInvalidRequestParamException("bucketName");
         }
 
-        String host = cfg.ioHost(accessKey, bucketName);
+        ConfigHelper configHelper = new ConfigHelper(cfg);
+        String host = configHelper.ioHost(accessKey, bucketName);
         if (StringUtils.isNullOrEmpty(host)) {
             return host;
         }
