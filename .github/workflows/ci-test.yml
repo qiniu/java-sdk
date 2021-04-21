@@ -27,5 +27,13 @@ jobs:
           QINIU_LINKING_APPID: ${{ secrets.QINIU_LINKING_APPID }}
           QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
           QINIU_TEST_ENV: travis
-        run:
+        run: |
           ./gradlew build --stacktrace --info
+          ./gradlew test -d
+          ./gradlew jacocoTestReport
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1.0.2
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          file: build/reports/jacoco/test/jacocoTestReport.xml
