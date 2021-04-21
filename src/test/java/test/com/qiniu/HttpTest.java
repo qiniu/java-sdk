@@ -171,7 +171,7 @@ public class HttpTest {
 
         long start = new Date().getTime();
         try {
-            Response response = client.get("http://www.qiniu.com/?v=543");
+            Response response = client.get("http://uc.qbox.me/?v=543");
             long end = new Date().getTime();
             Assert.fail("should be timeout," + " duration:" + (end - start) + " detail:" + response);
         } catch (QiniuException e) {
@@ -180,7 +180,7 @@ public class HttpTest {
             Assert.assertTrue("http, must have port 80," + " duration:" + (end - start) + "detail:" + e.getMessage(), e.getMessage().indexOf(":80") > 10);
         }
         try {
-            Response response = client.get("https://www.qiniu.com/?v=kgd");
+            Response response = client.get("https://uc.qbox.me/?v=kgd");
             Assert.fail("should be timeout, detail:" + response);
         } catch (QiniuException e) {
             e.printStackTrace();
