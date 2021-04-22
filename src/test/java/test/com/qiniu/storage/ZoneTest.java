@@ -13,8 +13,8 @@ public class ZoneTest {
         String sk = "<secret key>";
         Auth auth = Auth.create(ak, sk);
 
-        Configuration.defaultApiHost = "apiserver-sdfrsd-s.qiniubbo.com";
-        Configuration.defaultRsHost = "rs-sdfrsd-s.qiniubbo.com";
+//        Configuration.defaultApiHost = "apiserver-sdfrsd-s.qiniubbo.com";
+//        Configuration.defaultRsHost = "rs-sdfrsd-s.qiniubbo.com";
         Zone zone = new Zone.Builder()
                 .upHttp("http://up-sdfrsd-s.qiniubbo.com")
                 .upBackupHttp("http://up-sdfrsd-s.qiniubbo.com")
