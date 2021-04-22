@@ -150,14 +150,17 @@ public class DownloadUrl {
         Api.Request request = new Api.Request(getUrlPrefix());
 
         willSetKeyForUrl(request);
-        String keyAndStyle = UrlUtils.urlEncode(key);
+        String keyAndStyle = null;
+        keyAndStyle = urlPathEncode(key);
         if (!StringUtils.isNullOrEmpty(style) && !StringUtils.isNullOrEmpty(styleSeparator)) {
-            keyAndStyle += UrlUtils.urlEncode(styleSeparator + style);
+            keyAndStyle += urlPathEncode(styleSeparator + style);
             if (!StringUtils.isNullOrEmpty(styleParam)) {
-                keyAndStyle += "@" + UrlUtils.urlEncode(styleParam);
+                keyAndStyle += "@" + urlPathEncode(styleParam);
             }
         }
-        request.addPathSegment(keyAndStyle);
+        if (!StringUtils.isNullOrEmpty(keyAndStyle)) {
+            request.addPathSegment(keyAndStyle);
+        }
         didSetKeyForUrl(request);
 
         if (!StringUtils.isNullOrEmpty(fop)) {
@@ -182,7 +185,8 @@ public class DownloadUrl {
     }
 
     protected void willBuildUrl() throws QiniuException {
-        if (StringUtils.isNullOrEmpty(key)) {
+        // key 可以为 ""
+        if (key == null) {
             ApiUtils.throwInvalidRequestParamException("key");
         }
     }
@@ -205,5 +209,15 @@ public class DownloadUrl {
         } else {
             return "http://" + domain;
         }
+    }
+
+    /**
+     * 七牛 url path 特殊处理
+     *
+     * @param path raw url path
+     * @return encode url path
+     */
+    private String urlPathEncode(String path) {
+        return UrlUtils.urlEncode(path, "/~");
     }
 }

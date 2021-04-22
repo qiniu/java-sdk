@@ -13,6 +13,8 @@ import test.com.qiniu.TestConfig;
 
 import java.net.URLEncoder;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DownloadUrlTest {
 
@@ -44,6 +46,39 @@ public class DownloadUrlTest {
         } catch (QiniuException e) {
             Assert.assertTrue(e.error(), false);
         }
+    }
+
+    @Test
+    public void testSpecialKey() {
+        String domain = "abc.com:123";
+        Map<String, String> keys = new HashMap<String, String>() {{
+            put("", "");
+            put("abc_def.mp4", "abc_def.mp4");
+            put("/ab/cd", "/ab/cd");
+            put("ab/中文/de", "ab/%E4%B8%AD%E6%96%87/de");
+            put("ab+-*de f", "ab%2B-%2Ade%20f");
+            put("ab:cd", "ab%3Acd");
+            put("ab@cd", "ab%40cd");
+            put("ab?cd=ef", "ab%3Fcd%3Def");
+            put("ab#e~f", "ab%23e~f");
+            put("ab//cd", "ab//cd");
+            put("abc%2F%2B", "abc%252F%252B");
+            put("ab cd", "ab%20cd");
+            put("ab/c:d?e#f//gh汉子", "ab/c%3Ad%3Fe%23f//gh%E6%B1%89%E5%AD%90");
+        }};
+
+        for (String key : keys.keySet()) {
+            String encodeKey = keys.get(key);
+            try {
+                String url = new DownloadUrl(domain, false, key).buildURL();
+                String exceptUrl = "http://" + domain + "/" + encodeKey;
+                Assert.assertEquals("url:" + url + " exceptUrl:" + exceptUrl, exceptUrl, url);
+            } catch (QiniuException e) {
+                Assert.assertTrue(e.error(), false);
+            }
+        }
+
+
     }
 
     @Test
