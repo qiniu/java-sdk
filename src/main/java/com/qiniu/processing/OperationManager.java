@@ -52,6 +52,12 @@ public final class OperationManager {
         this.configuration = new Configuration();
     }
 
+    public OperationManager(Auth auth, Configuration cfg, Client client) {
+        this.auth = auth;
+        this.client = client;
+        this.configuration = cfg;
+    }
+
     /**
      * 发送请求对空间中的文件进行持久化处理
      *
