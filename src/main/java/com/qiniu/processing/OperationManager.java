@@ -171,8 +171,10 @@ public final class OperationManager {
      */
     public <T> T prefop(String persistentId, Class<T> retClass) throws QiniuException {
         String url = String.format("%s/status/get/prefop?id=%s", configuration.apiHost(), persistentId);
+        System.out.println("prefop url:" + url);
         Response response = this.client.get(url);
         if (!response.isOK()) {
+            System.out.println("prefop response:" + response);
             throw new QiniuException(response);
         }
         T object = response.jsonToObject(retClass);
