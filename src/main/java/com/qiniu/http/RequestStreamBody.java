@@ -12,7 +12,8 @@ import java.io.InputStream;
 
 public class RequestStreamBody extends RequestBody {
 
-    private long sinkSize = 1024 * 10;
+    private long contentLength = -1;
+    private long sinkSize = 1024 * 100;
     private final MediaType type;
     private final InputStream stream;
 
@@ -39,6 +40,18 @@ public class RequestStreamBody extends RequestBody {
     }
 
     /**
+     * 构造函数
+     *
+     * @param stream      请求数据流
+     * @param contentType 请求数据类型
+     */
+    public RequestStreamBody(InputStream stream, MediaType contentType, long contentLength) {
+        this.stream = stream;
+        this.type = contentType;
+        this.contentLength = contentLength;
+    }
+
+    /**
      * 配置请求时，每次从流中读取的数据大小
      *
      * @param sinkSize 每次从流中读取的数据大小
@@ -60,14 +73,22 @@ public class RequestStreamBody extends RequestBody {
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
         try (Source source = Okio.source(stream)) {
-            do {
+            int offset = 0;
+            while (contentLength < 0 || offset < contentLength) {
+                long byteSize = sinkSize;
+                if (offset < contentLength) {
+                    byteSize = Math.min(sinkSize, contentLength - offset);
+                }
+
                 try {
-                    sink.write(source, sinkSize);
+                    sink.write(source, byteSize);
                     sink.flush();
+                    offset += sinkSize;
                 } catch (EOFException e) {
+                    contentLength = offset;
                     break;
                 }
-            } while (true);
+            }
         }
     }
 }

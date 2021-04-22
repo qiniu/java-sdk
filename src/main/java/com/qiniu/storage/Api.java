@@ -100,7 +100,7 @@ public class Api {
          * 请求时，每次从流中读取的数据大小
          * 注： body 使用 InputStream 时才有效
          */
-        private long streamBodySinkSize = 1024 * 8;
+        private long streamBodySinkSize = 1024 * 10;
 
         /**
          * 构造请求对象
@@ -306,14 +306,17 @@ public class Api {
         /**
          * 设置请求体
          *
-         * @param body        请求数据源
-         * @param contentType 请求数据类型
+         * @param body          请求数据源
+         * @param contentType   请求数据类型
+         * @param contentLength 上传 body 最大大小，最多读取的 contentLength；body 有多余则被舍弃；body 不足则会上传多有 body；
+         *                      如果提前不知道 body 大小，但想上传所有 body，contentLength 设置为 -1 即可；
          */
-        protected void setBody(InputStream body, String contentType) {
+        protected void setBody(InputStream body, String contentType, long contentLength) {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
-            this.body = new RequestStreamBody(body, contentType);
+            MediaType type = MediaType.parse(contentType);
+            this.body = new RequestStreamBody(body, type, contentLength);
         }
 
         /**

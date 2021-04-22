@@ -24,15 +24,20 @@ public class ApiUploadV2Test {
 
     @Test
     public void testUploadBytes() {
-        testUpload(true);
+        testUpload(true, false);
     }
 
     @Test
     public void testUploadStream() {
-        testUpload(false);
+        testUpload(false, false);
     }
 
-    public void testUpload(boolean isUploadBytes) {
+    @Test
+    public void testUploadStreamWithContentLength() {
+        testUpload(false, true);
+    }
+
+    public void testUpload(boolean isUploadBytes, boolean isSetContentLength) {
         long fileSize = 1024 * 7 + 2341; // 单位： k
         File f = null;
         try {
@@ -133,7 +138,7 @@ public class ApiUploadV2Test {
                 if (isUploadBytes) {
                     uploadPartRequest.setUploadData(partData, 0, partData.length, null);
                 } else {
-                    uploadPartRequest.setUploadData(new ByteArrayInputStream(partData), null);
+                    uploadPartRequest.setUploadData(new ByteArrayInputStream(partData), null, isSetContentLength ? partData.length + 1 : -1);
                 }
                 try {
                     ApiUploadV2UploadPart.Response uploadPartResponse = uploadPartApi.request(uploadPartRequest);

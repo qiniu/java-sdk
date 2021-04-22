@@ -134,7 +134,7 @@ public class ApiUploadV1Test {
                         if (isUploadBytes) {
                             makeBlockRequest.setFirstChunkData(chunkData, 0, (int) chunkSize, null);
                         } else {
-                            makeBlockRequest.setFirstChunkData(new ByteArrayInputStream(chunkData), null);
+                            makeBlockRequest.setFirstChunkData(new ByteArrayInputStream(chunkData), null, chunkSize);
                         }
 
                         try {
@@ -160,7 +160,7 @@ public class ApiUploadV1Test {
                         if (isUploadBytes) {
                             putChunkRequest.setChunkData(chunkData, 0, (int) chunkSize, null);
                         } else {
-                            putChunkRequest.setChunkData(new ByteArrayInputStream(chunkData), null);
+                            putChunkRequest.setChunkData(new ByteArrayInputStream(chunkData), null, chunkSize);
                         }
                         try {
                             ApiUploadV1PutChunk.Response putChunkResponse = putChunkApi.request(putChunkRequest);

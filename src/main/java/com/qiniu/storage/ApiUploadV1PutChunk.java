@@ -110,14 +110,16 @@ public class ApiUploadV1PutChunk extends ApiUpload {
          * 块数据 size 必须不大于 4M，block 中所有 chunk 的 size 总和必须为 4M, SDK 内部不做 block/chunk size 检测
          * 注：
          * 必须通过 {@link ApiUploadV1PutChunk.Request#setChunkData(byte[], int, int, String)} 或
-         * {@link ApiUploadV1PutChunk.Request#setChunkData(InputStream, String)} 配置块中上传片数据
+         * {@link ApiUploadV1PutChunk.Request#setChunkData(InputStream, String, long)} 配置块中上传片数据
          *
-         * @param data        块数据源
-         * @param contentType 块数据类型
+         * @param data          块数据源
+         * @param contentType   块数据类型
+         * @param contentLength 上传 data 最大大小，最多读取的 contentLength；data 有多余则被舍弃；data 不足则会上传多有 data；
+         *                      如果提前不知道 data 大小，但想上传所有 data，contentLength 设置为 -1 即可；
          * @return Request
          */
-        public Request setChunkData(InputStream data, String contentType) {
-            super.setBody(data, contentType);
+        public Request setChunkData(InputStream data, String contentType, long contentLength) {
+            super.setBody(data, contentType, contentLength);
             return this;
         }
 
