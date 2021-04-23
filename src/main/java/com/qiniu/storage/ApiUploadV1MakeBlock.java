@@ -90,7 +90,7 @@ public class ApiUploadV1MakeBlock extends ApiUpload {
          * 块数据：在 data 中，从 offset 开始的 size 大小的数据
          * 注：
          * 必须通过 {@link ApiUploadV1MakeBlock.Request#setFirstChunkData(byte[], int, int, String)} 或
-         * {@link ApiUploadV1MakeBlock.Request#setFirstChunkData(InputStream, String)} 配置块第一个上传片数据
+         * {@link ApiUploadV1MakeBlock.Request#setFirstChunkData(InputStream, String, long)} 配置块第一个上传片数据
          *
          * @param data        块数据源
          * @param offset      块数据在 data 中的偏移量

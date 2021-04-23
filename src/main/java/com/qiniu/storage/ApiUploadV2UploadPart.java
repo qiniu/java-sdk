@@ -109,7 +109,7 @@ public class ApiUploadV2UploadPart extends ApiUpload {
          * 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB
          * 注：
          * 必须通过 {@link ApiUploadV2UploadPart.Request#setUploadData(byte[], int, int, String)} 或
-         * {@link ApiUploadV2UploadPart.Request#setUploadData(InputStream, String)} 配置上传块数据
+         * {@link ApiUploadV2UploadPart.Request#setUploadData(InputStream, String, long)} 配置上传块数据
          *
          * @param data        块数据源
          * @param offset      块数据在 data 中的偏移量

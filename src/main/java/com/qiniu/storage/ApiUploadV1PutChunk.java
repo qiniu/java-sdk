@@ -92,7 +92,7 @@ public class ApiUploadV1PutChunk extends ApiUpload {
          * 块数据：在 data 中，从 offset 开始的 size 大小的数据
          * 注：
          * 必须通过 {@link ApiUploadV1PutChunk.Request#setChunkData(byte[], int, int, String)} 或
-         * {@link ApiUploadV1PutChunk.Request#setChunkData(InputStream, String)} 配置块中上传片数据
+         * {@link ApiUploadV1PutChunk.Request#setChunkData(InputStream, String, long)} 配置块中上传片数据
          *
          * @param data        分片数据源
          * @param offset      分片数据在 data 中的偏移量
