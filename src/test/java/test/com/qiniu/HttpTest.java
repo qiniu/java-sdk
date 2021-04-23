@@ -3,13 +3,19 @@ package test.com.qiniu;
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.Dns;
 import com.qiniu.http.ProxyConfiguration;
 import com.qiniu.http.Response;
+import com.qiniu.storage.Configuration;
 import okhttp3.OkHttpClient;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class HttpTest {
@@ -100,6 +106,55 @@ public class HttpTest {
     }
 
     @Test
+    public void testSSL() throws NoSuchFieldException, IllegalAccessException {
+        // www.baidu.com 的 ip，预期报错，报错信息有显示连接的 ip 以及端口
+        Configuration cfg = new Configuration();
+        cfg.dns = new Dns() {
+            @Override
+            public List<InetAddress> lookup(String hostname) throws UnknownHostException {
+                if (hostname.equalsIgnoreCase("www.qiniu.com")) {
+                     List<InetAddress> as = new ArrayList<>();
+//                    byte[] b1 = new byte[] {14, (byte)215, (byte)177, 38};
+//                    byte[] b2 = new byte[] {61, (byte)135, (byte)185, 32};
+//                    InetAddress addr1 = InetAddress.getByAddress(b1);
+//                    System.out.println("addr1:  " + addr1);
+//                    as.add(addr1);
+//                    as.add(InetAddress.getByAddress(hostname, b2));
+                    List<InetAddress> addresses1 = okhttp3.Dns.SYSTEM.lookup("www.baidu.com");
+                    for (InetAddress ad : addresses1) {
+                        System.out.println("ad:  " + ad);
+                        InetAddress ad1 = InetAddress.getByAddress(hostname, ad.getAddress());
+                        System.out.println("ad1:  " + ad1);
+                        as.add(ad1);
+                    }
+                    return  as;
+                }
+                return okhttp3.Dns.SYSTEM.lookup(hostname);
+            }
+        };
+
+        Client client0 = new Client(cfg);
+        try {
+            Response res = client0.get("https://www.qiniu.com/?v=12345");
+        } catch (QiniuException e) {
+            System.out.println(e.getMessage());
+            Assert.assertTrue("https, must have port 443", e.getMessage().indexOf(":443") > 0);
+            e.printStackTrace();
+        }
+
+        try {
+            Response res = client0.get("https://www.qiniu.com/?v=12345");
+            String r = res.toString();
+            System.out.println(r);
+            Assert.assertTrue("https, must have port 443", r.indexOf(":443") > 0);
+        } catch (QiniuException e) {
+            System.out.println(e.getMessage());
+            Assert.assertTrue("https, must have port 443", e.getMessage().indexOf(":443") > 0);
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testTimeout() throws NoSuchFieldException, IllegalAccessException {
         Client client0 = new Client();
         try {
@@ -108,6 +163,7 @@ public class HttpTest {
             System.out.println(r);
             Assert.assertTrue("https, must have port 443", r.indexOf(":443") > 0);
         } catch (QiniuException e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
             Assert.fail("should be ok");
         }
@@ -143,6 +199,7 @@ public class HttpTest {
             client.get("http://rs.qbox.me/?v=12");
             Assert.fail("should be timeout");
         } catch (QiniuException e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
             Assert.assertTrue("http, must have port 80", e.getMessage().indexOf(":80") > 10);
         }
@@ -150,6 +207,7 @@ public class HttpTest {
             client.get("http://rs.qbox.me/?v=12");
             Assert.fail("should be timeout");
         } catch (QiniuException e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
             Assert.assertTrue("http, must have port 80", e.getMessage().indexOf(":80") > 10);
         }
@@ -162,6 +220,21 @@ public class HttpTest {
         }
         try {
             client.get("https://rs.qbox.me/?v=we");
+            Assert.fail("should be timeout");
+        } catch (QiniuException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            Assert.assertTrue("https, must have port 443", e.getMessage().indexOf(":443") > 10);
+        }
+        try {
+            client.post("http://rs.qbox.me/?v=we", "", null);
+            Assert.fail("should be timeout");
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            Assert.assertTrue("http, must have port 80", e.getMessage().indexOf(":80") > 10);
+        }
+        try {
+            client.post("https://rs.qbox.me/?v=we", "", null);
             Assert.fail("should be timeout");
         } catch (QiniuException e) {
             e.printStackTrace();

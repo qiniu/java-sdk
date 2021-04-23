@@ -79,36 +79,43 @@ public final class Client {
                 tag.ip = inetSocketAddress + "";
             }
         });
+        /*
+        *
+        * List<Interceptor> interceptors = new ArrayList<>();
+        * interceptors.addAll(client.interceptors());
+        * interceptors.add(new RetryAndFollowUpInterceptor(client));
+        * interceptors.add(new BridgeInterceptor(client.cookieJar()));
+        * interceptors.add(new CacheInterceptor(client.internalCache()));
+        * interceptors.add(new ConnectInterceptor(client));
+        * if (!forWebSocket) {
+        *     interceptors.addAll(client.networkInterceptors());
+        * }
+        * interceptors.add(new CallServerInterceptor(forWebSocket));
+        * */
         builder.addNetworkInterceptor(new Interceptor() {
             @Override
             public okhttp3.Response intercept(Chain chain) throws IOException {
+                // 此时已建立好链接. 获取 ip 放前面， chain.proceed(request) 潜在异常不影响 RemoteSocketAddress 获取 //
                 Request request = chain.request();
-                okhttp3.Response response = chain.proceed(request);
-                IpTag tag = (IpTag) request.tag();
+                IpTag tag = (IpTag) request.tag(); // 一定存在 tag //
                 try {
                     tag.ip = chain.connection().socket().getRemoteSocketAddress() + "";
                 } catch (Exception e) {
                     // ingore
                 }
-                return response;
+                return chain.proceed(request);
             }
         });
         builder.addInterceptor(new Interceptor() {
             @Override
             public okhttp3.Response intercept(Chain chain) throws IOException {
                 Request request = chain.request();
-                okhttp3.Response response = null;
-                IOException ex = null;
                 try {
-                    response = chain.proceed(request);
+                    return chain.proceed(request);
                 } catch (IOException e) {
                     IpTag tag = (IpTag) request.tag();
-                    ex = new IOException(e + " on " + tag.ip, e);
+                    throw new IOException(e + " on " + tag.ip, e);
                 }
-                if (ex != null) {
-                    throw ex;
-                }
-                return response;
             }
         });
         if (dns != null) {
@@ -118,6 +125,7 @@ public final class Client {
                     try {
                         return dns.lookup(hostname);
                     } catch (Exception e) {
+                        // ingore
                     }
                     return okhttp3.Dns.SYSTEM.lookup(hostname);
                 }
