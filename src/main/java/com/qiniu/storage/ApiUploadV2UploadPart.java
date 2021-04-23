@@ -129,14 +129,14 @@ public class ApiUploadV2UploadPart extends ApiUpload {
          * 必须通过 {@link ApiUploadV2UploadPart.Request#setUploadData(byte[], int, int, String)} 或
          * {@link ApiUploadV2UploadPart.Request#setUploadData(InputStream, String, long)} 配置上传块数据
          *
-         * @param data          块数据源
-         * @param contentType   块数据类型
-         * @param contentLength 上传 data 最大大小，最多读取的 contentLength；data 有多余则被舍弃；data 不足则会上传多有 data；
-         *                      如果提前不知道 data 大小，但想上传所有 data，contentLength 设置为 -1 即可；
+         * @param data        块数据源
+         * @param contentType 块数据类型
+         * @param limitSize   最大读取 data 的大小；data 有多余则被舍弃；data 不足则会上传多有 data；
+         *                    如果提前不知道 data 大小，但想上传所有 data，limitSize 设置为 -1 即可；
          * @return Request
          */
-        public Request setUploadData(InputStream data, String contentType, long contentLength) {
-            super.setBody(data, contentType, contentLength);
+        public Request setUploadData(InputStream data, String contentType, long limitSize) {
+            super.setBody(data, contentType, limitSize);
             return this;
         }
 

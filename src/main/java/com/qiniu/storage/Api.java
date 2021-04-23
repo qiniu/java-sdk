@@ -306,17 +306,17 @@ public class Api {
         /**
          * 设置请求体
          *
-         * @param body          请求数据源
-         * @param contentType   请求数据类型
-         * @param contentLength 上传 body 最大大小，最多读取的 contentLength；body 有多余则被舍弃；body 不足则会上传多有 body；
-         *                      如果提前不知道 body 大小，但想上传所有 body，contentLength 设置为 -1 即可；
+         * @param body        请求数据源
+         * @param contentType 请求数据类型
+         * @param limitSize   最大读取 body 的大小；body 有多余则被舍弃；body 不足则会上传多有 body；
+         *                    如果提前不知道 body 大小，但想上传所有 body，limitSize 设置为 -1 即可；
          */
-        protected void setBody(InputStream body, String contentType, long contentLength) {
+        protected void setBody(InputStream body, String contentType, long limitSize) {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
             MediaType type = MediaType.parse(contentType);
-            this.body = new RequestStreamBody(body, type, contentLength);
+            this.body = new RequestStreamBody(body, type, limitSize);
         }
 
         /**
