@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class HttpTest {
@@ -136,7 +137,7 @@ public class HttpTest {
         Field field = client.getClass().getDeclaredField("httpClient");
         field.setAccessible(true);
         OkHttpClient okHttpClient = (OkHttpClient) field.get(client);
-        okHttpClient = okHttpClient.newBuilder().connectTimeout(3, TimeUnit.MILLISECONDS).build();
+        okHttpClient = okHttpClient.newBuilder().connectTimeout(1, TimeUnit.MILLISECONDS).build();
         field.set(client, okHttpClient);
 
         try {
@@ -168,19 +169,22 @@ public class HttpTest {
             Assert.assertTrue("https, must have port 443", e.getMessage().indexOf(":443") > 10);
         }
 
+        long start = new Date().getTime();
         try {
-            client.get("http://www.qiniu.com/?v=543");
-            Assert.fail("should be timeout");
+            Response response = client.get("http://uc.qbox.me/?v=543");
+            long end = new Date().getTime();
+            Assert.fail("should be timeout," + " duration:" + (end - start) + " detail:" + response);
         } catch (QiniuException e) {
             e.printStackTrace();
-            Assert.assertTrue("http, must have port 80", e.getMessage().indexOf(":80") > 10);
+            long end = new Date().getTime();
+            Assert.assertTrue("http, must have port 80," + " duration:" + (end - start) + "detail:" + e.getMessage(), e.getMessage().indexOf(":80") > 10);
         }
         try {
-            client.get("https://www.qiniu.com/?v=kgd");
-            Assert.fail("should be timeout");
+            Response response = client.get("https://uc.qbox.me/?v=kgd");
+            Assert.fail("should be timeout, detail:" + response);
         } catch (QiniuException e) {
             e.printStackTrace();
-            Assert.assertTrue("https, must have port 443", e.getMessage().indexOf(":443") > 10);
+            Assert.assertTrue("https, must have port 443, detail:" + e.getMessage(), e.getMessage().indexOf(":443") > 10);
         }
     }
 }

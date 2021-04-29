@@ -4,6 +4,8 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
 
+import java.io.InputStream;
+
 /**
  * 分片上传 v1 版 api: 上传片
  * 上传指定块的一片数据，具体数据量可根据现场环境调整。同一块的每片数据必须串行上传。
@@ -85,8 +87,12 @@ public class ApiUploadV1PutChunk extends ApiUpload {
         }
 
         /**
-         * 配置块中上传片数据【必须】
+         * 配置块中上传片数据
+         * 块数据 size 必须不大于 4M，block 中所有 chunk 的 size 总和必须为 4M, SDK 内部不做 block/chunk size 检测
          * 块数据：在 data 中，从 offset 开始的 size 大小的数据
+         * 注：
+         * 必须通过 {@link ApiUploadV1PutChunk.Request#setChunkData(byte[], int, int, String)} 或
+         * {@link ApiUploadV1PutChunk.Request#setChunkData(InputStream, String, long)} 配置块中上传片数据
          *
          * @param data        分片数据源
          * @param offset      分片数据在 data 中的偏移量
@@ -96,6 +102,24 @@ public class ApiUploadV1PutChunk extends ApiUpload {
          */
         public Request setChunkData(byte[] data, int offset, int size, String contentType) {
             super.setBody(data, offset, size, contentType);
+            return this;
+        }
+
+        /**
+         * 配置块中上传片数据
+         * 块数据 size 必须不大于 4M，block 中所有 chunk 的 size 总和必须为 4M, SDK 内部不做 block/chunk size 检测
+         * 注：
+         * 必须通过 {@link ApiUploadV1PutChunk.Request#setChunkData(byte[], int, int, String)} 或
+         * {@link ApiUploadV1PutChunk.Request#setChunkData(InputStream, String, long)} 配置块中上传片数据
+         *
+         * @param data        块数据源
+         * @param contentType 块数据类型
+         * @param limitSize   最大读取 data 的大小；data 有多余则被舍弃；data 不足则会上传多有 data；
+         *                    如果提前不知道 data 大小，但想上传所有 data，limitSize 设置为 -1 即可；
+         * @return Request
+         */
+        public Request setChunkData(InputStream data, String contentType, long limitSize) {
+            super.setBody(data, contentType, limitSize);
             return this;
         }
 
@@ -117,7 +141,7 @@ public class ApiUploadV1PutChunk extends ApiUpload {
         @Override
         protected void buildBodyInfo() throws QiniuException {
             if (!hasBody()) {
-                ApiUtils.throwInvalidRequestParamException("block data");
+                ApiUtils.throwInvalidRequestParamException("block chunk data");
             }
         }
     }

@@ -31,7 +31,11 @@ public class Md5 {
 
     public static String md5(File file) throws IOException {
         FileInputStream fis = new FileInputStream(file);
-        return md5(fis, file.length());
+        try {
+            return md5(fis, file.length());
+        } finally {
+            fis.close();
+        }
     }
 
 

@@ -54,6 +54,13 @@ public final class BucketManager {
         this.configHelper = new ConfigHelper(new Configuration());
     }
 
+    public BucketManager(Auth auth, Configuration cfg, Client client) {
+        this.auth = auth;
+        this.client = client;
+        Configuration c2 = cfg == null ? new Configuration() : cfg.clone();
+        this.configHelper = new ConfigHelper(c2);
+    }
+
     /**
      * EncodedEntryURI格式，其中 bucket+":"+key 称之为 entry
      *

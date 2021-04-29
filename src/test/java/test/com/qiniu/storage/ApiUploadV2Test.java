@@ -10,6 +10,7 @@ import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -22,7 +23,21 @@ import java.util.Map;
 public class ApiUploadV2Test {
 
     @Test
-    public void testUpload() {
+    public void testUploadBytes() {
+        testUpload(true, false);
+    }
+
+    @Test
+    public void testUploadStream() {
+        testUpload(false, false);
+    }
+
+    @Test
+    public void testUploadStreamWithContentLength() {
+        testUpload(false, true);
+    }
+
+    public void testUpload(boolean isUploadBytes, boolean isSetContentLength) {
         long fileSize = 1024 * 7 + 2341; // 单位： k
         File f = null;
         try {
@@ -119,8 +134,12 @@ public class ApiUploadV2Test {
                 // 1.2.2 上传 part 数据
                 ApiUploadV2UploadPart uploadPartApi = new ApiUploadV2UploadPart(client);
                 ApiUploadV2UploadPart.Request uploadPartRequest = new ApiUploadV2UploadPart.Request(urlPrefix, token, uploadId, partNumber)
-                        .setKey(key)
-                        .setUploadData(partData, 0, partData.length, null);
+                        .setKey(key);
+                if (isUploadBytes) {
+                    uploadPartRequest.setUploadData(partData, 0, partData.length, null);
+                } else {
+                    uploadPartRequest.setUploadData(new ByteArrayInputStream(partData), null, isSetContentLength ? partData.length + 1 : -1);
+                }
                 try {
                     ApiUploadV2UploadPart.Response uploadPartResponse = uploadPartApi.request(uploadPartRequest);
                     String etag = uploadPartResponse.getEtag();

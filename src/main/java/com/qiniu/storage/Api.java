@@ -3,9 +3,14 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
+import com.qiniu.http.RequestStreamBody;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okio.BufferedSink;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
@@ -35,14 +40,11 @@ public class Api {
         if (request.method == MethodType.GET) {
             return client.get(request.getUrl().toString(), request.getHeader());
         } else if (request.method == MethodType.POST) {
-            return client.post(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
-                    request.getHeader(), request.bodyContentType);
+            return client.post(request.getUrl().toString(), request.getRequestBody(), request.getHeader());
         } else if (request.method == MethodType.PUT) {
-            return client.put(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
-                    request.getHeader(), request.bodyContentType);
+            return client.put(request.getUrl().toString(), request.getRequestBody(), request.getHeader());
         } else if (request.method == MethodType.DELETE) {
-            return client.delete(request.getUrl().toString(), request.body, request.bodyOffset, request.bodySize,
-                    request.getHeader(), request.bodyContentType);
+            return client.delete(request.getUrl().toString(), request.getRequestBody(), request.getHeader());
         } else {
             throw QiniuException.unrecoverable("暂不支持这种请求方式");
         }
@@ -91,12 +93,14 @@ public class Api {
         private final Map<String, String> header = new HashMap<>();
 
         /**
-         * 请求数据是在 body 中，从 bodyOffset 开始，获取 bodySize 大小的数据
+         * 请求 body
          */
-        private byte[] body = new byte[0];
-        private int bodySize = 0;
-        private int bodyOffset = 0;
-        private String bodyContentType = Client.DefaultMime;
+        private RequestBody body;
+        /**
+         * 请求时，每次从流中读取的数据大小
+         * 注： body 使用 InputStream 时才有效
+         */
+        private long streamBodySinkSize = 1024 * 10;
 
         /**
          * 构造请求对象
@@ -174,7 +178,7 @@ public class Api {
          * @param value value
          */
         protected void addQueryPair(String key, String value) {
-            if (StringUtils.isNullOrEmpty(key) || value == null) {
+            if (StringUtils.isNullOrEmpty(key)) {
                 return;
             }
             queryPairs.add(new Pair<String, String>(key, value));
@@ -237,7 +241,7 @@ public class Api {
          * @param key   key
          * @param value value
          */
-        protected void addHeaderField(String key, String value) {
+        public void addHeaderField(String key, String value) {
             if (StringUtils.isNullOrEmpty(key) || StringUtils.isNullOrEmpty(value)) {
                 return;
             }
@@ -292,16 +296,59 @@ public class Api {
          * @param contentType 请求数据类型
          */
         protected void setBody(byte[] body, int offset, int size, String contentType) {
-            this.body = body;
-            this.bodyOffset = offset;
-            this.bodySize = size;
-            if (!StringUtils.isNullOrEmpty(contentType)) {
-                this.bodyContentType = contentType;
+            if (StringUtils.isNullOrEmpty(contentType)) {
+                contentType = Client.DefaultMime;
             }
+            MediaType type = MediaType.parse(contentType);
+            this.body = RequestBody.create(type, body, offset, size);
         }
 
+        /**
+         * 设置请求体
+         *
+         * @param body        请求数据源
+         * @param contentType 请求数据类型
+         * @param limitSize   最大读取 body 的大小；body 有多余则被舍弃；body 不足则会上传多有 body；
+         *                    如果提前不知道 body 大小，但想上传所有 body，limitSize 设置为 -1 即可；
+         */
+        protected void setBody(InputStream body, String contentType, long limitSize) {
+            if (StringUtils.isNullOrEmpty(contentType)) {
+                contentType = Client.DefaultMime;
+            }
+            MediaType type = MediaType.parse(contentType);
+            this.body = new RequestStreamBody(body, type, limitSize);
+        }
+
+        /**
+         * 使用 streamBody 时，每次读取 streamBody 的大小，读取后发送
+         * 默认：{@link Api.Request#streamBodySinkSize}
+         * 相关：{@link RequestStreamBody#writeTo(BufferedSink) sinkSize}
+         *
+         * @param streamBodySinkSize 每次读取 streamBody 的大小
+         */
+        public Request setStreamBodySinkSize(long streamBodySinkSize) {
+            this.streamBodySinkSize = streamBodySinkSize;
+            return this;
+        }
+
+        /**
+         * 是否有请求体
+         *
+         * @return 是否有请求体
+         */
         public boolean hasBody() {
-            return body != null && body.length > 0 && bodySize > 0;
+            return body != null;
+        }
+
+        private RequestBody getRequestBody() {
+            if (hasBody()) {
+                if (body instanceof RequestStreamBody) {
+                    ((RequestStreamBody) body).setSinkSize(streamBodySinkSize);
+                }
+                return body;
+            } else {
+                return RequestBody.create(null, new byte[0]);
+            }
         }
 
         /**
@@ -310,11 +357,7 @@ public class Api {
          * @throws QiniuException
          */
         protected void buildBodyInfo() throws QiniuException {
-            if (body == null) {
-                body = new byte[0];
-                bodySize = 0;
-                bodyOffset = 0;
-            }
+
         }
 
         /**
@@ -328,10 +371,7 @@ public class Api {
             buildBodyInfo();
         }
 
-        void test() {
-        }
-
-        private static class Pair<K, V> {
+        protected static class Pair<K, V> {
 
             /**
              * Key of this <code>Pair</code>.
@@ -367,7 +407,7 @@ public class Api {
              * @param key   The key for this pair
              * @param value The value to use for this pair
              */
-            Pair(K key, V value) {
+            protected Pair(K key, V value) {
                 this.key = key;
                 this.value = value;
             }

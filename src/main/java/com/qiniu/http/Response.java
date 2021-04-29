@@ -241,6 +241,10 @@ public final class Response {
         return ctype(response);
     }
 
+    public String header(String name, String defaultValue) {
+        return response.header(name, defaultValue);
+    }
+
     public boolean isJson() {
         return contentType().equals(Client.JsonMime);
     }
