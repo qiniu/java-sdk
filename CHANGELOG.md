@@ -2,8 +2,8 @@
 ## 7.6.0 (2021-04-29)
 
 ## 增加
-* 上传服务基础上传数据 api 支持 InputStream
-* 支持构建 DownloadUrl 功能
+* 上传每个服务端 API 对应基础上传数据 API 支持流式数据 InputStream
+* 提供更友好的构建 DownloadUrl 能力
 
 
 ## 7.5.0 (2021-04-15)
