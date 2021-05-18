@@ -31,15 +31,10 @@ import java.io.InputStream;
  * 服务端网络较稳定，较大文件（如500M以上）才需要将块记录保存下来。
  * 小文件没有必要，可以有效地实现大文件的上传。
  */
-public class ResumeUploader {
-    private final Client client;
-    private final String key;
-    private final String upToken;
+public class ResumeUploader extends BaseUploader {
     private final ResumeUploadSource source;
     private final Recorder recorder;
     private final UploadOptions options;
-
-    final Configuration config;
 
     ResumeUploadPerformer uploadPerformer;
 
@@ -123,14 +118,11 @@ public class ResumeUploader {
 
     private ResumeUploader(Client client, String key, String upToken, ResumeUploadSource source, Recorder recorder,
                            UploadOptions options, Configuration configuration) {
+        super(client, upToken, key, configuration);
 
-        this.client = client;
-        this.key = key;
-        this.upToken = upToken;
         this.source = source;
         this.recorder = recorder;
         this.options = options == null ? UploadOptions.defaultOptions() : options;
-        this.config = configuration;
     }
 
     /**
@@ -138,13 +130,14 @@ public class ResumeUploader {
      */
     public Response upload() throws QiniuException {
         try {
-            return uploadFlows();
+            return super.upload();
         } finally {
             close();
         }
     }
 
-    private Response uploadFlows() throws QiniuException {
+    @Override
+    Response uploadFlows() throws QiniuException {
         // 检查参数
         checkParam();
 

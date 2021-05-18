@@ -171,6 +171,16 @@ class AutoRegion extends Region {
     }
 
     @Override
+    boolean switchRegion(RegionReqInfo regionReqInfo) {
+        Region currentRegion = getCurrentRegion(regionReqInfo);
+        if (currentRegion == null) {
+            return false;
+        } else {
+            return currentRegion.switchRegion(regionReqInfo);
+        }
+    }
+
+    @Override
     String getRegion(RegionReqInfo regionReqInfo) {
         Region currentRegion = getCurrentRegion(regionReqInfo);
         if (currentRegion == null) {

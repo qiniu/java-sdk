@@ -26,6 +26,21 @@ public class RegionGroup extends Region {
         return true;
     }
 
+    @Override
+    boolean switchRegion(RegionReqInfo regionReqInfo) {
+        if (currentRegion != null && currentRegion.switchRegion(regionReqInfo)) {
+            return true;
+        }
+
+        if ((currentRegionIndex + 1) < regionList.size()) {
+            currentRegionIndex += 1;
+            updateCurrentRegion();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     String getRegion(RegionReqInfo regionReqInfo) {
         if (currentRegion == null) {
             return "";

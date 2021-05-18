@@ -230,6 +230,10 @@ public class Region {
         return new Builder().autoRegion(ucServer);
     }
 
+    boolean switchRegion(RegionReqInfo regionReqInfo) {
+        return false;
+    }
+
     String getRegion(RegionReqInfo regionReqInfo) {
         return this.region;
     }

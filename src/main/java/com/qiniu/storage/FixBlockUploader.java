@@ -18,6 +18,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+@Deprecated
 public class FixBlockUploader {
     private final int blockSize;
     private final ConfigHelper configHelper;
@@ -883,6 +884,7 @@ public class FixBlockUploader {
         long size;
         long blockSize;
         List<EtagIdx> etagIdxes;
+
         // 用于区分记录是 V1 还是 V2
         boolean isValid() {
             return uploadId != null && etagIdxes != null && etagIdxes.size() > 0;
