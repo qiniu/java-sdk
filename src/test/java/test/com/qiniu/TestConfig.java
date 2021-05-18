@@ -98,6 +98,17 @@ public final class TestConfig {
         z0.regionId = "z0";
         z0.region = Region.region0();
 
+        TestFile z0_auto = new TestFile();
+        z0_auto.key = fileSaveKey;
+        z0_auto.mimeType = fileMimeType;
+        z0_auto.bucketName = testBucket_z0;
+        z0_auto.testDomain = testDomain_z0;
+        z0_auto.testUrl = "http://" + testDomain_z0 + "/" + fileSaveKey;
+        z0_auto.testDomainTimeStamp = testDomain_z0_timeStamp;
+        z0_auto.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + fileSaveKey;
+        z0_auto.regionId = "z0";
+        z0_auto.region = Region.region0();
+
         TestFile fog = new TestFile();
         fog.key = fileSaveKey;
         fog.mimeType = fileMimeType;
@@ -124,7 +135,7 @@ public final class TestConfig {
             return new TestFile[]{na0};
         } else {
 //            return new TestFile[]{fog, fog1, z0, na0};
-            return new TestFile[]{z0};
+            return new TestFile[]{z0_auto};
         }
     }
 

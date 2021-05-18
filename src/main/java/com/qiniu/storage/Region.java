@@ -7,6 +7,8 @@ import java.util.List;
 
 public class Region {
 
+    // 有效期，过了有效期，region会无效，此处只在取时缓存判断； -1 为无限期
+    private long timestamp = -1;
     // 区域名称：z0 华东  z1 华北  z2 华南  na0 北美  as0 东南亚
     private String region = "z0";
 
@@ -25,6 +27,23 @@ public class Region {
     private String rsHost = "rs.qbox.me";
     private String rsfHost = "rsf.qbox.me";
     private String apiHost = "api.qiniu.com";
+    private String ucHost = "uc.qbox.me";
+
+    Region() {
+    }
+
+    Region(long timestamp, String region, List<String> srcUpHosts, List<String> accUpHosts, String iovipHost,
+           String rsHost, String rsfHost, String apiHost, String ucHost) {
+        this.timestamp = timestamp;
+        this.region = region;
+        this.srcUpHosts = srcUpHosts;
+        this.accUpHosts = accUpHosts;
+        this.iovipHost = iovipHost;
+        this.rsHost = rsHost;
+        this.rsfHost = rsfHost;
+        this.apiHost = apiHost;
+        this.ucHost = ucHost;
+    }
 
     /**
      * 华东机房相关域名
@@ -215,6 +234,10 @@ public class Region {
         return this.region;
     }
 
+    Region getCurrentRegion(RegionReqInfo regionReqInfo) {
+        return this;
+    }
+
     List<String> getSrcUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return this.srcUpHosts;
     }
@@ -237,6 +260,14 @@ public class Region {
 
     String getApiHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return apiHost;
+    }
+
+    boolean isValid() {
+        if (timestamp < 0) {
+            return true;
+        } else {
+            return System.currentTimeMillis() < timestamp * 1000;
+        }
     }
 
     /**
