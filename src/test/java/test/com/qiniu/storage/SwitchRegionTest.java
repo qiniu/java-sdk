@@ -22,33 +22,48 @@ import static org.junit.Assert.*;
 
 public class SwitchRegionTest {
 
-    private static boolean[][] testConfigList = {
-            // isHttps, isResumeV2, isConcurrent
-//            {false, true, false},
-//            {false, true, true},
-//            {false, false, false},
-            {false, false, true},
-            {true, true, false},
-            {true, true, true},
-            {true, false, false},
-            {true, false, true},
+    private static final int httpType = 0;
+    private static final int httpsType = 1;
+
+    private static final int resumableV1Type = 0;
+    private static final int resumableV2Type = 1;
+
+    private static final int formType = 0;
+    private static final int serialType = 1;
+    private static final int concurrentType = 2;
+
+    private static int[][] testConfigList = {
+            {httpType, -1, formType},
+            {httpType, resumableV1Type, serialType},
+            {httpType, resumableV1Type, concurrentType},
+            {httpType, resumableV2Type, serialType},
+            {httpType, resumableV2Type, concurrentType},
+
+            {httpsType, -1, formType},
+            {httpsType, resumableV1Type, serialType},
+            {httpsType, resumableV1Type, concurrentType},
+            {httpsType, resumableV2Type, serialType},
+            {httpsType, resumableV2Type, concurrentType},
     };
 
     /**
      * 分片上传
      * 检测key、hash、fszie、fname是否符合预期
      *
-     * @param size         文件大小
-     * @param isHttps      是否采用 https 方式, 反之为 http
-     * @param isResumeV2   是否使用分片上传 api v2, 反之为 v1
-     * @param isConcurrent 是否采用并发方式上传
+     * @param size        文件大小
+     * @param httpType    采用 http / https 方式
+     * @param uploadType  使用 form / 分片上传 api v1/v2
+     * @param uploadStyle 采用串行或者并发方式上传
      * @throws IOException
      */
-    private void template(int size, boolean isHttps, boolean isResumeV2, boolean isConcurrent) throws IOException {
+    private void template(int size, int httpType, int uploadType, int uploadStyle) throws IOException {
+        boolean isHttps = httpType == httpsType;
+        boolean isConcurrent = uploadStyle == concurrentType;
+
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {
             // 雾存储不支持 v1
-            if (file.isFog() && !isResumeV2) {
+            if (file.isFog() && uploadType == resumableV1Type) {
                 continue;
             }
             String bucket = file.getBucketName();
@@ -64,7 +79,7 @@ public class SwitchRegionTest {
             regionGroup.addRegion(region);
 
             Configuration config = new Configuration(regionGroup);
-            if (isResumeV2) {
+            if (uploadType == resumableV2Type) {
                 config.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
                 config.resumableUploadAPIV2BlockSize = 2 * 1024 * 1024;
             }
@@ -72,8 +87,21 @@ public class SwitchRegionTest {
             config.useHttpsDomains = isHttps;
             String key = "switch_region_";
             key += isHttps ? "_https" : "_http";
-            key += isResumeV2 ? "_resumeV2" : "_resumeV1";
-            key += isConcurrent ? "_concurrent" : "_serial";
+
+            if (uploadType == resumableV1Type) {
+                key += "_resumeV1";
+            } else if (uploadType == resumableV2Type) {
+                key += "_resumeV2";
+            }
+
+            if (uploadStyle == formType) {
+                key += "_form";
+            } else if (uploadStyle == serialType) {
+                key += "_serial";
+            } else if (uploadStyle == concurrentType) {
+                key += "_concurrent";
+            }
+
             key += "_" + new Date().getTime();
             final String expectKey = "\r\n?&r=" + size + "k" + key;
             final File f = TempFile.createFile(size);
@@ -93,13 +121,16 @@ public class SwitchRegionTest {
             param.put("x:" + fooKey, fooValue);
             param.put("x-qn-meta-" + metaDataKey, metaDataValue);
             try {
-                ResumeUploader up = null;
-                if (!isConcurrent) {
+                BaseUploader up = null;
+                if (uploadStyle == formType) {
+                    up = new FormUploader(new Client(), token, expectKey, f, param, Client.DefaultMime, false, config);
+                } else if (uploadStyle == serialType) {
                     up = new ResumeUploader(new Client(), token, expectKey, f, param, null, null, config);
                 } else {
                     config.resumableUploadMaxConcurrentTaskCount = 3;
                     up = new ConcurrentResumeUploader(new Client(), token, expectKey, f, param, null, null, config);
                 }
+
                 Response r = up.upload();
                 assertTrue(r + "", r.isOK());
 
@@ -168,7 +199,7 @@ public class SwitchRegionTest {
 
     @Test
     public void test600k() throws Throwable {
-        for (boolean[] config : testConfigList) {
+        for (int[] config : testConfigList) {
             template(600, config[0], config[1], config[2]);
         }
     }
@@ -178,7 +209,7 @@ public class SwitchRegionTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : testConfigList) {
+        for (int[] config : testConfigList) {
             template(1024 * 3, config[0], config[1], config[2]);
         }
     }
@@ -188,42 +219,42 @@ public class SwitchRegionTest {
         if (TestConfig.isTravis()) {
             return;
         }
-        for (boolean[] config : testConfigList) {
+        for (int[] config : testConfigList) {
             template(1024 * 4, config[0], config[1], config[2]);
         }
     }
 
     @Test
     public void test8M() throws Throwable {
-        for (boolean[] config : testConfigList) {
+        for (int[] config : testConfigList) {
             template(1024 * 8, config[0], config[1], config[2]);
         }
     }
 
     @Test
     public void test8M1k() throws Throwable {
-        for (boolean[] config : testConfigList) {
+        for (int[] config : testConfigList) {
             template(1024 * 8 + 1, config[0], config[1], config[2]);
         }
     }
 
     @Test
     public void test10M() throws Throwable {
-        for (boolean[] config : testConfigList) {
+        for (int[] config : testConfigList) {
             template(1024 * 10, config[0], config[1], config[2]);
         }
     }
 
     @Test
     public void test20M() throws Throwable {
-        for (boolean[] config : testConfigList) {
+        for (int[] config : testConfigList) {
             template(1024 * 20, config[0], config[1], config[2]);
         }
     }
 
     @Test
     public void test20M1K() throws Throwable {
-        for (boolean[] config : testConfigList) {
+        for (int[] config : testConfigList) {
             template(1024 * 20 + 1, config[0], config[1], config[2]);
         }
     }
