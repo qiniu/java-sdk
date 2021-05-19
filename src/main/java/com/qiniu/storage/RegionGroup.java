@@ -107,6 +107,15 @@ public class RegionGroup extends Region {
         }
     }
 
+    @Override
+    boolean isValid() {
+        if (currentRegion == null) {
+            return false;
+        }
+        // 只判断当前的
+        return currentRegion.isValid();
+    }
+
     private void updateCurrentRegion() {
         if (regionList.size() == 0) {
             return;

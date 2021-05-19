@@ -56,10 +56,6 @@ public abstract class BaseUploader {
                     && statusCode != 608 && statusCode != 614 && statusCode != 630;
         }
 
-        if (exception == null || !exception.isUnrecoverable()) {
-            return true;
-        } else {
-            return false;
-        }
+        return exception == null || !exception.isUnrecoverable();
     }
 }

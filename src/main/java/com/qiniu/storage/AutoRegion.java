@@ -135,7 +135,7 @@ class AutoRegion extends Region {
 
         Exception ex = null;
         // 隔一段时间重新获取 uc 信息 // || regionGroup.createTime < System.currentTimeMillis() - 1000 * 3600 * 8
-        if (regionGroup == null) {
+        if (regionGroup == null || !regionGroup.isValid()) {
             for (int i = 0; i < 2; i++) {
                 try {
                     UCRet ret = getRegionJson(index);
@@ -188,6 +188,11 @@ class AutoRegion extends Region {
         } else {
             return currentRegion.getRegion(regionReqInfo);
         }
+    }
+
+    @Override
+    boolean isValid() {
+        return true;
     }
 
     Region getCurrentRegion(RegionReqInfo regionReqInfo) {
