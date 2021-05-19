@@ -1,9 +1,15 @@
 package com.qiniu.storage;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.util.StringMap;
+import com.qiniu.util.StringUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -61,7 +67,7 @@ public class ResumeUploader extends BaseUploader {
     public ResumeUploader(Client client, String upToken, String key, File file,
                           StringMap params, String mime, Recorder recorder, Configuration configuration) {
         this(client, key, upToken,
-                new ResumeUploadSourceFile(file, configuration, getRecorderKey(key, file, recorder), getRegionTargetId(upToken, configuration)),
+                new ResumeUploadSourceFile(file, configuration, getRecorderKey(key, file, recorder)),
                 recorder, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
     }
 
@@ -112,7 +118,7 @@ public class ResumeUploader extends BaseUploader {
     public ResumeUploader(Client client, String upToken, String key, InputStream stream,
                           String fileName, StringMap params, String mime, Configuration configuration) {
         this(client, key, upToken,
-                new ResumeUploadSourceStream(stream, configuration, null, getRegionTargetId(upToken, configuration), fileName),
+                new ResumeUploadSourceStream(stream, configuration, null, fileName),
                 null, new UploadOptions.Builder().params(params).metaData(params).mimeType(mime).build(), configuration);
     }
 
@@ -130,7 +136,15 @@ public class ResumeUploader extends BaseUploader {
      */
     public Response upload() throws QiniuException {
         try {
-            return super.upload();
+            recoverUploadProgressFromLocal();
+            Response response = super.upload();
+            if (response != null && response.isOK()) {
+                removeUploadProgressFromLocal();
+            }
+            return response;
+        } catch (QiniuException e) {
+            saveUploadProgressToLocal();
+            throw e;
         } finally {
             close();
         }
@@ -138,6 +152,7 @@ public class ResumeUploader extends BaseUploader {
 
     @Override
     Response uploadFlows() throws QiniuException {
+
         // 检查参数
         checkParam();
 
@@ -148,9 +163,6 @@ public class ResumeUploader extends BaseUploader {
         } else {
             uploadPerformer = new ResumeUploadPerformerV1(client, key, token, source, recorder, options, config);
         }
-
-        // 恢复本地断点续传数据
-        uploadPerformer.recoverUploadProgressFromLocal();
 
         // 上传数据至服务 - 步骤1
         Response response = null;
@@ -171,9 +183,6 @@ public class ResumeUploader extends BaseUploader {
 
         // 上传数据至服务 - 步骤3
         response = uploadPerformer.completeUpload();
-        if (response.isOK()) {
-            uploadPerformer.removeUploadProgressFromLocal();
-        }
 
         return response;
     }
@@ -182,9 +191,6 @@ public class ResumeUploader extends BaseUploader {
         Response response = null;
         do {
             response = uploadPerformer.uploadNextData();
-            if (response != null && response.isOK()) {
-                uploadPerformer.saveUploadProgressToLocal();
-            }
         } while (!uploadPerformer.isAllBlocksUploadingOrUploaded());
         return response;
     }
@@ -227,20 +233,78 @@ public class ResumeUploader extends BaseUploader {
         return recorder.recorderKeyGenerate(key, file);
     }
 
-    private static String getRegionTargetId(String upToken, Configuration config) {
-        if (config == null || upToken == null) {
-            return null;
+    // recorder
+    void recoverUploadProgressFromLocal() {
+        if (recorder == null || source == null || StringUtils.isNullOrEmpty(source.recordKey)) {
+            return;
         }
 
-        UploadToken token = null;
+        byte[] data = recorder.get(source.recordKey);
+        if (data == null) {
+            return;
+        }
+
+        String jsonString = new String(data, Constants.UTF_8);
+        Region region = null;
+        ResumeUploadSource uploadSource = null;
         try {
-            token = new UploadToken(upToken);
-        } catch (QiniuException ignored) {
+            JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonString);
+            JsonObject sourceJson = jsonObject.getAsJsonObject("source");
+            uploadSource = new Gson().fromJson(sourceJson, source.getClass());
+
+            JsonObject regionJson = jsonObject.getAsJsonObject("region");
+            region = new Gson().fromJson(regionJson, Region.class);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        if (token == null || !token.isValid()) {
-            return null;
+        if (uploadSource == null || region == null) {
+            removeUploadProgressFromLocal();
+            return;
         }
-        return config.region.getRegion(token);
+
+        boolean isCopy = source.recoverFromRecordInfo(uploadSource);
+        if (!isCopy) {
+            removeUploadProgressFromLocal();
+            return;
+        }
+
+        if (config.region == null) {
+            config.region = region;
+        } else {
+            RegionGroup regionGroup = new RegionGroup();
+            regionGroup.addRegion(region);
+            regionGroup.addRegion(config.region);
+            config.region = regionGroup;
+        }
+    }
+
+    void saveUploadProgressToLocal() {
+        if (recorder == null || source == null || !source.hasUploadData() || StringUtils.isNullOrEmpty(source.recordKey)) {
+            return;
+        }
+        try {
+            JsonObject jsonObject = new JsonObject();
+            JsonElement sourceJson = new Gson().toJsonTree(source);
+            if (sourceJson == null) {
+                return;
+            }
+            jsonObject.add("source", sourceJson);
+            JsonElement regionJson = new Gson().toJsonTree(config.region.getCurrentRegion(new UploadToken(upToken)));
+            if (regionJson == null) {
+                return;
+            }
+            jsonObject.add("region", regionJson);
+            String dataString = jsonObject.toString();
+            recorder.set(source.recordKey, dataString.getBytes(Constants.UTF_8));
+        } catch (Exception ignored) {
+        }
+    }
+
+    void removeUploadProgressFromLocal() {
+        if (recorder == null || source == null || StringUtils.isNullOrEmpty(source.recordKey)) {
+            return;
+        }
+        recorder.del(source.recordKey);
     }
 }

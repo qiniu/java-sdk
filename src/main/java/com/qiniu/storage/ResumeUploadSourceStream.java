@@ -11,8 +11,8 @@ public class ResumeUploadSourceStream extends ResumeUploadSource {
     private final InputStream inputStream;
     private final String fileName;
 
-    ResumeUploadSourceStream(InputStream inputStream, Configuration config, String recordKey, String targetRegionId, String fileName) {
-        super(config, recordKey, targetRegionId);
+    ResumeUploadSourceStream(InputStream inputStream, Configuration config, String recordKey, String fileName) {
+        super(config, recordKey);
         this.inputStream = inputStream;
         this.fileName = fileName;
         this.blockList = new LinkedList<>();

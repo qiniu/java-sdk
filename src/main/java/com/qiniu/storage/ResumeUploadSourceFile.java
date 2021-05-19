@@ -15,8 +15,8 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
     private final transient File file;
     private transient RandomAccessFile randomAccessFile;
 
-    ResumeUploadSourceFile(File file, Configuration config, String recordKey, String targetRegionId) {
-        super(config, recordKey, targetRegionId);
+    ResumeUploadSourceFile(File file, Configuration config, String recordKey) {
+        super(config, recordKey);
         this.file = file;
         this.fileName = file.getName();
         this.size = file.length();
@@ -99,12 +99,12 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
 
         boolean needRecovered = true;
         if (source.resumableUploadAPIVersion == Configuration.ResumableUploadAPIVersion.V2) {
-            if (StringUtils.isNullOrEmpty(uploadId)) {
+            if (StringUtils.isNullOrEmpty(source.uploadId)) {
                 return false;
             }
             // 服务端是 7 天，此处有效期少 1 天，为 6 天
             long currentTimestamp = new Date().getTime() / 1000;
-            long expireAtTimestamp = expireAt - 24 * 3600;
+            long expireAtTimestamp = source.expireAt - 24 * 3600;
             needRecovered = expireAtTimestamp > currentTimestamp;
         }
 
@@ -135,10 +135,6 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
         }
 
         if (sourceFile.getFileName() == null || !sourceFile.getFileName().equals(getFileName())) {
-            return false;
-        }
-
-        if (sourceFile.targetRegionId == null || !sourceFile.targetRegionId.equals(targetRegionId)) {
             return false;
         }
 

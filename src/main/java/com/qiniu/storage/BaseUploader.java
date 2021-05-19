@@ -4,16 +4,12 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 
-import javax.net.ssl.SSLException;
-import java.net.ProtocolException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-
 public abstract class BaseUploader {
 
     protected final Client client;
     protected final String key;
     protected final String upToken;
+    protected final ConfigHelper configHelper;
     protected final Configuration config;
 
     BaseUploader(Client client, String upToken, String key, Configuration config) {
@@ -21,6 +17,7 @@ public abstract class BaseUploader {
         this.key = key;
         this.upToken = upToken;
         this.config = config;
+        this.configHelper = new ConfigHelper(config);
     }
 
     public Response upload() throws QiniuException {
@@ -54,30 +51,15 @@ public abstract class BaseUploader {
 
         if (checkResponse != null) {
             int statusCode = checkResponse.statusCode;
-            if ((statusCode > 300 && statusCode < 400)
-                    || (statusCode >= 400 && statusCode < 500 && statusCode != 400 && statusCode != 406)
-                    || statusCode == 501 || statusCode == 573
-                    || statusCode == 608 || statusCode == 612 || statusCode == 614 || statusCode == 616
-                    || statusCode == 619 || statusCode == 630 || statusCode == 631 || statusCode == 640
-                    || statusCode == 701
-                    || statusCode < 100) {
-                return false;
-            } else {
-                return true;
-            }
+            return (statusCode < 200 || statusCode > 299) && statusCode > -2
+                    && statusCode != 401 && statusCode != 413 && statusCode != 419
+                    && statusCode != 608 && statusCode != 614 && statusCode != 630;
         }
 
-        if (exception != null && exception.getCause() != null) {
-            Throwable e = exception.getCause();
-            String msg = e.getMessage();
-            return e instanceof UnknownHostException
-                    || (msg != null && msg.indexOf("Broken pipe") == 0)
-                    || e instanceof SocketTimeoutException
-                    || e instanceof java.net.ConnectException
-                    || e instanceof ProtocolException
-                    || e instanceof SSLException;
+        if (exception == null || !exception.isUnrecoverable()) {
+            return true;
+        } else {
+            return false;
         }
-
-        return false;
     }
 }
