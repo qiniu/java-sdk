@@ -28,7 +28,7 @@ public class RegionGroup extends Region {
 
     @Override
     boolean switchRegion(RegionReqInfo regionReqInfo) {
-        if (currentRegion != null && currentRegion.switchRegion(regionReqInfo)) {
+        if (currentRegion != null && currentRegion.isValid() && currentRegion.switchRegion(regionReqInfo)) {
             return true;
         }
 
