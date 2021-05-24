@@ -17,6 +17,11 @@ class AutoRegion extends Region {
     private final String ucServer;
 
     /**
+     * region id 列表
+     */
+    private final static String[] regionIdList = new String[]{"z0", "z1", "z2", "na0", "as0", "fog-cn-east-1"};
+
+    /**
      * 空间机房，域名信息缓存
      */
     private Map<RegionIndex, RegionGroup> regions;
@@ -30,6 +35,7 @@ class AutoRegion extends Region {
      * 定义HTTP请求管理相关方法
      */
     private Client client;
+
 
     AutoRegion(String ucServer) {
         this.ucServer = ucServer;
@@ -95,7 +101,6 @@ class AutoRegion extends Region {
             // 根据 iovipHost 反推 regionId
             String regionId = iovipHost;
             if (iovipHost != null) {
-                String[] regionIdList = new String[]{"z0", "z1", "z2", "na0", "as0", "fog-cn-east-1"};
                 for (String regionIdP : regionIdList) {
                     if (iovipHost.contains("-" + regionIdP)) {
                         regionId = regionIdP;
