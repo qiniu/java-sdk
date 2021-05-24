@@ -19,7 +19,7 @@ class AutoRegion extends Region {
     /**
      * region id 列表
      */
-    private final static String[] regionIdList = new String[]{"z0", "z1", "z2", "na0", "as0", "fog-cn-east-1"};
+    private static final String[] regionIdList = new String[]{"z0", "z1", "z2", "na0", "as0", "fog-cn-east-1"};
 
     /**
      * 空间机房，域名信息缓存
