@@ -16,11 +16,18 @@ public abstract class BaseUploader {
         this.client = client;
         this.key = key;
         this.upToken = upToken;
-        this.config = config;
-        this.configHelper = new ConfigHelper(config);
+        if (config == null) {
+            this.config = new Configuration();
+        } else {
+            this.config = config.clone();
+        }
+        this.configHelper = new ConfigHelper(this.config);
     }
 
     public Response upload() throws QiniuException {
+        if (this.config == null) {
+            throw QiniuException.unrecoverable("config can't be empty");
+        }
         return uploadWithRegionRetry();
     }
 

@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Region {
 
-    // 有效期，过了有效期，region会无效，此处只在取时缓存判断； -1 为无限期
+    // 有效时间戳，过了有效期，region会无效，此处只在取时缓存判断； -1 为无限期
     private long timestamp = -1;
     // 区域名称：z0 华东  z1 华北  z2 华南  na0 北美  as0 东南亚
     private String region = "z0";
