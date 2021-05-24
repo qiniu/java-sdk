@@ -35,17 +35,6 @@ class AutoRegion extends Region {
         this.ucServer = ucServer;
         this.client = new Client();
         this.regions = new ConcurrentHashMap<>();
-//        this.inferDomainsMap = new ConcurrentHashMap<>();
-//        this.inferDomainsMap.put("up.qiniup.com", region0());
-//        this.inferDomainsMap.put("up-jjh.qiniup.com", region0());
-//        this.inferDomainsMap.put("up-xs.qiniup.com", region0());
-//        this.inferDomainsMap.put("up-z1.qiniup.com", region1());
-//        this.inferDomainsMap.put("up-z2.qiniup.com", region2());
-//        this.inferDomainsMap.put("up-dg.qiniup.com", region2());
-//        this.inferDomainsMap.put("up-fs.qiniup.com", region2());
-//        this.inferDomainsMap.put("up-na0.qiniup.com", regionNa0());
-//        this.inferDomainsMap.put("up-as0.qiniup.com", regionAs0());
-//        this.inferDomainsMap.put("up-fog-cn-east-1.qiniup.com", regionFogCnEast1());
     }
 
     /**
