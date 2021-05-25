@@ -53,6 +53,16 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
     }
 
     @Override
+    boolean couldReload() {
+        return true;
+    }
+
+    @Override
+    boolean reload() {
+        return true;
+    }
+
+    @Override
     ResumeUploadSource.Block getNextUploadingBlock() throws IOException {
         ResumeUploadSource.Block block = super.getNextUploadingBlock();
         if (block != null && block.data == null) {

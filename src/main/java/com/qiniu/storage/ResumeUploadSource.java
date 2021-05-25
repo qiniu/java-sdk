@@ -64,6 +64,20 @@ abstract class ResumeUploadSource {
         return isAllBlockUploaded;
     }
 
+    boolean couldReload() {
+        return false;
+    }
+
+    boolean reload() {
+        return false;
+    }
+
+    void clearState() {
+        for (ResumeUploadSource.Block block : blockList) {
+            block.clearState();
+        }
+    }
+
     // 获取下一个需要上传的块
     ResumeUploadSource.Block getNextUploadingBlock() throws IOException {
         ResumeUploadSource.Block block = null;
@@ -178,9 +192,7 @@ abstract class ResumeUploadSource {
             this.offset = offset;
             this.size = blockSize;
             this.index = index;
-            this.isUploading = false;
-            this.etag = null;
-            this.context = null;
+            this.clearState();
         }
 
         boolean isUploaded() {
@@ -195,6 +207,12 @@ abstract class ResumeUploadSource {
                 }
             }
             return isUploaded;
+        }
+
+        void clearState() {
+            isUploading = false;
+            this.etag = null;
+            this.context = null;
         }
     }
 }

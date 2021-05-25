@@ -195,6 +195,21 @@ public class ResumeUploader extends BaseUploader {
         return response;
     }
 
+    @Override
+    boolean couldReloadSource() {
+        return source.couldReload();
+    }
+
+    @Override
+    boolean reloadSource() {
+        if (source.reload()) {
+            source.clearState();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private void close() {
         try {
             source.close();

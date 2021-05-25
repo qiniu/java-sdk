@@ -105,6 +105,16 @@ public final class FormUploader extends BaseUploader {
                 });
     }
 
+    @Override
+    boolean couldReloadSource() {
+        return true;
+    }
+
+    @Override
+    boolean reloadSource() {
+        return true;
+    }
+
     private void changeHost(String upToken, String host) {
         try {
             configHelper.tryChangeUpHost(upToken, host);

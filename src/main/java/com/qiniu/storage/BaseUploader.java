@@ -36,11 +36,15 @@ public abstract class BaseUploader {
         while (true) {
             try {
                 response = uploadFlows();
-                if (!couldSwitchRegionAndRetry(response, null) || config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
+                if (!couldSwitchRegionAndRetry(response, null) ||
+                        !couldReloadSource() || !reloadSource() ||
+                        config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
                     break;
                 }
             } catch (QiniuException e) {
-                if (!couldSwitchRegionAndRetry(null, e) || config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
+                if (!couldSwitchRegionAndRetry(null, e) ||
+                        !couldReloadSource() || !reloadSource() ||
+                        config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
                     throw e;
                 }
             }
@@ -49,6 +53,10 @@ public abstract class BaseUploader {
     }
 
     abstract Response uploadFlows() throws QiniuException;
+
+    abstract boolean couldReloadSource();
+
+    abstract boolean reloadSource();
 
     private boolean couldSwitchRegionAndRetry(Response response, QiniuException exception) {
         Response checkResponse = response;
