@@ -66,9 +66,9 @@ public abstract class BaseUploader {
 
         if (checkResponse != null) {
             int statusCode = checkResponse.statusCode;
-            return (statusCode < 200 || statusCode > 299) && statusCode > -2
+            return (statusCode > -2 && statusCode < 200) || (statusCode > 299
                     && statusCode != 401 && statusCode != 413 && statusCode != 419
-                    && statusCode != 608 && statusCode != 614 && statusCode != 630;
+                    && statusCode != 608 && statusCode != 614 && statusCode != 630);
         }
 
         return exception == null || !exception.isUnrecoverable();
