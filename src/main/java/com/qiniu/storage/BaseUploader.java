@@ -36,15 +36,15 @@ public abstract class BaseUploader {
         while (true) {
             try {
                 response = uploadFlows();
-                if (!couldSwitchRegionAndRetry(response, null) ||
-                        !couldReloadSource() || !reloadSource() ||
-                        config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
+                if (!couldSwitchRegionAndRetry(response, null)
+                        || !couldReloadSource() || !reloadSource()
+                        || config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
                     break;
                 }
             } catch (QiniuException e) {
-                if (!couldSwitchRegionAndRetry(null, e) ||
-                        !couldReloadSource() || !reloadSource() ||
-                        config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
+                if (!couldSwitchRegionAndRetry(null, e)
+                        || !couldReloadSource() || !reloadSource()
+                        || config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
                     throw e;
                 }
             }
