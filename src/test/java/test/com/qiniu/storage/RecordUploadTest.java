@@ -74,7 +74,7 @@ public class RecordUploadTest {
 
             final Complete complete = new Complete();
             try {
-                final String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
+                final String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600, null);
                 final String recordKey = recorder.recorderKeyGenerate(expectKey, f);
 
                 // 开始第一部分上传
@@ -110,7 +110,7 @@ public class RecordUploadTest {
 
                 if (f.length() > Constants.BLOCK_SIZE) {
                     // 终止第一部分上传,期望其部分成功
-                    for (int i = 150; i > 0; --i) {
+                    for (int i = 15; i > 0; --i) {
                         byte[] data = getRecord(recorder, recordKey);
                         if (data != null) {
                             doSleep(1000);

@@ -1,12 +1,8 @@
 package com.qiniu.storage;
 
-import com.google.gson.Gson;
-import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.util.StringMap;
-import com.qiniu.util.StringUtils;
 
 import java.io.IOException;
 
@@ -77,49 +73,9 @@ abstract class ResumeUploadPerformer {
         try {
             block = uploadSource.getNextUploadingBlock();
         } catch (IOException e) {
-            throw new QiniuException(e);
+            throw QiniuException.unrecoverable(e);
         }
         return block;
-    }
-
-    void recoverUploadProgressFromLocal() {
-        if (recorder == null || StringUtils.isNullOrEmpty(uploadSource.recordKey)) {
-            return;
-        }
-
-        byte[] data = recorder.get(uploadSource.recordKey);
-        if (data == null) {
-            return;
-        }
-        String jsonString = new String(data, Constants.UTF_8);
-        ResumeUploadSource source = null;
-        try {
-            source = new Gson().fromJson(jsonString, uploadSource.getClass());
-        } catch (Exception ignored) {
-        }
-        if (source == null) {
-            return;
-        }
-
-        boolean isCopy = uploadSource.recoverFromRecordInfo(source);
-        if (!isCopy) {
-            removeUploadProgressFromLocal();
-        }
-    }
-
-    void saveUploadProgressToLocal() {
-        if (recorder == null || StringUtils.isNullOrEmpty(uploadSource.recordKey)) {
-            return;
-        }
-        String dataString = new Gson().toJson(uploadSource);
-        recorder.set(uploadSource.recordKey, dataString.getBytes(Constants.UTF_8));
-    }
-
-    void removeUploadProgressFromLocal() {
-        if (recorder == null || StringUtils.isNullOrEmpty(uploadSource.recordKey)) {
-            return;
-        }
-        recorder.del(uploadSource.recordKey);
     }
 
     private String getUploadHost() throws QiniuException {
@@ -131,18 +87,6 @@ abstract class ResumeUploadPerformer {
             configHelper.tryChangeUpHost(token.getToken(), host);
         } catch (Exception ignored) {
         }
-    }
-
-    Response post(String url, byte[] data, int offset, int size) throws QiniuException {
-        StringMap header = new StringMap();
-        header.put("Authorization", "UpToken " + token.getToken());
-        return client.post(url, data, offset, size, header, options.mimeType);
-    }
-
-    Response put(String url, byte[] data, int offset, int size) throws QiniuException {
-        StringMap header = new StringMap();
-        header.put("Authorization", "UpToken " + token.getToken());
-        return client.put(url, data, offset, size, header, options.mimeType);
     }
 
     Response retryUploadAction(UploadAction action) throws QiniuException {
@@ -183,7 +127,7 @@ abstract class ResumeUploadPerformer {
 
             retryCount++;
             if (retryCount >= config.retryMax) {
-                throw QiniuException.unrecoverable("failed after retry times");
+                throw new QiniuException(null, "failed after retry times");
             }
 
             if (shouldSwitchHost) {

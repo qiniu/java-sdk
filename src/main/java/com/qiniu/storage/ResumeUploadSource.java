@@ -10,7 +10,6 @@ abstract class ResumeUploadSource {
 
     final String recordKey;
     final int blockSize;
-    final String targetRegionId;
     final Configuration.ResumableUploadAPIVersion resumableUploadAPIVersion;
 
     transient Configuration config;
@@ -22,17 +21,15 @@ abstract class ResumeUploadSource {
     Long expireAt;
 
     ResumeUploadSource() {
-        this.targetRegionId = null;
         this.blockSize = 0;
         this.recordKey = null;
         this.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V1;
     }
 
-    ResumeUploadSource(Configuration config, String recordKey, String targetRegionId) {
+    ResumeUploadSource(Configuration config, String recordKey) {
         this.config = config;
         this.blockSize = getBlockSize(config);
         this.recordKey = recordKey;
-        this.targetRegionId = targetRegionId;
         this.resumableUploadAPIVersion = config.resumableUploadAPIVersion;
     }
 
@@ -67,6 +64,22 @@ abstract class ResumeUploadSource {
         return isAllBlockUploaded;
     }
 
+    boolean couldReload() {
+        return false;
+    }
+
+    boolean reload() {
+        return false;
+    }
+
+    void clearState() {
+        for (ResumeUploadSource.Block block : blockList) {
+            block.clearState();
+        }
+        uploadId = null;
+        expireAt = null;
+    }
+
     // 获取下一个需要上传的块
     ResumeUploadSource.Block getNextUploadingBlock() throws IOException {
         ResumeUploadSource.Block block = null;
@@ -90,6 +103,22 @@ abstract class ResumeUploadSource {
 
     // 获取文件名
     abstract String getFileName();
+
+    // 是否有已上传的数据
+    boolean hasUploadData() {
+        if (blockList == null || blockList.size() == 0) {
+            return false;
+        }
+
+        boolean hasUploadData = false;
+        for (ResumeUploadSource.Block block : blockList) {
+            if (block.isUploaded()) {
+                hasUploadData = true;
+                break;
+            }
+        }
+        return hasUploadData;
+    }
 
     boolean recoverFromRecordInfo(ResumeUploadSource source) {
         return false;
@@ -165,9 +194,7 @@ abstract class ResumeUploadSource {
             this.offset = offset;
             this.size = blockSize;
             this.index = index;
-            this.isUploading = false;
-            this.etag = null;
-            this.context = null;
+            this.clearState();
         }
 
         boolean isUploaded() {
@@ -182,6 +209,13 @@ abstract class ResumeUploadSource {
                 }
             }
             return isUploaded;
+        }
+
+        void clearState() {
+            this.isUploading = false;
+            this.etag = null;
+            this.context = null;
+            this.data = null;
         }
     }
 }

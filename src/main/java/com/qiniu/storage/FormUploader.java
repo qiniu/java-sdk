@@ -14,10 +14,8 @@ import java.io.IOException;
  * 该类封装了七牛提供的表单上传机制
  * 参考文档：<a href="https://developer.qiniu.com/kodo/manual/form-upload">表单上传</a>
  */
-public final class FormUploader {
+public final class FormUploader extends BaseUploader {
 
-    private final String token;
-    private final String key;
     private final File file;
     private final byte[] data;
     private final String mime;
@@ -45,9 +43,9 @@ public final class FormUploader {
 
     private FormUploader(Client client, String upToken, String key, byte[] data, File file, StringMap params,
                          String mime, boolean checkCrc, Configuration configuration) {
+        super(client, upToken, key, configuration);
+
         this.client = client;
-        token = upToken;
-        this.key = key;
         this.file = file;
         this.data = data;
         this.params = params;
@@ -56,23 +54,21 @@ public final class FormUploader {
         this.configHelper = new ConfigHelper(configuration);
     }
 
-    /**
-     * 同步上传文件
-     */
-    public Response upload() throws QiniuException {
+    @Override
+    Response uploadFlows() throws QiniuException {
         buildParams();
-        String host = configHelper.upHost(token);
+        String host = configHelper.upHost(upToken);
         try {
             if (data != null) {
-                return client.multipartPost(configHelper.upHost(token), params, "file", filename, data,
+                return client.multipartPost(configHelper.upHost(upToken), params, "file", filename, data,
                         mime, new StringMap());
             } else {
-                return client.multipartPost(configHelper.upHost(token), params, "file", filename, file,
+                return client.multipartPost(configHelper.upHost(upToken), params, "file", filename, file,
                         mime, new StringMap());
             }
         } catch (QiniuException e) {
             if (e.response == null || e.response.needSwitchServer()) {
-                changeHost(token, host);
+                changeHost(upToken, host);
             }
             throw e;
         }
@@ -83,30 +79,40 @@ public final class FormUploader {
      */
     public void asyncUpload(final UpCompletionHandler handler) throws IOException {
         buildParams();
-        final String host = configHelper.upHost(token);
+        final String host = configHelper.upHost(upToken);
         if (data != null) {
             client.asyncMultipartPost(host, params, "file", filename,
                     data, mime, new StringMap(), new AsyncCallback() {
                         @Override
                         public void complete(Response res) {
                             if (res != null && res.needSwitchServer()) {
-                                changeHost(token, host);
+                                changeHost(upToken, host);
                             }
                             handler.complete(key, res);
                         }
                     });
             return;
         }
-        client.asyncMultipartPost(configHelper.upHost(token), params, "file", filename,
+        client.asyncMultipartPost(configHelper.upHost(upToken), params, "file", filename,
                 file, mime, new StringMap(), new AsyncCallback() {
                     @Override
                     public void complete(Response res) {
                         if (res != null && res.needSwitchServer()) {
-                            changeHost(token, host);
+                            changeHost(upToken, host);
                         }
                         handler.complete(key, res);
                     }
                 });
+    }
+
+    @Override
+    boolean couldReloadSource() {
+        return true;
+    }
+
+    @Override
+    boolean reloadSource() {
+        return true;
     }
 
     private void changeHost(String upToken, String host) {
@@ -120,7 +126,7 @@ public final class FormUploader {
 
     private void buildParams() throws QiniuException {
         if (params == null) return;
-        params.put("token", token);
+        params.put("token", upToken);
 
         if (key != null) {
             params.put("key", key);

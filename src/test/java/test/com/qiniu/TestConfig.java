@@ -21,6 +21,10 @@ public final class TestConfig {
     //test: ak, sk, auth
     public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
     public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
+    // 内部测试环境 AK/SK
+    public static final String innerAccessKey = System.getenv("testAK");
+    public static final String innerSecretKey = System.getenv("testSK");
+
     //sms: ak, sk, auth
     public static final String smsAccessKey = "test";
     public static final String smsSecretKey = "test";
@@ -98,6 +102,17 @@ public final class TestConfig {
         z0.regionId = "z0";
         z0.region = Region.region0();
 
+        TestFile z0_auto = new TestFile();
+        z0_auto.key = fileSaveKey;
+        z0_auto.mimeType = fileMimeType;
+        z0_auto.bucketName = testBucket_z0;
+        z0_auto.testDomain = testDomain_z0;
+        z0_auto.testUrl = "http://" + testDomain_z0 + "/" + fileSaveKey;
+        z0_auto.testDomainTimeStamp = testDomain_z0_timeStamp;
+        z0_auto.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + fileSaveKey;
+        z0_auto.regionId = "z0";
+        z0_auto.region = Region.region0();
+
         TestFile fog = new TestFile();
         fog.key = fileSaveKey;
         fog.mimeType = fileMimeType;
@@ -124,7 +139,7 @@ public final class TestConfig {
             return new TestFile[]{na0};
         } else {
 //            return new TestFile[]{fog, fog1, z0, na0};
-            return new TestFile[]{z0};
+            return new TestFile[]{na0, z0_auto};
         }
     }
 
