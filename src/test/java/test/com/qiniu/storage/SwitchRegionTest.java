@@ -331,7 +331,7 @@ public class SwitchRegionTest {
                 + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\",\"foo\":\"$(x:foo)\"}";
 
         Auth auth = Auth.create(TestConfig.innerAccessKey, TestConfig.innerSecretKey);
-        ;
+
         String token = auth.uploadToken(bucket, expectKey, 3600,
                 new StringMap().put("returnBody", returnBody));
 
