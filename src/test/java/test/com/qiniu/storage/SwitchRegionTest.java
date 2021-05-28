@@ -262,8 +262,8 @@ public class SwitchRegionTest {
     }
 
     // 内部环境测试
-    @Test
-    public void notestInnerEnvSwitchRegion() {
+//    @Test
+    public void testInnerEnvSwitchRegion() {
         try {
             long s = new Date().getTime();
             uploadByInnerEnvSwitchRegion(1024 * 500 + 1, httpType, resumableV2Type, concurrentType);
