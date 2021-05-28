@@ -6,9 +6,11 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.*;
 import com.qiniu.storage.model.FileInfo;
+import com.qiniu.util.Auth;
 import com.qiniu.util.Etag;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
+import org.junit.Assert;
 import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
@@ -257,6 +259,118 @@ public class SwitchRegionTest {
         for (int[] config : testConfigList) {
             template(1024 * 20 + 1, config[0], config[1], config[2]);
         }
+    }
+
+    // 内部环境测试
+    @Test
+    public void notestInnerEnvSwitchRegion() {
+        try {
+            long s = new Date().getTime();
+            uploadByInnerEnvSwitchRegion(1024 * 500 + 1, httpType, resumableV2Type, concurrentType);
+            long e = new Date().getTime();
+            System.out.println("耗时：" + (e - s));
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail("testInnerEnvSwitchRegion:" + e);
+        }
+    }
+
+    public void uploadByInnerEnvSwitchRegion(int size, int httpType, int uploadType, int uploadStyle) throws Exception {
+
+        boolean isHttps = httpType == httpsType;
+        boolean isConcurrent = uploadStyle == concurrentType;
+        String bucket = "aaaabbbbb";
+
+        Region region0 = new Region.Builder()
+                .srcUpHost("10.200.20.23:5010")
+                .accUpHost("10.200.20.23:5010")
+                .build();
+
+        Region region1 = new Region.Builder()
+                .srcUpHost("10.200.20.24:5010")
+                .accUpHost("10.200.20.24:5010")
+                .build();
+
+        RegionGroup regionGroup = new RegionGroup();
+        regionGroup.addRegion(region0);
+        regionGroup.addRegion(region1);
+
+        Configuration config = new Configuration(regionGroup);
+        if (uploadType == resumableV2Type) {
+            config.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
+            config.resumableUploadAPIV2BlockSize = 4 * 1024 * 1024;
+        }
+
+        config.useHttpsDomains = isHttps;
+        String key = "switch_region_";
+        key += isHttps ? "_https" : "_http";
+
+        if (uploadType == resumableV1Type) {
+            key += "_resumeV1";
+        } else if (uploadType == resumableV2Type) {
+            key += "_resumeV2";
+        }
+
+        if (uploadStyle == formType) {
+            key += "_form";
+        } else if (uploadStyle == serialType) {
+            key += "_serial";
+        } else if (uploadStyle == concurrentType) {
+            key += "_concurrent";
+        }
+
+        key += "_" + new Date().getTime();
+        final String expectKey = "\r\n?&r=" + size + "k" + key;
+        final File f = TempFile.createFile(size);
+
+        final String fooKey = "foo";
+        final String fooValue = "fooValue";
+        final String metaDataKey = "metaDataKey";
+        final String metaDataValue = "metaDataValue";
+        final String returnBody = "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"fsize\":\"$(fsize)\""
+                + ",\"fname\":\"$(fname)\",\"mimeType\":\"$(mimeType)\",\"foo\":\"$(x:foo)\"}";
+
+        Auth auth = Auth.create(TestConfig.innerAccessKey, TestConfig.innerSecretKey);
+        ;
+        String token = auth.uploadToken(bucket, expectKey, 3600,
+                new StringMap().put("returnBody", returnBody));
+
+        System.out.printf("\r\nkey:%s zone:%s\n", expectKey, regionGroup);
+
+
+        StringMap param = new StringMap();
+        param.put("x:" + fooKey, fooValue);
+        param.put("x-qn-meta-" + metaDataKey, metaDataValue);
+        try {
+            BaseUploader up = null;
+            if (uploadStyle == formType) {
+                up = new FormUploader(new Client(), token, expectKey, f, param, Client.DefaultMime, false, config);
+            } else if (uploadStyle == serialType) {
+                up = new ResumeUploader(new Client(), token, expectKey, f, param, null, null, config);
+            } else {
+                config.resumableUploadMaxConcurrentTaskCount = 3;
+                up = new ConcurrentResumeUploader(new Client(), token, expectKey, f, param, null, null, config);
+            }
+
+            Response r = up.upload();
+            assertTrue(r + "", r.isOK());
+
+            StringMap ret = r.jsonToMap();
+            assertEquals(expectKey, ret.get("key"));
+            assertEquals(f.getName(), ret.get("fname"));
+            assertEquals(String.valueOf(f.length()), ret.get("fsize").toString());
+            assertEquals(fooValue, ret.get(fooKey).toString());
+
+            final String etag = Etag.file(f);
+            System.out.println("      etag:" + etag);
+            System.out.println("serverEtag:" + ret.get("hash"));
+            assertNotNull(ret.get("hash"));
+            assertEquals(etag, ret.get("hash"));
+        } catch (QiniuException e) {
+            assertEquals("", e.response == null ? e + "e.response is null" : e.response.bodyString());
+            fail();
+        }
+        TempFile.remove(f);
     }
 
 

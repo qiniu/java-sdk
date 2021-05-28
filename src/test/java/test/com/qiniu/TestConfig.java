@@ -21,6 +21,10 @@ public final class TestConfig {
     //test: ak, sk, auth
     public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
     public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
+    // 内部测试环境 AK/SK
+    public static final String innerAccessKey = System.getenv("testAK");
+    public static final String innerSecretKey = System.getenv("testSK");
+
     //sms: ak, sk, auth
     public static final String smsAccessKey = "test";
     public static final String smsSecretKey = "test";

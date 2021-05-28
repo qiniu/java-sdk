@@ -17,19 +17,9 @@ class AutoRegion extends Region {
     private final String ucServer;
 
     /**
-     * region id 列表
-     */
-    private static final String[] regionIdList = new String[]{"z0", "z1", "z2", "na0", "as0", "fog-cn-east-1"};
-
-    /**
      * 空间机房，域名信息缓存
      */
     private Map<RegionIndex, RegionGroup> regions;
-
-    /**
-     * 根据API返回的上传域名推导出其他资源管理域名
-     */
-    private Map<String, Region> inferDomainsMap;
 
     /**
      * 定义HTTP请求管理相关方法
@@ -99,14 +89,9 @@ class AutoRegion extends Region {
             }
 
             // 根据 iovipHost 反推 regionId
-            String regionId = iovipHost;
-            if (iovipHost != null) {
-                for (String regionIdP : regionIdList) {
-                    if (iovipHost.contains("-" + regionIdP)) {
-                        regionId = regionIdP;
-                        break;
-                    }
-                }
+            String regionId = host.region;
+            if (regionId == null) {
+                regionId = "";
             }
 
             Region region = new Region(timestamp, regionId, srcUpHosts, accUpHosts, iovipHost, rsHost, rsfHost, apiHost, ucHost);
@@ -277,6 +262,7 @@ class AutoRegion extends Region {
 
     private class HostRet {
         long ttl;
+        String region;
         HostInfoRet up;
         HostInfoRet rs;
         HostInfoRet rsf;

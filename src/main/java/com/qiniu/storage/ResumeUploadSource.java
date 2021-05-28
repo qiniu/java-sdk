@@ -76,6 +76,8 @@ abstract class ResumeUploadSource {
         for (ResumeUploadSource.Block block : blockList) {
             block.clearState();
         }
+        uploadId = null;
+        expireAt = null;
     }
 
     // 获取下一个需要上传的块
@@ -210,9 +212,10 @@ abstract class ResumeUploadSource {
         }
 
         void clearState() {
-            isUploading = false;
+            this.isUploading = false;
             this.etag = null;
             this.context = null;
+            this.data = null;
         }
     }
 }
