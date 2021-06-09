@@ -6,6 +6,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
+import com.qiniu.common.UncheckedQiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.*;
@@ -1239,11 +1240,10 @@ public final class BucketManager {
      */
     public class FileListIterator implements Iterator<FileInfo[]> {
         private String marker = null;
-        private String bucket;
-        private String delimiter;
-        private int limit;
-        private String prefix;
-        private QiniuException exception = null;
+        private final String bucket;
+        private final String delimiter;
+        private final int limit;
+        private final String prefix;
 
         public FileListIterator(String bucket, String prefix, int limit, String delimiter) {
             if (limit <= 0) {
@@ -1258,13 +1258,10 @@ public final class BucketManager {
             this.delimiter = delimiter;
         }
 
-        public QiniuException error() {
-            return exception;
-        }
 
         @Override
         public boolean hasNext() {
-            return exception == null && !"".equals(marker);
+            return "".equals(marker);
         }
 
         @Override
@@ -1274,8 +1271,7 @@ public final class BucketManager {
                 this.marker = f.marker == null ? "" : f.marker;
                 return f.items;
             } catch (QiniuException e) {
-                this.exception = e;
-                return null;
+                throw new UncheckedQiniuException(e, e.getMessage());
             }
         }
 
