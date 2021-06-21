@@ -236,6 +236,7 @@ public class BucketTest {
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
                 String bucket = file.getBucketName();
                 String key = file.getKey();
+                key = "12344";
                 try {
                     FileInfo info = bucketManager.stat(bucket, key);
                     Assert.assertNotNull(info.hash);
@@ -1554,6 +1555,129 @@ public class BucketTest {
 
                 } catch (QiniuException e) {
                     Assert.fail(bucket + ":" + key + " > " + keyToTest + " >> " + e.response.toString());
+                }
+            }
+        });
+    }
+
+    @Test
+    public void testBatchRestoreArchive() throws Exception {
+
+        testFileWithHandler(new TestFileHandler() {
+            @Override
+            public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
+                String bucket = file.getBucketName();
+                String key = file.getKey();
+                String keyToTestPrefix = "batch_restore_archive";
+
+                BucketManager.BatchOperations deleteOps = new BucketManager.BatchOperations();
+                try {
+                    List<String> keys = new ArrayList<>();
+                    for (int i = 0; i < 5; i++) {
+                        keys.add(keyToTestPrefix + "_" + i);
+                    }
+
+                    for (String keyToTest : keys) {
+                        // if stat, delete
+                        try {
+                            Response resp = bucketManager.statResponse(bucket, keyToTest);
+                            if (resp.statusCode == 200) bucketManager.delete(bucket, keyToTest);
+                        } catch (QiniuException ex) {
+                            System.out.println("file " + keyToTest + " not exists, ok.");
+                        }
+                    }
+
+                    // copy and changeType to Archive
+                    BucketManager.BatchOperations copyOps = new BucketManager.BatchOperations();
+                    BucketManager.BatchOperations copyAfterArchiveOps = new BucketManager.BatchOperations();
+                    BucketManager.BatchOperations changeTypeOps = new BucketManager.BatchOperations();
+                    BucketManager.BatchOperations restoreArchiveOps = new BucketManager.BatchOperations();
+                    for (String keyToTest : keys) {
+                        copyOps.addCopyOp(bucket, key, bucket, keyToTest);
+                        copyAfterArchiveOps.addCopyOp(bucket, keyToTest, bucket, keyToTest + "_copy");
+                        deleteOps.addDeleteOp(bucket, keyToTest, keyToTest + "_copy");
+                        changeTypeOps.addChangeTypeOps(bucket, StorageType.Archive, keyToTest);
+                        restoreArchiveOps.addRestoreArchiveOps(bucket, 1, keyToTest);
+                    }
+                    Response copyResponse = bucketManager.batch(copyOps);
+                    Assert.assertEquals(200, copyResponse.statusCode);
+
+                    Response changeTypeResponse = bucketManager.batch(changeTypeOps);
+                    Assert.assertEquals(200, changeTypeResponse.statusCode);
+
+                    // 验证归档不可 copy
+                    try {
+                        Response copyAfterArchiveResponse = bucketManager.batch(copyAfterArchiveOps);
+                        String bodyString = copyAfterArchiveResponse.bodyString();
+                        Assert.assertNotEquals(200, "batch copy can't be success" + bodyString);
+                    } catch (QiniuException ex) {
+                        Assert.assertEquals(400, ex.response.statusCode);
+                        System.out.println(ex.response.bodyString());
+                    }
+
+                    // restoreArchive
+                    Response restoreResponse = bucketManager.batch(restoreArchiveOps);
+                    String bodyString = restoreResponse.bodyString();
+                    System.out.println(bodyString);
+                    Assert.assertEquals(200, restoreResponse.statusCode);
+
+                    //test for 400 Bad Request {"error":"invalid freeze after days"}
+                    try {
+                        restoreResponse = bucketManager.batch(restoreArchiveOps);
+                        bodyString = restoreResponse.bodyString();
+                        System.out.println(bodyString);
+                    } catch (QiniuException ex) {
+                        Assert.assertEquals(400, ex.response.statusCode);
+                        System.out.println(ex.response.bodyString());
+                    }
+
+                    long checkStart = new Date().getTime();
+                    boolean shouldCheck = true;
+                    boolean success = false;
+                    while (shouldCheck) {
+                        // 验证解归档可 copy
+                        try {
+                            Response copyAfterArchiveResponse = bucketManager.batch(copyAfterArchiveOps);
+                            bodyString = copyAfterArchiveResponse.bodyString();
+                            System.out.println(bodyString);
+                            // 可以 copy 但文件已存在
+                            if (bodyString.contains("\"code\":614")) {
+                                success = true;
+                                break;
+                            }
+                        } catch (QiniuException ex) {
+                            System.out.println(ex.response.bodyString());
+                            if (ex.response.statusCode == 400) {
+                                success = true;
+                                break;
+                            }
+                        }
+
+                        long current = new Date().getTime();
+                        if (current - checkStart > 1000 * 60 * 5.5) {
+                            shouldCheck = false;
+                        }
+
+                        try {
+                            Thread.sleep(1000 * 10);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    Assert.assertTrue("can copy after restore archive", success);
+                } catch (QiniuException e) {
+                    Assert.fail(bucket + ":" + key + " > " + keyToTestPrefix + " >> " + e.response.toString());
+                } finally {
+                    try {
+                        Response response = bucketManager.batch(deleteOps);
+                        String bodyString = response.bodyString();
+                        System.out.println(bodyString);
+                        Assert.assertTrue(bodyString, response.statusCode == 200 || response.statusCode == 298);
+                    } catch (QiniuException ex) {
+                        Assert.assertEquals(400, ex.response.statusCode);
+                        System.out.println(ex.response.bodyString());
+                    }
                 }
             }
         });
