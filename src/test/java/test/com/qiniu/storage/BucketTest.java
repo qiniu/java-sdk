@@ -236,7 +236,6 @@ public class BucketTest {
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
                 String bucket = file.getBucketName();
                 String key = file.getKey();
-                key = "12344";
                 try {
                     FileInfo info = bucketManager.stat(bucket, key);
                     Assert.assertNotNull(info.hash);
