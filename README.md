@@ -12,12 +12,12 @@
 <dependency>
   <groupId>com.qiniu</groupId>
   <artifactId>qiniu-java-sdk</artifactId>
-  <version>[7.7.0, 7.7.99]</version>
+  <version>[7.8.0, 7.8.99]</version>
 </dependency>
 ```
 或者 Gradle:
 ```groovy
-compile 'com.qiniu:qiniu-java-sdk:7.7.+'
+compile 'com.qiniu:qiniu-java-sdk:7.8.+'
 ```
 
 ## 运行环境

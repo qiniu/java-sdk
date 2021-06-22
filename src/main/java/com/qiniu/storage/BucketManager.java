@@ -1207,6 +1207,22 @@ public final class BucketManager {
             return this;
         }
 
+        /**
+         * 添加解冻归档存储指令
+         *
+         * @param bucket          keys 所在 bucket
+         * @param freezeAfterDays 解冻有效时长，取值范围 1～7
+         * @param keys            keys
+         * @return BatchOperations
+         */
+        public BatchOperations addRestoreArchiveOps(String bucket, int freezeAfterDays, String... keys) {
+            for (String key : keys) {
+                ops.add(String.format("restoreAr/%s/freezeAfterDays/%d", encodedEntry(bucket, key), freezeAfterDays));
+            }
+            setExecBucket(bucket);
+            return this;
+        }
+
         public byte[] toBody() {
             String body = StringUtils.join(ops, "&op=", "op=");
             return StringUtils.utf8Bytes(body);
