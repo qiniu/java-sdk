@@ -9,8 +9,8 @@ import com.qiniu.util.Auth;
 public class SendMessageDemo {
 	public static void main(String args[]) {
 		// 设置需要操作的账号的AK和SK
-		String ACCESS_KEY = "";
-		String SECRET_KEY = "";
+		String ACCESS_KEY = "fv8Pft_71sLxh6AN-EqDt7QSa1J_wt5y3yTGGhCW";
+		String SECRET_KEY = "rb3bIUxBKm6aEYGMW_cfpBVMdy-QDPeP_VuObmtV";
 		Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
 
 		// 实例化一个SmsManager对象
@@ -18,7 +18,11 @@ public class SendMessageDemo {
 
 		try {
 			Map<String, String> map = new HashMap<String, String>();
-			Response resp = smsManager.sendMessage("templateId", new String[] { "10086" }, map);
+			map.put("p1",name);
+					map.put("p2",time);
+					map.put("p3",place);
+					map.put("templateId","1386991105744056320");
+			Response resp = smsManager.sendMessage("1386991105744056320", new String[] { "15859288526" }, map);
 //          Response resp = smsManager.describeSignature("passed", 0, 0);
 //          Response resp = smsManager.createSignature("signature", "app",
 //                  new String[] { "data:image/gif;base64,xxxxxxxxxx" });
