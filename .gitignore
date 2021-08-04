@@ -22,7 +22,7 @@ server.pid
 build/
 out/
 
-#src.zip
+src.zip
 
 .idea
 .gradle
