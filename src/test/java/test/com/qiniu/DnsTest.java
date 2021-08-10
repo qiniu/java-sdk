@@ -9,13 +9,15 @@ import qiniu.happydns.Domain;
 import qiniu.happydns.IResolver;
 import qiniu.happydns.local.Resolver;
 import qiniu.happydns.local.SystemDnsServer;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 // example
 public class DnsTest {
@@ -53,7 +55,8 @@ public class DnsTest {
         uploadManager = new UploadManager(config);
     }
 
-    //@Test
+    @Test
+    @Disabled
     public void testSome() {
         // uploadManager.xxxxx
     }

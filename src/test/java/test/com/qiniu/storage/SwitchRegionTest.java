@@ -10,17 +10,18 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.Etag;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
-import org.junit.Assert;
-import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Date;
-
-import static org.junit.Assert.*;
 
 public class SwitchRegionTest {
 
@@ -34,23 +35,16 @@ public class SwitchRegionTest {
     private static final int serialType = 1;
     private static final int concurrentType = 2;
 
-    private static int[][] testConfigList = {
-            {httpType, -1, formType},
-            {httpType, resumableV1Type, serialType},
-            {httpType, resumableV1Type, concurrentType},
-            {httpType, resumableV2Type, serialType},
-            {httpType, resumableV2Type, concurrentType},
+    private static int[][] testConfigList = { { httpType, -1, formType }, { httpType, resumableV1Type, serialType },
+            { httpType, resumableV1Type, concurrentType }, { httpType, resumableV2Type, serialType },
+            { httpType, resumableV2Type, concurrentType },
 
-            {httpsType, -1, formType},
-            {httpsType, resumableV1Type, serialType},
-            {httpsType, resumableV1Type, concurrentType},
-            {httpsType, resumableV2Type, serialType},
-            {httpsType, resumableV2Type, concurrentType},
-    };
+            { httpsType, -1, formType }, { httpsType, resumableV1Type, serialType },
+            { httpsType, resumableV1Type, concurrentType }, { httpsType, resumableV2Type, serialType },
+            { httpsType, resumableV2Type, concurrentType }, };
 
     /**
-     * 分片上传
-     * 检测key、hash、fszie、fname是否符合预期
+     * 分片上传 检测key、hash、fszie、fname是否符合预期
      *
      * @param size        文件大小
      * @param httpType    采用 http / https 方式
@@ -70,11 +64,8 @@ public class SwitchRegionTest {
             }
             String bucket = file.getBucketName();
 
-            Region mockRegion = new Region.Builder()
-                    .region("custom")
-                    .srcUpHost("mock.src.host.com")
-                    .accUpHost("mock.acc.host.com")
-                    .build();
+            Region mockRegion = new Region.Builder().region("custom").srcUpHost("mock.src.host.com")
+                    .accUpHost("mock.acc.host.com").build();
             Region region = file.getRegion();
             RegionGroup regionGroup = new RegionGroup();
             regionGroup.addRegion(mockRegion);
@@ -118,7 +109,6 @@ public class SwitchRegionTest {
 
             System.out.printf("\r\nkey:%s zone:%s\n", expectKey, regionGroup);
 
-
             StringMap param = new StringMap();
             param.put("x:" + fooKey, fooValue);
             param.put("x-qn-meta-" + metaDataKey, metaDataValue);
@@ -134,7 +124,7 @@ public class SwitchRegionTest {
                 }
 
                 Response r = up.upload();
-                assertTrue(r + "", r.isOK());
+                assertTrue(r.isOK(), r + "");
 
                 StringMap ret = r.jsonToMap();
                 assertEquals(expectKey, ret.get("key"));
@@ -165,7 +155,7 @@ public class SwitchRegionTest {
                 }
 
                 FileInfo fileInfo = getFileInfo(config, bucket, expectKey);
-                assertEquals(fileInfo + "", metaDataValue, fileInfo.meta.get(metaDataKey).toString());
+                assertEquals(metaDataValue, fileInfo.meta.get(metaDataKey).toString(), fileInfo + "");
             } catch (QiniuException e) {
                 assertEquals("", e.response == null ? e + "e.response is null" : e.response.bodyString());
                 fail();
@@ -262,7 +252,8 @@ public class SwitchRegionTest {
     }
 
     // 内部环境测试
-//    @Test
+    @Test
+    @Disabled
     public void testInnerEnvSwitchRegion() {
         try {
             long s = new Date().getTime();
@@ -271,7 +262,7 @@ public class SwitchRegionTest {
             System.out.println("耗时：" + (e - s));
         } catch (Exception e) {
             e.printStackTrace();
-            Assert.fail("testInnerEnvSwitchRegion:" + e);
+            fail("testInnerEnvSwitchRegion:" + e);
         }
     }
 
@@ -281,15 +272,9 @@ public class SwitchRegionTest {
         boolean isConcurrent = uploadStyle == concurrentType;
         String bucket = "aaaabbbbb";
 
-        Region region0 = new Region.Builder()
-                .srcUpHost("10.200.20.23:5010")
-                .accUpHost("10.200.20.23:5010")
-                .build();
+        Region region0 = new Region.Builder().srcUpHost("10.200.20.23:5010").accUpHost("10.200.20.23:5010").build();
 
-        Region region1 = new Region.Builder()
-                .srcUpHost("10.200.20.24:5010")
-                .accUpHost("10.200.20.24:5010")
-                .build();
+        Region region1 = new Region.Builder().srcUpHost("10.200.20.24:5010").accUpHost("10.200.20.24:5010").build();
 
         RegionGroup regionGroup = new RegionGroup();
         regionGroup.addRegion(region0);
@@ -332,11 +317,9 @@ public class SwitchRegionTest {
 
         Auth auth = Auth.create(TestConfig.innerAccessKey, TestConfig.innerSecretKey);
 
-        String token = auth.uploadToken(bucket, expectKey, 3600,
-                new StringMap().put("returnBody", returnBody));
+        String token = auth.uploadToken(bucket, expectKey, 3600, new StringMap().put("returnBody", returnBody));
 
         System.out.printf("\r\nkey:%s zone:%s\n", expectKey, regionGroup);
-
 
         StringMap param = new StringMap();
         param.put("x:" + fooKey, fooValue);
@@ -353,7 +336,7 @@ public class SwitchRegionTest {
             }
 
             Response r = up.upload();
-            assertTrue(r + "", r.isOK());
+            assertTrue(r.isOK(), r + "");
 
             StringMap ret = r.jsonToMap();
             assertEquals(expectKey, ret.get("key"));
@@ -372,7 +355,6 @@ public class SwitchRegionTest {
         }
         TempFile.remove(f);
     }
-
 
     class MyRet {
         public String hash;

@@ -7,10 +7,13 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.DownloadPrivateCloudUrl;
 import com.qiniu.storage.DownloadUrl;
 import com.qiniu.util.Auth;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,53 +34,52 @@ public class DownloadUrlTest {
         String customQueryKey = "Key";
         String customQueryValue = "Value";
         try {
-            String url = new DownloadUrl(domain, false, key)
-                    .setAttname(attname).setFop(fop).setStyle(style, styleSeparator, styleParam)
-                    .addCustomQuery(customQueryKey, customQueryValue)
+            String url = new DownloadUrl(domain, false, key).setAttname(attname).setFop(fop)
+                    .setStyle(style, styleSeparator, styleParam).addCustomQuery(customQueryKey, customQueryValue)
                     .buildURL();
             System.out.println("create url:" + url);
             testHasAuthority(url);
 
-            url = new DownloadUrl(domain, true, key)
-                    .setAttname(attname).setFop(fop).setStyle(style, styleSeparator, styleParam)
-                    .addCustomQuery(customQueryKey, customQueryValue)
+            url = new DownloadUrl(domain, true, key).setAttname(attname).setFop(fop)
+                    .setStyle(style, styleSeparator, styleParam).addCustomQuery(customQueryKey, customQueryValue)
                     .buildURL();
-            Assert.assertTrue("url:" + url, url.contains("https://"));
+            assertTrue(url.contains("https://"), "url:" + url);
         } catch (QiniuException e) {
-            Assert.assertTrue(e.error(), false);
+            fail(e.error());
         }
     }
 
     @Test
     public void testSpecialKey() {
         String domain = "abc.com:123";
-        Map<String, String> keys = new HashMap<String, String>() {{
-            put("", "");
-            put("abc_def.mp4", "abc_def.mp4");
-            put("/ab/cd", "/ab/cd");
-            put("ab/中文/de", "ab/%E4%B8%AD%E6%96%87/de");
-            put("ab+-*de f", "ab%2B-%2Ade%20f");
-            put("ab:cd", "ab%3Acd");
-            put("ab@cd", "ab%40cd");
-            put("ab?cd=ef", "ab%3Fcd%3Def");
-            put("ab#e~f", "ab%23e~f");
-            put("ab//cd", "ab//cd");
-            put("abc%2F%2B", "abc%252F%252B");
-            put("ab cd", "ab%20cd");
-            put("ab/c:d?e#f//gh汉子", "ab/c%3Ad%3Fe%23f//gh%E6%B1%89%E5%AD%90");
-        }};
+        Map<String, String> keys = new HashMap<String, String>() {
+            {
+                put("", "");
+                put("abc_def.mp4", "abc_def.mp4");
+                put("/ab/cd", "/ab/cd");
+                put("ab/中文/de", "ab/%E4%B8%AD%E6%96%87/de");
+                put("ab+-*de f", "ab%2B-%2Ade%20f");
+                put("ab:cd", "ab%3Acd");
+                put("ab@cd", "ab%40cd");
+                put("ab?cd=ef", "ab%3Fcd%3Def");
+                put("ab#e~f", "ab%23e~f");
+                put("ab//cd", "ab//cd");
+                put("abc%2F%2B", "abc%252F%252B");
+                put("ab cd", "ab%20cd");
+                put("ab/c:d?e#f//gh汉子", "ab/c%3Ad%3Fe%23f//gh%E6%B1%89%E5%AD%90");
+            }
+        };
 
         for (String key : keys.keySet()) {
             String encodeKey = keys.get(key);
             try {
                 String url = new DownloadUrl(domain, false, key).buildURL();
                 String exceptUrl = "http://" + domain + "/" + encodeKey;
-                Assert.assertEquals("url:" + url + " exceptUrl:" + exceptUrl, exceptUrl, url);
+                assertEquals(exceptUrl, url, "url:" + url + " exceptUrl:" + exceptUrl);
             } catch (QiniuException e) {
-                Assert.assertTrue(e.error(), false);
+                fail(e.error());
             }
         }
-
 
     }
 
@@ -94,7 +96,7 @@ public class DownloadUrlTest {
             System.out.println("create url:" + url);
             Client client = new Client();
             Response response = client.get(url);
-            Assert.assertTrue(response.toString(), response.isOK());
+            assertTrue(response.isOK(), response.toString());
 
             try {
                 Thread.sleep((expire + 5) * 1000);
@@ -103,7 +105,10 @@ public class DownloadUrlTest {
             }
             testNoAuthority(url);
         } catch (QiniuException e) {
-            Assert.assertTrue(e.response.toString(), false);
+            e.printStackTrace();
+            if (e.response != null) {
+                fail(e.response.toString());
+            }
         }
     }
 
@@ -111,10 +116,10 @@ public class DownloadUrlTest {
         try {
             Client client = new Client();
             Response response = client.get(url);
-            Assert.assertFalse(url, response.isOK());
+            assertFalse(response.isOK(), url);
         } catch (QiniuException e) {
-            Assert.assertNotNull("except no authority:" + url + "\n but no response:" + e, e.response);
-            Assert.assertTrue("except no authority:" + url + "\n but:" + e.response, e.response.statusCode == 401);
+            assertNotNull(e.response, "except no authority:" + url + "\n but no response:" + e);
+            assertTrue(e.response.statusCode == 401, "except no authority:" + url + "\n but:" + e.response);
         }
     }
 
@@ -122,9 +127,9 @@ public class DownloadUrlTest {
         try {
             Client client = new Client();
             Response response = client.get(url);
-            Assert.assertTrue(url, response.isOK());
+            assertTrue(response.isOK(), url);
         } catch (QiniuException e) {
-            Assert.assertTrue("except has authority:" + url + "\n response:" + e.response, false);
+            fail("except has authority:" + url + "\n response:" + e.response);
         }
     }
 
@@ -141,40 +146,47 @@ public class DownloadUrlTest {
             String style = "iphone";
             String styleSeparator = "-";
             try {
-                DownloadPrivateCloudUrl downloadUrl = new DownloadPrivateCloudUrl(domain, false, bucket, key, TestConfig.testAccessKey);
-                String url = downloadUrl.setAttname(attname).setFop(fop).setStyle(style, styleSeparator, null).buildURL();
-                String urlExpire = "http://" + domain + "/getfile/" + TestConfig.testAccessKey + "/" + bucket + "/" + key + URLEncoder.encode(styleSeparator) + URLEncoder.encode(style) + "?" + URLEncoder.encode(fop) + "&attname=" + URLEncoder.encode(attname);
+                DownloadPrivateCloudUrl downloadUrl = new DownloadPrivateCloudUrl(domain, false, bucket, key,
+                        TestConfig.testAccessKey);
+                String url = downloadUrl.setAttname(attname).setFop(fop).setStyle(style, styleSeparator, null)
+                        .buildURL();
+                String urlExpire = "http://" + domain + "/getfile/" + TestConfig.testAccessKey + "/" + bucket + "/"
+                        + key + URLEncoder.encode(styleSeparator) + URLEncoder.encode(style) + "?"
+                        + URLEncoder.encode(fop) + "&attname=" + URLEncoder.encode(attname);
                 System.out.println("create url:" + url + " expire url:" + urlExpire);
-                Assert.assertEquals("create url:" + url + " expire url:" + urlExpire, urlExpire, url);
+                assertEquals(urlExpire, url, "create url:" + url + " expire url:" + urlExpire);
 
                 downloadUrl = new DownloadPrivateCloudUrl(domain, true, bucket, key, TestConfig.testAccessKey);
                 url = downloadUrl.setAttname(attname).setFop(fop).setStyle(style, styleSeparator, null).buildURL();
-                urlExpire = "https://" + domain + "/getfile/" + TestConfig.testAccessKey + "/" + bucket + "/" + key + URLEncoder.encode(styleSeparator) + URLEncoder.encode(style) + "?" + URLEncoder.encode(fop) + "&attname=" + URLEncoder.encode(attname);
+                urlExpire = "https://" + domain + "/getfile/" + TestConfig.testAccessKey + "/" + bucket + "/" + key
+                        + URLEncoder.encode(styleSeparator) + URLEncoder.encode(style) + "?" + URLEncoder.encode(fop)
+                        + "&attname=" + URLEncoder.encode(attname);
                 System.out.println("create url:" + url + " expire url:" + urlExpire);
-                Assert.assertEquals("create url:" + url + " expire url:" + urlExpire, urlExpire, url);
-
+                assertEquals(urlExpire, url, "create url:" + url + " expire url:" + urlExpire);
 
                 Configuration cfg = new Configuration();
                 cfg.useHttpsDomains = false;
                 String host = cfg.ioHost(TestConfig.testAccessKey, bucket);
 
-
                 downloadUrl = new DownloadPrivateCloudUrl(cfg, bucket, key, TestConfig.testAccessKey);
                 url = downloadUrl.setAttname(attname).setFop(fop).setStyle(style, styleSeparator, null).buildURL();
-                urlExpire = host + "/getfile/" + TestConfig.testAccessKey + "/" + bucket + "/" + key + URLEncoder.encode(styleSeparator) + URLEncoder.encode(style) + "?" + URLEncoder.encode(fop) + "&attname=" + URLEncoder.encode(attname);
+                urlExpire = host + "/getfile/" + TestConfig.testAccessKey + "/" + bucket + "/" + key
+                        + URLEncoder.encode(styleSeparator) + URLEncoder.encode(style) + "?" + URLEncoder.encode(fop)
+                        + "&attname=" + URLEncoder.encode(attname);
                 System.out.println("create url:" + url + " expire url:" + urlExpire);
-                Assert.assertEquals("create url:" + url + " expire url:" + urlExpire, urlExpire, url);
-
+                assertEquals(urlExpire, url, "create url:" + url + " expire url:" + urlExpire);
 
                 cfg.useHttpsDomains = true;
                 host = cfg.ioHost(TestConfig.testAccessKey, bucket);
                 downloadUrl = new DownloadPrivateCloudUrl(cfg, bucket, key, TestConfig.testAccessKey);
                 url = downloadUrl.setAttname(attname).setFop(fop).setStyle(style, styleSeparator, null).buildURL();
-                urlExpire = host + "/getfile/" + TestConfig.testAccessKey + "/" + bucket + "/" + key + URLEncoder.encode(styleSeparator) + URLEncoder.encode(style) + "?" + URLEncoder.encode(fop) + "&attname=" + URLEncoder.encode(attname);
+                urlExpire = host + "/getfile/" + TestConfig.testAccessKey + "/" + bucket + "/" + key
+                        + URLEncoder.encode(styleSeparator) + URLEncoder.encode(style) + "?" + URLEncoder.encode(fop)
+                        + "&attname=" + URLEncoder.encode(attname);
                 System.out.println("create url:" + url + " expire url:" + urlExpire);
-                Assert.assertEquals("create url:" + url + " expire url:" + urlExpire, urlExpire, url);
+                assertEquals(urlExpire, url, "create url:" + url + " expire url:" + urlExpire);
             } catch (QiniuException e) {
-                Assert.assertTrue(e.error(), false);
+                fail(e.error());
             }
         }
     }

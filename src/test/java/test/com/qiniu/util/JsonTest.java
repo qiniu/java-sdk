@@ -1,12 +1,11 @@
 package test.com.qiniu.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.gson.Gson;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
 
 public class JsonTest {
     @Test
@@ -24,7 +23,7 @@ public class JsonTest {
         String j = u.toString();
         System.out.println(u);
         System.out.println(j);
-        assertTrue(" no s1, i1 fields", j.indexOf("s1") == -1);
+        assertTrue(j.indexOf("s1") == -1, " no s1, i1 fields");
     }
 
     @Test
@@ -58,7 +57,7 @@ public class JsonTest {
     private class User {
         transient String s1;
         transient int i1;
-        //省略其它
+        // 省略其它
         private String name;
         private int age;
         private String emailAddress;
@@ -67,7 +66,7 @@ public class JsonTest {
         User(String name, int age) {
             this.name = name;
             this.age = age;
-//            this.emailAddress = emailAddress;
+            // this.emailAddress = emailAddress;
         }
 
         public String toString() {

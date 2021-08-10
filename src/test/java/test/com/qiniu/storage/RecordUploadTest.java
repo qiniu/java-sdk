@@ -9,18 +9,19 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.ResumeUploader;
 import com.qiniu.storage.persistent.FileRecorder;
 import com.qiniu.util.Etag;
-import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Random;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by Simon on 2015/3/30.
@@ -34,11 +35,7 @@ public class RecordUploadTest {
 
     private static boolean[][] testConfigList = {
             // isResumeV2, isConcurrent
-            {true, false},
-            {true, true},
-            {false, false},
-            {false, true}
-    };
+            { true, false }, { true, true }, { false, false }, { false, true } };
 
     /**
      * 断点续传
@@ -95,11 +92,11 @@ public class RecordUploadTest {
                     }
                 }.start();
 
-                final boolean[] ch = new boolean[]{true};
+                final boolean[] ch = new boolean[] { true };
                 // 显示断点记录文件
                 Thread showRecord = new Thread() {
                     public void run() {
-                        for (; ch[0]; ) {
+                        for (; ch[0];) {
                             doSleep(1000);
                             showRecord("normal: " + size + " :", recorder, recordKey);
                         }
@@ -152,7 +149,7 @@ public class RecordUploadTest {
                 assertEquals(etag, hash);
                 doSleep(2000);
                 showRecord("nodata: " + size + " :", recorder, recordKey);
-                assertNull("文件上传成功,但断点记录文件未清理", recorder.get(recordKey));
+                assertNull(recorder.get(recordKey), "文件上传成功,但断点记录文件未清理");
             } finally {
                 TempFile.remove(f);
             }
@@ -168,7 +165,7 @@ public class RecordUploadTest {
             }
             System.out.println(jsonStr);
         } catch (Exception e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 
@@ -184,7 +181,7 @@ public class RecordUploadTest {
         try {
             Thread.sleep(m);
         } catch (InterruptedException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 
@@ -339,11 +336,10 @@ public class RecordUploadTest {
 
                 if (isConcurrent) {
                     config.resumableUploadMaxConcurrentTaskCount = 3;
-                    uploader = new ConcurrentResumeUploader(client, token, key, file,
-                            null, Client.DefaultMime, recorder, config);
+                    uploader = new ConcurrentResumeUploader(client, token, key, file, null, Client.DefaultMime,
+                            recorder, config);
                 } else {
-                    uploader = new ResumeUploader(client, token, key, file,
-                            null, Client.DefaultMime, recorder, config);
+                    uploader = new ResumeUploader(client, token, key, file, null, Client.DefaultMime, recorder, config);
                 }
 
                 Response res = uploader.upload();

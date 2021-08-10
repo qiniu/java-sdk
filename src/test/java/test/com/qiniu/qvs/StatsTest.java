@@ -1,12 +1,12 @@
 package test.com.qiniu.qvs;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.StatsManager;
 import com.qiniu.util.Auth;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
 public class StatsTest {
@@ -19,7 +19,7 @@ public class StatsTest {
     private final int start = 20200901;
     private final int end = 20200902;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.statsManager = new StatsManager(auth);
     }
@@ -28,7 +28,7 @@ public class StatsTest {
     public void testQueryFlow() {
         try {
             res = statsManager.queryFlow(namespaceId, streamId, tu, start, end);
-            Assert.assertNotNull(res);
+            assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -43,7 +43,7 @@ public class StatsTest {
     public void testQueryBandwidth() {
         try {
             res = statsManager.queryBandwidth(namespaceId, streamId, tu, start, end);
-            Assert.assertNotNull(res);
+            assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();

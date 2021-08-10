@@ -6,18 +6,19 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UpCompletionHandler;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.StringMap;
-import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.*;
 
 public class FormUploadTest {
 
@@ -51,9 +52,7 @@ public class FormUploadTest {
     }
 
     /**
-     * hello上传，scope:<bucket:key>
-     * 检测是否请求200
-     * 检测返回值hash、key是否匹配
+     * hello上传，scope:<bucket:key> 检测是否请求200 检测返回值hash、key是否匹配
      */
     public void hello(UploadManager up, String bucket) {
         final String expectKey = "你好?&=\r\n";
@@ -79,9 +78,7 @@ public class FormUploadTest {
     }
 
     /**
-     * 无key上传，scope:<bucket>
-     * 检测是否返回200
-     * 检测返回值hash、key是否匹配
+     * 无key上传，scope:<bucket> 检测是否返回200 检测返回值hash、key是否匹配
      */
     @Test
     public void testNoKey() {
@@ -113,9 +110,7 @@ public class FormUploadTest {
     }
 
     /**
-     * 错误token上传
-     * 检测是否返回401
-     * 检测reqid是否不为null
+     * 错误token上传 检测是否返回401 检测reqid是否不为null
      */
     @Test
     public void testInvalidToken() {
@@ -141,8 +136,7 @@ public class FormUploadTest {
     }
 
     /**
-     * 空data上传
-     * 检测Exception是否为IllegalArgumentException一类
+     * 空data上传 检测Exception是否为IllegalArgumentException一类
      */
     @Test
     public void testNoData() {
@@ -163,8 +157,7 @@ public class FormUploadTest {
     }
 
     /**
-     * NULL token上传
-     * 检测Exception是否为IllegalArgumentException一类
+     * NULL token上传 检测Exception是否为IllegalArgumentException一类
      *
      * @throws Throwable
      */
@@ -186,8 +179,7 @@ public class FormUploadTest {
     }
 
     /**
-     * 空token上传
-     * 检测Exception是否为IllegalArgumentException一类
+     * 空token上传 检测Exception是否为IllegalArgumentException一类
      */
     @Test
     public void testEmptyToken() {
@@ -207,8 +199,7 @@ public class FormUploadTest {
     }
 
     /**
-     * 文件上传
-     * 检测是否有Exception
+     * 文件上传 检测是否有Exception
      */
     @Test
     public void testFile() {
@@ -240,9 +231,7 @@ public class FormUploadTest {
     }
 
     /**
-     * 异步上传
-     * 检测是否返回200
-     * 检测返回值hash、key是否匹配
+     * 异步上传 检测是否返回200 检测返回值hash、key是否匹配
      */
     @Test
     public void testAsync() {
@@ -258,8 +247,8 @@ public class FormUploadTest {
             String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
             final CountDownLatch signal = new CountDownLatch(1);
             try {
-                uploadManager.asyncPut("hello".getBytes(), expectKey, token, params,
-                        null, false, new UpCompletionHandler() {
+                uploadManager.asyncPut("hello".getBytes(), expectKey, token, params, null, false,
+                        new UpCompletionHandler() {
                             @Override
                             public void complete(String key, Response r) {
                                 signal.countDown();
@@ -512,9 +501,7 @@ public class FormUploadTest {
     }
 
     /**
-     * 测试inputStream 表单上传
-     * 检测reqid是否为Null
-     * 检测状态码是否为200
+     * 测试inputStream 表单上传 检测reqid是否为Null 检测状态码是否为200
      */
     @Test
     public void testFormUploadWithInputStream() {
@@ -527,9 +514,7 @@ public class FormUploadTest {
     }
 
     /**
-     * 测试inputStream 表单上传
-     * 检测reqid是否为Null
-     * 检测状态码是否为200
+     * 测试inputStream 表单上传 检测reqid是否为Null 检测状态码是否为200
      */
     public void testFormUploadWithInputStream(long kiloSize, long size) {
 
@@ -546,12 +531,10 @@ public class FormUploadTest {
                 UploadManager uploadManager = new UploadManager(config);
 
                 String bucket = testFile.getBucketName();
-                String token = TestConfig.testAuth.uploadToken(bucket, bucket,
-                        3600, null);
+                String token = TestConfig.testAuth.uploadToken(bucket, bucket, 3600, null);
                 System.out.println("token=" + token);
 
-                Response response = uploadManager.put(inputStream, size, bucket, token, null,
-                        null, false);
+                Response response = uploadManager.put(inputStream, size, bucket, token, null, null, false);
                 System.out.println("code=" + response.statusCode);
                 System.out.println("reqid=" + response.reqId);
                 System.out.println(response.bodyString());

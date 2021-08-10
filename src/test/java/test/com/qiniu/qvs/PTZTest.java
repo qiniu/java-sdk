@@ -1,13 +1,13 @@
 package test.com.qiniu.qvs;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.PTZManager;
 import com.qiniu.util.Auth;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import test.com.qiniu.TestConfig;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PTZTest {
     Auth auth = TestConfig.testAuth;
@@ -17,8 +17,7 @@ public class PTZTest {
     private final String gbId = "31011500991320000382";
     private final String chId = "";
 
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.ptzManager = new PTZManager(auth);
     }
@@ -27,7 +26,7 @@ public class PTZTest {
     public void testPTZControl() {
         try {
             res = ptzManager.ptzControl(namespaceId, gbId, "up", 5, chId);
-            Assert.assertNotNull(res);
+            assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -42,7 +41,7 @@ public class PTZTest {
     public void testFocusControl() {
         try {
             res = ptzManager.focusControl(namespaceId, gbId, "focusfar", 5, chId);
-            Assert.assertNotNull(res);
+            assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -57,7 +56,7 @@ public class PTZTest {
     public void testIrisControl() {
         try {
             res = ptzManager.irisControl(namespaceId, gbId, "irisin", 5, chId);
-            Assert.assertNotNull(res);
+            assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -72,7 +71,7 @@ public class PTZTest {
     public void testPresetsControl() {
         try {
             res = ptzManager.presetsControl(namespaceId, gbId, "set", "test", 0, chId);
-            Assert.assertNotNull(res);
+            assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -87,7 +86,7 @@ public class PTZTest {
     public void testListPresets() {
         try {
             res = ptzManager.listPresets(namespaceId, gbId, chId);
-            Assert.assertNotNull(res);
+            assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -98,4 +97,3 @@ public class PTZTest {
         }
     }
 }
-

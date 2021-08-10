@@ -1,16 +1,17 @@
 package test.com.qiniu.streaming;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.qiniu.streaming.UrlFactory;
 import test.com.qiniu.TestConfig;
-
-import static org.junit.Assert.assertTrue;
-
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by bailong on 16/9/22.
  */
 public class UrlTest {
-    //@Test
+    @Test
+    @Disabled
     public void testUrl() {
         String hubName = "test";
         String pubDomain = "publish-rtmp.test.com";
@@ -19,8 +20,8 @@ public class UrlTest {
         String hdlDomain = "live-hdl.test.com";
         String snapDomain = "live-snapshot.test.com";
 
-        UrlFactory uf = new UrlFactory(hubName, TestConfig.dummyAuth,
-                pubDomain, rtmpDomain, hlsDomain, hdlDomain, snapDomain);
+        UrlFactory uf = new UrlFactory(hubName, TestConfig.dummyAuth, pubDomain, rtmpDomain, hlsDomain, hdlDomain,
+                snapDomain);
         String expect = "rtmp://publish-rtmp.test.com/" + hubName + "/key?e=";
         String url = uf.rtmpPublishUrl("key", 3600);
         System.out.println(url);

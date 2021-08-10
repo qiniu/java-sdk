@@ -8,8 +8,9 @@ import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.qvs.model.StaticLiveRoute;
 import com.qiniu.qvs.model.Stream;
 import com.qiniu.util.Auth;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
 public class StreamTest {
@@ -27,7 +28,7 @@ public class StreamTest {
     private final String maker = "";
     private final String format = "";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.streamManager = new StreamManager(auth);
 
@@ -35,7 +36,7 @@ public class StreamTest {
 
     @Test
     public void testCreateStream() {
-//        stream.setStreamID("teststream002");
+        // stream.setStreamID("teststream002");
         try {
             res = streamManager.createStream(namespaceId, stream);
             System.out.println(res.bodyString());
@@ -64,7 +65,7 @@ public class StreamTest {
 
     @Test
     public void testUpdateStream() {
-        PatchOperation[] patchOperation = {new PatchOperation("replace", "desc", "test")};
+        PatchOperation[] patchOperation = { new PatchOperation("replace", "desc", "test") };
         try {
             res = streamManager.updateStream(namespaceId, stream.getStreamID(), patchOperation);
             System.out.println(res.bodyString());
@@ -126,7 +127,8 @@ public class StreamTest {
     @Test
     public void testQueryStreamRecordHistories() {
         try {
-            res = streamManager.queryStreamRecordHistories(namespaceId, stream.getStreamID(), start, end, line, maker, format);
+            res = streamManager.queryStreamRecordHistories(namespaceId, stream.getStreamID(), start, end, line, maker,
+                    format);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();

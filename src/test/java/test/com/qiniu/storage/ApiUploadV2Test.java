@@ -5,11 +5,13 @@ import com.qiniu.http.Client;
 import com.qiniu.storage.*;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
-import org.junit.Assert;
-import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -48,22 +50,20 @@ public class ApiUploadV2Test {
         fileSize *= 1024; // 单位： B
 
         /**
-         * 一个文件被分成多个 part，上传所有的 part，然后在七牛云根据 part 信息合成文件
-         * |----------------------------- file -----------------------------|
-         * |------ part ------|------ part ------|------ part ------|...
-         * |----- etag01 -----|----- etag02 -----|----- etag03 -----|...
-         * allBlockCtx = [{"partNumber":1, "etag", etag01}, {"partNumber":2, "etag", etag02}, {"partNumber":3, "etag", etag03}, ...]
+         * 一个文件被分成多个 part，上传所有的 part，然后在七牛云根据 part 信息合成文件 |-----------------------------
+         * file -----------------------------| |------ part ------|------ part
+         * ------|------ part ------|... |----- etag01 -----|----- etag02 -----|-----
+         * etag03 -----|... allBlockCtx = [{"partNumber":1, "etag", etag01},
+         * {"partNumber":2, "etag", etag02}, {"partNumber":3, "etag", etag03}, ...]
          *
-         * 上传过程：
-         * 1. 调用 ApiUploadV2InitUpload api 创建一个 upload 任务，获取 uploadId
-         * 2. 重复调用 ApiUploadV2UploadPart api 直到文件所有的 part 均上传完毕, part 的大小可以不相同
-         * 3. 调用 ApiUploadV2CompleteUpload api 组装 api
-         * 4. ApiUploadV2InitUpload、ApiUploadV2UploadPart、ApiUploadV2CompleteUpload 等分片 V2 API的 key 需要统一（要么有设置且相同，要么均不设置）
+         * 上传过程： 1. 调用 ApiUploadV2InitUpload api 创建一个 upload 任务，获取 uploadId 2. 重复调用
+         * ApiUploadV2UploadPart api 直到文件所有的 part 均上传完毕, part 的大小可以不相同 3. 调用
+         * ApiUploadV2CompleteUpload api 组装 api 4.
+         * ApiUploadV2InitUpload、ApiUploadV2UploadPart、ApiUploadV2CompleteUpload 等分片 V2
+         * API的 key 需要统一（要么有设置且相同，要么均不设置）
          *
-         * 注：
-         * 1. partNumber 范围是 1 ~ 10000
-         * 2. 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB
-         * 3. 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖
+         * 注： 1. partNumber 范围是 1 ~ 10000 2. 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB 3.
+         * 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖
          */
         int defaultPartSize = 1024 * 1024 * 2;
 
@@ -111,13 +111,12 @@ public class ApiUploadV2Test {
                 System.out.println("init upload:" + initUploadResponse.getResponse());
                 System.out.println("init upload id::" + initUploadResponse.getUploadId());
 
-                Assert.assertTrue(initUploadResponse.getResponse() + "", initUploadResponse.isOK());
-                Assert.assertNotNull(initUploadResponse.getUploadId() + "", initUploadResponse.getUploadId());
-                Assert.assertNotNull(initUploadResponse.getExpireAt() + "", initUploadResponse.getExpireAt());
+                assertTrue(initUploadResponse.isOK(), initUploadResponse.getResponse() + "");
+                assertNotNull(initUploadResponse.getUploadId(), initUploadResponse.getUploadId() + "");
+                assertNotNull(initUploadResponse.getExpireAt(), initUploadResponse.getExpireAt() + "");
             } catch (QiniuException e) {
                 e.printStackTrace();
             }
-
 
             // 2. 上传文件数据
             List<Map<String, Object>> partsInfo = new ArrayList<>();
@@ -133,12 +132,13 @@ public class ApiUploadV2Test {
 
                 // 1.2.2 上传 part 数据
                 ApiUploadV2UploadPart uploadPartApi = new ApiUploadV2UploadPart(client);
-                ApiUploadV2UploadPart.Request uploadPartRequest = new ApiUploadV2UploadPart.Request(urlPrefix, token, uploadId, partNumber)
-                        .setKey(key);
+                ApiUploadV2UploadPart.Request uploadPartRequest = new ApiUploadV2UploadPart.Request(urlPrefix, token,
+                        uploadId, partNumber).setKey(key);
                 if (isUploadBytes) {
                     uploadPartRequest.setUploadData(partData, 0, partData.length, null);
                 } else {
-                    uploadPartRequest.setUploadData(new ByteArrayInputStream(partData), null, isSetContentLength ? partData.length + 1 : -1);
+                    uploadPartRequest.setUploadData(new ByteArrayInputStream(partData), null,
+                            isSetContentLength ? partData.length + 1 : -1);
                 }
                 try {
                     ApiUploadV2UploadPart.Response uploadPartResponse = uploadPartApi.request(uploadPartRequest);
@@ -150,9 +150,9 @@ public class ApiUploadV2Test {
                     partsInfo.add(partInfo);
                     System.out.println("upload part:" + uploadPartResponse.getResponse());
 
-                    Assert.assertTrue(uploadPartResponse.getResponse() + "", uploadPartResponse.isOK());
-                    Assert.assertEquals(md5, uploadPartResponse.getMd5(), Md5.md5(partData));
-                    Assert.assertNotNull(etag, uploadPartResponse.getEtag());
+                    assertTrue(uploadPartResponse.isOK(), uploadPartResponse.getResponse() + "");
+                    assertEquals(uploadPartResponse.getMd5(), Md5.md5(partData), md5);
+                    assertNotNull(uploadPartResponse.getEtag(), etag);
                 } catch (QiniuException e) {
                     e.printStackTrace();
                     break;
@@ -169,20 +169,19 @@ public class ApiUploadV2Test {
             List<Map<String, Object>> listPartInfo = new ArrayList<>();
             while (true) {
                 ApiUploadV2ListParts listPartsApi = new ApiUploadV2ListParts(client);
-                ApiUploadV2ListParts.Request listPartsRequest = new ApiUploadV2ListParts.Request(urlPrefix, token, uploadId)
-                        .setKey(key)
-                        .setMaxParts(2)  // 此处仅为示例分页拉去，实际可不配置使用默认值1000
-                        .setPartNumberMarker(partNumberMarker);
+                ApiUploadV2ListParts.Request listPartsRequest = new ApiUploadV2ListParts.Request(urlPrefix, token,
+                        uploadId).setKey(key).setMaxParts(2) // 此处仅为示例分页拉去，实际可不配置使用默认值1000
+                                .setPartNumberMarker(partNumberMarker);
                 try {
                     ApiUploadV2ListParts.Response listPartsResponse = listPartsApi.request(listPartsRequest);
                     partNumberMarker = listPartsResponse.getPartNumberMarker();
                     listPartInfo.addAll(listPartsResponse.getParts());
                     System.out.println("list part:" + listPartsResponse.getResponse());
 
-                    Assert.assertTrue(listPartsResponse.getResponse() + "", listPartsResponse.isOK());
-                    Assert.assertEquals(listPartsResponse.getUploadId() + "", listPartsResponse.getUploadId(), uploadId);
-                    Assert.assertNotNull(listPartsResponse.getExpireAt() + "", listPartsResponse.getExpireAt());
-                    Assert.assertNotNull(listPartsResponse.getResponse() + "", partNumberMarker);
+                    assertTrue(listPartsResponse.isOK(), listPartsResponse.getResponse() + "");
+                    assertEquals(listPartsResponse.getUploadId(), uploadId, listPartsResponse.getUploadId() + "");
+                    assertNotNull(listPartsResponse.getExpireAt(), listPartsResponse.getExpireAt() + "");
+                    assertNotNull(partNumberMarker, listPartsResponse.getResponse() + "");
 
                     // 列举结束
                     if (partNumberMarker == 0) {
@@ -194,7 +193,7 @@ public class ApiUploadV2Test {
                 }
             }
             System.out.println("list parts info:" + listPartInfo);
-            Assert.assertTrue(listPartInfo + "", listPartInfo.size() == lastPartNum);
+            assertEquals(listPartInfo.size(), lastPartNum, listPartInfo + "");
 
             // 3. 组装文件
             String fooKey = "foo";
@@ -202,23 +201,22 @@ public class ApiUploadV2Test {
             Map<String, Object> customParam = new HashMap<>();
             customParam.put("x:foo", fooValue);
             ApiUploadV2CompleteUpload completeUploadApi = new ApiUploadV2CompleteUpload(client);
-            ApiUploadV2CompleteUpload.Request completeUploadRequest = new ApiUploadV2CompleteUpload.Request(urlPrefix, token, uploadId, partsInfo)
-                    .setKey(key)
-                    .setFileName(fileName)
-                    .setCustomParam(customParam);
+            ApiUploadV2CompleteUpload.Request completeUploadRequest = new ApiUploadV2CompleteUpload.Request(urlPrefix,
+                    token, uploadId, partsInfo).setKey(key).setFileName(fileName).setCustomParam(customParam);
             try {
-                ApiUploadV2CompleteUpload.Response completeUploadResponse = completeUploadApi.request(completeUploadRequest);
+                ApiUploadV2CompleteUpload.Response completeUploadResponse = completeUploadApi
+                        .request(completeUploadRequest);
                 System.out.println("complete upload:" + completeUploadResponse.getResponse());
 
-                Assert.assertTrue(completeUploadResponse.getResponse() + "", completeUploadResponse.isOK());
-                Assert.assertEquals(completeUploadResponse.getKey() + "", completeUploadResponse.getKey(), key);
-                Assert.assertNotNull(completeUploadResponse.getHash() + "", completeUploadResponse.getHash());
+                assertTrue(completeUploadResponse.isOK(), completeUploadResponse.getResponse() + "");
+                assertEquals(completeUploadResponse.getKey(), key, completeUploadResponse.getKey() + "");
+                assertNotNull(completeUploadResponse.getHash(), completeUploadResponse.getHash() + "");
                 String fSize = completeUploadResponse.getStringValueFromDataMap("fsize") + "";
-                Assert.assertEquals(fSize + ":" + fileSize, fSize, fileSize + "");
+                assertEquals(fSize, fileSize + "", fSize + ":" + fileSize);
                 String fName = completeUploadResponse.getStringValueFromDataMap("fname");
-                Assert.assertEquals(fName + ":" + fileName, fName, fileName);
+                assertEquals(fName, fileName, fName + ":" + fileName);
                 String foo = completeUploadResponse.getStringValueFromDataMap(fooKey);
-                Assert.assertEquals(foo + ":" + fooValue, foo, fooValue);
+                assertEquals(foo, fooValue, foo + ":" + fooValue);
             } catch (QiniuException e) {
                 e.printStackTrace();
             }
@@ -237,22 +235,20 @@ public class ApiUploadV2Test {
         fileSize *= 1024; // 单位： B
 
         /**
-         * 一个文件被分成多个 part，上传所有的 part，然后在七牛云根据 part 信息合成文件
-         * |----------------------------- file -----------------------------|
-         * |------ part ------|------ part ------|------ part ------|...
-         * |----- etag01 -----|----- etag02 -----|----- etag03 -----|...
-         * allBlockCtx = [{"partNumber":1, "etag", etag01}, {"partNumber":2, "etag", etag02}, {"partNumber":3, "etag", etag03}, ...]
+         * 一个文件被分成多个 part，上传所有的 part，然后在七牛云根据 part 信息合成文件 |-----------------------------
+         * file -----------------------------| |------ part ------|------ part
+         * ------|------ part ------|... |----- etag01 -----|----- etag02 -----|-----
+         * etag03 -----|... allBlockCtx = [{"partNumber":1, "etag", etag01},
+         * {"partNumber":2, "etag", etag02}, {"partNumber":3, "etag", etag03}, ...]
          *
-         * 上传过程：
-         * 1. 调用 ApiUploadV2InitUpload api 创建一个 upload 任务，获取 uploadId
-         * 2. 重复调用 ApiUploadV2UploadPart api 直到文件所有的 part 均上传完毕, part 的大小可以不相同
-         * 3. 调用 ApiUploadV2CompleteUpload api 组装 api
-         * 4. ApiUploadV2InitUpload、ApiUploadV2UploadPart、ApiUploadV2CompleteUpload 等分片 V2 API的 key 需要统一（要么有设置且相同，要么均不设置）
+         * 上传过程： 1. 调用 ApiUploadV2InitUpload api 创建一个 upload 任务，获取 uploadId 2. 重复调用
+         * ApiUploadV2UploadPart api 直到文件所有的 part 均上传完毕, part 的大小可以不相同 3. 调用
+         * ApiUploadV2CompleteUpload api 组装 api 4.
+         * ApiUploadV2InitUpload、ApiUploadV2UploadPart、ApiUploadV2CompleteUpload 等分片 V2
+         * API的 key 需要统一（要么有设置且相同，要么均不设置）
          *
-         * 注：
-         * 1. partNumber 范围是 1 ~ 10000
-         * 2. 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB
-         * 3. 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖
+         * 注： 1. partNumber 范围是 1 ~ 10000 2. 除最后一个 Part 外，单个 Part 大小范围 1 MB ~ 1 GB 3.
+         * 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖
          */
         int defaultPartSize = 1024 * 1024 * 2;
 
@@ -300,13 +296,12 @@ public class ApiUploadV2Test {
                 System.out.println("init upload:" + initUploadResponse.getResponse());
                 System.out.println("init upload id::" + initUploadResponse.getUploadId());
 
-                Assert.assertTrue(initUploadResponse.getResponse() + "", initUploadResponse.isOK());
-                Assert.assertNotNull(initUploadResponse.getUploadId() + "", initUploadResponse.getUploadId());
-                Assert.assertNotNull(initUploadResponse.getExpireAt() + "", initUploadResponse.getExpireAt());
+                assertTrue(initUploadResponse.isOK(), initUploadResponse.getResponse() + "");
+                assertNotNull(initUploadResponse.getUploadId(), initUploadResponse.getUploadId() + "");
+                assertNotNull(initUploadResponse.getExpireAt(), initUploadResponse.getExpireAt() + "");
             } catch (QiniuException e) {
                 e.printStackTrace();
             }
-
 
             // 2. 上传文件数据
             List<Map<String, Object>> partsInfo = new ArrayList<>();
@@ -322,9 +317,8 @@ public class ApiUploadV2Test {
 
                 // 1.2.2 上传 part 数据
                 ApiUploadV2UploadPart uploadPartApi = new ApiUploadV2UploadPart(client);
-                ApiUploadV2UploadPart.Request uploadPartRequest = new ApiUploadV2UploadPart.Request(urlPrefix, token, uploadId, partNumber)
-                        .setKey(key)
-                        .setUploadData(partData, 0, partData.length, null);
+                ApiUploadV2UploadPart.Request uploadPartRequest = new ApiUploadV2UploadPart.Request(urlPrefix, token,
+                        uploadId, partNumber).setKey(key).setUploadData(partData, 0, partData.length, null);
                 try {
                     ApiUploadV2UploadPart.Response uploadPartResponse = uploadPartApi.request(uploadPartRequest);
                     String etag = uploadPartResponse.getEtag();
@@ -335,9 +329,9 @@ public class ApiUploadV2Test {
                     partsInfo.add(partInfo);
                     System.out.println("upload part:" + uploadPartResponse.getResponse());
 
-                    Assert.assertTrue(uploadPartResponse.getResponse() + "", uploadPartResponse.isOK());
-                    Assert.assertEquals(md5, uploadPartResponse.getMd5(), Md5.md5(partData));
-                    Assert.assertNotNull(etag, uploadPartResponse.getEtag());
+                    assertTrue(uploadPartResponse.isOK(), uploadPartResponse.getResponse() + "");
+                    assertEquals(md5, uploadPartResponse.getMd5(), Md5.md5(partData));
+                    assertNotNull(etag, uploadPartResponse.getEtag());
                 } catch (QiniuException e) {
                     e.printStackTrace();
                     break;
@@ -351,13 +345,13 @@ public class ApiUploadV2Test {
 
             // 2. abort
             ApiUploadV2AbortUpload abortUploadApi = new ApiUploadV2AbortUpload(client);
-            ApiUploadV2AbortUpload.Request abortUploadRequest = new ApiUploadV2AbortUpload.Request(urlPrefix, token, uploadId)
-                    .setKey(key);
+            ApiUploadV2AbortUpload.Request abortUploadRequest = new ApiUploadV2AbortUpload.Request(urlPrefix, token,
+                    uploadId).setKey(key);
             try {
                 ApiUploadV2AbortUpload.Response abortUploadResponse = abortUploadApi.request(abortUploadRequest);
                 System.out.println("abort upload:" + abortUploadResponse.getResponse());
 
-                Assert.assertTrue(abortUploadResponse.getResponse() + "", abortUploadResponse.isOK());
+                assertTrue(abortUploadResponse.isOK(), abortUploadResponse.getResponse() + "");
             } catch (QiniuException e) {
                 e.printStackTrace();
             }
@@ -365,19 +359,18 @@ public class ApiUploadV2Test {
             // 获取上传的 part 信息
             ApiUploadV2ListParts listPartsApi = new ApiUploadV2ListParts(client);
             ApiUploadV2ListParts.Request listPartsRequest = new ApiUploadV2ListParts.Request(urlPrefix, token, uploadId)
-                    .setKey(key)
-                    .setMaxParts(2)  // 此处仅为示例分页拉去，实际可不配置使用默认值1000
+                    .setKey(key).setMaxParts(2) // 此处仅为示例分页拉去，实际可不配置使用默认值1000
                     .setPartNumberMarker(null);
             try {
                 ApiUploadV2ListParts.Response listPartsResponse = listPartsApi.request(listPartsRequest);
                 System.out.println("list part:" + listPartsResponse.getResponse());
 
-                Assert.assertFalse(listPartsResponse.getResponse() + "", listPartsResponse.isOK());
+                assertFalse(listPartsResponse.isOK(), listPartsResponse.getResponse() + "");
                 // 列举结束
                 break;
             } catch (QiniuException e) {
                 e.printStackTrace();
-                Assert.assertTrue(e.response + "", e.response.statusCode == 612);
+                assertTrue(e.response.statusCode == 612, e.response + "");
                 break;
             }
         }

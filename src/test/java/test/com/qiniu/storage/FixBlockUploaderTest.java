@@ -10,19 +10,20 @@ import com.qiniu.storage.FixBlockUploader;
 import com.qiniu.storage.Region;
 import com.qiniu.util.EtagV2;
 import com.qiniu.util.StringMap;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import test.com.qiniu.TempFile;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 public class FixBlockUploaderTest {
     int blockSize = 1024 * 1021 * 7;
@@ -32,7 +33,7 @@ public class FixBlockUploaderTest {
     String bucket;
     BucketManager bm;
 
-    @Before
+    @BeforeEach
     public void init() {
         init2(false);
     }
@@ -55,21 +56,19 @@ public class FixBlockUploaderTest {
         }
     }
 
-
     @Test
     public void testEmpty() throws IOException {
         try {
             template(0, false, false);
         } catch (QiniuException e) {
-            assertTrue("empty file", e.response.error.indexOf("parts param can't be empty") > -1);
+            assertTrue(e.response.error.indexOf("parts param can't be empty") > -1, "empty file");
         }
         try {
             template(true, 0, false, false);
         } catch (QiniuException e) {
-            assertTrue("empty stream", e.response.error.indexOf("parts param can't be empty") > -1);
+            assertTrue(e.response.error.indexOf("parts param can't be empty") > -1, "empty stream");
         }
     }
-
 
     @Test
     public void test1K() throws IOException {
@@ -81,9 +80,9 @@ public class FixBlockUploaderTest {
         template(1024 * 3, false, true);
         try {
             template(true, 1024 * 3, false, false, true);
-            Assert.fail("file exists, can not be success.");
+            fail("file exists, can not be success.");
         } catch (QiniuException e) {
-            assertTrue("file exists", e.response.error.indexOf("file exists") > -1);
+            assertTrue(e.response.error.indexOf("file exists") > -1, "file exists");
         }
         // both the key and content are the same
         template(true, 1024 * 3, false, true, true);
@@ -92,12 +91,10 @@ public class FixBlockUploaderTest {
         template(true, 1024 * 3, false, false);
     }
 
-
     @Test
     public void test6MK() throws IOException {
         template(1024 * 6, false, false);
     }
-
 
     @Test
     public void test6Mm1() throws IOException {
@@ -109,12 +106,10 @@ public class FixBlockUploaderTest {
         template(true, 1024 * 6 + 1, false, false);
     }
 
-
     @Test
     public void test7M() throws IOException {
         template(1024 * 7, true, false);
     }
-
 
     @Test
     public void test12M1K() throws IOException {
@@ -128,12 +123,10 @@ public class FixBlockUploaderTest {
         template(true, 1024 * 24 + 1027, false, false);
     }
 
-
     @Test
     public void test26M1K() throws IOException {
         template(1024 * 26 + 1024, false, false);
     }
-
 
     private void template(int size, boolean https, boolean fixFile) throws IOException {
         template(false, size, https, fixFile);
@@ -168,9 +161,8 @@ public class FixBlockUploaderTest {
         }
         String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600, p);
         FixBlockUploader.OptionsMeta param = new FixBlockUploader.OptionsMeta();
-        param.addMetadata("X-Qn-Meta-liubin", "sb").
-                addMetadata("X-Qn-Meta-!Content-Type", "text/liubin").
-                addMetadata("X-Qn-Meta-Cache-Control", "public, max-age=1984");
+        param.addMetadata("X-Qn-Meta-liubin", "sb").addMetadata("X-Qn-Meta-!Content-Type", "text/liubin")
+                .addMetadata("X-Qn-Meta-Cache-Control", "public, max-age=1984");
         try {
             System.out.println("Start uploading " + new Date());
             Response r = null;
@@ -193,10 +185,8 @@ public class FixBlockUploaderTest {
             Response res = bm.statResponse(bucket, ret.key);
             System.out.println(res.getInfo());
             String resStr = res.bodyString();
-            assertTrue("// 要有额外设置的元信息 //\n" + new Gson().toJson(param),
-                    resStr.indexOf("text/liubin") > -1
-                            && resStr.indexOf("sb") > -1
-                            && resStr.indexOf("1984") > -1);
+            assertTrue(resStr.indexOf("text/liubin") > -1 && resStr.indexOf("sb") > -1 && resStr.indexOf("1984") > -1,
+                    "// 要有额外设置的元信息 //\n" + new Gson().toJson(param));
         } catch (QiniuException e) {
             if (e.response != null) {
                 System.out.println(e.response.getInfo());
@@ -238,10 +228,10 @@ public class FixBlockUploaderTest {
         String token = TestConfig.testAuth.uploadToken(bucket, "err");
         try {
             Response res = up.upload(f, token, null);
-            Assert.fail("key not match, should failed");
+            fail("key not match, should failed");
         } catch (QiniuException e) {
             e.printStackTrace();
-            //TODO
+            // TODO
         }
     }
 
@@ -268,15 +258,14 @@ public class FixBlockUploaderTest {
         MyRet ret = res.jsonToObject(MyRet.class);
         Response res2 = bm.statResponse(bucket, ret.key);
         System.out.println(res2.getInfo());
-        Assert.assertNotEquals(ret.hash, ret.key);
-        Assert.assertEquals(mimeType, ret.mimeType);
-        Assert.assertEquals(etag, ret.hash);
-        Assert.assertEquals("duDu/werfhue3_" + f.getName(), ret.fname);
-        Assert.assertEquals("duDu/werfhue3", ret.biu2biu);
+        assertNotEquals(ret.hash, ret.key);
+        assertEquals(mimeType, ret.mimeType);
+        assertEquals(etag, ret.hash);
+        assertEquals("duDu/werfhue3_" + f.getName(), ret.fname);
+        assertEquals("duDu/werfhue3", ret.biu2biu);
         String resStr = res2.bodyString();
-        Assert.assertTrue("// 要有额外设置的元信息  metadata //\n" + new Gson().toJson(param),
-                resStr.indexOf("text/liubin") > -1
-                        && resStr.indexOf("teinYjf") > -1);
+        assertTrue(resStr.indexOf("text/liubin") > -1 && resStr.indexOf("teinYjf") > -1,
+                "// 要有额外设置的元信息  metadata //\n" + new Gson().toJson(param));
     }
 
     class MyRet {

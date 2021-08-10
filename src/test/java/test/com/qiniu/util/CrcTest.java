@@ -1,10 +1,8 @@
 package test.com.qiniu.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.qiniu.util.Crc32;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-
+import org.junit.jupiter.api.Test;
 
 public class CrcTest {
     @Test

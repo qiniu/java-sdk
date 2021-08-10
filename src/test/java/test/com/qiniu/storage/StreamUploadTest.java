@@ -9,25 +9,25 @@ import com.qiniu.storage.StreamUploader;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Etag;
 import com.qiniu.util.StringMap;
-import org.junit.Test;
 import test.com.qiniu.TempFile;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 /**
  * Created by long on 2016/11/4.
  */
 public class StreamUploadTest {
 
-    //@Test
+    @Test
+    @Disabled
     public void testXVar() throws IOException {
         Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
@@ -90,8 +90,8 @@ public class StreamUploadTest {
                     new StringMap().put("returnBody", returnBody));
 
             try {
-                StreamUploader up = new StreamUploader(new Client(), token, expectKey,
-                        new FileInputStream(f), null, mime, c);
+                StreamUploader up = new StreamUploader(new Client(), token, expectKey, new FileInputStream(f), null,
+                        mime, c);
                 Response r = up.upload();
                 StreamUploadTest.MyRet ret = r.jsonToObject(StreamUploadTest.MyRet.class);
                 assertEquals(expectKey, ret.key);
