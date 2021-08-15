@@ -1,47 +1,32 @@
 name: Java CI with Gradle
-
 on:
   push:
     paths-ignore:
       - '**.md'
-
+  pull_request:
+    paths-ignore:
+      - '**.md'
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     strategy:
       fail-fast: false
       max-parallel: 1
       matrix:
         java_version: ['8', '11']
-
     steps:
       - name: checkout
         uses: actions/checkout@v2
-
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java_version }}
-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
       - name: Unit Test
         run: |
           ./gradlew unitTest -d
-
-      - name: Full Test
-        env:
-          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
-          QINIU_LINKING_APPID: ${{ secrets.QINIU_LINKING_APPID }}
-          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
-        run: |
-          ./gradlew build --stacktrace --info
-          ./gradlew test -d
-          ./gradlew jacocoTestReport
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1.0.2
-        with:
-          token: ${{secrets.CODECOV_TOKEN}}
-          file: build/reports/jacoco/test/jacocoTestReport.xml
