@@ -49,9 +49,10 @@ public final class TestConfig {
     public static final String testDomain_na0 = "javasdk-na0.peterpy.cn";
     public static final String testDomain_na0_timeStamp = "javasdk-na0-timestamp.peterpy.cn";
     public static final String testUrl_na0 = "http://" + testDomain_na0 + "/" + testKey_na0;
-    public static final String testPrivateKey_na0 = "水果.png";
-    public static final String testPrivateBucket_na0 = "private-na0";
-    public static final String testPrivateBucketDomain_na0 = "private-na0.sdk.qiniu-solutions.com";
+    // private
+    public static final String testPrivateKey = "gogopher.jpg";
+    public static final String testPrivateBucket = "privateqiniusdk";
+    public static final String testPrivateBucketDomain = "private-sdk.peterpy.cn";
 
     // sg
     public static final String testBucket_as0 = "sdk-as0";

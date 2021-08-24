@@ -89,8 +89,8 @@ public class DownloadUrlTest {
     @Test
     @Tag("IntegrationTest")
     public void testUrlWithDeadline() {
-        String key = TestConfig.testKey_na0;
-        String domain = TestConfig.testPrivateBucketDomain_na0;
+        String key = TestConfig.testPrivateKey;
+        String domain = TestConfig.testPrivateBucketDomain;
         Auth auth = TestConfig.testAuth;
 
         try {
