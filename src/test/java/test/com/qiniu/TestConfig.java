@@ -41,7 +41,12 @@ public final class TestConfig {
     public static final String testDomain_z0_timeStamp = "javasdk-timestamp.peterpy.cn";
     public static final String testUrl_z0_timeStamp = "http://" + testDomain_z0_timeStamp + "/" + testKey_z0;
 
+    // fop
     public static final String testPipeline = "sdktest";
+
+    // z1
+    public static final String testBucket_z1 = "sdk-z1";
+
     // na0
     public static final String testBucket_na0 = "java-sdk-na0";
     public static final String testKey_na0 = "do_not_delete/1.png";
@@ -54,8 +59,6 @@ public final class TestConfig {
     public static final String testPrivateBucket = "privateqiniusdk";
     public static final String testPrivateBucketDomain = "private-sdk.peterpy.cn";
 
-    // sg
-    public static final String testBucket_as0 = "sdk-as0";
     // code
     public static final int ERROR_CODE_BUCKET_NOT_EXIST = 631;
     public static final int ERROR_CODE_KEY_NOT_EXIST = 612;
@@ -140,7 +143,7 @@ public final class TestConfig {
         fog1.regionId = "fog-cn-east-1";
         fog1.region = toRegion(Zone.zoneFogCnEast1());
 
-        return new TestFile[] { na0 };
+        return new TestFile[] { z0 };
     }
 
     private static Region toRegion(Zone zone) {

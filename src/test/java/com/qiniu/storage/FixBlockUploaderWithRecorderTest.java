@@ -46,7 +46,7 @@ public class FixBlockUploaderWithRecorderTest {
             e.printStackTrace();
         }
         up = new FixBlockUploader(blockSize, config, client, recorder);
-        bucket = TestConfig.testBucket_as0;
+        bucket = TestConfig.testBucket_z1;
     }
 
     @Test
