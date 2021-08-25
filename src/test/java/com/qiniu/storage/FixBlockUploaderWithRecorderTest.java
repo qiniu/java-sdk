@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FixBlockUploaderWithRecorderTest {
     int blockSize = 1024 * 1024 * 8;
@@ -102,7 +103,7 @@ public class FixBlockUploaderWithRecorderTest {
         StringMap p = new StringMap().put("returnBody", returnBody);
 
         final String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600, p);
-        final int[] t1Finished = { 0 };
+        final AtomicBoolean t1Finished = new AtomicBoolean(false);
 
         Thread t1 = new Thread() {
             @Override
@@ -154,14 +155,14 @@ public class FixBlockUploaderWithRecorderTest {
         int it1Finished = 0;
         for (; it1Finished < 1500; it1Finished++) {
             doSleep(100);
-            if (t1Finished[0] == 1) {
+            if (t1Finished.get()) {
                 break;
             }
         }
-        System.out.println("t1Finished[0] == 1    " + (t1Finished[0] == 1) + "     " + it1Finished);
+        System.out.println("t1Finished.get() == true    " + t1Finished.get() + "     " + it1Finished);
         doSleep(1500);
         final FixBlockUploader.FileBlockData fbd2 = new FixBlockUploader.FileBlockData(blockSize, f);
-        final int[] t2Finished = { 0 };
+        final AtomicBoolean t2Finished = new AtomicBoolean(false);
         Thread t2 = new Thread() {
             @Override
             public void run() {
@@ -197,11 +198,11 @@ public class FixBlockUploaderWithRecorderTest {
         int it2Finished = 0;
         for (; it2Finished < 1500; it2Finished++) {
             doSleep(100);
-            if (t2Finished[0] == 1) {
+            if (t2Finished.get()) {
                 break;
             }
         }
-        System.out.println("t2Finished[0] == 1    " + (t2Finished[0] == 1) + "     " + it2Finished);
+        System.out.println("t2Finished.get() == true    " + t2Finished.get() + "     " + it2Finished);
         doSleep(1500);
         System.out.println("------ start 3, " + new Date());
         try {
@@ -232,7 +233,7 @@ public class FixBlockUploaderWithRecorderTest {
     }
 
     private void upload(int idx, FixBlockUploader.FileBlockData fbd, String token, String expectKey,
-            final ExecutorService pool, int maxRunningBlock, final int[] tFinished, String etag) {
+            final ExecutorService pool, int maxRunningBlock, final AtomicBoolean tFinished, String etag) {
         try {
             System.out.println("------ start " + idx + ", " + new Date());
             Response r = up.upload(fbd, new FixBlockUploader.StaticToken(token), expectKey, null, pool,
@@ -242,10 +243,10 @@ public class FixBlockUploaderWithRecorderTest {
             assertEquals(expectKey, ret.key);
             assertEquals(String.valueOf(fbd.size()), ret.fsize);
             assertEquals(etag, ret.hash);
-            tFinished[0] = 1;
+            tFinished.set(true);
         } catch (Exception e) {
             System.out.println("======= end " + idx + ":     ");
-            tFinished[0] = 1;
+            tFinished.set(true);
             e.printStackTrace();
         }
     }

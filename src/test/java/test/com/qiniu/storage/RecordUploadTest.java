@@ -21,6 +21,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -89,15 +91,15 @@ public class RecordUploadTest {
                             System.out.println("UP:  " + i + ", exception run");
                             e.printStackTrace();
                         }
-                        complete.isComplete = true;
+                        complete.isComplete.set(true);
                     }
                 }.start();
 
-                final boolean[] ch = new boolean[] { true };
+                final AtomicBoolean ch = new AtomicBoolean(true);
                 // 显示断点记录文件
                 Thread showRecord = new Thread() {
                     public void run() {
-                        for (; ch[0];) {
+                        while (ch.get()) {
                             doSleep(1000);
                             showRecord("normal: " + size + " :", recorder, recordKey);
                         }
@@ -122,7 +124,7 @@ public class RecordUploadTest {
                 }
 
                 System.out.println("response is " + response);
-                while (!complete.isComplete) {
+                while (!complete.isComplete.get()) {
                     doSleep(200);
                 }
 
@@ -138,7 +140,7 @@ public class RecordUploadTest {
 
                 showRecord("done: " + size + " :", recorder, recordKey);
 
-                ch[0] = false;
+                ch.set(false);
 
                 String etag = Etag.file(f);
                 System.out.println("etag: " + etag);
@@ -363,6 +365,6 @@ public class RecordUploadTest {
     }
 
     static class Complete {
-        boolean isComplete = false;
+        AtomicBoolean isComplete = new AtomicBoolean(false);
     }
 }
