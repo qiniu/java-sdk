@@ -1,19 +1,22 @@
 package test.com.qiniu.streaming;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import com.qiniu.common.QiniuException;
 import com.qiniu.streaming.StreamingManager;
 import com.qiniu.streaming.model.ActivityRecords;
 import com.qiniu.streaming.model.StreamAttribute;
 import com.qiniu.streaming.model.StreamListing;
 import com.qiniu.util.Auth;
-import org.junit.Test;
 import test.com.qiniu.TestConfig;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
- * Created by bailong on 16/9/22
- * Updated by panyuan on 19/3/12
+ * Created by bailong on 16/9/22 Updated by panyuan on 19/3/12
  */
 public class StreamingTest {
 
@@ -25,10 +28,10 @@ public class StreamingTest {
     private StreamingManager manager = new StreamingManager(auth, hub);
 
     /**
-     * 测试获取不存在的流的信息
-     * 检测返回状态码是否是612
+     * 测试获取不存在的流的信息 检测返回状态码是否是612
      */
     @Test
+    @Tag("IntegrationTest")
     public void testGetNoExistStream() {
         try {
             manager.attribute(streamNoExist);
@@ -44,6 +47,7 @@ public class StreamingTest {
      * @throws QiniuException
      */
     @Test
+    @Tag("IntegrationTest")
     public void testStreamOperation() throws QiniuException {
         try {
             // 确保流存在 //
@@ -126,12 +130,12 @@ public class StreamingTest {
     }
 
     /**
-     * 测试saveas
-     * 检测返回状态码是否是404
+     * 测试saveas 检测返回状态码是否是404
      *
      * @throws QiniuException
      */
     @Test
+    @Tag("IntegrationTest")
     public void testSaveAs() throws QiniuException {
         try {
             manager.saveAs(streamNoExist, "f\"ff.m3u8");
@@ -141,12 +145,12 @@ public class StreamingTest {
     }
 
     /**
-     * 测试创建流
-     * 检测返回状态码是否为614
+     * 测试创建流 检测返回状态码是否为614
      *
      * @throws QiniuException
      */
     @Test
+    @Tag("IntegrationTest")
     public void testCreate() throws QiniuException {
         try {
             manager.create(stream);

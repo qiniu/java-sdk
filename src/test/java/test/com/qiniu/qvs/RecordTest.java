@@ -1,13 +1,14 @@
 package test.com.qiniu.qvs;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.RecordManager;
 import com.qiniu.util.Auth;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import test.com.qiniu.TestConfig;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 public class RecordTest {
     Auth auth = TestConfig.testAuth;
@@ -20,20 +21,21 @@ public class RecordTest {
     private final int start = 1605254612;
     private final int end = 1605255300;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.recordManager = new RecordManager(auth);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testOndemandRecord() throws Exception {
         try {
             res = recordManager.startRecord(namespaceId, streamId);
-            Assert.assertNotNull(res);
+            assertNotNull(res);
             System.out.println(res.bodyString());
             Thread.sleep(1000 * 60);
             res2 = recordManager.stopRecord(namespaceId, streamId);
-            Assert.assertNotNull(res2);
+            assertNotNull(res2);
             System.out.println(res2.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -48,10 +50,11 @@ public class RecordTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testRecordClipsSaveas() {
         try {
             res = recordManager.recordClipsSaveas(namespaceId, streamId, "", format, start, end, false, "", "", 0);
-            Assert.assertNotNull(res);
+            assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -63,10 +66,11 @@ public class RecordTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testRecordsPlayback() {
         try {
             res = recordManager.recordsPlayback(namespaceId, streamId, start, end);
-            Assert.assertNotNull(res);
+            assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
