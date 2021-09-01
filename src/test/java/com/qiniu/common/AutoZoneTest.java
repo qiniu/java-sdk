@@ -1,6 +1,8 @@
 package com.qiniu.common;
 
 import test.com.qiniu.TestConfig;
+
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -14,6 +16,7 @@ import java.util.Map;
 public class AutoZoneTest {
 
     @Test
+    @Tag("IntegrationTest")
     public void testHttp() {
         Map<String, String[]> cases = new HashMap<String, String[]>();
         cases.put(TestConfig.testBucket_z0,
@@ -37,6 +40,7 @@ public class AutoZoneTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testHttpFail() {
         try {
             AutoZone zone = AutoZone.instance;
@@ -48,6 +52,7 @@ public class AutoZoneTest {
     }
 
     @Test
+    @Tag("UnitTest")
     public void testSplitE() {
         String s1 = "bkt:key";
         String s2 = "bkt";
@@ -55,6 +60,7 @@ public class AutoZoneTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testC1() {
         try {
             AutoZone.ZoneInfo info = AutoZone.instance.queryZoneInfo(TestConfig.testAccessKey,
@@ -71,6 +77,7 @@ public class AutoZoneTest {
     }
 
     @Test
+    @Tag("UnitTest")
     public void testZ() {
         Zone z1 = new Zone.Builder(Zone.zone0()).upHttp("http://uphttp").build();
         assertSame(z1.getUpHttp(null), "http://uphttp");

@@ -9,6 +9,8 @@ import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Etag;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
+
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
@@ -44,6 +46,7 @@ public class ResumeUploadTest {
      * @throws IOException
      */
     @Test
+    @Tag("IntegrationTest")
     public void testXVar() throws IOException {
 
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
@@ -166,7 +169,7 @@ public class ResumeUploadTest {
                     checkMd5 = true;
                 }
                 if (checkMd5) {
-                    if (file.isFog()) {
+                    if (!file.isFog()) {
                         String md5 = Md5.md5(f);
                         String serverMd5 = getFileMD5(file.getTestDomain(), expectKey);
                         System.out.println("      md5:" + md5);
@@ -218,6 +221,7 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test1K() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1, config[0], config[1], config[2], config[3]);
@@ -225,6 +229,7 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test600k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(600, config[0], config[1], config[2], config[3]);
@@ -232,16 +237,15 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test4M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 4, config[0], config[1], config[2], config[3]);
         }
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 8, config[0], config[1], config[2], config[3]);
@@ -249,6 +253,7 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M1k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 8 + 1, config[0], config[1], config[2], config[3]);
@@ -256,6 +261,7 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test10M() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 10, config[0], config[1], config[2], config[3]);
@@ -263,6 +269,7 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test20M() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 20, config[0], config[1], config[2], config[3]);
@@ -270,6 +277,7 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test20M1K() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 20 + 1, config[0], config[1], config[2], config[3]);

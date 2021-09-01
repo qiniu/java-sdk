@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.gson.Gson;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 public class JsonTest {
     @Test
+    @Tag("UnitTest")
     public void testMapToString() {
         StringMap map = new StringMap().put("k", "v").put("n", 1);
         String j = Json.encode(map);
@@ -16,6 +18,7 @@ public class JsonTest {
     }
 
     @Test
+    @Tag("UnitTest")
     public void testJ0() {
         User u = new User("a", 23);
         u.s1 = "s1";
@@ -27,6 +30,7 @@ public class JsonTest {
     }
 
     @Test
+    @Tag("UnitTest")
     public void testJ() {
         String s = "{\"name\":\"怪盗kidou\",\"age\":24}";
         User u = new Gson().fromJson(s, User.class);
@@ -36,6 +40,7 @@ public class JsonTest {
     }
 
     @Test
+    @Tag("UnitTest")
     public void testJ2() {
         String s = "{\"emailAddress\":\"怪盗kidou\",\"age\":24}";
         User u = new Gson().fromJson(s, User.class);
@@ -45,6 +50,7 @@ public class JsonTest {
     }
 
     @Test
+    @Tag("UnitTest")
     public void testJ3() {
         String s = "{\"name\":\"怪盗kidou\",\"age\":24, \"emailAddress\":\"s.com\", \"xxx\":98}";
         User u = new Gson().fromJson(s, User.class);

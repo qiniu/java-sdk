@@ -12,14 +12,13 @@ import com.qiniu.util.EtagV2;
 import com.qiniu.util.StringMap;
 import test.com.qiniu.TempFile;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,24 +38,16 @@ public class FixBlockUploaderTest {
     }
 
     private void init2(boolean useHttpsDomains) {
-        if (TestConfig.isTravis()) {
-            config = new Configuration(Region.regionNa0());
-            config.useHttpsDomains = useHttpsDomains;
-            client = new Client(config);
-            up = new FixBlockUploader(blockSize, config, client, null);
-            bucket = TestConfig.testBucket_na0;
-            bm = new BucketManager(TestConfig.testAuth, config);
-        } else {
-            config = new Configuration(Region.region0());
-            config.useHttpsDomains = useHttpsDomains;
-            client = new Client(config);
-            up = new FixBlockUploader(blockSize, config, client, null);
-            bucket = TestConfig.testBucket_z0;
-            bm = new BucketManager(TestConfig.testAuth, config);
-        }
+        config = new Configuration(Region.region0());
+        config.useHttpsDomains = useHttpsDomains;
+        client = new Client(config);
+        up = new FixBlockUploader(blockSize, config, client, null);
+        bucket = TestConfig.testBucket_z0;
+        bm = new BucketManager(TestConfig.testAuth, config);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testEmpty() throws IOException {
         try {
             template(0, false, false);
@@ -71,11 +62,13 @@ public class FixBlockUploaderTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test1K() throws IOException {
         template(1, false, true);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test3MK() throws IOException {
         template(1024 * 3, false, true);
         try {
@@ -92,38 +85,45 @@ public class FixBlockUploaderTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test6MK() throws IOException {
         template(1024 * 6, false, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test6Mm1() throws IOException {
         template(1024 * 6 - 1, true, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test6M1K() throws IOException {
         template(true, 1024 * 6 + 1, false, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test7M() throws IOException {
         template(1024 * 7, true, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test12M1K() throws IOException {
         template(1024 * 12 + 1024, false, false);
         template(true, 1024 * 12 + 1027, false, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test24M() throws IOException {
         template(true, 1024 * 24, false, false);
         template(true, 1024 * 24 + 1027, false, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test26M1K() throws IOException {
         template(1024 * 26 + 1024, false, false);
     }
@@ -198,6 +198,7 @@ public class FixBlockUploaderTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testEmptyKey() throws IOException {
         File f = TempFile.createFileOld(1);
         String etag = EtagV2.file(f, blockSize);
@@ -210,6 +211,7 @@ public class FixBlockUploaderTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testNullKey() throws IOException {
         File f = TempFile.createFile(2);
         String etag = EtagV2.file(f, blockSize);
@@ -222,6 +224,7 @@ public class FixBlockUploaderTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testKey2() throws IOException {
         File f = TempFile.createFile(2);
         String etag = EtagV2.file(f, blockSize);
@@ -236,6 +239,7 @@ public class FixBlockUploaderTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testMeat() throws IOException {
         File f = TempFile.createFile(1);
         String etag = EtagV2.file(f, blockSize);

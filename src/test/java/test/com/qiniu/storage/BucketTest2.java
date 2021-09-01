@@ -13,6 +13,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
@@ -50,11 +51,8 @@ public class BucketTest2 {
      * 测试列举空间名
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBuckets() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         try {
             String[] buckets = bucketManager.buckets();
             assertTrue(StringUtils.inStringArray(TestConfig.testBucket_z0, buckets));
@@ -74,11 +72,8 @@ public class BucketTest2 {
      * 测试列举空间域名
      */
     @Test
+    @Tag("IntegrationTest")
     public void testDomains() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         try {
             String[] domains = bucketManager.domainList(TestConfig.testBucket_z0);
             assertNotNull(domains);
@@ -91,11 +86,8 @@ public class BucketTest2 {
      * 测试list接口，limit=2
      */
     @Test
+    @Tag("IntegrationTest")
     public void testList() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         try {
             String[] buckets = new String[] { TestConfig.testBucket_z0 };
             for (String bucket : buckets) {
@@ -112,11 +104,8 @@ public class BucketTest2 {
      * 测试list接口的delimiter
      */
     @Test
+    @Tag("IntegrationTest")
     public void testListUseDelimiter() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         try {
             Map<String, String> bucketKeyMap = new HashMap<String, String>();
             bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -140,11 +129,8 @@ public class BucketTest2 {
      * 测试文件迭代器
      */
     @Test
+    @Tag("IntegrationTest")
     public void testListIterator() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "", 20, null);
@@ -166,11 +152,8 @@ public class BucketTest2 {
      * 测试文件迭代器
      */
     @Test
+    @Tag("IntegrationTest")
     public void testListIteratorWithDefaultLimit() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "");
@@ -189,11 +172,8 @@ public class BucketTest2 {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testListV2() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         try {
             String[] buckets = new String[] { TestConfig.testBucket_z0 };
             for (String bucket : buckets) {
@@ -214,11 +194,8 @@ public class BucketTest2 {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testListMarkerV2() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         try {
             String marker = null;
             int count = 0;
@@ -240,11 +217,8 @@ public class BucketTest2 {
      * 测试stat
      */
     @Test
+    @Tag("IntegrationTest")
     public void testStat() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         // test exists
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -291,11 +265,8 @@ public class BucketTest2 {
      * 测试删除
      */
     @Test
+    @Tag("IntegrationTest")
     public void testDelete() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -336,11 +307,8 @@ public class BucketTest2 {
      * 测试移动/重命名
      */
     @Test
+    @Tag("IntegrationTest")
     public void testRename() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -363,11 +331,8 @@ public class BucketTest2 {
      * 测试复制
      */
     @Test
+    @Tag("IntegrationTest")
     public void testCopy() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         Response response;
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -391,11 +356,8 @@ public class BucketTest2 {
      * 测试修改文件MimeType
      */
     @Test
+    @Tag("IntegrationTest")
     public void testChangeMime() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         List<String[]> cases = new ArrayList<String[]>();
         cases.add(new String[] { TestConfig.testBucket_z0, TestConfig.testKey_z0, "image/png" });
 
@@ -415,11 +377,8 @@ public class BucketTest2 {
      * 测试修改文件元信息
      */
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHeaders() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         List<String[]> cases = new ArrayList<String[]>();
         cases.add(new String[] { TestConfig.testBucket_z0, TestConfig.testKey_z0 });
 
@@ -446,11 +405,8 @@ public class BucketTest2 {
     // TODO
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testPrefetch() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             try {
@@ -470,11 +426,8 @@ public class BucketTest2 {
      * 测试同步Fetch
      */
     @Test
+    @Tag("IntegrationTest")
     public void testFetch() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             try {
@@ -500,11 +453,8 @@ public class BucketTest2 {
      * 测试获取bucketinfo
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBucketInfo() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             try {
@@ -523,11 +473,8 @@ public class BucketTest2 {
      * 测试设置空间referer防盗链
      */
     @Test
+    @Tag("IntegrationTest")
     public void testPutReferAntiLeech() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             BucketReferAntiLeech leech = new BucketReferAntiLeech();
@@ -582,11 +529,8 @@ public class BucketTest2 {
      * 测试设置空间生命周期规则
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBucketLifeCycleRule() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             Response response;
@@ -671,10 +615,6 @@ public class BucketTest2 {
     }
 
     private void clearBucketLifeCycleRule(String bucket) throws QiniuException {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         // 获取规则
         BucketLifeCycleRule[] rules = bucketManager.getBucketLifeCycleRule(bucket);
         try {
@@ -695,11 +635,8 @@ public class BucketTest2 {
      * 测试事件通知
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBucketEvent() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         String[] keys = new String[] { TestConfig.testKey_z0, TestConfig.testKey_na0 };
         for (int i = 0; i < buckets.length; i++) {
@@ -808,10 +745,6 @@ public class BucketTest2 {
     }
 
     private void clearBucketEvent(String bucket) throws QiniuException {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         // 获取Event
         BucketEventRule[] rules = bucketManager.getBucketEvents(bucket);
         for (BucketEventRule r : rules) {
@@ -831,11 +764,8 @@ public class BucketTest2 {
      * 测试跨域规则
      */
     @Test
+    @Tag("IntegrationTest")
     public void testCorsRules() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             CorsRule rule1 = new CorsRule(new String[] { "*" }, new String[] { "" });
@@ -874,12 +804,10 @@ public class BucketTest2 {
      * 测试设置回源规则
      */
     @Test
+    @Disabled
+    @Tag("IntegrationTest")
     // TODO
     public void testPutBucketSourceConfig() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             try {
@@ -894,11 +822,8 @@ public class BucketTest2 {
      * 测试设置max-age属性
      */
     @Test
+    @Tag("IntegrationTest")
     public void testPutBucketMaxAge() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             final long[] maxAges = { Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE };
@@ -925,12 +850,10 @@ public class BucketTest2 {
      * 测试设置max-age属性<br>
      * UC有缓存，这种方法不合适于测试
      */
-    @Deprecated
+    @Test
+    @Disabled
+    @Tag("IntegrationTest")
     public void testPutBucketMaxAge2() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
 
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
@@ -971,11 +894,8 @@ public class BucketTest2 {
      * 测试设置空间私有化、公有化
      */
     @Test
+    @Tag("IntegrationTest")
     public void testPutBucketAccessMode() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             Response response;
@@ -1008,11 +928,8 @@ public class BucketTest2 {
      * 测试设置、获取空间配额
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBucketQuota() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             try {
@@ -1048,11 +965,8 @@ public class BucketTest2 {
      * 测试批量复制
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchCopy() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1084,11 +998,8 @@ public class BucketTest2 {
      * 测试批量移动
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchMove() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1123,11 +1034,8 @@ public class BucketTest2 {
      * 测试批量重命名
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchRename() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1163,11 +1071,8 @@ public class BucketTest2 {
      * 测试批量stat
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchStat() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1193,11 +1098,8 @@ public class BucketTest2 {
      * 测试批量修改文件MimeType
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchChangeType() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1242,11 +1144,8 @@ public class BucketTest2 {
      * 测试批量操作
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchCopyChgmDelete() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1296,11 +1195,8 @@ public class BucketTest2 {
      * 测试批量操作
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatch() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1355,11 +1251,8 @@ public class BucketTest2 {
     // TODO
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testSetAndUnsetImage() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         String[] buckets = new String[] { TestConfig.testBucket_z0 };
         for (String bucket : buckets) {
             String srcSiteUrl = "http://developer.qiniu.com/";
@@ -1383,6 +1276,7 @@ public class BucketTest2 {
      * 测试文件生命周期
      */
     @Test
+    @Tag("IntegrationTest")
     public void testDeleteAfterDays() {
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
@@ -1405,11 +1299,8 @@ public class BucketTest2 {
      * 测试修改文件类型
      */
     @Test
+    @Tag("IntegrationTest")
     public void testChangeFileType() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
 
@@ -1439,11 +1330,8 @@ public class BucketTest2 {
      * @throws QiniuException
      */
     @Test
+    @Tag("IntegrationTest")
     public void testIndexPage() throws QiniuException {
-        if (TestConfig.isTravis()) {
-            return;
-        }
-
         bucketManager.setIndexPage(TestConfig.testBucket_z0, IndexPageType.HAS);
         BucketInfo info = bucketManager.getBucketInfo(TestConfig.testBucket_z0);
         assertEquals(0, info.getNoIndexPage());

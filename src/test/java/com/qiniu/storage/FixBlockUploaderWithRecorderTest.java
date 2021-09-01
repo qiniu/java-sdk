@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -49,29 +50,34 @@ public class FixBlockUploaderWithRecorderTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void breakThenUpload1() throws IOException {
         breakThenUpload(null, null, null, 10, 14);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void breakThenUpload2() throws IOException {
         ExecutorService pool = new ThreadPoolExecutor(0, 2, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
         breakThenUpload(pool, Executors.newFixedThreadPool(2), Executors.newCachedThreadPool(), 10, 10, 2);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void breakThenUpload4() throws IOException {
         ExecutorService pool = Executors.newCachedThreadPool();
         breakThenUpload(null, null, pool, 15, 20);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void breakThenUpload5() throws IOException {
         ExecutorService pool = Executors.newFixedThreadPool(3);
         breakThenUpload(null, pool, null, 15, 7, 2);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void breakThenUpload6() throws IOException {
         ExecutorService pool = Executors.newFixedThreadPool(2);
         breakThenUpload(pool, null, null, 7, 20, 2); // 可能无法中断 //

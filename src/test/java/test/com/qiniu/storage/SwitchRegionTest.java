@@ -13,6 +13,7 @@ import com.qiniu.util.StringMap;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -138,7 +139,7 @@ public class SwitchRegionTest {
                     checkMd5 = true;
                 }
                 if (checkMd5) {
-                    if (file.isFog()) {
+                    if (!file.isFog()) {
                         String md5 = Md5.md5(f);
                         String serverMd5 = getFileMD5(file.getTestDomain(), expectKey);
                         System.out.println("      md5:" + md5);
@@ -171,6 +172,7 @@ public class SwitchRegionTest {
         String md5 = null;
         try {
             Response response = client.get(url);
+            assertEquals(response.statusCode, 200);
             StringMap data = response.jsonToMap();
             md5 = data.get("hash").toString();
         } catch (QiniuException e) {
@@ -190,6 +192,7 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test600k() throws Throwable {
         for (int[] config : testConfigList) {
             template(600, config[0], config[1], config[2]);
@@ -197,26 +200,23 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test3M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (int[] config : testConfigList) {
             template(1024 * 3, config[0], config[1], config[2]);
         }
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test5M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (int[] config : testConfigList) {
             template(1024 * 4, config[0], config[1], config[2]);
         }
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M() throws Throwable {
         for (int[] config : testConfigList) {
             template(1024 * 8, config[0], config[1], config[2]);
@@ -224,6 +224,7 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M1k() throws Throwable {
         for (int[] config : testConfigList) {
             template(1024 * 8 + 1, config[0], config[1], config[2]);
@@ -231,6 +232,7 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test10M() throws Throwable {
         for (int[] config : testConfigList) {
             template(1024 * 10, config[0], config[1], config[2]);
@@ -238,6 +240,7 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test20M() throws Throwable {
         for (int[] config : testConfigList) {
             template(1024 * 20, config[0], config[1], config[2]);
@@ -245,6 +248,7 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test20M1K() throws Throwable {
         for (int[] config : testConfigList) {
             template(1024 * 20 + 1, config[0], config[1], config[2]);
@@ -254,6 +258,7 @@ public class SwitchRegionTest {
     // 内部环境测试
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testInnerEnvSwitchRegion() {
         try {
             long s = new Date().getTime();

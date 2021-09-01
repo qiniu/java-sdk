@@ -6,6 +6,8 @@ import com.qiniu.common.Zone;
 import com.qiniu.util.Auth;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
+
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -17,6 +19,7 @@ import java.lang.reflect.Method;
 public class RegionTest {
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost1() throws QiniuException {
         System.out.println("\n\n1 Zone.autoZone()");
         Configuration cfg = new Configuration(Zone.autoZone());
@@ -24,6 +27,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost2() throws QiniuException {
         System.out.println("\n\n2 ''");
         Configuration cfg = new Configuration();
@@ -32,6 +36,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost3() throws QiniuException {
         System.out.println("\n\n3 Region.autoRegion()");
         Configuration cfg = new Configuration(Region.autoRegion());
@@ -39,6 +44,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost4() throws QiniuException {
         System.out.println("\n\n4 Region.region0()");
         Configuration cfg = new Configuration(Region.region0());
@@ -46,6 +52,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost5() throws QiniuException {
         System.out.println("\n\n5 Zone.zone0()");
         Configuration cfg = new Configuration(Zone.zone0());
@@ -53,6 +60,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost6() throws QiniuException {
         System.out.println("\n\n6 Region.region1(), accUpHostFirst = false");
         Configuration cfg = new Configuration(Region.region1());
@@ -61,6 +69,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost7() throws QiniuException {
         System.out.println("\n\n7 Zone.zone1(), accUpHostFirst = false");
         Configuration cfg = new Configuration(Zone.zone1());
@@ -68,7 +77,7 @@ public class RegionTest {
         testChangeHost(cfg);
     }
 
-    public void testChangeHost(Configuration cfg0) throws QiniuException {
+    private void testChangeHost(Configuration cfg0) throws QiniuException {
         Auth auth = Auth.create(TestConfig.testAccessKey, TestConfig.testSecretKey);
         ConfigHelper cfg = new ConfigHelper(cfg0);
         String h1 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0));
@@ -129,6 +138,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testGetFailedUpHost() throws QiniuException {
         Configuration cfg0 = new Configuration();
         ConfigHelper configHelper = new ConfigHelper(cfg0);
@@ -143,6 +153,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHostPeriod() throws QiniuException {
         Configuration cfg0 = new Configuration();
         UpHostHelper helper = new UpHostHelper(cfg0, 20);
@@ -212,6 +223,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("UnitTest")
     public void testZoneToRegion()
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, QiniuException {
         Configuration cfg = new Configuration(Zone.zone0());

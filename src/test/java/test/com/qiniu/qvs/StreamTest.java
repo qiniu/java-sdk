@@ -10,6 +10,7 @@ import com.qiniu.qvs.model.Stream;
 import com.qiniu.util.Auth;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
@@ -35,6 +36,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testCreateStream() {
         // stream.setStreamID("teststream002");
         try {
@@ -50,6 +52,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testQueryStream() {
         try {
             res = streamManager.queryStream(namespaceId, stream.getStreamID());
@@ -64,6 +67,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testUpdateStream() {
         PatchOperation[] patchOperation = { new PatchOperation("replace", "desc", "test") };
         try {
@@ -79,6 +83,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testListStream() {
         String prefix = "test";
         String sortBy = "desc:updatedAt";
@@ -95,6 +100,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testStaticPublishPlayURL() {
         StaticLiveRoute staticLiveRoute = new StaticLiveRoute("qvs-publish.qtest.com", "publishRtmp", 3600);
         try {
@@ -110,6 +116,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testDynamicPublishPlayURL() {
         DynamicLiveRoute dynamicLiveRoute = new DynamicLiveRoute("127.0.0.1", "127.0.0.1", 0);
         try {
@@ -125,6 +132,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testQueryStreamRecordHistories() {
         try {
             res = streamManager.queryStreamRecordHistories(namespaceId, stream.getStreamID(), start, end, line, maker,
@@ -140,6 +148,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testQueryStreamCover() {
         try {
             res = streamManager.queryStreamCover(namespaceId, stream.getStreamID());
@@ -154,6 +163,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testStreamsSnapshots() {
         try {
             res = streamManager.streamsSnapshots(namespaceId, stream.getStreamID(), start, end, 0, line, maker);
@@ -168,6 +178,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testQueryStreamPubHistories() {
         try {
             res = streamManager.queryStreamPubHistories(namespaceId, stream.getStreamID(), start, end, offset, line);
@@ -182,6 +193,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testDisableStream() {
         try {
             res = streamManager.disableStream(namespaceId, stream.getStreamID());
@@ -196,6 +208,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testEnableStream() {
         try {
             res = streamManager.enableStream(namespaceId, stream.getStreamID());
@@ -210,6 +223,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testDeleteStream() {
         try {
             res = streamManager.deleteStream(namespaceId, stream.getStreamID());
@@ -224,6 +238,7 @@ public class StreamTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testOndemandSnap() {
         try {
             res = streamManager.ondemandSnap("2xenzw5o81ods", "31011500991320000356");

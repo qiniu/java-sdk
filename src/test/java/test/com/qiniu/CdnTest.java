@@ -6,6 +6,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.util.StringMap;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -53,10 +54,8 @@ public class CdnTest {
      * 测试刷新，只检查是否返回200
      */
     @Test
+    @Tag("IntegrationTest")
     public void testRefresh() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
 
         CdnManager c = new CdnManager(TestConfig.testAuth);
@@ -74,6 +73,7 @@ public class CdnTest {
      * 测试预取，只检测是否返回200
      */
     @Test
+    @Tag("IntegrationTest")
     public void testPrefetch() {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.PrefetchResult r;
@@ -90,10 +90,8 @@ public class CdnTest {
      * 测试获取域名带宽，只检测是否返回200
      */
     @Test
+    @Tag("IntegrationTest")
     public void testGetBandwidth() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
 
         CdnManager c = new CdnManager(TestConfig.testAuth);
@@ -115,10 +113,8 @@ public class CdnTest {
      * 测试获取域名流量，只检测是否返回200
      */
     @Test
+    @Tag("IntegrationTest")
     public void testGetFlux() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
 
         CdnManager c = new CdnManager(TestConfig.testAuth);
@@ -140,10 +136,8 @@ public class CdnTest {
      * 测试获取CDN域名访问日志的下载链接 检测日志信息列表长度是否>=0
      */
     @Test
+    @Tag("IntegrationTest")
     public void testGetCdnLogList() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
 
         CdnManager c = new CdnManager(TestConfig.testAuth);
@@ -165,10 +159,8 @@ public class CdnTest {
      * 检测signedUrl3是否返回403 检测signedUrl3与预期结果是否一致
      */
     @Test
+    @Tag("IntegrationTest")
     public void testCreateTimestampAntiLeechUrlSimple() {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
 
         String host = "http://" + TestConfig.testDomain_z0_timeStamp;

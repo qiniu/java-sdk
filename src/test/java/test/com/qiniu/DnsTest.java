@@ -15,8 +15,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 // example
@@ -57,6 +57,7 @@ public class DnsTest {
 
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testSome() {
         // uploadManager.xxxxx
     }

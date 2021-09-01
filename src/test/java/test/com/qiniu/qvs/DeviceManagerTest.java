@@ -9,6 +9,7 @@ import com.qiniu.qvs.model.Device;
 import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.util.Auth;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
@@ -26,6 +27,7 @@ public class DeviceManagerTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testCreateDevice() {
         Device device = new Device();
         device.setUsername("admin");
@@ -45,6 +47,7 @@ public class DeviceManagerTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testQueryDevice() {
         try {
             res = deviceManager.queryDevice(namespaceId, gbId);
@@ -61,6 +64,7 @@ public class DeviceManagerTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testUpdateDevice() {
         PatchOperation[] patchOperation = { new PatchOperation("replace", "name", "GBTEST") };
         try {
@@ -78,6 +82,7 @@ public class DeviceManagerTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testListDevice() {
         int offset = 0;
         int line = 3;
@@ -99,6 +104,7 @@ public class DeviceManagerTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testListChannels() {
         String prefix = "310";
         try {
@@ -115,6 +121,7 @@ public class DeviceManagerTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testStartDevice() {
         try {
             res = deviceManager.startDevice(namespaceId, gbId, channels);
@@ -130,6 +137,7 @@ public class DeviceManagerTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testStopDevice() {
         try {
             res = deviceManager.stopDevice(namespaceId, gbId, channels);
@@ -145,6 +153,7 @@ public class DeviceManagerTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testFetchCatalog() {
         try {
             res = deviceManager.fetchCatalog("2xenzw5o81ods", "31011500991320000356");
@@ -160,6 +169,7 @@ public class DeviceManagerTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testQueryChannel() {
         try {
             res = deviceManager.queryChannel("3nm4x0vyz7xlu", "31011500991180000270", "34020000001310000020");
@@ -175,6 +185,7 @@ public class DeviceManagerTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testQueryGBRecordHistories() {
         try {
             res = deviceManager.queryGBRecordHistories("3nm4x0vyz7xlu", "31011500991180000270", "34020000001310000020",

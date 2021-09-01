@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.qiniu.streaming.UrlFactory;
 import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 public class UrlTest {
     @Test
     @Disabled
+    @Tag("UnitTest")
     public void testUrl() {
         String hubName = "test";
         String pubDomain = "publish-rtmp.test.com";

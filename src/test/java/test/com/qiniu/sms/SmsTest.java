@@ -10,6 +10,7 @@ import com.qiniu.sms.model.TemplateInfo;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
@@ -38,6 +39,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("UnitTest")
     public void testJson() {
         Map<String, String> paramMap5 = new HashMap<String, String>();
         paramMap5.put("bbbb", "sdsdsd");
@@ -54,6 +56,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testSendMessage() {
         Map<String, String> paramMap = new HashMap<String, String>();
         paramMap.put("code", "12945");
@@ -66,6 +69,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void sendSingleMessage() {
         Map<String, String> paramMap = new HashMap<String, String>();
         paramMap.put("code", "9signle78");
@@ -78,6 +82,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void sendOverseaMessage() {
         Map<String, String> paramMap = new HashMap<String, String>();
         paramMap.put("code", "8612345");
@@ -91,6 +96,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void sendFulltextMessage() {
         try {
             Response response = smsManager.sendFulltextMessage(mobiles, "【七牛云】尊敬的用户你好，您的验证码是 38232");
@@ -102,6 +108,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testDescribeSignature() {
         try {
             Response response = smsManager.describeSignature("passed", 0, 0);
@@ -112,6 +119,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testDescribeSignatureItems() {
         try {
             SignatureInfo signatureInfo = smsManager.describeSignatureItems("passed", 0, 0);
@@ -122,6 +130,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testCreateSignature() {
         try {
             Response response = smsManager.createSignature("signature", "app",
@@ -133,6 +142,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testModifySignature() {
         try {
             Response response = smsManager.modifySignature("signatureId", "signature");
@@ -143,6 +153,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testDeleteSignature() {
         try {
             Response response = smsManager.deleteSignature("signatureId");
@@ -153,6 +164,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testDescribeTemplate() {
         try {
             Response response = smsManager.describeTemplate("passed", 0, 0);
@@ -163,6 +175,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testDescribeTemplateItems() {
         try {
             TemplateInfo templateInfo = smsManager.describeTemplateItems("passed", 0, 0);
@@ -173,6 +186,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testCreateTemplate() {
         try {
             Response response = smsManager.createTemplate("name", "template", "notification", "desc", "signatureId");
@@ -183,6 +197,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testModifyTemplate() {
         try {
             Response response = smsManager.modifyTemplate("templateId", "name", "template", "desc", "signatureId");
@@ -193,6 +208,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testDeleteTemplate() {
         try {
             Response response = smsManager.deleteTemplate("templateId");
@@ -203,6 +219,7 @@ public class SmsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testComposeHeader() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         Class<SmsManager> clazz = SmsManager.class;
         Method declaredMethod = clazz.getDeclaredMethod("composeHeader", String.class, String.class, byte[].class,

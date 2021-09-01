@@ -2,6 +2,7 @@ package test.com.qiniu.util;
 
 import com.qiniu.common.Constants;
 import com.qiniu.util.Etag;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TempFile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,6 +11,7 @@ import java.io.IOException;
 
 public class EtagTest {
         @Test
+        @Tag("UnitTest")
         public void testData() {
                 String m = Etag.data(new byte[0]);
                 assertEquals("Fto5o-5ea0sNMlW_75VgGJCv2AcJ", m);
@@ -19,6 +21,7 @@ public class EtagTest {
         }
 
         @Test
+        @Tag("UnitTest")
         public void testFile() throws IOException {
                 File f = TempFile.createFileOld(1024);
                 assertEquals("FqOV9T8l48x1u9dFEOROzwp4b0jr", Etag.file(f));

@@ -6,10 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlUtils;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 public class UrlComposerTest {
         @Test
+        @Tag("UnitTest")
         public void testComposeUrlWithQueries() {
                 String testUrl = "http://sms.qiniuapi.com/v1/signature";
                 StringMap queryMap = new StringMap().put("page", 1).put("page_size", 10);
@@ -19,6 +21,7 @@ public class UrlComposerTest {
         }
 
         @Test
+        @Tag("UnitTest")
         public void testNonEncoding() {
                 String u = "http://asfd.clouddn.com/s共df/_-+./*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;\"/=/ /"
                                 + "sdf/*/~/@/:/!/$/&/&amp;/'/(/)/*/+/,/;\"/=/ /?sdfr=34sdf";

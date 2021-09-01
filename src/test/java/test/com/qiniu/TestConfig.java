@@ -8,7 +8,7 @@ import com.qiniu.util.StringUtils;
 
 public final class TestConfig {
 
-    //dummy: ak, sk, ...
+    // dummy: ak, sk, ...
     public static final String dummyAccessKey = "abcdefghklmnopq";
     public static final String dummySecretKey = "1234567890";
     public static final Auth dummyAuth = Auth.create(dummyAccessKey, dummySecretKey);
@@ -18,14 +18,14 @@ public final class TestConfig {
     public static final String dummyUptoken = "ak:token:putpolicy";
     public static final String dummyInvalidUptoken = "invalidtoken";
 
-    //test: ak, sk, auth
+    // test: ak, sk, auth
     public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
     public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
     // 内部测试环境 AK/SK
     public static final String innerAccessKey = System.getenv("testAK");
     public static final String innerSecretKey = System.getenv("testSK");
 
-    //sms: ak, sk, auth
+    // sms: ak, sk, auth
     public static final String smsAccessKey = "test";
     public static final String smsSecretKey = "test";
 
@@ -33,7 +33,7 @@ public final class TestConfig {
     public static final String getTestDefaultMp4FileKey = "do_not_delete/1.mp4";
     public static final String testMp4FileKey = "do_not_delete/1.mp4";
 
-    //z0
+    // z0
     public static final String testBucket_z0 = "javasdk";
     public static final String testKey_z0 = "do_not_delete/1.png";
     public static final String testDomain_z0 = "javasdk.peterpy.cn";
@@ -42,7 +42,7 @@ public final class TestConfig {
     public static final String testUrl_z0_timeStamp = "http://" + testDomain_z0_timeStamp + "/" + testKey_z0;
 
     public static final String testPipeline = "sdktest";
-    //na0
+    // na0
     public static final String testBucket_na0 = "java-sdk-na0";
     public static final String testKey_na0 = "do_not_delete/1.png";
     public static final String testChineseKey_na0 = "do_not_delete/水 果-iphone.png";
@@ -53,19 +53,23 @@ public final class TestConfig {
     public static final String testPrivateBucket_na0 = "private-na0";
     public static final String testPrivateBucketDomain_na0 = "private-na0.sdk.qiniu-solutions.com";
 
-    //sg
+    // sg
     public static final String testBucket_as0 = "sdk-as0";
-    //code
+    // code
     public static final int ERROR_CODE_BUCKET_NOT_EXIST = 631;
     public static final int ERROR_CODE_KEY_NOT_EXIST = 612;
     public static final String testLinkingAppid = System.getenv("QINIU_LINKING_APPID");
-    public static Auth testAuth = Auth.create(testAccessKey, testSecretKey);
+    public static Auth testAuth;
 
-    private TestConfig() {
+    static {
+        try {
+            testAuth = Auth.create(testAccessKey, testSecretKey);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
-    public static boolean isTravis() {
-        return "travis".equals(System.getenv("QINIU_TEST_ENV"));
+    private TestConfig() {
     }
 
     public static TestFile[] getTestFileArray() {
@@ -117,10 +121,10 @@ public final class TestConfig {
         fog.key = fileSaveKey;
         fog.mimeType = fileMimeType;
         fog.bucketName = "java-sdk-fog-cn-east1";
-//        fog.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
-//        fog.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
-//        fog.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
-//        fog.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
+        fog.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
+        fog.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
+        fog.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
+        fog.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
         fog.regionId = "fog-cn-east-1";
         fog.region = Region.regionFogCnEast1();
 
@@ -128,19 +132,14 @@ public final class TestConfig {
         fog1.key = fileSaveKey;
         fog1.mimeType = fileMimeType;
         fog1.bucketName = "java-sdk-fog-cn-east1";
-//        fog1.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
-//        fog1.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
-//        fog1.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
-//        fog1.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
+        fog1.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
+        fog1.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
+        fog1.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
+        fog1.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
         fog1.regionId = "fog-cn-east-1";
         fog1.region = toRegion(Zone.zoneFogCnEast1());
 
-        if (isTravis()) {
-            return new TestFile[]{na0};
-        } else {
-//            return new TestFile[]{fog, fog1, z0, na0};
-            return new TestFile[]{na0, z0_auto};
-        }
+        return new TestFile[] { na0 };
     }
 
     private static Region toRegion(Zone zone) {
@@ -148,15 +147,13 @@ public final class TestConfig {
             AutoZone autoZone = (AutoZone) zone;
             return Region.autoRegion(autoZone.ucServer);
         }
-        return new Region.Builder()
-                .region(zone.getRegion())
+        return new Region.Builder().region(zone.getRegion())
                 .accUpHost(getHosts(zone.getUpHttps(null), zone.getUpHttp(null)))
                 .srcUpHost(getHosts(zone.getUpBackupHttps(null), zone.getUpBackupHttp(null)))
                 .iovipHost(getHost(zone.getIovipHttps(null), zone.getIovipHttp(null)))
                 .rsHost(getHost(zone.getRsHttps(), zone.getRsHttp()))
                 .rsfHost(getHost(zone.getRsfHttps(), zone.getRsfHttp()))
-                .apiHost(getHost(zone.getApiHttps(), zone.getApiHttp()))
-                .build();
+                .apiHost(getHost(zone.getApiHttps(), zone.getApiHttp())).build();
     }
 
     private static String getHost(String https, String http) {
@@ -168,9 +165,9 @@ public final class TestConfig {
         String s1 = toDomain(http);
         String s2 = toDomain(https);
         if (s2 != null && !s2.equalsIgnoreCase(s1)) {
-            return new String[]{s1, s2};
+            return new String[] { s1, s2 };
         }
-        return new String[]{s1};
+        return new String[] { s1 };
     }
 
     private static String toDomain(String d1) {

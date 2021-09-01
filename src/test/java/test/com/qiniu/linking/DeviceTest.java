@@ -9,6 +9,7 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -22,6 +23,7 @@ public class DeviceTest {
 
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testDevice() throws QiniuException {
         Auth auth = TestConfig.testAuth;
         String testAppid = TestConfig.testLinkingAppid;
@@ -80,6 +82,7 @@ public class DeviceTest {
 
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testDeviceKey() throws QiniuException {
         Auth auth = TestConfig.testAuth;
         String testAppid = TestConfig.testLinkingAppid;
@@ -113,6 +116,7 @@ public class DeviceTest {
 
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testLinkingDeviceToken() throws QiniuException {
         String vodToken = TestConfig.testAuth.generateLinkingDeviceVodTokenWithExpires(TestConfig.testLinkingAppid,
                 testDeviceName1, 1000);

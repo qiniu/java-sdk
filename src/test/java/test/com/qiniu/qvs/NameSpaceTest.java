@@ -8,6 +8,7 @@ import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.util.Auth;
 import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 public class NameSpaceTest {
@@ -22,6 +23,7 @@ public class NameSpaceTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testCreateNameSpace() {
         NameSpace nameSpace = new NameSpace();
         nameSpace.setName("hugo002");
@@ -41,6 +43,7 @@ public class NameSpaceTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testQueryNameSpace() {
         try {
             res = nameSpaceManager.queryNameSpace(namespaceId);
@@ -55,6 +58,7 @@ public class NameSpaceTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testUpdateNameSpace() {
         PatchOperation[] patchOperation = { new PatchOperation("replace", "recordTemplateApplyAll", true) };
         try {
@@ -70,6 +74,7 @@ public class NameSpaceTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testListNameSpace() {
         int offset = 0;
         int line = 1;
@@ -87,6 +92,7 @@ public class NameSpaceTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testDisableNameSpace() {
         try {
             res = nameSpaceManager.disableNameSpace(namespaceId);
@@ -101,6 +107,7 @@ public class NameSpaceTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testEnableNameSpace() {
         try {
             res = nameSpaceManager.enableNameSpace(namespaceId);
@@ -115,6 +122,7 @@ public class NameSpaceTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testDeleteNameSpace() {
         try {
             res = nameSpaceManager.deleteNameSpace(namespaceId);

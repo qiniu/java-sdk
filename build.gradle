@@ -31,6 +31,12 @@ test {
     useJUnitPlatform()
 }
 
+task unitTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'UnitTest'
+    }
+}
+
 task getHomeDir {
     doLast {
         println gradle.gradleHomeDir

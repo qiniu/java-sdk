@@ -3,11 +3,13 @@ package test.com.qiniu.storage;
 import com.qiniu.common.Zone;
 import com.qiniu.storage.Configuration;
 import com.qiniu.util.Auth;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 public class ZoneTest {
 
         @Test
+        @Tag("UnitTest")
         public void zone1() {
                 String ak = "<access key>";
                 String sk = "<secret key>";

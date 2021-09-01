@@ -7,6 +7,7 @@ import com.qiniu.qvs.RecordManager;
 import com.qiniu.util.Auth;
 import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 public class RecordTest {
@@ -26,6 +27,7 @@ public class RecordTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testOndemandRecord() throws Exception {
         try {
             res = recordManager.startRecord(namespaceId, streamId);
@@ -48,6 +50,7 @@ public class RecordTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testRecordClipsSaveas() {
         try {
             res = recordManager.recordClipsSaveas(namespaceId, streamId, "", format, start, end, false, "", "", 0);
@@ -63,6 +66,7 @@ public class RecordTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testRecordsPlayback() {
         try {
             res = recordManager.recordsPlayback(namespaceId, streamId, start, end);

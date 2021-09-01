@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Random;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -186,6 +187,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test1K() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1, config[0], config[1]);
@@ -193,6 +195,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test600k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(600, config[0], config[1]);
@@ -200,6 +203,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test4M() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 4, config[0], config[1]);
@@ -207,6 +211,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test4M1K() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 4 + 1, config[0], config[1]);
@@ -214,6 +219,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M1k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 8 + 1, config[0], config[1]);
@@ -221,6 +227,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test25M1k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 25 + 1, config[0], config[1]);
@@ -228,6 +235,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test50M1k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 50 + 1, config[0], config[1]);
@@ -235,6 +243,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test100M1k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 100 + 1, config[0], config[1]);
@@ -242,6 +251,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testLastModify() throws IOException {
         File f = File.createTempFile("qiniutest", "b");
         String folder = f.getParent();

@@ -12,6 +12,7 @@ import com.qiniu.streaming.model.StreamAttribute;
 import com.qiniu.streaming.model.StreamListing;
 import com.qiniu.util.Auth;
 import test.com.qiniu.TestConfig;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -30,6 +31,7 @@ public class StreamingTest {
      * 测试获取不存在的流的信息 检测返回状态码是否是612
      */
     @Test
+    @Tag("IntegrationTest")
     public void testGetNoExistStream() {
         try {
             manager.attribute(streamNoExist);
@@ -45,6 +47,7 @@ public class StreamingTest {
      * @throws QiniuException
      */
     @Test
+    @Tag("IntegrationTest")
     public void testStreamOperation() throws QiniuException {
         try {
             // 确保流存在 //
@@ -132,6 +135,7 @@ public class StreamingTest {
      * @throws QiniuException
      */
     @Test
+    @Tag("IntegrationTest")
     public void testSaveAs() throws QiniuException {
         try {
             manager.saveAs(streamNoExist, "f\"ff.m3u8");
@@ -146,6 +150,7 @@ public class StreamingTest {
      * @throws QiniuException
      */
     @Test
+    @Tag("IntegrationTest")
     public void testCreate() throws QiniuException {
         try {
             manager.create(stream);

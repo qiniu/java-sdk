@@ -4,6 +4,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.storage.ApiQueryRegion;
 import com.qiniu.storage.Configuration;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,6 +14,7 @@ import java.util.List;
 public class ApiQueryRegionTest {
 
     @Test
+    @Tag("IntegrationTest")
     public void testQuery() {
 
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();

@@ -7,6 +7,7 @@ import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -25,21 +26,24 @@ import java.util.Map;
 public class ApiUploadV2Test {
 
     @Test
+    @Tag("IntegrationTest")
     public void testUploadBytes() {
         testUpload(true, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testUploadStream() {
         testUpload(false, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testUploadStreamWithContentLength() {
         testUpload(false, true);
     }
 
-    public void testUpload(boolean isUploadBytes, boolean isSetContentLength) {
+    private void testUpload(boolean isUploadBytes, boolean isSetContentLength) {
         long fileSize = 1024 * 7 + 2341; // 单位： k
         File f = null;
         try {
@@ -224,6 +228,7 @@ public class ApiUploadV2Test {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testAbortUpload() {
         long fileSize = 1024 * 7 + 2341; // 单位： k
         File f = null;

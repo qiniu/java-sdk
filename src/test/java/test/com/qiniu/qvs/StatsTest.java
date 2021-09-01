@@ -6,6 +6,7 @@ import com.qiniu.http.Response;
 import com.qiniu.qvs.StatsManager;
 import com.qiniu.util.Auth;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
@@ -25,6 +26,7 @@ public class StatsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testQueryFlow() {
         try {
             res = statsManager.queryFlow(namespaceId, streamId, tu, start, end);
@@ -40,6 +42,7 @@ public class StatsTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testQueryBandwidth() {
         try {
             res = statsManager.queryBandwidth(namespaceId, streamId, tu, start, end);

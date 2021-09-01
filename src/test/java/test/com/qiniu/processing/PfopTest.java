@@ -9,6 +9,7 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
@@ -25,11 +26,14 @@ public class PfopTest {
      * 测试pfop 检测jobid是否不为空
      */
     @Test
+    @Tag("IntegrationTest")
     public void testPfop() throws QiniuException {
         Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile testFile : files) {
-            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
+            if (!testFile.isFog()) {
+                bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
+            }
         }
         List<String> ids = new ArrayList<>();
 
@@ -60,6 +64,7 @@ public class PfopTest {
                 assertNotEquals("", jobid);
                 ids.add(jobid);
             } catch (QiniuException e) {
+                e.printStackTrace();
                 fail(e.response.toString());
             }
         }

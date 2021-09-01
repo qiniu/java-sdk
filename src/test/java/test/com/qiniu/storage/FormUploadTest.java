@@ -8,6 +8,7 @@ import com.qiniu.storage.UploadManager;
 import com.qiniu.util.StringMap;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,6 +29,7 @@ public class FormUploadTest {
      * hello上传测试
      */
     @Test
+    @Tag("IntegrationTest")
     public void testSimple() {
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {
@@ -41,6 +43,7 @@ public class FormUploadTest {
      * hello上传测试2
      */
     @Test
+    @Tag("IntegrationTest")
     public void testHello2() {
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {
@@ -81,6 +84,7 @@ public class FormUploadTest {
      * 无key上传，scope:<bucket> 检测是否返回200 检测返回值hash、key是否匹配
      */
     @Test
+    @Tag("IntegrationTest")
     public void testNoKey() {
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {
@@ -113,6 +117,7 @@ public class FormUploadTest {
      * 错误token上传 检测是否返回401 检测reqid是否不为null
      */
     @Test
+    @Tag("IntegrationTest")
     public void testInvalidToken() {
         final String expectKey = "你好";
 
@@ -139,6 +144,7 @@ public class FormUploadTest {
      * 空data上传 检测Exception是否为IllegalArgumentException一类
      */
     @Test
+    @Tag("IntegrationTest")
     public void testNoData() {
         final String expectKey = "你好";
 
@@ -162,6 +168,7 @@ public class FormUploadTest {
      * @throws Throwable
      */
     @Test
+    @Tag("IntegrationTest")
     public void testNoToken() throws Throwable {
         final String expectKey = "你好";
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
@@ -182,6 +189,7 @@ public class FormUploadTest {
      * 空token上传 检测Exception是否为IllegalArgumentException一类
      */
     @Test
+    @Tag("IntegrationTest")
     public void testEmptyToken() {
         final String expectKey = "你好";
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
@@ -202,6 +210,7 @@ public class FormUploadTest {
      * 文件上传 检测是否有Exception
      */
     @Test
+    @Tag("IntegrationTest")
     public void testFile() {
         final String expectKey = "世/界";
 
@@ -234,6 +243,7 @@ public class FormUploadTest {
      * 异步上传 检测是否返回200 检测返回值hash、key是否匹配
      */
     @Test
+    @Tag("IntegrationTest")
     public void testAsync() {
         final String expectKey = "你好?&=\r\n";
         StringMap params = new StringMap().put("x:foo", "foo_val");
@@ -280,6 +290,7 @@ public class FormUploadTest {
      * 检测自定义参数foo是否生效
      */
     @Test
+    @Tag("IntegrationTest")
     public void testXVar() {
         final String expectKey = "世/界";
 
@@ -318,6 +329,7 @@ public class FormUploadTest {
      * 检测fname是否生效
      */
     @Test
+    @Tag("IntegrationTest")
     public void testFname() {
         final String expectKey = "世/界";
 
@@ -357,6 +369,7 @@ public class FormUploadTest {
      * 检测fsizeMin是否生效
      */
     @Test
+    @Tag("IntegrationTest")
     public void testSizeMin() {
         final String expectKey = "世/界";
 
@@ -395,6 +408,7 @@ public class FormUploadTest {
      * 检测fsizeMin是否生效
      */
     @Test
+    @Tag("IntegrationTest")
     public void testSizeMin2() {
         final String expectKey = "世/界";
 
@@ -429,6 +443,7 @@ public class FormUploadTest {
      * 检测putThreshold是否生效
      */
     @Test
+    @Tag("IntegrationTest")
     public void testFormLargeSize() {
         final String expectKey = "yyyyyy";
 
@@ -465,6 +480,7 @@ public class FormUploadTest {
      */
     @SuppressWarnings("resource")
     @Test
+    @Tag("IntegrationTest")
     public void testFormLargeSize2() {
         final String expectKey = "xxxxxxx";
 
@@ -504,6 +520,7 @@ public class FormUploadTest {
      * 测试inputStream 表单上传 检测reqid是否为Null 检测状态码是否为200
      */
     @Test
+    @Tag("IntegrationTest")
     public void testFormUploadWithInputStream() {
         testFormUploadWithInputStream(1, -1);
         testFormUploadWithInputStream(1, 0);
@@ -516,7 +533,7 @@ public class FormUploadTest {
     /**
      * 测试inputStream 表单上传 检测reqid是否为Null 检测状态码是否为200
      */
-    public void testFormUploadWithInputStream(long kiloSize, long size) {
+    private void testFormUploadWithInputStream(long kiloSize, long size) {
 
         try {
             File file = TempFile.createFile(kiloSize);

@@ -11,6 +11,7 @@ import com.qiniu.util.Etag;
 import com.qiniu.util.StringMap;
 import test.com.qiniu.TempFile;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,6 +28,7 @@ import java.util.Map;
 public class StreamUploadTest {
 
     @Test
+    @Tag("IntegrationTest")
     @Disabled
     public void testXVar() throws IOException {
         Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
@@ -71,7 +73,9 @@ public class StreamUploadTest {
         Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile testFile : files) {
-            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
+            if (!testFile.isFog()) {
+                bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
+            }
         }
 
         for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
@@ -107,41 +111,38 @@ public class StreamUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test1K() throws Throwable {
         template(1, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test600k() throws Throwable {
         template(600, true);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test600k2() throws IOException {
         template(600, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test4M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         template(1024 * 4, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M1k() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         template(1024 * 8 + 1, false);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M1k2() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         template(1024 * 8 + 1, true);
     }
 

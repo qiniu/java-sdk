@@ -7,6 +7,7 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.DownloadPrivateCloudUrl;
 import com.qiniu.storage.DownloadUrl;
 import com.qiniu.util.Auth;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class DownloadUrlTest {
 
     @Test
+    @Tag("UnitTest")
     public void testUrl() {
         String key = TestConfig.testChineseKey_na0;
         String domain = TestConfig.testDomain_na0;
@@ -50,6 +52,7 @@ public class DownloadUrlTest {
     }
 
     @Test
+    @Tag("UnitTest")
     public void testSpecialKey() {
         String domain = "abc.com:123";
         Map<String, String> keys = new HashMap<String, String>() {
@@ -84,6 +87,7 @@ public class DownloadUrlTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testUrlWithDeadline() {
         String key = TestConfig.testKey_na0;
         String domain = TestConfig.testPrivateBucketDomain_na0;
@@ -134,6 +138,7 @@ public class DownloadUrlTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testPrivateCloudUrl() {
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {

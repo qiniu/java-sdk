@@ -5,6 +5,7 @@ import com.qiniu.http.Client;
 import com.qiniu.storage.*;
 import com.qiniu.util.Crc32;
 import com.qiniu.util.StringMap;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
@@ -25,11 +26,13 @@ import java.util.Map;
 public class ApiUploadV1Test {
 
     @Test
+    @Tag("IntegrationTest")
     public void testUploadBytes() {
         testUpload(true);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testUploadStream() {
         testUpload(false);
     }

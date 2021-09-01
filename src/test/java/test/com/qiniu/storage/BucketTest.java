@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
@@ -49,6 +50,7 @@ public class BucketTest {
      * 测试列举空间名
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBuckets() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -74,6 +76,7 @@ public class BucketTest {
      * 测试列举空间域名
      */
     @Test
+    @Tag("IntegrationTest")
     public void testDomains() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -92,6 +95,7 @@ public class BucketTest {
      * 测试list接口，limit=2
      */
     @Test
+    @Tag("IntegrationTest")
     public void testList() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -108,6 +112,7 @@ public class BucketTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testListV2() throws Exception {
         try {
             testFileWithHandler(new TestFileHandler() {
@@ -134,6 +139,7 @@ public class BucketTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testListMarkerV2() throws Exception {
         try {
             testFileWithHandler(new TestFileHandler() {
@@ -162,6 +168,7 @@ public class BucketTest {
      * 测试list接口的delimiter
      */
     @Test
+    @Tag("IntegrationTest")
     public void testListUseDelimiter() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -186,6 +193,7 @@ public class BucketTest {
      * 测试文件迭代器
      */
     @Test
+    @Tag("IntegrationTest")
     public void testListIterator() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -211,6 +219,7 @@ public class BucketTest {
      * 测试文件迭代器
      */
     @Test
+    @Tag("IntegrationTest")
     public void testListIteratorWithDefaultLimit() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -235,6 +244,7 @@ public class BucketTest {
      * 测试stat
      */
     @Test
+    @Tag("IntegrationTest")
     public void testStat() throws Exception {
         // test exists
         testFileWithHandler(new TestFileHandler() {
@@ -285,6 +295,7 @@ public class BucketTest {
      * 测试删除
      */
     @Test
+    @Tag("IntegrationTest")
     public void testDelete() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -329,6 +340,7 @@ public class BucketTest {
      * 测试移动/重命名
      */
     @Test
+    @Tag("IntegrationTest")
     public void testRename() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -373,6 +385,7 @@ public class BucketTest {
      * 测试复制
      */
     @Test
+    @Tag("IntegrationTest")
     public void testCopy() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -397,6 +410,7 @@ public class BucketTest {
      * 测试修改文件MimeType
      */
     @Test
+    @Tag("IntegrationTest")
     public void testChangeMime() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -417,6 +431,7 @@ public class BucketTest {
      * 测试修改文件元信息
      */
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHeaders() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -445,6 +460,7 @@ public class BucketTest {
     // TODO
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testPrefetch() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -467,6 +483,7 @@ public class BucketTest {
      * 测试同步Fetch
      */
     @Test
+    @Tag("IntegrationTest")
     public void testFetch() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -500,6 +517,7 @@ public class BucketTest {
      * 测试获取bucketinfo
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBucketInfo() throws Exception {
         testFileWithHandler(new TestFileHandler() {
             @Override
@@ -521,6 +539,7 @@ public class BucketTest {
      * 测试设置空间referer防盗链
      */
     @Test
+    @Tag("IntegrationTest")
     public void testPutReferAntiLeech() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -579,6 +598,7 @@ public class BucketTest {
      * 测试设置空间生命周期规则
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBucketLifeCycleRule() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -688,6 +708,7 @@ public class BucketTest {
      * 测试事件通知
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBucketEvent() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -820,6 +841,7 @@ public class BucketTest {
      * 测试跨域规则
      */
     @Test
+    @Tag("IntegrationTest")
     public void testCorsRules() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -863,7 +885,8 @@ public class BucketTest {
      * 测试设置回源规则
      */
     @Test
-    // TODO
+    @Disabled
+    @Tag("IntegrationTest")
     public void testPutBucketSourceConfig() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -882,6 +905,8 @@ public class BucketTest {
      * 测试设置原图保护模式
      */
     @Test
+    @Tag("IntegrationTest")
+    @Disabled
     public void testPutBucketAccessStyleMode() throws Exception {
 
         final Random r = new Random();
@@ -941,6 +966,12 @@ public class BucketTest {
                         } catch (QiniuException e1) {
                             // do nothing
                         }
+                    } finally {
+                        try {
+                            Thread.sleep(20000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -951,6 +982,7 @@ public class BucketTest {
      * 测试设置max-age属性
      */
     @Test
+    @Tag("IntegrationTest")
     public void testPutBucketMaxAge() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -982,7 +1014,9 @@ public class BucketTest {
      * 测试设置max-age属性<br>
      * UC有缓存，这种方法不合适于测试
      */
-    @Deprecated
+    @Test
+    @Disabled
+    @Tag("IntegrationTest")
     public void testPutBucketMaxAge2() throws Exception {
 
         final String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
@@ -1025,6 +1059,7 @@ public class BucketTest {
      * 测试设置空间私有化、公有化
      */
     @Test
+    @Tag("IntegrationTest")
     public void testPutBucketAccessMode() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1063,6 +1098,7 @@ public class BucketTest {
      * 测试设置、获取空间配额
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBucketQuota() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1103,6 +1139,7 @@ public class BucketTest {
      * 测试批量复制
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchCopy() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1136,6 +1173,7 @@ public class BucketTest {
      * 测试批量移动
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchMove() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1172,6 +1210,7 @@ public class BucketTest {
      * 测试批量重命名
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchRename() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1230,6 +1269,7 @@ public class BucketTest {
      * 测试批量stat
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchStat() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1257,6 +1297,7 @@ public class BucketTest {
      * 测试批量修改文件MimeType
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchChangeType() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1303,6 +1344,7 @@ public class BucketTest {
      * 测试批量操作
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatchCopyChgmDelete() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1375,6 +1417,7 @@ public class BucketTest {
      * 测试批量操作
      */
     @Test
+    @Tag("IntegrationTest")
     public void testBatch() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1430,6 +1473,7 @@ public class BucketTest {
     // TODO
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testSetAndUnsetImage() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1458,6 +1502,7 @@ public class BucketTest {
      * 测试文件生命周期
      */
     @Test
+    @Tag("IntegrationTest")
     public void testDeleteAfterDays() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1481,6 +1526,7 @@ public class BucketTest {
      * 测试修改文件类型
      */
     @Test
+    @Tag("IntegrationTest")
     public void testChangeFileType() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1518,6 +1564,7 @@ public class BucketTest {
      * 测试解冻归档存储
      */
     @Test
+    @Tag("IntegrationTest")
     public void testRestoreArchive() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1561,6 +1608,7 @@ public class BucketTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testBatchRestoreArchive() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {
@@ -1690,6 +1738,7 @@ public class BucketTest {
      * @throws QiniuException
      */
     @Test
+    @Tag("IntegrationTest")
     public void testIndexPage() throws Exception {
 
         testFileWithHandler(new TestFileHandler() {

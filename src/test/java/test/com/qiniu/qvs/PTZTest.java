@@ -7,6 +7,7 @@ import com.qiniu.qvs.PTZManager;
 import com.qiniu.util.Auth;
 import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 public class PTZTest {
@@ -23,6 +24,7 @@ public class PTZTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testPTZControl() {
         try {
             res = ptzManager.ptzControl(namespaceId, gbId, "up", 5, chId);
@@ -38,6 +40,7 @@ public class PTZTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testFocusControl() {
         try {
             res = ptzManager.focusControl(namespaceId, gbId, "focusfar", 5, chId);
@@ -53,6 +56,7 @@ public class PTZTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testIrisControl() {
         try {
             res = ptzManager.irisControl(namespaceId, gbId, "irisin", 5, chId);
@@ -68,6 +72,7 @@ public class PTZTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testPresetsControl() {
         try {
             res = ptzManager.presetsControl(namespaceId, gbId, "set", "test", 0, chId);
@@ -83,6 +88,7 @@ public class PTZTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testListPresets() {
         try {
             res = ptzManager.listPresets(namespaceId, gbId, chId);

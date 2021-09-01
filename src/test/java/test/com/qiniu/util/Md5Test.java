@@ -3,6 +3,7 @@ package test.com.qiniu.util;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TempFile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,6 +21,7 @@ public class Md5Test {
     }
 
     @Test
+    @Tag("UnitTest")
     public void test1() throws IOException, NoSuchAlgorithmException {
         System.out.println(f.getAbsolutePath());
         String md5 = Md5.md5(f);

@@ -7,6 +7,7 @@ import com.qiniu.http.ProxyConfiguration;
 import com.qiniu.http.Response;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,6 +23,7 @@ public class HttpTest {
 
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testPost1() {
         Response r = null;
         try {
@@ -34,6 +36,7 @@ public class HttpTest {
 
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testPost2() {
         Response r = null;
         try {
@@ -46,6 +49,7 @@ public class HttpTest {
 
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testPost3() {
         Response r = null;
         try {
@@ -62,6 +66,7 @@ public class HttpTest {
 
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testPost4() {
         Response r = null;
         try {
@@ -78,6 +83,7 @@ public class HttpTest {
 
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testPost5() {
         Response r = null;
         try {
@@ -94,6 +100,7 @@ public class HttpTest {
 
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testProxy() {
         ProxyConfiguration proxy = new ProxyConfiguration("115.231.183.168", 80);
         Client c = new Client(null, false, proxy, Constants.CONNECT_TIMEOUT, Constants.READ_TIMEOUT,
@@ -111,6 +118,7 @@ public class HttpTest {
 
     @Test
     @Disabled
+    @Tag("IntegrationTest")
     public void testTimeout() throws NoSuchFieldException, IllegalAccessException {
         Client client0 = new Client();
         try {
