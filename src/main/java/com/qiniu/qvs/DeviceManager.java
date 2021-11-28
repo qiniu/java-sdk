@@ -34,6 +34,7 @@ public class DeviceManager {
      */
     public Response createDevice(String namespaceId, Device device) throws QiniuException {
         StringMap params = new StringMap();
+        params.put("type", device.getType());
         params.put("name", device.getName());
         params.put("gbId", device.getGbId());
         params.putNotNull("username", device.getUsername());
@@ -144,5 +145,19 @@ public class DeviceManager {
         StringMap map = new StringMap().put("start", start).put("end", end).putNotNull("chId", channelId);
         url = UrlUtils.composeUrlWithQueries(url, map);
         return QvsResponse.get(url, client, auth);
+    }
+
+    public Response getVoiceChatUrl(String namespaceId, String gbId, Boolean isV2, String[] channels, String version, String transProtocol)  throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/devices/%s/talk", apiServer, namespaceId, gbId);
+        StringMap params = new StringMap().put("isV2", isV2).
+                put("channels", channels).
+                put("version", version).
+                put("transProtocol", transProtocol);
+        return QvsResponse.post(url, params, client, auth);
+    }
+
+    public Response sendVoiceChatData(String url, String base64_pcm)  throws QiniuException {
+        StringMap params = new StringMap().put("base64_pcm", base64_pcm);
+        return QvsResponse.post(url, params, client, auth);
     }
 }

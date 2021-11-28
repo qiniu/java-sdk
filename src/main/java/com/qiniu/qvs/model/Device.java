@@ -1,6 +1,7 @@
 package com.qiniu.qvs.model;
 
 public class Device {
+    private int type; //可选项为摄像头、平台两类，1：摄像头，2：平台。
     private String name; // 设备名称 (可包含 字母、数字、中划线、下划线；1 ~ 100 个字符长)
     private String username; // 用户名, 4~40位，可包含大写字母、小写字母、数字、中划线，建议与设备国标ID一致
     private String password; // 密码, 4~40位，可包含大写字母、小写字母、数字、中划线
@@ -54,5 +55,13 @@ public class Device {
 
     public void setDesc(String desc) {
         this.desc = desc;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }
