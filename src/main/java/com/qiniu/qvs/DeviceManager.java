@@ -150,10 +150,10 @@ public class DeviceManager {
 
     public Response getVoiceChatUrl(String namespaceId, String gbId, VoiceChat voiceChat)  throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/devices/%s/talk", apiServer, namespaceId, gbId);
-        StringMap params = new StringMap().putNotNull("isV2", voiceChat.getV2()).
-                put("channels", voiceChat.getChannels()).
-                put("version", voiceChat.getVersion()).
-                put("transProtocol", voiceChat.getTransProtocol());
+        StringMap params = new StringMap().putNotNull("isV2", voiceChat.getV2());
+        params.put("channels", voiceChat.getChannels());
+        params.put("version", voiceChat.getVersion());
+        params.put("transProtocol", voiceChat.getTransProtocol());
         return QvsResponse.post(url, params, client, auth);
     }
 
