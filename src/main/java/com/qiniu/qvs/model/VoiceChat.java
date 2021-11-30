@@ -1,4 +1,4 @@
-package com.qiniu.examples.qvs.model;
+package com.qiniu.qvs.model;
 
 public class VoiceChat {
     private Boolean isV2;// 该字段为true时，启用低延迟版本，收到返回地址后在发送语音数据
