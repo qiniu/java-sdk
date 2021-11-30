@@ -5,6 +5,7 @@ import com.qiniu.qvs.model.Device;
 import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.qvs.model.VoiceChat;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlUtils;
@@ -147,17 +148,17 @@ public class DeviceManager {
         return QvsResponse.get(url, client, auth);
     }
 
-    public Response getVoiceChatUrl(String namespaceId, String gbId, Boolean isV2, String[] channels, String version, String transProtocol)  throws QiniuException {
+    public Response getVoiceChatUrl(String namespaceId, String gbId, VoiceChat voiceChat)  throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/devices/%s/talk", apiServer, namespaceId, gbId);
-        StringMap params = new StringMap().put("isV2", isV2).
-                put("channels", channels).
-                put("version", version).
-                put("transProtocol", transProtocol);
+        StringMap params = new StringMap().putNotNull("isV2", voiceChat.getV2()).
+                put("channels", voiceChat.getChannels()).
+                put("version", voiceChat.getVersion()).
+                put("transProtocol", voiceChat.getTransProtocol());
         return QvsResponse.post(url, params, client, auth);
     }
 
     public Response sendVoiceChatData(String url, String base64_pcm)  throws QiniuException {
-        StringMap params = new StringMap().put("base64_pcm", base64_pcm);
+        StringMap params = new StringMap().putNotNull("base64_pcm", base64_pcm);
         return QvsResponse.post(url, params, client, auth);
     }
 }
