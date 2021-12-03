@@ -67,6 +67,30 @@ public class Region {
         return region0();
     }
 
+
+    /**
+     * 华东浙江机房相关域名
+     */
+    public static Region regionCnEast2() {
+        return new Builder().
+                region("cn-east-2").
+                srcUpHost("up-cn-east-2.qiniup.com").
+                accUpHost("upload-cn-east-2.qiniup.com").
+                iovipHost("iovip-cn-east-2.qiniuio.com").
+                rsHost("rs-cn-east-2.qiniuapi.com").
+                rsfHost("rsf-cn-east-2-qiniuapi.com").
+                apiHost("api-cn-east-2.qiniuapi.com").
+                build();
+    }
+
+    /**
+     * 华东浙江机房相关域名
+     */
+    public static Region huadongZheJiang() {
+        return regionCnEast2();
+    }
+
+
     /**
      * 华东机房内网上传相关域名
      */

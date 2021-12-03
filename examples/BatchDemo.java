@@ -1,9 +1,9 @@
 import com.qiniu.common.QiniuException;
+import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
-import com.qiniu.util.Auth;
-import com.qiniu.common.Zone;
 import com.qiniu.storage.Configuration;
+import com.qiniu.util.Auth;
 
 
 public class BatchDemo {
@@ -20,8 +20,8 @@ public class BatchDemo {
         //实例化一个BucketManager对象
         BucketManager bucketManager = new BucketManager(auth, c);
 
-        //创建Batch类型的operations对象
-        BucketManager.Batch operations = new BucketManager.Batch();
+        //创建 BatchOperations 类型的 operations 对象
+        BucketManager.BatchOperations operations = new BucketManager.BatchOperations();
 
         //第一组源空间名、原文件名，目的空间名、目的文件名
         String bucketFrom1 = "yourbucket";
