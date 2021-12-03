@@ -1,3 +1,5 @@
+// codebeat:disable[TOO_MANY_METHODS]
+
 package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
