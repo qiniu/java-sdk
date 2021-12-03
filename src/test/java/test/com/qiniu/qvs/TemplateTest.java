@@ -6,8 +6,9 @@ import com.qiniu.qvs.TemplateManager;
 import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.qvs.model.Template;
 import com.qiniu.util.Auth;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
 public class TemplateTest {
@@ -17,12 +18,13 @@ public class TemplateTest {
     private Response res = null;
     private final String templateId = "2akrarsl22iil";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.templateManager = new TemplateManager(auth);
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testCreateTemplate() {
         Template template = new Template();
         template.setName("testtemplate002");
@@ -43,6 +45,7 @@ public class TemplateTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testQueryTemplate() {
         try {
             res = templateManager.queryTemplate(templateId);
@@ -57,8 +60,9 @@ public class TemplateTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testUpdateTemplate() {
-        PatchOperation[] patchOperation = {new PatchOperation("replace", "name", "testtemplate002")};
+        PatchOperation[] patchOperation = { new PatchOperation("replace", "name", "testtemplate002") };
         try {
             res = templateManager.updateTemplate(templateId, patchOperation);
             System.out.println(res.bodyString());
@@ -72,6 +76,7 @@ public class TemplateTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testListTemplate() {
         int offset = 0;
         int line = 1;
@@ -89,8 +94,8 @@ public class TemplateTest {
         }
     }
 
-
     @Test
+    @Tag("IntegrationTest")
     public void testDeleteTemplate() {
         try {
             res = templateManager.deleteTemplate(templateId);

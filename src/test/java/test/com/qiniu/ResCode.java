@@ -1,8 +1,7 @@
 package test.com.qiniu;
 
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import java.util.Arrays;
 
 public class ResCode {
@@ -17,24 +16,12 @@ public class ResCode {
     }
 
     public static int[] getPossibleResCode(int... codes) {
-        return getPossibleResCode(TestConfig.isTravis(), codes);
-    }
-
-    public static int[] getPossibleResCode(boolean isTravis, int... codes) {
-        if (isTravis) {
-            int[] n = new int[codes.length + 1];
-            System.arraycopy(codes, 0, n, 0, codes.length);
-            n[codes.length] = -1; // add code -1 for networking failed.
-            return n;
-        }
         return codes;
     }
 
     @Test
     public void testAddCode() {
-        Assert.assertArrayEquals(new int[]{401, -1}, ResCode.getPossibleResCode(true, 401));
-        Assert.assertArrayEquals(new int[]{401}, ResCode.getPossibleResCode(false, 401));
+        assertArrayEquals(new int[] { 401 }, ResCode.getPossibleResCode(401));
     }
-
 
 }

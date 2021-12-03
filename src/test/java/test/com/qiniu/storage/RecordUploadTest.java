@@ -9,18 +9,22 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.ResumeUploader;
 import com.qiniu.storage.persistent.FileRecorder;
 import com.qiniu.util.Etag;
-import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by Simon on 2015/3/30.
@@ -34,11 +38,7 @@ public class RecordUploadTest {
 
     private static boolean[][] testConfigList = {
             // isResumeV2, isConcurrent
-            {true, false},
-            {true, true},
-            {false, false},
-            {false, true}
-    };
+            { true, false }, { true, true }, { false, false }, { false, true } };
 
     /**
      * 断点续传
@@ -91,15 +91,15 @@ public class RecordUploadTest {
                             System.out.println("UP:  " + i + ", exception run");
                             e.printStackTrace();
                         }
-                        complete.isComplete = true;
+                        complete.isComplete.set(true);
                     }
                 }.start();
 
-                final boolean[] ch = new boolean[]{true};
+                final AtomicBoolean ch = new AtomicBoolean(true);
                 // 显示断点记录文件
                 Thread showRecord = new Thread() {
                     public void run() {
-                        for (; ch[0]; ) {
+                        while (ch.get()) {
                             doSleep(1000);
                             showRecord("normal: " + size + " :", recorder, recordKey);
                         }
@@ -124,7 +124,7 @@ public class RecordUploadTest {
                 }
 
                 System.out.println("response is " + response);
-                while (!complete.isComplete) {
+                while (!complete.isComplete.get()) {
                     doSleep(200);
                 }
 
@@ -140,7 +140,7 @@ public class RecordUploadTest {
 
                 showRecord("done: " + size + " :", recorder, recordKey);
 
-                ch[0] = false;
+                ch.set(false);
 
                 String etag = Etag.file(f);
                 System.out.println("etag: " + etag);
@@ -152,7 +152,7 @@ public class RecordUploadTest {
                 assertEquals(etag, hash);
                 doSleep(2000);
                 showRecord("nodata: " + size + " :", recorder, recordKey);
-                assertNull("文件上传成功,但断点记录文件未清理", recorder.get(recordKey));
+                assertNull(recorder.get(recordKey), "文件上传成功,但断点记录文件未清理");
             } finally {
                 TempFile.remove(f);
             }
@@ -168,7 +168,7 @@ public class RecordUploadTest {
             }
             System.out.println(jsonStr);
         } catch (Exception e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 
@@ -184,11 +184,12 @@ public class RecordUploadTest {
         try {
             Thread.sleep(m);
         } catch (InterruptedException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test1K() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1, config[0], config[1]);
@@ -196,6 +197,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test600k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(600, config[0], config[1]);
@@ -203,6 +205,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test4M() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 4, config[0], config[1]);
@@ -210,6 +213,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test4M1K() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 4 + 1, config[0], config[1]);
@@ -217,6 +221,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M1k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 8 + 1, config[0], config[1]);
@@ -224,6 +229,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test25M1k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 25 + 1, config[0], config[1]);
@@ -231,6 +237,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test50M1k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 50 + 1, config[0], config[1]);
@@ -238,6 +245,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test100M1k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 100 + 1, config[0], config[1]);
@@ -245,6 +253,7 @@ public class RecordUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testLastModify() throws IOException {
         File f = File.createTempFile("qiniutest", "b");
         String folder = f.getParent();
@@ -339,11 +348,10 @@ public class RecordUploadTest {
 
                 if (isConcurrent) {
                     config.resumableUploadMaxConcurrentTaskCount = 3;
-                    uploader = new ConcurrentResumeUploader(client, token, key, file,
-                            null, Client.DefaultMime, recorder, config);
+                    uploader = new ConcurrentResumeUploader(client, token, key, file, null, Client.DefaultMime,
+                            recorder, config);
                 } else {
-                    uploader = new ResumeUploader(client, token, key, file,
-                            null, Client.DefaultMime, recorder, config);
+                    uploader = new ResumeUploader(client, token, key, file, null, Client.DefaultMime, recorder, config);
                 }
 
                 Response res = uploader.upload();
@@ -357,6 +365,6 @@ public class RecordUploadTest {
     }
 
     static class Complete {
-        boolean isComplete = false;
+        AtomicBoolean isComplete = new AtomicBoolean(false);
     }
 }

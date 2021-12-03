@@ -4,18 +4,22 @@ import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.util.Auth;
-import org.junit.Assert;
-import org.junit.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
 
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 
 public class RegionTest {
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost1() throws QiniuException {
         System.out.println("\n\n1 Zone.autoZone()");
         Configuration cfg = new Configuration(Zone.autoZone());
@@ -23,6 +27,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost2() throws QiniuException {
         System.out.println("\n\n2 ''");
         Configuration cfg = new Configuration();
@@ -31,6 +36,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost3() throws QiniuException {
         System.out.println("\n\n3 Region.autoRegion()");
         Configuration cfg = new Configuration(Region.autoRegion());
@@ -38,6 +44,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost4() throws QiniuException {
         System.out.println("\n\n4 Region.region0()");
         Configuration cfg = new Configuration(Region.region0());
@@ -45,14 +52,15 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost5() throws QiniuException {
         System.out.println("\n\n5 Zone.zone0()");
         Configuration cfg = new Configuration(Zone.zone0());
         testChangeHost(cfg);
     }
 
-
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost6() throws QiniuException {
         System.out.println("\n\n6 Region.region1(), accUpHostFirst = false");
         Configuration cfg = new Configuration(Region.region1());
@@ -61,6 +69,7 @@ public class RegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHost7() throws QiniuException {
         System.out.println("\n\n7 Zone.zone1(), accUpHostFirst = false");
         Configuration cfg = new Configuration(Zone.zone1());
@@ -68,7 +77,7 @@ public class RegionTest {
         testChangeHost(cfg);
     }
 
-    public void testChangeHost(Configuration cfg0) throws QiniuException {
+    private void testChangeHost(Configuration cfg0) throws QiniuException {
         Auth auth = Auth.create(TestConfig.testAccessKey, TestConfig.testSecretKey);
         ConfigHelper cfg = new ConfigHelper(cfg0);
         String h1 = cfg.upHost(auth.uploadToken(TestConfig.testBucket_z0));
@@ -107,30 +116,29 @@ public class RegionTest {
         String h12 = cfg.tryChangeUpHost(auth.uploadToken(TestConfig.testBucket_z0), h11);
         System.out.println(h12);
 
-        Assert.assertEquals(h1, h1_);
+        assertEquals(h1, h1_);
         if (cfg0.region instanceof AutoRegion) {
-            Assert.assertNotEquals(h1, h2); // 不同region //
-            Assert.assertNotEquals(h1, h3_); // 切回 region 后，继续保持状态 //
+            assertNotEquals(h1, h2); // 不同region //
+            assertNotEquals(h1, h3_); // 切回 region 后，继续保持状态 //
         }
 
-        Assert.assertNotEquals(h3, h1);
-        Assert.assertNotEquals(h3, h2);
-        Assert.assertNotEquals(h3, h4);
-        Assert.assertNotEquals(h5, h6);
+        assertNotEquals(h3, h1);
+        assertNotEquals(h3, h2);
+        assertNotEquals(h3, h4);
+        assertNotEquals(h5, h6);
 
-        Assert.assertEquals(h7, h6);
-        Assert.assertEquals(h7, h7_);
+        assertEquals(h7, h6);
+        assertEquals(h7, h7_);
 
-        // upload.qiniup.com,   up.qiniup.com
-        Assert.assertNotEquals("" + h1.indexOf("up.") + h1.indexOf("up-"),
-                "" + h5.indexOf("up.") + h5.indexOf("up-"));
+        // upload.qiniup.com, up.qiniup.com
+        assertNotEquals("" + h1.indexOf("up.") + h1.indexOf("up-"), "" + h5.indexOf("up.") + h5.indexOf("up-"));
         //
-        Assert.assertTrue(h1.equals(h4) || h1.equals(h5) || h1.equals(h6) || h1.equals(h7)
-                || h1.equals(h8) || h1.equals(h9) || h1.equals(h10) || h1.equals(h11) || h1.equals(h12));
+        assertTrue(h1.equals(h4) || h1.equals(h5) || h1.equals(h6) || h1.equals(h7) || h1.equals(h8) || h1.equals(h9)
+                || h1.equals(h10) || h1.equals(h11) || h1.equals(h12));
     }
 
-
     @Test
+    @Tag("IntegrationTest")
     public void testGetFailedUpHost() throws QiniuException {
         Configuration cfg0 = new Configuration();
         ConfigHelper configHelper = new ConfigHelper(cfg0);
@@ -138,14 +146,14 @@ public class RegionTest {
         String upToken = auth.uploadToken(TestConfig.testBucket_z0 + "notexitbucket38_-4rfjiu4r3u4t83d");
         try {
             String h1 = configHelper.upHost(upToken);
-            Assert.fail("should failed: no such bucket: ");
+            fail("should failed: no such bucket: ");
         } catch (QiniuException e) {
-            Assert.assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(631)));
+            assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(631)));
         }
     }
 
-
     @Test
+    @Tag("IntegrationTest")
     public void testChangeHostPeriod() throws QiniuException {
         Configuration cfg0 = new Configuration();
         UpHostHelper helper = new UpHostHelper(cfg0, 20);
@@ -160,8 +168,8 @@ public class RegionTest {
         System.out.println(h2);
         String h3 = helper.upHost(cfg0.region, upToken, h2, true, false);
         System.out.println(h3);
-//        String h4 = helper.upHost(cfg0.region, upToken, true);
-//        System.out.println(h4);
+        // String h4 = helper.upHost(cfg0.region, upToken, true);
+        // System.out.println(h4);
         String h5 = helper.upHost(cfg0.region, upToken, h3, true, false);
         System.out.println("h5\t" + h5);
         String h6 = helper.upHost(cfg0.region, upToken, h5, true, false);
@@ -195,35 +203,35 @@ public class RegionTest {
         String h12 = helper.upHost(cfg0.region, upToken, h11, false, false);
         System.out.println(h12);
 
-        Assert.assertEquals(h1, h2);
+        assertEquals(h1, h2);
 
-        Assert.assertNotEquals(h3, h2);
-//        Assert.assertNotEquals(h3, h4);
-        Assert.assertNotEquals(h5, h6);
+        assertNotEquals(h3, h2);
+        // assertNotEquals(h3, h4);
+        assertNotEquals(h5, h6);
 
         // 标记过期，重来 //
-        Assert.assertEquals(h1, h7);
-        Assert.assertEquals(h1, h9);
+        assertEquals(h1, h7);
+        assertEquals(h1, h9);
 
         // 均过期 //
-        Assert.assertEquals(h8, h3);
+        assertEquals(h8, h3);
 
-        Assert.assertNotEquals(h11, h1);
+        assertNotEquals(h11, h1);
 
-        // upload.qiniup.com,   up.qiniup.com, upload-xs.qiniup.com
-        Assert.assertNotEquals("" + h1.indexOf("up.") + h1.indexOf("up-"),
-                "" + h5.indexOf("up.") + h5.indexOf("up-"));
+        // upload.qiniup.com, up.qiniup.com, upload-xs.qiniup.com
+        assertNotEquals("" + h1.indexOf("up.") + h1.indexOf("up-"), "" + h5.indexOf("up.") + h5.indexOf("up-"));
     }
 
     @Test
-    public void testZoneToRegion() throws NoSuchMethodException,
-            InvocationTargetException, IllegalAccessException, QiniuException {
+    @Tag("UnitTest")
+    public void testZoneToRegion()
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, QiniuException {
         Configuration cfg = new Configuration(Zone.zone0());
         ConfigHelper c = new ConfigHelper(cfg);
         String m = "makeSureRegion";
 
         System.out.println(cfg.region);
-//        System.out.println(cfg.zone);
+        // System.out.println(cfg.zone);
 
         Class clazz = c.getClass();
         Method m1 = clazz.getDeclaredMethod(m);
@@ -231,16 +239,16 @@ public class RegionTest {
         m1.invoke(c);
         Region rz = cfg.region;
         System.out.println("cfg.region : " + new Gson().toJson(cfg.region));
-//        System.out.println(new Gson().toJson(cfg.zone));
+        // System.out.println(new Gson().toJson(cfg.zone));
 
         Region r0 = Region.region0();
         System.out.println("Region.region0() : " + new Gson().toJson(r0));
 
-        Assert.assertTrue(r0.getSrcUpHost(null).contains(rz.getSrcUpHost(null).get(0)));
-        Assert.assertTrue(r0.getAccUpHost(null).contains(rz.getAccUpHost(null).get(0)));
-        Assert.assertEquals(r0.getIovipHost(null), rz.getIovipHost(null));
-        Assert.assertEquals(r0.getRsHost(null), rz.getRsHost(null));
-        Assert.assertEquals(r0.getRsfHost(null), rz.getRsfHost(null));
-        Assert.assertEquals(r0.getApiHost(null), rz.getApiHost(null));
+        assertTrue(r0.getSrcUpHost(null).contains(rz.getSrcUpHost(null).get(0)));
+        assertTrue(r0.getAccUpHost(null).contains(rz.getAccUpHost(null).get(0)));
+        assertEquals(r0.getIovipHost(null), rz.getIovipHost(null));
+        assertEquals(r0.getRsHost(null), rz.getRsHost(null));
+        assertEquals(r0.getRsfHost(null), rz.getRsfHost(null));
+        assertEquals(r0.getApiHost(null), rz.getApiHost(null));
     }
 }

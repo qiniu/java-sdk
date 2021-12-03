@@ -4,15 +4,17 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.storage.ApiQueryRegion;
 import com.qiniu.storage.Configuration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
-
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 public class ApiQueryRegionTest {
 
     @Test
+    @Tag("IntegrationTest")
     public void testQuery() {
 
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
@@ -30,19 +32,19 @@ public class ApiQueryRegionTest {
                 System.out.println("query region:" + response.getResponse());
                 System.out.println("query region data:" + response.getDataMap());
 
-                Assert.assertTrue(response.getResponse() + "", response.isOK());
+                assertTrue(response.isOK(), response.getResponse() + "");
 
                 String regionId = response.getDefaultRegionId();
                 System.out.println("query region regionId:" + regionId);
-                Assert.assertNotNull(response.getDataMap() + "", regionId);
+                assertNotNull(regionId, response.getDataMap() + "");
 
                 Long ttl = response.getDefaultRegionTTL();
                 System.out.println("query region ttl:" + ttl);
-                Assert.assertNotNull(response.getDataMap() + "", ttl);
+                assertNotNull(ttl, response.getDataMap() + "");
 
                 List<String> upHosts = response.getDefaultRegionUpHosts();
                 System.out.println("query region upHosts:" + upHosts);
-                Assert.assertTrue(response.getDataMap() + "", upHosts.size() > 0);
+                assertTrue(upHosts.size() > 0, response.getDataMap() + "");
             } catch (QiniuException e) {
                 e.printStackTrace();
             }
