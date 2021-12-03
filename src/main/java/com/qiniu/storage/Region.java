@@ -1,4 +1,4 @@
-// codebeat:disable[TOO_MANY_METHODS]
+// codebeat:disable[TOO_MANY_FUNCTIONS]
 
 package com.qiniu.storage;
 
