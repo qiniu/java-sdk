@@ -10,17 +10,19 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.Etag;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
-import org.junit.Assert;
-import org.junit.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Date;
-
-import static org.junit.Assert.*;
 
 public class SwitchRegionTest {
 
@@ -34,23 +36,16 @@ public class SwitchRegionTest {
     private static final int serialType = 1;
     private static final int concurrentType = 2;
 
-    private static int[][] testConfigList = {
-            {httpType, -1, formType},
-            {httpType, resumableV1Type, serialType},
-            {httpType, resumableV1Type, concurrentType},
-            {httpType, resumableV2Type, serialType},
-            {httpType, resumableV2Type, concurrentType},
+    private static int[][] testConfigList = { { httpType, -1, formType }, { httpType, resumableV1Type, serialType },
+            { httpType, resumableV1Type, concurrentType }, { httpType, resumableV2Type, serialType },
+            { httpType, resumableV2Type, concurrentType },
 
-            {httpsType, -1, formType},
-            {httpsType, resumableV1Type, serialType},
-            {httpsType, resumableV1Type, concurrentType},
-            {httpsType, resumableV2Type, serialType},
-            {httpsType, resumableV2Type, concurrentType},
-    };
+            { httpsType, -1, formType }, { httpsType, resumableV1Type, serialType },
+            { httpsType, resumableV1Type, concurrentType }, { httpsType, resumableV2Type, serialType },
+            { httpsType, resumableV2Type, concurrentType }, };
 
     /**
-     * 分片上传
-     * 检测key、hash、fszie、fname是否符合预期
+     * 分片上传 检测key、hash、fszie、fname是否符合预期
      *
      * @param size        文件大小
      * @param httpType    采用 http / https 方式
@@ -70,11 +65,8 @@ public class SwitchRegionTest {
             }
             String bucket = file.getBucketName();
 
-            Region mockRegion = new Region.Builder()
-                    .region("custom")
-                    .srcUpHost("mock.src.host.com")
-                    .accUpHost("mock.acc.host.com")
-                    .build();
+            Region mockRegion = new Region.Builder().region("custom").srcUpHost("mock.src.host.com")
+                    .accUpHost("mock.acc.host.com").build();
             Region region = file.getRegion();
             RegionGroup regionGroup = new RegionGroup();
             regionGroup.addRegion(mockRegion);
@@ -118,7 +110,6 @@ public class SwitchRegionTest {
 
             System.out.printf("\r\nkey:%s zone:%s\n", expectKey, regionGroup);
 
-
             StringMap param = new StringMap();
             param.put("x:" + fooKey, fooValue);
             param.put("x-qn-meta-" + metaDataKey, metaDataValue);
@@ -134,7 +125,7 @@ public class SwitchRegionTest {
                 }
 
                 Response r = up.upload();
-                assertTrue(r + "", r.isOK());
+                assertTrue(r.isOK(), r + "");
 
                 StringMap ret = r.jsonToMap();
                 assertEquals(expectKey, ret.get("key"));
@@ -148,7 +139,7 @@ public class SwitchRegionTest {
                     checkMd5 = true;
                 }
                 if (checkMd5) {
-                    if (file.isFog()) {
+                    if (!file.isFog()) {
                         String md5 = Md5.md5(f);
                         String serverMd5 = getFileMD5(file.getTestDomain(), expectKey);
                         System.out.println("      md5:" + md5);
@@ -165,7 +156,7 @@ public class SwitchRegionTest {
                 }
 
                 FileInfo fileInfo = getFileInfo(config, bucket, expectKey);
-                assertEquals(fileInfo + "", metaDataValue, fileInfo.meta.get(metaDataKey).toString());
+                assertEquals(metaDataValue, fileInfo.meta.get(metaDataKey).toString(), fileInfo + "");
             } catch (QiniuException e) {
                 assertEquals("", e.response == null ? e + "e.response is null" : e.response.bodyString());
                 fail();
@@ -181,6 +172,7 @@ public class SwitchRegionTest {
         String md5 = null;
         try {
             Response response = client.get(url);
+            assertEquals(response.statusCode, 200);
             StringMap data = response.jsonToMap();
             md5 = data.get("hash").toString();
         } catch (QiniuException e) {
@@ -200,6 +192,7 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test600k() throws Throwable {
         for (int[] config : testConfigList) {
             template(600, config[0], config[1], config[2]);
@@ -207,26 +200,23 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test3M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (int[] config : testConfigList) {
             template(1024 * 3, config[0], config[1], config[2]);
         }
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test5M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (int[] config : testConfigList) {
             template(1024 * 4, config[0], config[1], config[2]);
         }
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M() throws Throwable {
         for (int[] config : testConfigList) {
             template(1024 * 8, config[0], config[1], config[2]);
@@ -234,6 +224,7 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M1k() throws Throwable {
         for (int[] config : testConfigList) {
             template(1024 * 8 + 1, config[0], config[1], config[2]);
@@ -241,6 +232,7 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test10M() throws Throwable {
         for (int[] config : testConfigList) {
             template(1024 * 10, config[0], config[1], config[2]);
@@ -248,6 +240,7 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test20M() throws Throwable {
         for (int[] config : testConfigList) {
             template(1024 * 20, config[0], config[1], config[2]);
@@ -255,6 +248,7 @@ public class SwitchRegionTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test20M1K() throws Throwable {
         for (int[] config : testConfigList) {
             template(1024 * 20 + 1, config[0], config[1], config[2]);
@@ -262,7 +256,9 @@ public class SwitchRegionTest {
     }
 
     // 内部环境测试
-//    @Test
+    @Test
+    @Disabled
+    @Tag("IntegrationTest")
     public void testInnerEnvSwitchRegion() {
         try {
             long s = new Date().getTime();
@@ -271,7 +267,7 @@ public class SwitchRegionTest {
             System.out.println("耗时：" + (e - s));
         } catch (Exception e) {
             e.printStackTrace();
-            Assert.fail("testInnerEnvSwitchRegion:" + e);
+            fail("testInnerEnvSwitchRegion:" + e);
         }
     }
 
@@ -281,15 +277,9 @@ public class SwitchRegionTest {
         boolean isConcurrent = uploadStyle == concurrentType;
         String bucket = "aaaabbbbb";
 
-        Region region0 = new Region.Builder()
-                .srcUpHost("10.200.20.23:5010")
-                .accUpHost("10.200.20.23:5010")
-                .build();
+        Region region0 = new Region.Builder().srcUpHost("10.200.20.23:5010").accUpHost("10.200.20.23:5010").build();
 
-        Region region1 = new Region.Builder()
-                .srcUpHost("10.200.20.24:5010")
-                .accUpHost("10.200.20.24:5010")
-                .build();
+        Region region1 = new Region.Builder().srcUpHost("10.200.20.24:5010").accUpHost("10.200.20.24:5010").build();
 
         RegionGroup regionGroup = new RegionGroup();
         regionGroup.addRegion(region0);
@@ -332,11 +322,9 @@ public class SwitchRegionTest {
 
         Auth auth = Auth.create(TestConfig.innerAccessKey, TestConfig.innerSecretKey);
 
-        String token = auth.uploadToken(bucket, expectKey, 3600,
-                new StringMap().put("returnBody", returnBody));
+        String token = auth.uploadToken(bucket, expectKey, 3600, new StringMap().put("returnBody", returnBody));
 
         System.out.printf("\r\nkey:%s zone:%s\n", expectKey, regionGroup);
-
 
         StringMap param = new StringMap();
         param.put("x:" + fooKey, fooValue);
@@ -353,7 +341,7 @@ public class SwitchRegionTest {
             }
 
             Response r = up.upload();
-            assertTrue(r + "", r.isOK());
+            assertTrue(r.isOK(), r + "");
 
             StringMap ret = r.jsonToMap();
             assertEquals(expectKey, ret.get("key"));
@@ -372,7 +360,6 @@ public class SwitchRegionTest {
         }
         TempFile.remove(f);
     }
-
 
     class MyRet {
         public String hash;

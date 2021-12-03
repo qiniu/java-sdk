@@ -9,44 +9,36 @@ import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Etag;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Date;
 
-import static org.junit.Assert.*;
-
 public class ResumeUploadTest {
 
-//    private static boolean[][] TestConfigList = {
-//            // isHttps, isResumeV2, isStream, isConcurrent
-//            {false, true, true, true},
-//    };
+    // private static boolean[][] TestConfigList = {
+    // // isHttps, isResumeV2, isStream, isConcurrent
+    // {false, true, true, true},
+    // };
 
     private static boolean[][] testConfigList = {
             // isHttps, isResumeV2, isStream, isConcurrent
-            {false, true, false, false},
-            {false, false, false, true},
-            {false, false, true, false},
-            {false, false, true, true},
-            {false, true, false, false},
-            {false, true, false, true},
-            {false, true, true, false},
-            {false, true, true, true},
-            {true, false, false, false},
-            {true, false, false, true},
-            {true, false, true, false},
-            {true, false, true, true},
-            {true, true, false, false},
-            {true, true, false, true},
-            {true, true, true, false},
-            {true, true, true, true}
-    };
+            { false, true, false, false }, { false, false, false, true }, { false, false, true, false },
+            { false, false, true, true }, { false, true, false, false }, { false, true, false, true },
+            { false, true, true, false }, { false, true, true, true }, { true, false, false, false },
+            { true, false, false, true }, { true, false, true, false }, { true, false, true, true },
+            { true, true, false, false }, { true, true, false, true }, { true, true, true, false },
+            { true, true, true, true } };
 
     /**
      * 检测自定义变量foo是否生效
@@ -54,6 +46,7 @@ public class ResumeUploadTest {
      * @throws IOException
      */
     @Test
+    @Tag("IntegrationTest")
     public void testXVar() throws IOException {
 
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
@@ -93,8 +86,7 @@ public class ResumeUploadTest {
     }
 
     /**
-     * 分片上传
-     * 检测key、hash、fszie、fname是否符合预期
+     * 分片上传 检测key、hash、fszie、fname是否符合预期
      *
      * @param size         文件大小
      * @param isHttps      是否采用 https 方式, 反之为 http
@@ -103,7 +95,8 @@ public class ResumeUploadTest {
      * @param isConcurrent 是否采用并发方式上传
      * @throws IOException
      */
-    private void template(int size, boolean isHttps, boolean isResumeV2, boolean isStream, boolean isConcurrent) throws IOException {
+    private void template(int size, boolean isHttps, boolean isResumeV2, boolean isStream, boolean isConcurrent)
+            throws IOException {
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {
             // 雾存储不支持 v1
@@ -138,7 +131,6 @@ public class ResumeUploadTest {
 
             System.out.printf("\r\nkey:%s zone:%s\n", expectKey, region);
 
-
             StringMap param = new StringMap();
             param.put("x:" + fooKey, fooValue);
             param.put("x-qn-meta-" + metaDataKey, metaDataValue);
@@ -146,20 +138,22 @@ public class ResumeUploadTest {
                 ResumeUploader up = null;
                 if (!isConcurrent) {
                     if (isStream) {
-                        up = new ResumeUploader(new Client(), token, expectKey, new FileInputStream(f), param, null, config);
+                        up = new ResumeUploader(new Client(), token, expectKey, new FileInputStream(f), param, null,
+                                config);
                     } else {
                         up = new ResumeUploader(new Client(), token, expectKey, f, param, null, null, config);
                     }
                 } else {
                     config.resumableUploadMaxConcurrentTaskCount = 3;
                     if (isStream) {
-                        up = new ConcurrentResumeUploader(new Client(), token, expectKey, new FileInputStream(f), param, null, config);
+                        up = new ConcurrentResumeUploader(new Client(), token, expectKey, new FileInputStream(f), param,
+                                null, config);
                     } else {
                         up = new ConcurrentResumeUploader(new Client(), token, expectKey, f, param, null, null, config);
                     }
                 }
                 Response r = up.upload();
-                assertTrue(r + "", r.isOK());
+                assertTrue(r.isOK(), r + "");
 
                 StringMap ret = r.jsonToMap();
                 assertEquals(expectKey, ret.get("key"));
@@ -175,7 +169,7 @@ public class ResumeUploadTest {
                     checkMd5 = true;
                 }
                 if (checkMd5) {
-                    if (file.isFog()) {
+                    if (!file.isFog()) {
                         String md5 = Md5.md5(f);
                         String serverMd5 = getFileMD5(file.getTestDomain(), expectKey);
                         System.out.println("      md5:" + md5);
@@ -192,7 +186,7 @@ public class ResumeUploadTest {
                 }
 
                 FileInfo fileInfo = getFileInfo(config, bucket, expectKey);
-                assertEquals(fileInfo + "", metaDataValue, fileInfo.meta.get(metaDataKey).toString());
+                assertEquals(metaDataValue, fileInfo.meta.get(metaDataKey).toString(), fileInfo + "");
             } catch (QiniuException e) {
                 assertEquals("", e.response == null ? e + "e.response is null" : e.response.bodyString());
                 fail();
@@ -227,6 +221,7 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test1K() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1, config[0], config[1], config[2], config[3]);
@@ -234,6 +229,7 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test600k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(600, config[0], config[1], config[2], config[3]);
@@ -241,16 +237,15 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test4M() throws Throwable {
-        if (TestConfig.isTravis()) {
-            return;
-        }
         for (boolean[] config : testConfigList) {
             template(1024 * 4, config[0], config[1], config[2], config[3]);
         }
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 8, config[0], config[1], config[2], config[3]);
@@ -258,6 +253,7 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test8M1k() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 8 + 1, config[0], config[1], config[2], config[3]);
@@ -265,6 +261,7 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test10M() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 10, config[0], config[1], config[2], config[3]);
@@ -272,6 +269,7 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test20M() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 20, config[0], config[1], config[2], config[3]);
@@ -279,12 +277,12 @@ public class ResumeUploadTest {
     }
 
     @Test
+    @Tag("IntegrationTest")
     public void test20M1K() throws Throwable {
         for (boolean[] config : testConfigList) {
             template(1024 * 20 + 1, config[0], config[1], config[2], config[3]);
         }
     }
-
 
     class MyRet {
         public String hash;
