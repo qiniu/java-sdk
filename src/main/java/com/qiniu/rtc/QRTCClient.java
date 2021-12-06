@@ -1,0 +1,352 @@
+package com.qiniu.rtc;
+
+
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
+import com.qiniu.rtc.model.*;
+import com.qiniu.rtc.service.*;
+import com.qiniu.util.Auth;
+import com.qiniu.util.Json;
+import com.qiniu.util.StringUtils;
+
+import java.util.Map;
+
+/**
+ * QRTC core api
+ */
+public class QRTCClient {
+
+    private final String accessKey;
+    private final String secretKey;
+
+    //rtc 房间服务接口
+    private final RoomService roomService;
+    private final ForwardService forwardService;
+    private final CallbackService callbackService;
+    private final MergeService mergeService;
+    private final AppService appService;
+    //
+    private final String appId;
+
+    //初始化的时候就把auth做了
+    public QRTCClient(String accessKey, String secretKey, String appId) {
+        this.accessKey = accessKey;
+        this.secretKey = secretKey;
+        this.appId = appId;
+        //auth
+        //auth 本class使用，不对外
+        Auth auth = auth();
+        forwardService = new ForwardService(auth);
+        roomService = new RoomService(auth);
+        callbackService = new CallbackService(auth);
+        mergeService = new MergeService(auth);
+        appService = new AppService(auth);
+    }
+
+    /////////////////////////app service//////////////////////////////////////
+
+    /**
+     * 创建app
+     *
+     * @param appParam
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<AppResult> createApp(final AppParam appParam) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return appService.createApp(appParam);
+            }
+        };
+        return buildResult(func, AppResult.class);
+    }
+
+    /**
+     * 获取当前绑定的client的app信息
+     *
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<AppResult> getApp() throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return appService.getApp(appId);
+            }
+        };
+        return buildResult(func, AppResult.class);
+    }
+
+    /**
+     * 删除当前的app
+     *
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<AppResult> deleteApp() throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return appService.deleteApp(appId);
+            }
+        };
+        return buildResult(func, AppResult.class);
+    }
+
+    /**
+     * 更新app信息
+     *
+     * @param appParam
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<AppResult> updateApp(final AppParam appParam) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return appService.updateApp(appParam);
+            }
+        };
+        return buildResult(func, AppResult.class);
+    }
+
+    /////////////////////////room service//////////////////////////////////////
+
+    /**
+     * 获取房间内的所有用户
+     *
+     * @param roomName
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<RoomResult> listUser(final String roomName) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return roomService.listUser(appId, roomName);
+            }
+        };
+        return buildResult(func, RoomResult.class);
+    }
+
+    /**
+     * 指定一个用户踢出房间
+     *
+     * @param roomName
+     * @param userId
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<RoomResult> kickUser(final String roomName, final String userId) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return roomService.kickUser(appId, roomName, userId);
+            }
+        };
+        return buildResult(func, RoomResult.class);
+    }
+
+    /**
+     * 获取当前所有活跃的房间
+     *
+     * @param roomNamePrefix
+     * @param offset
+     * @param limit
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<RoomResult> listActiveRoom(final String roomNamePrefix, final int offset, final int limit)
+            throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return roomService.listActiveRoom(appId, roomNamePrefix, offset, limit);
+            }
+        };
+        return buildResult(func, RoomResult.class);
+    }
+
+    /**
+     * 获取房间token
+     *
+     * @param roomName   房间名称，需满足规格 ^[a-zA-Z0-9_-]{3,64}$
+     * @param userId     请求加入房间的用户 ID，需满足规格 ^[a-zA-Z0-9_-]{3,50}$
+     * @param expireAt   int64 类型，鉴权的有效时间，传入以秒为单位的64位Unix绝对时间，token 将在该时间后失效
+     * @param permission 该用户的房间管理权限，"admin" 或 "user"，默认为 "user" 。当权限角色为 "admin" 时，拥有将其他用户移除出房
+     *                   间等特权.
+     * @return roomToken
+     * @throws Exception
+     */
+    public String getRoomToken(String roomName, String userId,
+                               long expireAt, String permission) throws Exception {
+        return roomService.getRoomToken(appId, roomName, userId, expireAt, permission);
+    }
+
+    /////////////////////////track service//////////////////////////////////////
+
+    /**
+     * 创建单路转推任务
+     *
+     * @param roomId
+     * @param param
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<ForwardResult> createForwardJob(final String roomId, final ForwardParam param) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return forwardService.createForwardJob(appId, roomId, param);
+            }
+        };
+        return buildResult(func, ForwardResult.class);
+    }
+
+    /**
+     * 停止单路转推的能力
+     *
+     * @param roomId
+     * @param param
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<ForwardResult> stopForwardJob(final String roomId, final ForwardParam param) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return forwardService.stopForwardJob(appId, roomId, param);
+            }
+        };
+        return buildResult(func, ForwardResult.class);
+    }
+
+    /////////////////////////http callback service//////////////////////////////////////
+
+    /**
+     * 设置服务端回调接口
+     *
+     * @param param
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<Map> setHttpCallback(final CallbackParam param) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return callbackService.setHttpCallback(appId, param);
+            }
+        };
+        return buildResult(func, Map.class);
+    }
+
+    /////////////////////////merge service//////////////////////////////////////
+
+    /**
+     * 创建合流任务
+     *
+     * @param roomName
+     * @param mergeParam
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<MergeResult> createMergeJob(final String roomName, final MergeParam mergeParam) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return mergeService.createMergeJob(mergeParam, appId, roomName);
+            }
+        };
+        return buildResult(func, MergeResult.class);
+    }
+
+    /**
+     * 更新合流track信息
+     *
+     * @param mergeTrackParam
+     * @param roomName
+     * @param jobId
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<MergeResult> updateMergeTrack(final MergeTrackParam mergeTrackParam, final String roomName, final String jobId)
+            throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return mergeService.updateMergeTrack(mergeTrackParam, appId, roomName, jobId);
+            }
+        };
+        return buildResult(func, MergeResult.class);
+    }
+
+    /**
+     * 更新合理水印信息
+     *
+     * @param watermarksParam
+     * @param roomName
+     * @param jobId
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<MergeResult> updateMergeWatermarks(final WatermarksParam watermarksParam, final String roomName, final String jobId)
+            throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return mergeService.updateMergeWatermarks(watermarksParam, appId, roomName, jobId);
+            }
+        };
+        return buildResult(func, MergeResult.class);
+    }
+
+    /**
+     * 停止合流任务
+     *
+     * @param roomName
+     * @param jobId
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<MergeResult> stopMergeJob(final String roomName, final String jobId) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return mergeService.stopMergeJob(appId, roomName, jobId);
+            }
+        };
+        return buildResult(func, MergeResult.class);
+    }
+
+    /**
+     * 构建最后的返回结果
+     *
+     * @param func
+     * @param tClass
+     * @param <T>
+     * @return
+     * @throws QiniuException
+     */
+    private <T> QRTCResult<T> buildResult(ServiceCallFunc func, Class<T> tClass) throws QiniuException {
+        Response response = null;
+        try {
+            response = func.call();
+        } catch (QiniuException e) {
+            return QRTCResult.fail(e.code(), e.getMessage());
+        }
+        if (null == response || StringUtils.isNullOrEmpty(response.bodyString())) {
+            return QRTCResult.fail(-1, "response is null");
+        }
+        T t = Json.decode(response.bodyString(), tClass);
+        QRTCResult<T> result = QRTCResult.success(response.statusCode, t);
+        //释放资源
+        response.close();
+        return result;
+    }
+
+    private Auth auth() {
+        return Auth.create(this.accessKey, this.secretKey);
+    }
+
+}
