@@ -172,7 +172,8 @@ public class QRTCClient {
         ServiceCallFunc func = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
-                return roomService.listActiveRoom(appId, roomNamePrefix, offset, limit);
+                PageParam pageParam = PageParam.builder().offset(offset).limit(limit).build();
+                return roomService.listActiveRoom(appId, roomNamePrefix, pageParam);
             }
         };
         return buildResult(func, RoomResult.class);
@@ -283,13 +284,13 @@ public class QRTCClient {
      */
     public QRTCResult<MergeResult> updateMergeTrack(final MergeTrackParam mergeTrackParam, final String roomName, final String jobId)
             throws QiniuException {
-        ServiceCallFunc func = new ServiceCallFunc() {
+        ServiceCallFunc updateMergeTrackFunc = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
                 return mergeService.updateMergeTrack(mergeTrackParam, appId, roomName, jobId);
             }
         };
-        return buildResult(func, MergeResult.class);
+        return buildResult(updateMergeTrackFunc, MergeResult.class);
     }
 
     /**
@@ -303,20 +304,20 @@ public class QRTCClient {
      */
     public QRTCResult<MergeResult> updateMergeWatermarks(final WatermarksParam watermarksParam, final String roomName, final String jobId)
             throws QiniuException {
-        ServiceCallFunc func = new ServiceCallFunc() {
+        ServiceCallFunc updateMergeWatermarksFunc = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
                 return mergeService.updateMergeWatermarks(watermarksParam, appId, roomName, jobId);
             }
         };
-        return buildResult(func, MergeResult.class);
+        return buildResult(updateMergeWatermarksFunc, MergeResult.class);
     }
 
     /**
      * 停止合流任务
      *
      * @param roomName 房间名
-     * @param jobId 合流任务ID
+     * @param jobId    合流任务ID
      * @return
      * @throws QiniuException
      */
@@ -333,9 +334,9 @@ public class QRTCClient {
     /**
      * 构建最后的返回结果
      *
-     * @param func 请求函数
+     * @param func   请求函数
      * @param tClass 预期类型
-     * @param <T> 预期类型泛型
+     * @param <T>    预期类型泛型
      * @return 创建参数
      * @throws QiniuException 未知异常
      */

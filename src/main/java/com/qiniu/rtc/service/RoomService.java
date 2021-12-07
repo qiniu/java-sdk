@@ -3,8 +3,10 @@ package com.qiniu.rtc.service;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
+import com.qiniu.rtc.model.PageParam;
 import com.qiniu.rtc.model.RoomAccess;
 import com.qiniu.util.Auth;
+import lombok.Data;
 
 /**
  * 房间相关处理的api
@@ -53,14 +55,13 @@ public class RoomService extends AbstractService {
      * 获取当前所有活跃的房间
      *
      * @param roomNamePrefix
-     * @param offset
-     * @param limit
+     * @param pageParam 分页参数
      * @return
      * @throws QiniuException
      */
-    public Response listActiveRoom(String appId, String roomNamePrefix, int offset, int limit) throws QiniuException {
+    public Response listActiveRoom(String appId, String roomNamePrefix, PageParam pageParam) throws QiniuException {
         String urlPattern = "/v3/apps/%s/rooms?prefix=%s&offset=%d&limit=%d";
-        return getCall(urlPattern, appId, roomNamePrefix, offset, limit);
+        return getCall(urlPattern, appId, roomNamePrefix, pageParam.getOffset(), pageParam.getOffset());
     }
 
     /**
