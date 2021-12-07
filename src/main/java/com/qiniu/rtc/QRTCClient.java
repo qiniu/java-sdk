@@ -21,22 +21,31 @@ public class QRTCClient {
     private final String secretKey;
 
     //rtc 房间服务接口
-    private final RoomService roomService;
-    private final ForwardService forwardService;
-    private final CallbackService callbackService;
-    private final MergeService mergeService;
-    private final AppService appService;
-    //
+    private RoomService roomService;
+    private ForwardService forwardService;
+    private CallbackService callbackService;
+    private MergeService mergeService;
+    private AppService appService;
+    // 应用ID
     private final String appId;
 
     //初始化的时候就把auth做了
     public QRTCClient(String accessKey, String secretKey, String appId) {
+        // 变量赋值
         this.accessKey = accessKey;
         this.secretKey = secretKey;
         this.appId = appId;
-        //auth
         //auth 本class使用，不对外
         Auth auth = auth();
+        initService(auth);
+    }
+
+    /**
+     * 初始化服务
+     *
+     * @param auth 授权对象
+     */
+    private void initService(Auth auth) {
         forwardService = new ForwardService(auth);
         roomService = new RoomService(auth);
         callbackService = new CallbackService(auth);
@@ -177,12 +186,13 @@ public class QRTCClient {
      * @param expireAt   int64 类型，鉴权的有效时间，传入以秒为单位的64位Unix绝对时间，token 将在该时间后失效
      * @param permission 该用户的房间管理权限，"admin" 或 "user"，默认为 "user" 。当权限角色为 "admin" 时，拥有将其他用户移除出房
      *                   间等特权.
-     * @return roomToken
+     * @return roomToken 房间TOKEN
      * @throws Exception
      */
     public String getRoomToken(String roomName, String userId,
                                long expireAt, String permission) throws Exception {
-        return roomService.getRoomToken(appId, roomName, userId, expireAt, permission);
+        RoomAccess access = new RoomAccess(appId, roomName, userId, expireAt, permission);
+        return roomService.getRoomToken(access);
     }
 
     /////////////////////////track service//////////////////////////////////////
@@ -330,7 +340,7 @@ public class QRTCClient {
      * @throws QiniuException
      */
     private <T> QRTCResult<T> buildResult(ServiceCallFunc func, Class<T> tClass) throws QiniuException {
-        Response response = null;
+        Response response;
         try {
             response = func.call();
         } catch (QiniuException e) {

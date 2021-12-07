@@ -64,18 +64,12 @@ public class RoomService extends AbstractService {
     }
 
     /**
-     * @param appId      房间所属帐号的 app
-     * @param roomName   房间名称，需满足规格 ^[a-zA-Z0-9_-]{3,64}$
-     * @param userId     请求加入房间的用户 ID，需满足规格 ^[a-zA-Z0-9_-]{3,50}$
-     * @param expireAt   int64 类型，鉴权的有效时间，传入以秒为单位的64位Unix绝对时间，token 将在该时间后失效
-     * @param permission 该用户的房间管理权限，"admin" 或 "user"，默认为 "user" 。当权限角色为 "admin" 时，拥有将其他用户移除出房
-     *                   间等特权.
-     * @return roomToken
-     * @throws Exception
+     * 获取房间TOKEN
+     *
+     * @return roomToken 房间token
+     * @throws Exception 未知异常
      */
-    public String getRoomToken(String appId, String roomName, String userId,
-                               long expireAt, String permission) throws Exception {
-        RoomAccess access = new RoomAccess(appId, roomName, userId, expireAt, permission);
+    public String getRoomToken(RoomAccess access) throws Exception {
         String json = gson.toJson(access);
         return auth.signRoomToken(json);
     }
