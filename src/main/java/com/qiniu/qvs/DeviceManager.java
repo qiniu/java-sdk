@@ -41,14 +41,22 @@ public class DeviceManager {
 
     private StringMap getDeviceStringMap(Device device) {
         StringMap params = new StringMap();
+        putCommonParam(device, params);
+        putUserParam(device, params);
+        return params;
+    }
+
+    private void putCommonParam(Device device, StringMap params) {
         params.put("type", device.getType());
         params.put("name", device.getName());
         params.put("gbId", device.getGbId());
-        params.putNotNull("username", device.getUsername());
-        params.putNotNull("password", device.getPassword());
         params.put("pullIfRegister", device.isPullIfRegister());
         params.put("desc", device.getDesc());
-        return params;
+    }
+
+    private void putUserParam(Device device, StringMap params) {
+        params.putNotNull("username", device.getUsername());
+        params.putNotNull("password", device.getPassword());
     }
 
     /*
