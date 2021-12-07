@@ -340,19 +340,38 @@ public class QRTCClient {
      * @throws QiniuException
      */
     private <T> QRTCResult<T> buildResult(ServiceCallFunc func, Class<T> tClass) throws QiniuException {
-        Response response;
+        Response response = null;
         try {
             response = func.call();
+            return fetchResponse(tClass, response);
         } catch (QiniuException e) {
             return QRTCResult.fail(e.code(), e.getMessage());
+        } finally {
+            // 释放资源
+            if (response != null) response.close();
         }
+    }
+
+    private <T> QRTCResult<T> fetchResponse(Class<T> tClass, Response response) throws QiniuException {
         if (null == response || StringUtils.isNullOrEmpty(response.bodyString())) {
             return QRTCResult.fail(-1, "response is null");
         }
+        // 返回格式化结果
+        return formatResult(tClass, response);
+    }
+
+    /**
+     * 格式化结果
+     *
+     * @param tClass   预期类型
+     * @param response 返回结果
+     * @param <T>      预期类型泛型
+     * @return 返回结果
+     * @throws QiniuException 未知异常
+     */
+    private <T> QRTCResult<T> formatResult(Class<T> tClass, Response response) throws QiniuException {
         T t = Json.decode(response.bodyString(), tClass);
         QRTCResult<T> result = QRTCResult.success(response.statusCode, t);
-        //释放资源
-        response.close();
         return result;
     }
 
