@@ -206,13 +206,13 @@ public class QRTCClient {
      * @throws QiniuException
      */
     public QRTCResult<ForwardResult> createForwardJob(final String roomId, final ForwardParam param) throws QiniuException {
-        ServiceCallFunc func = new ServiceCallFunc() {
+        ServiceCallFunc createForwardJobFunc = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
                 return forwardService.createForwardJob(appId, roomId, param);
             }
         };
-        return buildResult(func, ForwardResult.class);
+        return buildResult(createForwardJobFunc, ForwardResult.class);
     }
 
     /**
@@ -224,13 +224,13 @@ public class QRTCClient {
      * @throws QiniuException
      */
     public QRTCResult<ForwardResult> stopForwardJob(final String roomId, final ForwardParam param) throws QiniuException {
-        ServiceCallFunc func = new ServiceCallFunc() {
+        ServiceCallFunc stopForwardJobFunc = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
                 return forwardService.stopForwardJob(appId, roomId, param);
             }
         };
-        return buildResult(func, ForwardResult.class);
+        return buildResult(stopForwardJobFunc, ForwardResult.class);
     }
 
     /////////////////////////http callback service//////////////////////////////////////
@@ -315,8 +315,8 @@ public class QRTCClient {
     /**
      * 停止合流任务
      *
-     * @param roomName
-     * @param jobId
+     * @param roomName 房间名
+     * @param jobId 合流任务ID
      * @return
      * @throws QiniuException
      */
@@ -333,11 +333,11 @@ public class QRTCClient {
     /**
      * 构建最后的返回结果
      *
-     * @param func
-     * @param tClass
-     * @param <T>
-     * @return
-     * @throws QiniuException
+     * @param func 请求函数
+     * @param tClass 预期类型
+     * @param <T> 预期类型泛型
+     * @return 创建参数
+     * @throws QiniuException 未知异常
      */
     private <T> QRTCResult<T> buildResult(ServiceCallFunc func, Class<T> tClass) throws QiniuException {
         Response response = null;
@@ -352,6 +352,15 @@ public class QRTCClient {
         }
     }
 
+    /**
+     * 获取最终结果
+     *
+     * @param tClass   预期类型
+     * @param response 返回结果
+     * @param <T>      预期类型泛型
+     * @return 格式化结果
+     * @throws QiniuException 未知异常
+     */
     private <T> QRTCResult<T> fetchResponse(Class<T> tClass, Response response) throws QiniuException {
         if (null == response || StringUtils.isNullOrEmpty(response.bodyString())) {
             return QRTCResult.fail(-1, "response is null");
