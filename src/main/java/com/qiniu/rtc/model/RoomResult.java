@@ -1,3 +1,4 @@
+// codebeat:disable[TOO_MANY_IVARS]MergeBackGround
 package com.qiniu.rtc.model;
 
 import lombok.Data;
