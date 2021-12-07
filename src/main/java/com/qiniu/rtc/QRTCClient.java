@@ -172,7 +172,7 @@ public class QRTCClient {
         ServiceCallFunc func = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
-                PageParam pageParam = PageParam.builder().offset(offset).limit(limit).build();
+                UrlParam pageParam = UrlParam.builder().offset(offset).limit(limit).build();
                 return roomService.listActiveRoom(appId, roomNamePrefix, pageParam);
             }
         };
@@ -287,7 +287,8 @@ public class QRTCClient {
         ServiceCallFunc updateMergeTrackFunc = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
-                return mergeService.updateMergeTrack(mergeTrackParam, appId, roomName, jobId);
+                UrlParam mergeTrackUrlParam  = UrlParam.builder().appId(appId).roomName(roomName).jobId(jobId).build();
+                return mergeService.updateMergeTrack(mergeTrackParam, mergeTrackUrlParam);
             }
         };
         return buildResult(updateMergeTrackFunc, MergeResult.class);
@@ -307,7 +308,8 @@ public class QRTCClient {
         ServiceCallFunc updateMergeWatermarksFunc = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
-                return mergeService.updateMergeWatermarks(watermarksParam, appId, roomName, jobId);
+                UrlParam mergeWatermarksUrlParam  = UrlParam.builder().appId(appId).roomName(roomName).jobId(jobId).build();
+                return mergeService.updateMergeWatermarks(watermarksParam, mergeWatermarksUrlParam);
             }
         };
         return buildResult(updateMergeWatermarksFunc, MergeResult.class);

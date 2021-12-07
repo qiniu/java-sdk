@@ -4,6 +4,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.rtc.model.MergeParam;
 import com.qiniu.rtc.model.MergeTrackParam;
+import com.qiniu.rtc.model.UrlParam;
 import com.qiniu.rtc.model.WatermarksParam;
 import com.qiniu.util.Auth;
 
@@ -33,16 +34,14 @@ public class MergeService extends AbstractService {
      * 更新合流track 信息
      *
      * @param mergeTrackParam
-     * @param appId
-     * @param roomName
-     * @param jobId
+     * @param param
      * @return
      * @throws QiniuException
      */
-    public Response updateMergeTrack(MergeTrackParam mergeTrackParam, String appId, String roomName, String jobId)
+    public Response updateMergeTrack(MergeTrackParam mergeTrackParam, UrlParam param)
             throws QiniuException {
         String urlPattern = "/v3/apps/%s/rooms/%s/merge_job/%s/tracks";
-        return postCall(mergeTrackParam, urlPattern, appId, roomName, jobId);
+        return postCall(mergeTrackParam, urlPattern, param.getAppId(), param.getRoomName(), param.getJobId());
     }
 
 
@@ -50,16 +49,14 @@ public class MergeService extends AbstractService {
      * 更新合流水印
      *
      * @param watermarksParam
-     * @param appId
-     * @param roomName
-     * @param jobId
+     * @param urlParam
      * @return
      * @throws QiniuException
      */
-    public Response updateMergeWatermarks(WatermarksParam watermarksParam, String appId, String roomName, String jobId)
+    public Response updateMergeWatermarks(WatermarksParam watermarksParam, UrlParam urlParam)
             throws QiniuException {
         String urlPattern = "/v3/apps/%s/rooms/%s/merge_job/%s/watermarks";
-        return postCall(watermarksParam, urlPattern, appId, roomName, jobId);
+        return postCall(watermarksParam, urlPattern, urlParam.getAppId(), urlParam.getRoomName(), urlParam.getJobId());
     }
 
     /**
