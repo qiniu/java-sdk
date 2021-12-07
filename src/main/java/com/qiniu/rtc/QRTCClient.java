@@ -1,4 +1,4 @@
-// codebeat:disable[TOO_MANY_IVARS]
+// codebeat:disable[TOO_MANY_IVARS,TOO_MANY_FUNCTIONS]
 package com.qiniu.rtc;
 
 
