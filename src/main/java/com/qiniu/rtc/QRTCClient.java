@@ -1,4 +1,4 @@
-// codebeat:disable[TOO_MANY_IVARS,TOO_MANY_FUNCTIONS]
+// codebeat:disable[TOO_MANY_IVARS,TOO_MANY_FUNCTIONS,TOTAL_COMPLEXITY,ARITY]
 package com.qiniu.rtc;
 
 
@@ -63,16 +63,13 @@ public class QRTCClient {
      * @throws QiniuException
      */
     public QRTCResult<AppResult> createApp(final AppParam appParam) throws QiniuException {
-        Response response = null;
-        try {
-            response = appService.createApp(appParam);
-            return fetchResponse(AppResult.class, response);
-        } catch (QiniuException e) {
-            return QRTCResult.fail(e.code(), e.getMessage());
-        } finally {
-            // 释放资源
-            if (response != null) response.close();
-        }
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return appService.createApp(appParam);
+            }
+        };
+        return buildResult(func, AppResult.class);
     }
 
     /**
