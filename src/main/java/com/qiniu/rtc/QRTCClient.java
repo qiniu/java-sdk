@@ -55,22 +55,6 @@ public class QRTCClient {
 
     /////////////////////////app service//////////////////////////////////////
 
-    /**
-     * 创建app
-     *
-     * @param appParam
-     * @return
-     * @throws QiniuException
-     */
-    public QRTCResult<AppResult> createApp(final AppParam appParam) throws QiniuException {
-        ServiceCallFunc func = new ServiceCallFunc() {
-            @Override
-            public Response call() throws QiniuException {
-                return appService.createApp(appParam);
-            }
-        };
-        return buildResult(func, AppResult.class);
-    }
 
     /**
      * 获取当前绑定的client的app信息

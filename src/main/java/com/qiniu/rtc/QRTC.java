@@ -1,5 +1,15 @@
 package com.qiniu.rtc;
 
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
+import com.qiniu.rtc.model.AppParam;
+import com.qiniu.rtc.model.AppResult;
+import com.qiniu.rtc.model.QRTCResult;
+import com.qiniu.rtc.service.AppService;
+import com.qiniu.util.Auth;
+import com.qiniu.util.Json;
+import com.qiniu.util.StringUtils;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,6 +47,30 @@ public class QRTC {
         client = new QRTCClient(accessKey, secretKey, appId);
         holder.put(appId, client);
         return holder.get(appId);
+    }
+
+
+    /**
+     * 创建app
+     *
+     * @param appParam
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<AppResult> createApp(AppParam appParam, String accessKey, String secretKey) throws QiniuException {
+        Response response = null;
+        try {
+            AppService appService = new AppService(Auth.create(accessKey, secretKey));
+            response = appService.createApp(appParam);
+            if (null == response || StringUtils.isNullOrEmpty(response.bodyString())) {
+                return QRTCResult.fail(-1, "result is null");
+            }
+            AppResult t = Json.decode(response.bodyString(), AppResult.class);
+            return QRTCResult.success(response.statusCode, t);
+        } finally {
+            // 释放资源
+            if (response != null) response.close();
+        }
     }
 
     /**
