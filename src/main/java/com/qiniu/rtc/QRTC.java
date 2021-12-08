@@ -57,7 +57,7 @@ public class QRTC {
      * @return
      * @throws QiniuException
      */
-    public QRTCResult<AppResult> createApp(AppParam appParam, String accessKey, String secretKey) throws QiniuException {
+    public static QRTCResult<AppResult> createApp(AppParam appParam, String accessKey, String secretKey) throws QiniuException {
         Response response = null;
         try {
             AppService appService = new AppService(Auth.create(accessKey, secretKey));
