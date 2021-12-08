@@ -8,6 +8,7 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 
+@Deprecated
 public class RtcAppManager {
 
     private final Auth auth;
@@ -16,10 +17,12 @@ public class RtcAppManager {
 
     private StringMap params;
 
+    @Deprecated
     public RtcAppManager(Auth auth) {
         this(auth, "http://rtc.qiniuapi.com");
     }
 
+    @Deprecated
     public RtcAppManager(Auth auth, String host) {
         this.auth = auth;
         this.host = host;
@@ -27,6 +30,7 @@ public class RtcAppManager {
         this.params = new StringMap();
     }
 
+    @Deprecated
     public RtcAppManager(Auth auth, String host, Client client) {
         this.auth = auth;
         this.host = host;
@@ -43,6 +47,7 @@ public class RtcAppManager {
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
      * @throws QiniuException
      */
+    @Deprecated
     public Response createApp(String hub, String title, int maxUsers,
                               boolean noAutoKickUser) throws QiniuException {
         if (hub != null) {
@@ -67,6 +72,7 @@ public class RtcAppManager {
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
      * @throws QiniuException
      */
+    @Deprecated
     public Response getApp(String appId) throws QiniuException {
         String url = String.format("%s%s%s", host, "/v3/apps/", appId);
         StringMap headers = auth.authorizationV2(url);
@@ -78,6 +84,7 @@ public class RtcAppManager {
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
      * @throws QiniuException
      */
+    @Deprecated
     public Response deleteApp(String appId) throws QiniuException {
         String urlStr = String.format("%s%s%s", host, "/v3/apps/", appId);
         StringMap headers = auth.authorizationV2(urlStr, "DELETE", null, null);
@@ -94,6 +101,7 @@ public class RtcAppManager {
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
      * @throws QiniuException
      */
+    @Deprecated
     public Response updateApp(String appId, String hub, String title, int maxUsers, boolean noAutoKickUser) throws
             QiniuException {
         if (hub != null) {
