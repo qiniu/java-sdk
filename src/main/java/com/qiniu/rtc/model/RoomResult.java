@@ -14,6 +14,7 @@ public class RoomResult {
     private List<String> rooms;
     private boolean end;
     private int offset;
+    private String roomId;
 
     @Data
     public static class UserInfo {

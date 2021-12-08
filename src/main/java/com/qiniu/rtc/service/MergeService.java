@@ -69,7 +69,7 @@ public class MergeService extends AbstractService {
      * @throws QiniuException
      */
     public Response stopMergeJob(String appId, String roomName, String jobId) throws QiniuException {
-        String urlPattern = "/v3/apps/<appID>/rooms/<roomName>/merge_job/<jobID>";
+        String urlPattern = "/v3/apps/%s/rooms/%s/merge_job/%s";
         return deleteCall(null, urlPattern, appId, roomName, jobId);
     }
 

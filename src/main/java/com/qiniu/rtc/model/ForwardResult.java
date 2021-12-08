@@ -4,6 +4,12 @@ import lombok.Data;
 
 @Data
 public class ForwardResult {
+    /**
+     * 单路转推状态
+     */
     private String status;
-    private String id;//forward id
+    /**
+     * 单路转推ID
+     */
+    private String id;
 }

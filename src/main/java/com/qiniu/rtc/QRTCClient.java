@@ -55,22 +55,6 @@ public class QRTCClient {
 
     /////////////////////////app service//////////////////////////////////////
 
-    /**
-     * 创建app
-     *
-     * @param appParam
-     * @return
-     * @throws QiniuException
-     */
-    public QRTCResult<AppResult> createApp(final AppParam appParam) throws QiniuException {
-        ServiceCallFunc func = new ServiceCallFunc() {
-            @Override
-            public Response call() throws QiniuException {
-                return appService.createApp(appParam);
-            }
-        };
-        return buildResult(func, AppResult.class);
-    }
 
     /**
      * 获取当前绑定的client的app信息
@@ -122,6 +106,40 @@ public class QRTCClient {
     }
 
     /////////////////////////room service//////////////////////////////////////
+
+    /**
+     * 创建房间
+     *
+     * @param roomParam
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<RoomResult> createRoom(final RoomParam roomParam) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return roomService.createRoom(appId, roomParam);
+            }
+        };
+        return buildResult(func, RoomResult.class);
+    }
+
+    /**
+     * 删除房间
+     *
+     * @param roomName
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<RoomResult> deleteRoom(final String roomName) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return roomService.deleteRoom(appId, roomName);
+            }
+        };
+        return buildResult(func, RoomResult.class);
+    }
 
     /**
      * 获取房间内的所有用户
@@ -287,7 +305,7 @@ public class QRTCClient {
         ServiceCallFunc updateMergeTrackFunc = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
-                UrlParam mergeTrackUrlParam  = UrlParam.builder().appId(appId).roomName(roomName).jobId(jobId).build();
+                UrlParam mergeTrackUrlParam = UrlParam.builder().appId(appId).roomName(roomName).jobId(jobId).build();
                 return mergeService.updateMergeTrack(mergeTrackParam, mergeTrackUrlParam);
             }
         };
@@ -308,7 +326,7 @@ public class QRTCClient {
         ServiceCallFunc updateMergeWatermarksFunc = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
-                UrlParam mergeWatermarksUrlParam  = UrlParam.builder().appId(appId).roomName(roomName).jobId(jobId).build();
+                UrlParam mergeWatermarksUrlParam = UrlParam.builder().appId(appId).roomName(roomName).jobId(jobId).build();
                 return mergeService.updateMergeWatermarks(watermarksParam, mergeWatermarksUrlParam);
             }
         };
