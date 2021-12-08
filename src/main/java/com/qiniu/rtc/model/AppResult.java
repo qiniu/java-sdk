@@ -11,7 +11,7 @@ public class AppResult {
     private int maxUsers;
     private boolean noAutoKickUser;
     private String createdAt;
-    private String UpdatedAt;
+    private String updatedAt;
     private String error;
     private String status;
 

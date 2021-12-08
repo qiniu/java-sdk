@@ -3,6 +3,7 @@ package com.qiniu.rtc.service;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
+import com.qiniu.rtc.model.RoomParam;
 import com.qiniu.rtc.model.UrlParam;
 import com.qiniu.rtc.model.RoomAccess;
 import com.qiniu.util.Auth;
@@ -21,6 +22,32 @@ public class RoomService extends AbstractService {
         super(auth);
     }
 
+
+    /**
+     * 创建房间
+     *
+     * @param appId
+     * @param roomParam
+     * @return
+     * @throws QiniuException
+     */
+    public Response createRoom(String appId, RoomParam roomParam) throws QiniuException {
+        String urlPattern = "/v3/apps/%s/createroom";
+        return postCall(roomParam, urlPattern, appId);
+    }
+
+    /**
+     * 删除房间
+     *
+     * @param appId
+     * @param roomName
+     * @return
+     * @throws QiniuException
+     */
+    public Response deleteRoom(String appId, String roomName) throws QiniuException {
+        String urlPattern = "/v3/apps/%s/rooms/%s";
+        return deleteCall(null, urlPattern, appId, roomName);
+    }
 
     /**
      * @param appId    房间所属帐号的 app
@@ -54,7 +81,7 @@ public class RoomService extends AbstractService {
      * 获取当前所有活跃的房间
      *
      * @param roomNamePrefix
-     * @param urlParam 分页参数
+     * @param urlParam       分页参数
      * @return
      * @throws QiniuException
      */
