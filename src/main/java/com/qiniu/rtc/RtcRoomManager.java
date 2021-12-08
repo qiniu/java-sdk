@@ -8,16 +8,19 @@ import com.qiniu.rtc.model.RoomAccess;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 
+@Deprecated
 public class RtcRoomManager {
     private final Auth auth;
     private final String host;
     private final Client client;
     private Gson gson;
 
+    @Deprecated
     public RtcRoomManager(Auth auth) {
         this(auth, "http://rtc.qiniuapi.com");
     }
 
+    @Deprecated
     public RtcRoomManager(Auth auth, String host) {
         this.auth = auth;
         this.host = host;
@@ -31,6 +34,7 @@ public class RtcRoomManager {
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
      * @throws QiniuException
      */
+    @Deprecated
     public Response listUser(String appId, String roomName) throws QiniuException {
         String url = getLink(appId, roomName, "users");
         StringMap headers = auth.authorizationV2(url);
@@ -44,6 +48,7 @@ public class RtcRoomManager {
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
      * @throws QiniuException
      */
+    @Deprecated
     public Response kickUser(String appId, String roomName, String userId) throws QiniuException {
         String urlStr = getLink(appId, roomName, "users/" + userId);
         StringMap headers = auth.authorizationV2(urlStr, "DELETE", null, null);
@@ -58,6 +63,7 @@ public class RtcRoomManager {
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
      * @throws QiniuException
      */
+    @Deprecated
     public Response listActiveRooms(String appId, String prefix, int offset, int limit) throws QiniuException {
         String url = getLink(appId, null, "?prefix=" + prefix + "&offset=" + offset + "&limit=" + limit);
         StringMap headers = auth.authorizationV2(url);
@@ -85,6 +91,7 @@ public class RtcRoomManager {
      * @return roomToken
      * @throws Exception
      */
+    @Deprecated
     public String getRoomToken(String appId, String roomName, String userId,
                                long expireAt, String permission) throws Exception {
         RoomAccess access = new RoomAccess(appId, roomName, userId, expireAt, permission);
