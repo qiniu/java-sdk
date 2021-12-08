@@ -1,5 +1,8 @@
 package com.qiniu.qvs.model;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 
 public class Device {
@@ -72,15 +75,8 @@ public class Device {
      *
      * @return POST参数对象
      */
-    public StringMap transferPostParam(){
-        StringMap params = new StringMap();
-        params.put("type", this.getType());
-        params.put("name", this.getName());
-        params.put("gbId", this.getGbId());
-        params.put("pullIfRegister", this.isPullIfRegister());
-        params.put("desc", this.getDesc());
-        params.putNotNull("username", this.getUsername());
-        params.putNotNull("password", this.getPassword());
-        return params;
+    public StringMap transferPostParam() {
+        Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+        return gson.fromJson(gson.toJson(this), StringMap.class);
     }
 }
