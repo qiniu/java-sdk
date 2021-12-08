@@ -2,9 +2,16 @@ package com.qiniu.qvs.model;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Device {
     private int type; //可选项为摄像头、平台两类，1：摄像头，2：平台。
     private String name; // 设备名称 (可包含 字母、数字、中划线、下划线；1 ~ 100 个字符长)
@@ -13,62 +20,6 @@ public class Device {
     private boolean pullIfRegister; // 注册成功后启动拉流, 默认关闭
     private String desc; // 关于设备的描述信息
     private String gbId; // 设备国标ID
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getGbId() {
-        return gbId;
-    }
-
-    public void setGbId(String gbId) {
-        this.gbId = gbId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public boolean isPullIfRegister() {
-        return pullIfRegister;
-    }
-
-    public void setPullIfRegister(boolean pullIfRegister) {
-        this.pullIfRegister = pullIfRegister;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
 
     /**
      * 转换为POST参数对象

@@ -2,6 +2,7 @@ package test.com.qiniu.qvs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.DeviceManager;
@@ -19,7 +20,7 @@ public class DeviceManagerTest {
     private Response res = null;
     private final String namespaceId = "2xenzw3lpzpdz";
     private final String gbId = "31011500991320000127";
-    private final String[] channels = { "31011500991320000127" };
+    private final String[] channels = {"31011500991320000127"};
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -29,15 +30,13 @@ public class DeviceManagerTest {
     @Test
     @Tag("IntegrationTest")
     public void testCreateDevice() {
-        Device device = new Device();
-        device.setUsername("admin");
-        device.setPassword("QQQNNN111");
+        Device device = Device.builder().username("admin").password("QQQNNN111").build();
         try {
             res = deviceManager.createDevice(namespaceId, device);
             assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
-            assertEquals("401", res.statusCode);
+            assertEquals(401, res.statusCode);
             e.printStackTrace();
         } finally {
             if (res != null) {
@@ -54,7 +53,7 @@ public class DeviceManagerTest {
             assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
-            assertEquals("401", res.statusCode);
+            assertEquals(401, res.statusCode);
             e.printStackTrace();
         } finally {
             if (res != null) {
@@ -66,13 +65,13 @@ public class DeviceManagerTest {
     @Test
     @Tag("IntegrationTest")
     public void testUpdateDevice() {
-        PatchOperation[] patchOperation = { new PatchOperation("replace", "name", "GBTEST") };
+        PatchOperation[] patchOperation = {new PatchOperation("replace", "name", "GBTEST")};
         try {
             res = deviceManager.updateDevice(namespaceId, gbId, patchOperation);
             assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
-            assertEquals("401", res.statusCode);
+            assertEquals(401, res.statusCode);
             e.printStackTrace();
         } finally {
             if (res != null) {
@@ -94,7 +93,7 @@ public class DeviceManagerTest {
             assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
-            assertEquals("401", res.statusCode);
+            assertEquals(401, res.statusCode);
             e.printStackTrace();
         } finally {
             if (res != null) {
