@@ -136,10 +136,25 @@ public class RtcTest {
         watermarks.setY(0);
         watermarks.setH(20);
         watermarks.setW(20);
+        watermarks.setStretchMode("aspectFill");
         mergeParam.setWaterMarks(Arrays.asList(watermarks));
 
         QRTCResult<MergeResult> result = client.createMergeJob("1207", mergeParam);
         assert result.getCode() == 200;
+
+        //更新合流track信息
+        MergeTrackParam mergeTrackParam = new MergeTrackParam();
+        MergeTrackParam.MergeTrack track = new MergeTrackParam.MergeTrack();
+        track.setTrackID("12345xszsw");
+        track.setSupportSei(true);
+        track.setX(0);
+        track.setY(0);
+        track.setH(20);
+        track.setW(20);
+        track.setStretchMode("aspectFill");
+        mergeTrackParam.setAdd(Arrays.asList(track));
+        QRTCResult<MergeResult> upResult = client.updateMergeTrack(mergeTrackParam, "1207", result.getResult().getId());
+        assert upResult.getCode() == 200;
 
         //停止合流
         QRTCResult<MergeResult> stopResult = client.stopMergeJob("1207", result.getResult().getId());
