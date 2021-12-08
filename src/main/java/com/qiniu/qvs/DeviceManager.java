@@ -34,29 +34,9 @@ public class DeviceManager {
      * 创建设备
      */
     public Response createDevice(String namespaceId, Device device) throws QiniuException {
-        StringMap params = getDeviceStringMap(device);
+        StringMap params = device.transferPostParam();
         String url = String.format("%s/v1/namespaces/%s/devices", apiServer, namespaceId);
         return QvsResponse.post(url, params, client, auth);
-    }
-
-    private StringMap getDeviceStringMap(Device device) {
-        StringMap params = new StringMap();
-        putCommonParam(device, params);
-        putUserParam(device, params);
-        return params;
-    }
-
-    private void putCommonParam(Device device, StringMap params) {
-        params.put("type", device.getType());
-        params.put("name", device.getName());
-        params.put("gbId", device.getGbId());
-        params.put("pullIfRegister", device.isPullIfRegister());
-        params.put("desc", device.getDesc());
-    }
-
-    private void putUserParam(Device device, StringMap params) {
-        params.putNotNull("username", device.getUsername());
-        params.putNotNull("password", device.getPassword());
     }
 
     /*
