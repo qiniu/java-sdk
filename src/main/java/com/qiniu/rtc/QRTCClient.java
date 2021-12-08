@@ -108,6 +108,40 @@ public class QRTCClient {
     /////////////////////////room service//////////////////////////////////////
 
     /**
+     * 创建房间
+     *
+     * @param roomParam
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<RoomResult> createRoom(final RoomParam roomParam) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return roomService.createRoom(appId, roomParam);
+            }
+        };
+        return buildResult(func, RoomResult.class);
+    }
+
+    /**
+     * 删除房间
+     *
+     * @param roomName
+     * @return
+     * @throws QiniuException
+     */
+    public QRTCResult<RoomResult> deleteRoom(final String roomName) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return roomService.deleteRoom(appId, roomName);
+            }
+        };
+        return buildResult(func, RoomResult.class);
+    }
+
+    /**
      * 获取房间内的所有用户
      *
      * @param roomName
@@ -271,7 +305,7 @@ public class QRTCClient {
         ServiceCallFunc updateMergeTrackFunc = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
-                UrlParam mergeTrackUrlParam  = UrlParam.builder().appId(appId).roomName(roomName).jobId(jobId).build();
+                UrlParam mergeTrackUrlParam = UrlParam.builder().appId(appId).roomName(roomName).jobId(jobId).build();
                 return mergeService.updateMergeTrack(mergeTrackParam, mergeTrackUrlParam);
             }
         };
@@ -292,7 +326,7 @@ public class QRTCClient {
         ServiceCallFunc updateMergeWatermarksFunc = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
-                UrlParam mergeWatermarksUrlParam  = UrlParam.builder().appId(appId).roomName(roomName).jobId(jobId).build();
+                UrlParam mergeWatermarksUrlParam = UrlParam.builder().appId(appId).roomName(roomName).jobId(jobId).build();
                 return mergeService.updateMergeWatermarks(watermarksParam, mergeWatermarksUrlParam);
             }
         };

@@ -25,8 +25,10 @@ public class RtcTest {
         appParam.setMaxUsers(20);
         appParam.setNoAutoKickUser(false);
         QRTCResult<AppResult> result = QRTC.createApp(appParam, TestConfig.testAccessKey, TestConfig.testSecretKey);
+        //初始化接口，一般有appId的话建议直接走这个接口初始化了
         client = QRTC.init(TestConfig.testAccessKey, TestConfig.testSecretKey, result.getResult().getAppId());
     }
+
 
     @Disabled
     @Test
@@ -46,6 +48,15 @@ public class RtcTest {
     @Disabled
     @Test
     public void testRoom() throws Exception {
+        //创建房间
+        RoomParam roomParam = new RoomParam();
+        roomParam.setRoomName("test_room_create");
+        roomParam.setOpenRoom(true);
+        roomParam.setAutoCloseTtlS(30);
+        roomParam.setNoEntreTtlS(3600);
+        roomParam.setMaxUsers(20);
+        QRTCResult<RoomResult> roomResult = client.createRoom(roomParam);
+        assert roomResult.getCode() == 200;
         //获取房间
         QRTCResult<RoomResult> result = client.listUser("1207");
         assert result.getCode() == 200;
@@ -58,6 +69,9 @@ public class RtcTest {
         //获取token
         String token = client.getRoomToken("1207", "testUser", System.currentTimeMillis() / 1000, "user");
         System.out.println(token);
+        //删除房间
+        roomResult = client.deleteRoom(roomParam.getRoomName());
+        assert roomResult.getCode() == 200;
     }
 
     @Disabled
