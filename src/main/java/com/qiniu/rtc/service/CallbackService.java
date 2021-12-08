@@ -30,8 +30,9 @@ public class CallbackService extends AbstractService {
      * @throws QiniuException
      */
     public Response setHttpCallback(String appId, CallbackParam param) throws QiniuException {
-        if (null == param || StringUtils.isNullOrEmpty(param.getEventCbUrl()) ||
-                StringUtils.isNullOrEmpty(param.getEventCbSecret())) {
+        if (null == param
+                || StringUtils.isNullOrEmpty(param.getEventCbUrl())
+                || StringUtils.isNullOrEmpty(param.getEventCbSecret())) {
             throw new IllegalArgumentException("CallbackParam cannot be null...");
         }
         param.setEventCbVersion("1");

@@ -53,25 +53,50 @@ public class QRTC {
     /**
      * 创建app
      *
-     * @param appParam
+     * @param appParam APP创建参数
      * @return
      * @throws QiniuException
      */
     public static QRTCResult<AppResult> createApp(AppParam appParam, String accessKey, String secretKey) throws QiniuException {
         Response response = null;
         try {
-            AppService appService = new AppService(Auth.create(accessKey, secretKey));
-            response = appService.createApp(appParam);
-            if (null == response || StringUtils.isNullOrEmpty(response.bodyString())) {
-                return QRTCResult.fail(-1, "result is null");
-            }
-            AppResult t = Json.decode(response.bodyString(), AppResult.class);
-            return QRTCResult.success(response.statusCode, t);
+            response = fetchCreateApp(appParam, accessKey, secretKey);
+            return formatCreateAppResult(response);
         } finally {
             // 释放资源
             if (response != null) response.close();
         }
     }
+
+    /**
+     * 结果格式化
+     *
+     * @param response
+     * @return
+     * @throws QiniuException
+     */
+    private static QRTCResult<AppResult> formatCreateAppResult(Response response) throws QiniuException {
+        if (null == response || StringUtils.isNullOrEmpty(response.bodyString())) {
+            return QRTCResult.fail(-1, "result is null");
+        }
+        AppResult t = Json.decode(response.bodyString(), AppResult.class);
+        return QRTCResult.success(response.statusCode, t);
+    }
+
+    /**
+     * 创建请求处理
+     *
+     * @param appParam
+     * @param accessKey
+     * @param secretKey
+     * @return
+     * @throws QiniuException
+     */
+    private static Response fetchCreateApp(AppParam appParam, String accessKey, String secretKey) throws QiniuException {
+        AppService appService = new AppService(Auth.create(accessKey, secretKey));
+        return appService.createApp(appParam);
+    }
+
 
     /**
      * 根据appId 获取当前的client
