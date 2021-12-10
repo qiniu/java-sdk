@@ -28,7 +28,7 @@ public class QRTC {
 
     }
 
-    private volatile static QRTCClient client = null;
+    private static volatile QRTCClient client = null;
 
     private static final Map<String, QRTCClient> holder = new ConcurrentHashMap<>(16);
 
