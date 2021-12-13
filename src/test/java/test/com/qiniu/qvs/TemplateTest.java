@@ -16,7 +16,7 @@ public class TemplateTest {
     Auth auth = TestConfig.testAuth;
     private TemplateManager templateManager;
     private Response res = null;
-    private final String templateId = "2akrarsl22iil";
+    private final String templateId = "2xenzwlwgi7mf";
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -27,8 +27,8 @@ public class TemplateTest {
     @Tag("IntegrationTest")
     public void testCreateTemplate() {
         Template template = new Template();
-        template.setName("testtemplate002");
-        template.setBucket("Testforhugo");
+        template.setName("testtemplate003");
+        template.setBucket("qiniusdk");
         template.setTemplateType(1);
         template.setJpgOverwriteStatus(true);
         template.setRecordType(2);
@@ -62,7 +62,7 @@ public class TemplateTest {
     @Test
     @Tag("IntegrationTest")
     public void testUpdateTemplate() {
-        PatchOperation[] patchOperation = { new PatchOperation("replace", "name", "testtemplate002") };
+        PatchOperation[] patchOperation = { new PatchOperation("replace", "name", "testtemplate004") };
         try {
             res = templateManager.updateTemplate(templateId, patchOperation);
             System.out.println(res.bodyString());
@@ -98,7 +98,7 @@ public class TemplateTest {
     @Tag("IntegrationTest")
     public void testDeleteTemplate() {
         try {
-            res = templateManager.deleteTemplate(templateId);
+            res = templateManager.deleteTemplate("3nm4x1e0x1ajc");
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();

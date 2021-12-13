@@ -17,12 +17,14 @@ import test.com.qiniu.TestConfig;
 public class StreamTest {
 
     Auth auth = TestConfig.testAuth;
-    Stream stream = new Stream("teststream005");
+    Stream stream = new Stream("31011500991320007536");
+    Stream createstream = new Stream("31011500991320007539");
     private StreamManager streamManager;
     private Response res = null;
-    private final String namespaceId = "2akrarsj8zp0w";
-    private final int start = 1587975463;
-    private final int end = 1587976463;
+    private Response res2 = null;
+    private final String namespaceId = "3nm4x1e0xw855";
+    private final int start = 1639379380;
+    private final int end = 1639379981;
     private final int offset = 0;
     private final int line = 1;
     private final int qtype = 0;
@@ -40,7 +42,7 @@ public class StreamTest {
     public void testCreateStream() {
         // stream.setStreamID("teststream002");
         try {
-            res = streamManager.createStream(namespaceId, stream);
+            res = streamManager.createStream(namespaceId, createstream);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -102,9 +104,9 @@ public class StreamTest {
     @Test
     @Tag("IntegrationTest")
     public void testStaticPublishPlayURL() {
-        StaticLiveRoute staticLiveRoute = new StaticLiveRoute("qvs-publish.qtest.com", "publishRtmp", 3600);
+        StaticLiveRoute staticLiveRoute = new StaticLiveRoute("qvs-publish.qnlinking.com", "publishRtmp", 3600);
         try {
-            res = streamManager.staticPublishPlayURL(namespaceId, stream.getStreamID(), staticLiveRoute);
+            res = streamManager.staticPublishPlayURL("2xenzw02ke9s4", "teststream005", staticLiveRoute);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -197,6 +199,7 @@ public class StreamTest {
     public void testDisableStream() {
         try {
             res = streamManager.disableStream(namespaceId, stream.getStreamID());
+            res2 = streamManager.enableStream(namespaceId, stream.getStreamID());
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -226,7 +229,7 @@ public class StreamTest {
     @Tag("IntegrationTest")
     public void testDeleteStream() {
         try {
-            res = streamManager.deleteStream(namespaceId, stream.getStreamID());
+            res = streamManager.deleteStream(namespaceId, "teststream006");
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -241,7 +244,7 @@ public class StreamTest {
     @Tag("IntegrationTest")
     public void testOndemandSnap() {
         try {
-            res = streamManager.ondemandSnap("2xenzw5o81ods", "31011500991320000356");
+            res = streamManager.ondemandSnap(namespaceId, stream.getStreamID());
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();

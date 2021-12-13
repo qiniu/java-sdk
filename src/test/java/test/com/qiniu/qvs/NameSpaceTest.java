@@ -15,7 +15,8 @@ public class NameSpaceTest {
     Auth auth = TestConfig.testAuth;
     private NameSpaceManager nameSpaceManager;
     private Response res = null;
-    private final String namespaceId = "2akrarsj8zp0w";
+    private Response res2 = null;
+    private final String namespaceId = "3nm4x1e0xw855";
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -26,10 +27,10 @@ public class NameSpaceTest {
     @Tag("IntegrationTest")
     public void testCreateNameSpace() {
         NameSpace nameSpace = new NameSpace();
-        nameSpace.setName("hugo002");
+        nameSpace.setName("hugo004");
         nameSpace.setAccessType("rtmp");
         nameSpace.setRtmpUrlType(NameSpace.Static);
-        nameSpace.setDomains(new String[] { "qtest002.com" });
+        nameSpace.setDomains(new String[] { "qnlinking.com" });
         try {
             res = nameSpaceManager.createNameSpace(nameSpace);
             System.out.println(res.bodyString());
@@ -96,6 +97,7 @@ public class NameSpaceTest {
     public void testDisableNameSpace() {
         try {
             res = nameSpaceManager.disableNameSpace(namespaceId);
+            res2 = nameSpaceManager.enableNameSpace(namespaceId);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -125,7 +127,7 @@ public class NameSpaceTest {
     @Tag("IntegrationTest")
     public void testDeleteNameSpace() {
         try {
-            res = nameSpaceManager.deleteNameSpace(namespaceId);
+            res = nameSpaceManager.deleteNameSpace("3nm4x1e07mmvz");
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
