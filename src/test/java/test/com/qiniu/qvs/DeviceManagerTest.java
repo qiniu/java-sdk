@@ -66,7 +66,7 @@ public class DeviceManagerTest {
     @Test
     @Tag("IntegrationTest")
     public void testUpdateDevice() {
-        PatchOperation[] patchOperation = {new PatchOperation("replace", "name", "GBTEST")};
+        PatchOperation[] patchOperation = {new PatchOperation("replace", "name", "GBTEST001")};
         try {
             res = deviceManager.updateDevice(namespaceId, gbId, patchOperation);
             assertNotNull(res);

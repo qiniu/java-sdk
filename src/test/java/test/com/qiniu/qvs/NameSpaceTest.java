@@ -27,10 +27,10 @@ public class NameSpaceTest {
     @Tag("IntegrationTest")
     public void testCreateNameSpace() {
         NameSpace nameSpace = new NameSpace();
-        nameSpace.setName("hugo004");
+        nameSpace.setName("hugo005");
         nameSpace.setAccessType("rtmp");
         nameSpace.setRtmpUrlType(NameSpace.Static);
-        nameSpace.setDomains(new String[] { "qnlinking.com" });
+        nameSpace.setDomains(new String[] { "test.qnlinking.com" });
         try {
             res = nameSpaceManager.createNameSpace(nameSpace);
             System.out.println(res.bodyString());

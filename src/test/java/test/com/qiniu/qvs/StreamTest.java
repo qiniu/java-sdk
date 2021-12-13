@@ -42,7 +42,7 @@ public class StreamTest {
     public void testCreateStream() {
         // stream.setStreamID("teststream002");
         try {
-            res = streamManager.createStream(namespaceId, createstream);
+            res = streamManager.createStream("2xenzw02ke9s4", createstream);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -71,7 +71,7 @@ public class StreamTest {
     @Test
     @Tag("IntegrationTest")
     public void testUpdateStream() {
-        PatchOperation[] patchOperation = { new PatchOperation("replace", "desc", "test") };
+        PatchOperation[] patchOperation = { new PatchOperation("replace", "desc", "test001") };
         try {
             res = streamManager.updateStream(namespaceId, stream.getStreamID(), patchOperation);
             System.out.println(res.bodyString());
@@ -229,7 +229,7 @@ public class StreamTest {
     @Tag("IntegrationTest")
     public void testDeleteStream() {
         try {
-            res = streamManager.deleteStream(namespaceId, "teststream006");
+            res = streamManager.deleteStream("2xenzw02ke9s4", "teststream006");
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();

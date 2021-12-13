@@ -27,7 +27,7 @@ public class TemplateTest {
     @Tag("IntegrationTest")
     public void testCreateTemplate() {
         Template template = new Template();
-        template.setName("testtemplate003");
+        template.setName("testtemplate004");
         template.setBucket("qiniusdk");
         template.setTemplateType(1);
         template.setJpgOverwriteStatus(true);
@@ -98,7 +98,7 @@ public class TemplateTest {
     @Tag("IntegrationTest")
     public void testDeleteTemplate() {
         try {
-            res = templateManager.deleteTemplate("3nm4x1e0x1ajc");
+            res = templateManager.deleteTemplate("2xenzwlx661su");
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
             e.printStackTrace();

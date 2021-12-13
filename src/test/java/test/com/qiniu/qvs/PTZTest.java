@@ -75,7 +75,7 @@ public class PTZTest {
     @Tag("IntegrationTest")
     public void testPresetsControl() {
         try {
-            res = ptzManager.presetsControl(namespaceId, gbId, "set", "test", 0, chId);
+            res = ptzManager.presetsControl(namespaceId, gbId, "set", "test001", 0, chId);
             assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
