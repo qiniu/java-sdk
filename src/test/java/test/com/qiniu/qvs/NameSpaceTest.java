@@ -17,7 +17,7 @@ public class NameSpaceTest {
     private Response res = null;
     private Response res2 = null;
     private final String namespaceId = "3nm4x1e0xw855";
-    private final String name = ""+System.currentTimeMillis();
+    private final String name = "" + System.currentTimeMillis();
 
     @BeforeEach
     public void setUp() throws Exception {

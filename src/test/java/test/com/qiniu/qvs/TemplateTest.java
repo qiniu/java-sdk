@@ -17,7 +17,7 @@ public class TemplateTest {
     private TemplateManager templateManager;
     private Response res = null;
     private final String templateId = "2xenzwlwgi7mf";
-    private String templateName = ""+System.currentTimeMillis();
+    private String templateName = "" + System.currentTimeMillis();
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -63,7 +63,7 @@ public class TemplateTest {
     @Test
     @Tag("IntegrationTest")
     public void testUpdateTemplate() {
-        templateName = ""+System.currentTimeMillis();
+        templateName = "" + System.currentTimeMillis();
         PatchOperation[] patchOperation = { new PatchOperation("replace", "name", templateName) };
         try {
             res = templateManager.updateTemplate(templateId, patchOperation);

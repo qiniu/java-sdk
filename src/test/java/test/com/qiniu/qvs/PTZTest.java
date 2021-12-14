@@ -17,7 +17,7 @@ public class PTZTest {
     private final String namespaceId = "3nm4x1e0xw855";
     private final String gbId = "31011500991320007536";
     private final String chId = "";
-    private String name = ""+System.currentTimeMillis();
+    private String name = "" + System.currentTimeMillis();
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -75,7 +75,7 @@ public class PTZTest {
     @Test
     @Tag("IntegrationTest")
     public void testPresetsControl() {
-        name = ""+System.currentTimeMillis();
+        name = "" + System.currentTimeMillis();
         try {
             res = ptzManager.presetsControl(namespaceId, gbId, "set", name, 0, chId);
             assertNotNull(res);

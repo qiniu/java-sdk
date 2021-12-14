@@ -17,7 +17,7 @@ import test.com.qiniu.TestConfig;
 public class StreamTest {
 
     Auth auth = TestConfig.testAuth;
-    private final String streamid = ""+System.currentTimeMillis();
+    private final String streamid = "" + System.currentTimeMillis();
     Stream stream = new Stream("31011500991320007536");
     Stream createstream = new Stream(streamid);
     private StreamManager streamManager;
