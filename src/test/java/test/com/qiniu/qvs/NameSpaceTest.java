@@ -17,6 +17,7 @@ public class NameSpaceTest {
     private Response res = null;
     private Response res2 = null;
     private final String namespaceId = "3nm4x1e0xw855";
+    private final String name = ""+System.currentTimeMillis();
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -27,7 +28,7 @@ public class NameSpaceTest {
     @Tag("IntegrationTest")
     public void testCreateNameSpace() {
         NameSpace nameSpace = new NameSpace();
-        nameSpace.setName("hugo005");
+        nameSpace.setName(name);
         nameSpace.setAccessType("rtmp");
         nameSpace.setRtmpUrlType(NameSpace.Static);
         nameSpace.setDomains(new String[] { "test.qnlinking.com" });
@@ -123,19 +124,19 @@ public class NameSpaceTest {
         }
     }
 
-    @Test
-    @Tag("IntegrationTest")
-    public void testDeleteNameSpace() {
-        try {
-            res = nameSpaceManager.deleteNameSpace("3nm4x1e07mmvz");
-            System.out.println(res.bodyString());
-        } catch (QiniuException e) {
-            e.printStackTrace();
-        } finally {
-            if (res != null) {
-                res.close();
-            }
-        }
-    }
+//    @Test
+//    @Tag("IntegrationTest")
+//    public void testDeleteNameSpace() {
+//        try {
+//            res = nameSpaceManager.deleteNameSpace("3nm4x1e07mmvz");
+//            System.out.println(res.bodyString());
+//        } catch (QiniuException e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (res != null) {
+//                res.close();
+//            }
+//        }
+//    }
 
 }

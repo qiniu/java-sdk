@@ -136,22 +136,22 @@ public class DeviceManagerTest {
         }
     }
 
-    @Test
-    @Tag("IntegrationTest")
-    public void testStopDevice() {
-        try {
-            res = deviceManager.stopDevice(namespaceId, gbId, channels);
-            res2 = deviceManager.startDevice(namespaceId, gbId, channels);
-            assertNotNull(res);
-            System.out.println(res.bodyString());
-        } catch (QiniuException e) {
-            e.printStackTrace();
-        } finally {
-            if (res != null) {
-                res.close();
-            }
-        }
-    }
+//    @Test
+//    @Tag("IntegrationTest")
+//    public void testStopDevice() {
+//        try {
+//            res = deviceManager.stopDevice(namespaceId, gbId, channels);
+//            res2 = deviceManager.startDevice(namespaceId, gbId, channels);
+//            assertNotNull(res);
+//            System.out.println(res.bodyString());
+//        } catch (QiniuException e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (res != null) {
+//                res.close();
+//            }
+//        }
+//    }
 
     @Test
     @Tag("IntegrationTest")

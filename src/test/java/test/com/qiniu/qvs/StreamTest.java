@@ -17,8 +17,9 @@ import test.com.qiniu.TestConfig;
 public class StreamTest {
 
     Auth auth = TestConfig.testAuth;
+    private final String streamid = ""+System.currentTimeMillis();
     Stream stream = new Stream("31011500991320007536");
-    Stream createstream = new Stream("31011500991320007539");
+    Stream createstream = new Stream(streamid);
     private StreamManager streamManager;
     private Response res = null;
     private Response res2 = null;
@@ -71,7 +72,7 @@ public class StreamTest {
     @Test
     @Tag("IntegrationTest")
     public void testUpdateStream() {
-        PatchOperation[] patchOperation = { new PatchOperation("replace", "desc", "test001") };
+        PatchOperation[] patchOperation = { new PatchOperation("replace", "desc", streamid) };
         try {
             res = streamManager.updateStream(namespaceId, stream.getStreamID(), patchOperation);
             System.out.println(res.bodyString());
@@ -194,21 +195,21 @@ public class StreamTest {
         }
     }
 
-    @Test
-    @Tag("IntegrationTest")
-    public void testDisableStream() {
-        try {
-            res = streamManager.disableStream(namespaceId, stream.getStreamID());
-            res2 = streamManager.enableStream(namespaceId, stream.getStreamID());
-            System.out.println(res.bodyString());
-        } catch (QiniuException e) {
-            e.printStackTrace();
-        } finally {
-            if (res != null) {
-                res.close();
-            }
-        }
-    }
+//    @Test
+//    @Tag("IntegrationTest")
+//    public void testDisableStream() {
+//        try {
+//            res = streamManager.disableStream(namespaceId, stream.getStreamID());
+//            res2 = streamManager.enableStream(namespaceId, stream.getStreamID());
+//            System.out.println(res.bodyString());
+//        } catch (QiniuException e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (res != null) {
+//                res.close();
+//            }
+//        }
+//    }
 
     @Test
     @Tag("IntegrationTest")
@@ -225,20 +226,20 @@ public class StreamTest {
         }
     }
 
-    @Test
-    @Tag("IntegrationTest")
-    public void testDeleteStream() {
-        try {
-            res = streamManager.deleteStream("2xenzw02ke9s4", "teststream006");
-            System.out.println(res.bodyString());
-        } catch (QiniuException e) {
-            e.printStackTrace();
-        } finally {
-            if (res != null) {
-                res.close();
-            }
-        }
-    }
+//    @Test
+//    @Tag("IntegrationTest")
+//    public void testDeleteStream() {
+//        try {
+//            res = streamManager.deleteStream("2xenzw02ke9s4", "teststream006");
+//            System.out.println(res.bodyString());
+//        } catch (QiniuException e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (res != null) {
+//                res.close();
+//            }
+//        }
+//    }
 
     @Test
     @Tag("IntegrationTest")
