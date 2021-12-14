@@ -31,7 +31,7 @@ public class NameSpaceTest {
         nameSpace.setName(name);
         nameSpace.setAccessType("rtmp");
         nameSpace.setRtmpUrlType(NameSpace.Static);
-        nameSpace.setDomains(new String[] { "test.qnlinking.com" });
+        nameSpace.setDomains(new String[]{name + ".qnlinking.com"});
         try {
             res = nameSpaceManager.createNameSpace(nameSpace);
             System.out.println(res.bodyString());
