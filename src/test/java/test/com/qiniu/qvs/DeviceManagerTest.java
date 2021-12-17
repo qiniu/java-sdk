@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.DeviceManager;
-import com.qiniu.qvs.model.Device;
 import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.util.Auth;
 import org.junit.jupiter.api.BeforeEach;
