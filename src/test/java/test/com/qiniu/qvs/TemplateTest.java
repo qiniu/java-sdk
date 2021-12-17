@@ -16,7 +16,8 @@ public class TemplateTest {
     Auth auth = TestConfig.testAuth;
     private TemplateManager templateManager;
     private Response res = null;
-    private final String templateId = "2akrarsl22iil";
+    private final String templateId = "2xenzwlwgi7mf";
+    private String templateName = "" + System.currentTimeMillis();
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -27,8 +28,8 @@ public class TemplateTest {
     @Tag("IntegrationTest")
     public void testCreateTemplate() {
         Template template = new Template();
-        template.setName("testtemplate002");
-        template.setBucket("Testforhugo");
+        template.setName(templateName);
+        template.setBucket("qiniusdk");
         template.setTemplateType(1);
         template.setJpgOverwriteStatus(true);
         template.setRecordType(2);
@@ -62,7 +63,8 @@ public class TemplateTest {
     @Test
     @Tag("IntegrationTest")
     public void testUpdateTemplate() {
-        PatchOperation[] patchOperation = { new PatchOperation("replace", "name", "testtemplate002") };
+        templateName = "" + System.currentTimeMillis();
+        PatchOperation[] patchOperation = { new PatchOperation("replace", "name", templateName) };
         try {
             res = templateManager.updateTemplate(templateId, patchOperation);
             System.out.println(res.bodyString());
@@ -94,18 +96,18 @@ public class TemplateTest {
         }
     }
 
-    @Test
-    @Tag("IntegrationTest")
-    public void testDeleteTemplate() {
-        try {
-            res = templateManager.deleteTemplate(templateId);
-            System.out.println(res.bodyString());
-        } catch (QiniuException e) {
-            e.printStackTrace();
-        } finally {
-            if (res != null) {
-                res.close();
-            }
-        }
-    }
+//    @Test
+//    @Tag("IntegrationTest")
+//    public void testDeleteTemplate() {
+//        try {
+//            res = templateManager.deleteTemplate("2xenzwlx661su");
+//            System.out.println(res.bodyString());
+//        } catch (QiniuException e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (res != null) {
+//                res.close();
+//            }
+//        }
+//    }
 }
