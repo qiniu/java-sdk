@@ -28,23 +28,23 @@ public class DeviceManagerTest {
         this.deviceManager = new DeviceManager(auth);
     }
 
-    @Test
-    @Tag("IntegrationTest")
-    public void testCreateDevice() {
-        Device device = Device.builder().username("admin").password("QQQNNN111").build();
-        try {
-            res = deviceManager.createDevice(namespaceId, device);
-            assertNotNull(res);
-            System.out.println(res.bodyString());
-        } catch (QiniuException e) {
-            assertEquals(401, res.statusCode);
-            e.printStackTrace();
-        } finally {
-            if (res != null) {
-                res.close();
-            }
-        }
-    }
+//    @Test
+//    @Tag("IntegrationTest")
+//    public void testCreateDevice() {
+//        Device device = Device.builder().username("admin").password("QQQNNN111").build();
+//        try {
+//            res = deviceManager.createDevice(namespaceId, device);
+//            assertNotNull(res);
+//            System.out.println(res.bodyString());
+//        } catch (QiniuException e) {
+////            assertEquals(401, res.statusCode);
+//            e.printStackTrace();
+//        } finally {
+//            if (res != null) {
+//                res.close();
+//            }
+//        }
+//    }
 
     @Test
     @Tag("IntegrationTest")

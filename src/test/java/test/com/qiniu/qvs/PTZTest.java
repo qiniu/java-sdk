@@ -56,21 +56,21 @@ public class PTZTest {
         }
     }
 
-    @Test
-    @Tag("IntegrationTest")
-    public void testIrisControl() {
-        try {
-            res = ptzManager.irisControl(namespaceId, gbId, "irisin", 5, chId);
-            assertNotNull(res);
-            System.out.println(res.bodyString());
-        } catch (QiniuException e) {
-            e.printStackTrace();
-        } finally {
-            if (res != null) {
-                res.close();
-            }
-        }
-    }
+//    @Test
+//    @Tag("IntegrationTest")
+//    public void testIrisControl() {
+//        try {
+//            res = ptzManager.irisControl(namespaceId, gbId, "irisin", 5, chId);
+//            assertNotNull(res);
+//            System.out.println(res.bodyString());
+//        } catch (QiniuException e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (res != null) {
+//                res.close();
+//            }
+//        }
+//    }
 
     @Test
     @Tag("IntegrationTest")
