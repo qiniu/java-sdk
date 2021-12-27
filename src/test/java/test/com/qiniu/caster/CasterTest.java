@@ -5,21 +5,20 @@ import com.qiniu.caster.model.CasterParams;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.util.Auth;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import test.com.qiniu.TestConfig;
 
 import java.util.HashMap;
 
 public class CasterTest {
-    String accessKey = ""; //config.getAccesskey();
-    String secretKey = ""; //config.getSecretKey();
-    CasterManager casterManager;
+    static String accessKey = TestConfig.testAccessKey;
+    static String secretKey = TestConfig.testSecretKey;
+    static CasterManager casterManager;
 
-    @BeforeEach
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() {
         Auth auth = Auth.create(accessKey, secretKey);
-        this.casterManager = new CasterManager(auth);
+        CasterTest.casterManager = new CasterManager(auth);
     }
 
     @Test
@@ -45,14 +44,16 @@ public class CasterTest {
     }
 
     @Test
+    @Disabled
     public void testStop() {
         Response result =  casterManager.stopCaster("u1380432151abcde");
         assert result.statusCode == 200;
     }
 
     @Test
+    @Disabled
     public void testStart() {
-        Response result =  casterManager.startCaster("u1380432151abcde", 2, 1);
+        Response result =  casterManager.startCaster("u1380432151abcde", (int) (System.currentTimeMillis() / 1000) + 3600, 1);
         assert result.statusCode == 200;
     }
 
@@ -70,7 +71,8 @@ public class CasterTest {
 
 
     @Test
-    public void testDelete() {
+    @AfterAll
+    public static void testDelete() {
         Response result =  casterManager.deleteCaster("u1380432151abcde");
         assert result.statusCode == 200;
     }
