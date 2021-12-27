@@ -1,19 +1,19 @@
 package com.qiniu.qvs.model;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.qiniu.util.StringMap;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Map;
 
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Device {
-    private int type; //可选项为摄像头、平台两类，1：摄像头，2：平台。
+    private float DeviceType; //可选项为摄像头、平台两类，1：摄像头，2：平台。
     private String name; // 设备名称 (可包含 字母、数字、中划线、下划线；1 ~ 100 个字符长)
     private String username; // 用户名, 4~40位，可包含大写字母、小写字母、数字、中划线，建议与设备国标ID一致
     private String password; // 密码, 4~40位，可包含大写字母、小写字母、数字、中划线
@@ -27,7 +27,8 @@ public class Device {
      * @return POST参数对象
      */
     public StringMap transferPostParam() {
-        Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-        return gson.fromJson(gson.toJson(this), StringMap.class);
+        Gson gson = new Gson();
+        StringMap map = new StringMap(gson.fromJson(gson.toJson(this), Map.class));
+        return map;
     }
 }
