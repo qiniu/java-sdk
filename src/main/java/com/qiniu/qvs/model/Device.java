@@ -31,13 +31,18 @@ public class Device {
      * @return POST参数对象
      */
     public StringMap transferPostParam() {
+        Map<String, Object> paramMap = getStringObjectMap();
+        StringMap result = new StringMap();
+        result.putAll(paramMap);
+        return result;
+    }
+
+    private Map<String, Object> getStringObjectMap() {
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
         Map<String, Object> paramMap = gson.fromJson(gson.toJson(this), new TypeToken<HashMap<String, String>>() {
         }.getType());
         paramMap.put("type", type);
         paramMap.put("pullIfRegister", pullIfRegister);
-        StringMap result = new StringMap();
-        result.putAll(paramMap);
-        return result;
+        return paramMap;
     }
 }
