@@ -18,8 +18,8 @@ public class RecordTest {
     private final String namespaceId = "3nm4x1e0xw855";
     private final String streamId = "31011500991320007536";
     private final String format = "m3u8";
-    private final int start = 1639379380;
-    private final int end = 1639379981;
+    private final int start = 1640599830;
+    private final int end = 1640600430;
 
     @BeforeEach
     public void setUp() throws Exception {

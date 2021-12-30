@@ -2,11 +2,15 @@ package com.qiniu.qvs.model;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.qiniu.util.StringMap;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Builder
 @Data
@@ -27,7 +31,18 @@ public class Device {
      * @return POST参数对象
      */
     public StringMap transferPostParam() {
+        Map<String, Object> paramMap = getStringObjectMap();
+        StringMap result = new StringMap();
+        result.putAll(paramMap);
+        return result;
+    }
+
+    private Map<String, Object> getStringObjectMap() {
         Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-        return gson.fromJson(gson.toJson(this), StringMap.class);
+        Map<String, Object> paramMap = gson.fromJson(gson.toJson(this), new TypeToken<HashMap<String, String>>() {
+        }.getType());
+        paramMap.put("type", type);
+        paramMap.put("pullIfRegister", pullIfRegister);
+        return paramMap;
     }
 }
