@@ -15,11 +15,11 @@ public class RecordTest {
     private RecordManager recordManager;
     private Response res = null;
     private Response res2 = null;
-    private final String namespaceId = "2xenzw5o81ods";
-    private final String streamId = "31011500991320000356";
+    private final String namespaceId = "3nm4x1e0xw855";
+    private final String streamId = "31011500991320007536";
     private final String format = "m3u8";
-    private final int start = 1605254612;
-    private final int end = 1605255300;
+    private final int start = 1640599830;
+    private final int end = 1640600430;
 
     @BeforeEach
     public void setUp() throws Exception {
