@@ -71,7 +71,7 @@ public class Region {
 
 
     /**
-     * 华东浙江机房相关域名
+     * 华东浙江 2 机房相关域名
      */
     public static Region regionCnEast2() {
         return new Builder().
@@ -86,9 +86,9 @@ public class Region {
     }
 
     /**
-     * 华东浙江机房相关域名
+     * 华东浙江 2 机房相关域名
      */
-    public static Region huadongZheJiang() {
+    public static Region huadongZheJiang2() {
         return regionCnEast2();
     }
 
