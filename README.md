@@ -62,6 +62,9 @@ String key = "file save key";
 Response r = uploadManager.put("hello world".getBytes(), key, token);
 ```
 
+其他使用请参考[开发指南]https://developer.qiniu.com/kodo/1239/java
+详细的示例请参考[Examples]https://github.com/qiniu/java-sdk/tree/master/examples
+
 ## 测试
 
 ``` bash
