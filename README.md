@@ -28,26 +28,38 @@ JDK 7 及以上
 
 ### 上传
 ```Java
+// 分片上传 v1
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import com.qiniu.storage.Configuration;
 import com.qiniu.http.Response;
-...
-// 分片上传 v1
-    Configuration cfg = new Configuration();
-    UploadManager uploadManager = new UploadManager(cfg);
-    Auth auth = Auth.create(accessKey, secretKey);
-    String token = auth.uploadToken(bucketName);
-    Response r = upManager.put("hello world".getBytes(), "yourkey", token);
-    
+
+String accessKey = "Your AccessKey";
+String secretKey = "Your SecretKey";
+String bucketName = "upload to bucket";
+Configuration cfg = new Configuration();
+UploadManager uploadManager = new UploadManager(cfg);
+Auth auth = Auth.create(accessKey, secretKey);
+String token = auth.uploadToken(bucketName);
+String key = "file save key";
+Response r = uploadManager.put("hello world".getBytes(), key, token);
+   
 // 分片上传 v2
-    Configuration cfg = new Configuration();
-    cfg.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
-    UploadManager uploadManager = new UploadManager(cfg);
-    Auth auth = Auth.create(accessKey, secretKey);
-    String token = auth.uploadToken(bucketName);
-    Response r = upManager.put("hello world".getBytes(), "yourkey", token);
-...
+import com.qiniu.storage.UploadManager;
+import com.qiniu.util.Auth;
+import com.qiniu.storage.Configuration;
+import com.qiniu.http.Response;
+
+String accessKey = "Your AccessKey";
+String secretKey = "Your SecretKey";
+String bucketName = "upload to bucket";
+Configuration cfg = new Configuration();
+cfg.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;
+UploadManager uploadManager = new UploadManager(cfg);
+Auth auth = Auth.create(accessKey, secretKey);
+String token = auth.uploadToken(bucketName);
+String key = "file save key";
+Response r = uploadManager.put("hello world".getBytes(), key, token);
 ```
 
 ## 测试
