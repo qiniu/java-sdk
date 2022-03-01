@@ -4,13 +4,13 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Headers;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
-import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import test.com.qiniu.TestConfig;
+
 import java.nio.charset.Charset;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AuthTest {
     @Test
@@ -151,7 +151,7 @@ public class AuthTest {
         body = "{\"name\": \"test\"}".getBytes(utf8);
         checkSignQiniu(sign, auth, url, method, headers, body);
 
-        sign = "ak:N1JHCQfjs0zX00yNP59ajZI41W8=";
+        sign = "ak:_PAgAJVMMQD4SLLXp7f44lS8aTs=";
         url = "http://upload.qiniup.com";
         method = "";
         headers = new Headers.Builder().set("Content-Type", "application/json").add("X-Qiniu-Bbb", "BBB")
@@ -160,7 +160,7 @@ public class AuthTest {
         body = "{\"name\": \"test\"}".getBytes(utf8);
         checkSignQiniu(sign, auth, url, method, headers, body);
 
-        sign = "ak:s2cp5btoYoHaraDW2CAGBxj0OvU=";
+        sign = "ak:ERR7z4iI_gHYd80GVfCBZBtT3wg=";
         url = "http://upload.qiniup.com";
         method = "";
         headers = new Headers.Builder().set("Content-Type", "application/x-www-form-urlencoded")
@@ -176,7 +176,7 @@ public class AuthTest {
 
         //////////// end of copy test ////
 
-        sign = "ak:K8d62cW_hqjxQ3RElNz8g3BQHa8=";
+        sign = "ak:EsN_Os_WPtDf2hpO4FeB5ybwdYc=";
         url = "http://upload.qiniup.com/mkfile/sdf.jpg";
         method = "";
         headers = new Headers.Builder().set("Content-Type", "application/x-www-form-urlencoded")
@@ -185,7 +185,7 @@ public class AuthTest {
         body = "name=test&language=go".getBytes(utf8);
         checkSignQiniu(sign, auth, url, method, headers, body);
 
-        sign = "ak:CzOiB_NSxrvMLkhK8hhV_1vTqYk=";
+        sign = "ak:uL7gITytxi233iMBKD0zXKHhj28=";
         url = "http://upload.qiniup.com/mkfile/sdf.jpg?s=er3&df";
         checkSignQiniu(sign, auth, url, method, headers, body);
     }

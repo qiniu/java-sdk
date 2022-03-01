@@ -13,6 +13,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public final class Auth {
 
@@ -394,7 +395,7 @@ public final class Auth {
                 sb.append("\nContent-Type: ").append(contentType);
             }
 
-            List<Header> xQiniuheaders = genXQiniuHeader(headers);
+            List<Header> xQiniuheaders = genXQiniuSignHeader(headers);
             java.util.Collections.sort(xQiniuheaders);
             if (xQiniuheaders.size() > 0) {
                 for (Header h : xQiniuheaders) {
@@ -416,13 +417,18 @@ public final class Auth {
         return this.accessKey + ":" + digest;
     }
 
-    private List<Header> genXQiniuHeader(Headers headers) {
+    private List<Header> genXQiniuSignHeader(Headers headers) {
+
         ArrayList<Header> hs = new ArrayList<Header>();
         for (String name : headers.names()) {
             if (name.length() > "X-Qiniu-".length() && name.startsWith("X-Qiniu-")) {
-                for (String value : headers.values(name)) {
+                String value = headers.get(name);
+                if (value != null) {
                     hs.add(new Header(canonicalMIMEHeaderKey(name), value));
                 }
+//                for (String value : headers.values(name)) {
+//                    hs.add(new Header(canonicalMIMEHeaderKey(name), value));
+//                }
             }
         }
         return hs;
@@ -438,6 +444,20 @@ public final class Auth {
         return headers;
     }
 
+    public StringMap authorizationV2WithHeader(String url, String method, byte[] body, Headers headers) {
+        StringMap headerMap = new StringMap();
+        if (headers == null) {
+            Set<String> keys = headers.names();
+            for (String key : keys) {
+                headerMap.put(key, headers.get(key));
+            }
+        }
+
+        String authorization = "Qiniu " + signQiniuAuthorization(url, method, body, headers);
+        headerMap.put("Authorization", authorization);
+        return headerMap;
+    }
+
     @Deprecated
     public StringMap authorizationV2(String url, String method, byte[] body, String contentType) {
         String authorization = "Qiniu " + signRequestV2(url, method, body, contentType);
@@ -446,7 +466,7 @@ public final class Auth {
 
     @Deprecated
     public StringMap authorizationV2(String url) {
-        return authorizationV2(url, "GET", null, null);
+        return authorizationV2(url, "GET", null, (String) null);
     }
 
     //连麦 RoomToken
