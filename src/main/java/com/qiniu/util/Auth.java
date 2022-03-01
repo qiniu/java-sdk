@@ -13,7 +13,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 public final class Auth {
 
@@ -426,9 +425,6 @@ public final class Auth {
                 if (value != null) {
                     hs.add(new Header(canonicalMIMEHeaderKey(name), value));
                 }
-//                for (String value : headers.values(name)) {
-//                    hs.add(new Header(canonicalMIMEHeaderKey(name), value));
-//                }
             }
         }
         return hs;
@@ -442,20 +438,6 @@ public final class Auth {
             headers = headers.newBuilder().set("Authorization", authorization).build();
         }
         return headers;
-    }
-
-    public StringMap authorizationV2WithHeader(String url, String method, byte[] body, Headers headers) {
-        StringMap headerMap = new StringMap();
-        if (headers == null) {
-            Set<String> keys = headers.names();
-            for (String key : keys) {
-                headerMap.put(key, headers.get(key));
-            }
-        }
-
-        String authorization = "Qiniu " + signQiniuAuthorization(url, method, body, headers);
-        headerMap.put("Authorization", authorization);
-        return headerMap;
     }
 
     @Deprecated
