@@ -377,7 +377,7 @@ public final class Auth {
         sb.append(method).append(" ").append(uri.getPath());
 
         if (uri.getQuery() != null) {
-            sb.append("?").append(uri.getQuery());
+            sb.append("?").append(uri.getRawQuery());
         }
 
         sb.append("\nHost: ").append(uri.getHost() != null ? uri.getHost() : "");
