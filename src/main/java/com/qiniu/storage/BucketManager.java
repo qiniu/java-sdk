@@ -197,7 +197,7 @@ public final class BucketManager {
             throws QiniuException {
         String url = String.format("%s/list?%s", configHelper.rsfHost(auth.accessKey, bucket),
                 listQuery(bucket, prefix, marker, limit, delimiter));
-        return post(url, null);
+        return get(url);
     }
 
     public FileListing listFiles(String bucket, String prefix, String marker, int limit, String delimiter)
@@ -1079,7 +1079,7 @@ public final class BucketManager {
     }
 
     private Response get(String url) throws QiniuException {
-        StringMap headers = auth.authorizationV2(url, "GET", null, Client.FormMime);
+        StringMap headers = auth.authorizationV2(url, "GET", null, null);
         return client.get(url, headers);
     }
 

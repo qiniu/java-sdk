@@ -15,10 +15,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class Auth {
-
     public static final String DTOKEN_ACTION_VOD = "linking:vod";
     public static final String DTOKEN_ACTION_STATUS = "linking:status";
     public static final String DTOKEN_ACTION_TUTK = "linking:tutk";
+    public static final String HTTP_HEADER_KEY_CONTENT_TYPE = "Content-Type";
+
+    private static final String QBOX_AUTHORIZATION_PREFIX = "QBox ";
+    private static final String QINIU_AUTHORIZATION_PREFIX = "Qiniu ";
+
     /**
      * 上传策略
      * 参考文档：<a href="https://developer.qiniu.com/kodo/manual/put-policy">上传策略</a>
@@ -209,7 +213,7 @@ public final class Auth {
     }
 
     /**
-     * 验证回调签名是否正确
+     * 验证回调签名是否正确，此方法仅能验证 QBox 签名以及 GET 请求的 Qiniu 签名
      *
      * @param originAuthorization 待验证签名字符串，以 "QBox "作为起始字符
      * @param url                 回调地址
@@ -217,10 +221,55 @@ public final class Auth {
      * @param contentType         回调ContentType
      * @return
      */
+    @Deprecated
     public boolean isValidCallback(String originAuthorization, String url, byte[] body, String contentType) {
-        String authorization = "QBox " + signRequest(url, body, contentType);
+        return isValidCallback(originAuthorization, url, "GET", contentType, body);
+    }
+
+    /**
+     * 验证回调签名是否正确
+     *
+     * @param originAuthorization 待验证签名字符串，以 "QBox "作为起始字符
+     * @param url                 回调地址
+     * @param method              回调请求方式
+     * @param body                回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
+     * @param contentType         回调ContentType
+     * @return
+     */
+    public boolean isValidCallback(String originAuthorization, String url, String method, String contentType, byte[] body) {
+        Headers header = null;
+        if (!StringUtils.isNullOrEmpty(contentType)) {
+            header = new Headers.Builder()
+                    .add(HTTP_HEADER_KEY_CONTENT_TYPE, contentType)
+                    .build();
+        }
+        return isValidCallback(originAuthorization, url, method, header, body);
+    }
+
+    /**
+     * 验证回调签名是否正确
+     *
+     * @param originAuthorization 待验证签名字符串，以 "QBox "作为起始字符
+     * @param url                 回调地址
+     * @param method              回调请求方式
+     * @param header              回调头，注意 Content-Type key {@link Auth#HTTP_HEADER_KEY_CONTENT_TYPE}
+     * @param body                回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
+     * @return
+     */
+    public boolean isValidCallback(String originAuthorization, String url, String method, Headers header, byte[] body) {
+        String authorization = "";
+        if (originAuthorization.startsWith(QINIU_AUTHORIZATION_PREFIX)) {
+            authorization = QINIU_AUTHORIZATION_PREFIX + signQiniuAuthorization(url, method, body, header);
+        } else if (originAuthorization.startsWith(QBOX_AUTHORIZATION_PREFIX)) {
+            String contentType = null;
+            if (header != null) {
+                contentType = header.get(HTTP_HEADER_KEY_CONTENT_TYPE);
+            }
+            authorization = QBOX_AUTHORIZATION_PREFIX + signRequest(url, body, contentType);
+        }
         return authorization.equals(originAuthorization);
     }
+
 
     /**
      * 下载签名
@@ -362,7 +411,7 @@ public final class Auth {
     public String signQiniuAuthorization(String url, String method, byte[] body, String contentType) {
         Headers headers = null;
         if (!StringUtils.isNullOrEmpty(contentType)) {
-            headers = new Headers.Builder().set("Content-Type", contentType).build();
+            headers = new Headers.Builder().set(HTTP_HEADER_KEY_CONTENT_TYPE, contentType).build();
         }
         return signQiniuAuthorization(url, method, body, headers);
     }
@@ -389,9 +438,9 @@ public final class Auth {
         String contentType = null;
 
         if (null != headers) {
-            contentType = headers.get("Content-Type");
+            contentType = headers.get(HTTP_HEADER_KEY_CONTENT_TYPE);
             if (contentType != null) {
-                sb.append("\nContent-Type: ").append(contentType);
+                sb.append("\n").append(HTTP_HEADER_KEY_CONTENT_TYPE).append(": ").append(contentType);
             }
 
             List<Header> xQiniuheaders = genXQiniuHeader(headers);
