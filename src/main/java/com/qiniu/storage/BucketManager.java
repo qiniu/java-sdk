@@ -104,7 +104,7 @@ public final class BucketManager {
 
     public Response bucketsResponse() throws QiniuException {
         String url = String.format("%s/buckets", configHelper.rsHost());
-        Response res = get(url);
+        Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -227,7 +227,7 @@ public final class BucketManager {
             throws QiniuException {
         String url = String.format("%s/v2/list?%s", configHelper.rsfHost(auth.accessKey, bucket),
                 listQuery(bucket, prefix, marker, limit, delimiter));
-        return get(url);
+        return post(url, null);
     }
 
     public FileListing listFilesV2(String bucket, String prefix, String marker, int limit, String delimiter)
@@ -275,7 +275,7 @@ public final class BucketManager {
     }
 
     public Response statResponse(String bucket, String fileKey) throws QiniuException {
-        Response res = rsGet(bucket, String.format("/stat/%s", encodedEntry(bucket, fileKey)));
+        Response res = rsPost(bucket, String.format("/stat/%s", encodedEntry(bucket, fileKey)), null);
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -594,7 +594,7 @@ public final class BucketManager {
      */
     public Response checkAsynFetchid(String region, String fetchWorkId) throws QiniuException {
         String path = String.format("http://api-%s.qiniu.com/sisyphus/fetch?id=%s", region, fetchWorkId);
-        return client.get(path, auth.authorization(path));
+        return client.get(path, auth.authorizationV2(path));
     }
 
     /**
@@ -1079,12 +1079,12 @@ public final class BucketManager {
     }
 
     private Response get(String url) throws QiniuException {
-        StringMap headers = auth.authorization(url);
+        StringMap headers = auth.authorizationV2(url, "GET", null, null);
         return client.get(url, headers);
     }
 
     private Response post(String url, byte[] body) throws QiniuException {
-        StringMap headers = auth.authorization(url, body, Client.FormMime);
+        StringMap headers = auth.authorizationV2(url, "POST", body, Client.FormMime);
         return client.post(url, body, headers, Client.FormMime);
     }
 

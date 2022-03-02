@@ -89,7 +89,7 @@ public final class OperationManager {
         params.put("bucket", bucket).put("key", key).put("fops", fops);
         byte[] data = StringUtils.utf8Bytes(params.formString());
         String url = configuration.apiHost(auth.accessKey, bucket) + "/pfop/";
-        StringMap headers = auth.authorization(url, data, Client.FormMime);
+        StringMap headers = auth.authorizationV2(url, "POST", data, Client.FormMime);
         Response response = client.post(url, data, headers, Client.FormMime);
         if (!response.isOK()) {
             throw new QiniuException(response);

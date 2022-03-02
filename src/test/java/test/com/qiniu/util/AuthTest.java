@@ -99,7 +99,17 @@ public class AuthTest {
         String s = auth.signQiniuAuthorization(url, method, body, headers);
         // System.out.println(sign + ": " + s + ": " + sign.equals(s) + "\n\n");
         assertEquals(sign, s);
+        assertTrue(auth.isValidCallback("Qiniu " + sign, url, method, headers, body), "checkSignQiniuValid fail, sign:" + sign);
     }
+
+    private void checkSignQbox(String sign, Auth auth, String url, String method, Headers headers, byte[] body) {
+        String contentType = headers.get("Content-Type");
+        String s = auth.signRequest(url, body, contentType);
+        // System.out.println(sign + ": " + s + ": " + sign.equals(s) + "\n\n");
+        assertEquals(sign, s);
+        assertTrue(auth.isValidCallback("QBox " + sign, url, method, headers, body), "checkSignQiniuValid fail, sign:" + sign);
+    }
+
 
     @Test
     @Tag("UnitTest")
@@ -113,81 +123,100 @@ public class AuthTest {
         Auth auth = Auth.create("ak", "sk");
         Charset utf8 = Charset.forName("UTF-8");
 
-        String sign = "ak:0i1vKClRDWFyNkcTFzwcE7PzX74=";
+        String qiniuSign = "ak:0i1vKClRDWFyNkcTFzwcE7PzX74=";
+        String qboxSign = "ak:NJolr7PWLYeqLKbDXI_LxhMUaw4=";
         String url = "";
         String method = "";
         Headers headers = new Headers.Builder().add("X-Qiniu-", "a").add("X-Qiniu", "b")
                 .add("Content-Type", "application/x-www-form-urlencoded").build();
         byte[] body = "{\"name\": \"test\"}".getBytes(utf8);
-        checkSignQiniu(sign, auth, url, method, headers, body);
+        checkSignQiniu(qiniuSign, auth, url, method, headers, body);
+        checkSignQbox(qboxSign, auth, url, method, headers, body);
 
-        sign = "ak:K1DI0goT05yhGizDFE5FiPJxAj4=";
+        qiniuSign = "ak:K1DI0goT05yhGizDFE5FiPJxAj4=";
+        qboxSign = "ak:qfWnqF1E_vfzjZnReCVkcSMl29M=";
         url = "";
         method = "";
         headers = new Headers.Builder().add("Content-Type", "application/json").build();
         body = "{\"name\": \"test\"}".getBytes(utf8);
-        checkSignQiniu(sign, auth, url, method, headers, body);
+        checkSignQiniu(qiniuSign, auth, url, method, headers, body);
+        checkSignQbox(qboxSign, auth, url, method, headers, body);
 
-        sign = "ak:0i1vKClRDWFyNkcTFzwcE7PzX74=";
+        qiniuSign = "ak:0i1vKClRDWFyNkcTFzwcE7PzX74=";
+        qboxSign = "ak:NJolr7PWLYeqLKbDXI_LxhMUaw4=";
         url = "";
         method = "GET";
         headers = new Headers.Builder().add("X-Qiniu-", "a").add("X-Qiniu", "b")
                 .add("Content-Type", "application/x-www-form-urlencoded").build();
         body = "{\"name\": \"test\"}".getBytes(utf8);
-        checkSignQiniu(sign, auth, url, method, headers, body);
+        checkSignQiniu(qiniuSign, auth, url, method, headers, body);
+        checkSignQbox(qboxSign, auth, url, method, headers, body);
 
-        sign = "ak:0ujEjW_vLRZxebsveBgqa3JyQ-w=";
+        qiniuSign = "ak:0ujEjW_vLRZxebsveBgqa3JyQ-w=";
+        qboxSign = "ak:qfWnqF1E_vfzjZnReCVkcSMl29M=";
         url = "";
         method = "POST";
         headers = new Headers.Builder().add("Content-Type", "application/json").add("X-Qiniu", "b").build();
         body = "{\"name\": \"test\"}".getBytes(utf8);
-        checkSignQiniu(sign, auth, url, method, headers, body);
+        checkSignQiniu(qiniuSign, auth, url, method, headers, body);
+        checkSignQbox(qboxSign, auth, url, method, headers, body);
 
-        sign = "ak:GShw5NitGmd5TLoo38nDkGUofRw=";
+        qiniuSign = "ak:GShw5NitGmd5TLoo38nDkGUofRw=";
+        qboxSign = "ak:NJolr7PWLYeqLKbDXI_LxhMUaw4=";
         url = "http://upload.qiniup.com";
         method = "";
         headers = new Headers.Builder().add("X-Qiniu-", "a").add("X-Qiniu", "b")
                 .add("Content-Type", "application/x-www-form-urlencoded").build();
         body = "{\"name\": \"test\"}".getBytes(utf8);
-        checkSignQiniu(sign, auth, url, method, headers, body);
+        checkSignQiniu(qiniuSign, auth, url, method, headers, body);
+        checkSignQbox(qboxSign, auth, url, method, headers, body);
 
-        sign = "ak:_PAgAJVMMQD4SLLXp7f44lS8aTs=";
+        qiniuSign = "ak:_PAgAJVMMQD4SLLXp7f44lS8aTs=";
+        qboxSign = "ak:qfWnqF1E_vfzjZnReCVkcSMl29M=";
         url = "http://upload.qiniup.com";
         method = "";
         headers = new Headers.Builder().set("Content-Type", "application/json").add("X-Qiniu-Bbb", "BBB")
                 .add("X-Qiniu-Bbb", "AAA").add("X-Qiniu-Aaa", "DDD").add("X-Qiniu-Aaa", "CCC").add("X-Qiniu-", "a")
                 .add("X-Qiniu", "b").build();
         body = "{\"name\": \"test\"}".getBytes(utf8);
-        checkSignQiniu(sign, auth, url, method, headers, body);
+        checkSignQiniu(qiniuSign, auth, url, method, headers, body);
+        checkSignQbox(qboxSign, auth, url, method, headers, body);
 
-        sign = "ak:ERR7z4iI_gHYd80GVfCBZBtT3wg=";
+        qiniuSign = "ak:ERR7z4iI_gHYd80GVfCBZBtT3wg=";
+        qboxSign = "ak:h8gBb1Adb2Jgoys1N8sRVAnNvpw=";
         url = "http://upload.qiniup.com";
         method = "";
         headers = new Headers.Builder().set("Content-Type", "application/x-www-form-urlencoded")
                 .add("X-Qiniu-Bbb", "BBB").add("X-Qiniu-Bbb", "AAA").add("X-Qiniu-Aaa", "DDD").add("X-Qiniu-Aaa", "CCC")
                 .add("X-Qiniu-", "a").add("X-Qiniu", "b").build();
         body = "name=test&language=go".getBytes(utf8);
-        checkSignQiniu(sign, auth, url, method, headers, body);
+        checkSignQiniu(qiniuSign, auth, url, method, headers, body);
+        checkSignQbox(qboxSign, auth, url, method, headers, body);
 
         headers = new Headers.Builder().add("Content-Type", "application/x-www")
                 .set("Content-Type", "application/x-www-form-urlencoded").add("X-Qiniu-BBB", "BBB")
                 .add("X-Qiniu-bBb", "AAA").add("X-Qiniu-AaA", "DDD").add("X-Qiniu-aAA", "CCC").build();
-        checkSignQiniu(sign, auth, url, method, headers, body);
+        checkSignQiniu(qiniuSign, auth, url, method, headers, body);
+        checkSignQbox(qboxSign, auth, url, method, headers, body);
 
         //////////// end of copy test ////
 
-        sign = "ak:EsN_Os_WPtDf2hpO4FeB5ybwdYc=";
+        qiniuSign = "ak:CLpJSqdLC3atDe8vDfUVj8i2bug=";
+        qboxSign = "ak:fRfPzux63uUumMU_GRiF0uWdAgE=";
         url = "http://upload.qiniup.com/mkfile/sdf.jpg";
-        method = "";
+        method = "ak:fRfPzux63uUumMU_GRiF0uWdAgE=";
         headers = new Headers.Builder().set("Content-Type", "application/x-www-form-urlencoded")
                 .add("X-Qiniu-Bbb", "BBB").add("X-Qiniu-Bbb", "AAA").add("X-Qiniu-Aaa", "DDD").add("X-Qiniu-Aaa", "CCC")
                 .add("X-Qiniu-", "a").add("X-Qiniu", "b").build();
         body = "name=test&language=go".getBytes(utf8);
-        checkSignQiniu(sign, auth, url, method, headers, body);
+        checkSignQiniu(qiniuSign, auth, url, method, headers, body);
+        checkSignQbox(qboxSign, auth, url, method, headers, body);
 
-        sign = "ak:uL7gITytxi233iMBKD0zXKHhj28=";
+        qiniuSign = "ak:QGATpJaEx-LEUO01-mVZ8jg1dtk=";
+        qboxSign = "ak:K-R81jo5uqFvssxWcCUjZebb8Cw=";
         url = "http://upload.qiniup.com/mkfile/sdf.jpg?s=er3&df";
-        checkSignQiniu(sign, auth, url, method, headers, body);
+        checkSignQiniu(qiniuSign, auth, url, method, headers, body);
+        checkSignQbox(qboxSign, auth, url, method, headers, body);
     }
 
     static class Policy {
