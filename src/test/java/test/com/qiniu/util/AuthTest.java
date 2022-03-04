@@ -99,7 +99,7 @@ public class AuthTest {
         String s = auth.signQiniuAuthorization(url, method, body, headers);
         // System.out.println(sign + ": " + s + ": " + sign.equals(s) + "\n\n");
         assertEquals(sign, s);
-        assertTrue(auth.isValidCallback("Qiniu " + sign, url, method, headers, body), "checkSignQiniuValid fail, sign:" + sign);
+        assertTrue(auth.isValidCallback("Qiniu " + sign, new Auth.Request(url, method, headers, body)), "checkSignQiniuValid fail, sign:" + sign);
     }
 
     private void checkSignQbox(String sign, Auth auth, String url, String method, Headers headers, byte[] body) {
@@ -107,7 +107,7 @@ public class AuthTest {
         String s = auth.signRequest(url, body, contentType);
         // System.out.println(sign + ": " + s + ": " + sign.equals(s) + "\n\n");
         assertEquals(sign, s);
-        assertTrue(auth.isValidCallback("QBox " + sign, url, method, headers, body), "checkSignQiniuValid fail, sign:" + sign);
+        assertTrue(auth.isValidCallback("QBox " + sign, new Auth.Request(url, method, headers, body)), "checkSignQiniuValid fail, sign:" + sign);
     }
 
 

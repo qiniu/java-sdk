@@ -215,57 +215,44 @@ public final class Auth {
     /**
      * 验证回调签名是否正确，此方法仅能验证 QBox 签名以及 GET 请求的 Qiniu 签名
      *
-     * @param originAuthorization 待验证签名字符串，以 "QBox "作为起始字符
+     * @param originAuthorization 待验证签名字符串，以 "QBox " 作为起始字符，GET 请求支持 "Qiniu " 开头。
      * @param url                 回调地址
      * @param body                回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
-     * @param contentType         回调ContentType
+     * @param contentType         回调 ContentType
      * @return
      */
     @Deprecated
     public boolean isValidCallback(String originAuthorization, String url, byte[] body, String contentType) {
-        return isValidCallback(originAuthorization, url, "GET", contentType, body);
-    }
-
-    /**
-     * 验证回调签名是否正确
-     *
-     * @param originAuthorization 待验证签名字符串，以 "QBox "作为起始字符
-     * @param url                 回调地址
-     * @param method              回调请求方式
-     * @param body                回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
-     * @param contentType         回调ContentType
-     * @return
-     */
-    public boolean isValidCallback(String originAuthorization, String url, String method, String contentType, byte[] body) {
         Headers header = null;
         if (!StringUtils.isNullOrEmpty(contentType)) {
             header = new Headers.Builder()
                     .add(HTTP_HEADER_KEY_CONTENT_TYPE, contentType)
                     .build();
         }
-        return isValidCallback(originAuthorization, url, method, header, body);
+        return isValidCallback(originAuthorization, new Request(url, "GET", header, body));
     }
 
     /**
-     * 验证回调签名是否正确
+     * 验证回调签名是否正确，此方法支持验证 QBox 和 Qiniu 签名
      *
-     * @param originAuthorization 待验证签名字符串，以 "QBox "作为起始字符
-     * @param url                 回调地址
-     * @param method              回调请求方式
-     * @param header              回调头，注意 Content-Type key {@link Auth#HTTP_HEADER_KEY_CONTENT_TYPE}
-     * @param body                回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
+     * @param originAuthorization 待验证签名字符串，以 "QBox " 或 "Qiniu " 作为起始字符
+     * @param callback            callback 请求信息
      * @return
      */
-    public boolean isValidCallback(String originAuthorization, String url, String method, Headers header, byte[] body) {
+    public boolean isValidCallback(String originAuthorization, Request callback) {
+        if (callback == null) {
+            return false;
+        }
+
         String authorization = "";
         if (originAuthorization.startsWith(QINIU_AUTHORIZATION_PREFIX)) {
-            authorization = QINIU_AUTHORIZATION_PREFIX + signQiniuAuthorization(url, method, body, header);
+            authorization = QINIU_AUTHORIZATION_PREFIX + signQiniuAuthorization(callback.url, callback.method, callback.body, callback.header);
         } else if (originAuthorization.startsWith(QBOX_AUTHORIZATION_PREFIX)) {
             String contentType = null;
-            if (header != null) {
-                contentType = header.get(HTTP_HEADER_KEY_CONTENT_TYPE);
+            if (callback.header != null) {
+                contentType = callback.header.get(HTTP_HEADER_KEY_CONTENT_TYPE);
             }
-            authorization = QBOX_AUTHORIZATION_PREFIX + signRequest(url, body, contentType);
+            authorization = QBOX_AUTHORIZATION_PREFIX + signRequest(callback.url, callback.body, contentType);
         }
         return authorization.equals(originAuthorization);
     }
@@ -571,6 +558,26 @@ public final class Auth {
             } else {
                 return c;
             }
+        }
+    }
+
+    public static class Request {
+        private final String url;
+        private final String method;
+        private final Headers header;
+        private final byte[] body;
+
+        /**
+         * @param url    回调地址
+         * @param method 回调请求方式
+         * @param header 回调头，注意 Content-Type Key 字段需为：{@link Auth#HTTP_HEADER_KEY_CONTENT_TYPE}，大小写敏感
+         * @param body   回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
+         **/
+        public Request(String url, String method, Headers header, byte[] body) {
+            this.url = url;
+            this.method = method;
+            this.header = header;
+            this.body = body;
         }
     }
 }
