@@ -15,10 +15,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class Auth {
-
     public static final String DTOKEN_ACTION_VOD = "linking:vod";
     public static final String DTOKEN_ACTION_STATUS = "linking:status";
     public static final String DTOKEN_ACTION_TUTK = "linking:tutk";
+    public static final String HTTP_HEADER_KEY_CONTENT_TYPE = "Content-Type";
+
+    private static final String QBOX_AUTHORIZATION_PREFIX = "QBox ";
+    private static final String QINIU_AUTHORIZATION_PREFIX = "Qiniu ";
+
     /**
      * 上传策略
      * 参考文档：<a href="https://developer.qiniu.com/kodo/manual/put-policy">上传策略</a>
@@ -209,18 +213,50 @@ public final class Auth {
     }
 
     /**
-     * 验证回调签名是否正确
+     * 验证回调签名是否正确，此方法仅能验证 QBox 签名以及 GET 请求的 Qiniu 签名
      *
-     * @param originAuthorization 待验证签名字符串，以 "QBox "作为起始字符
+     * @param originAuthorization 待验证签名字符串，以 "QBox " 作为起始字符，GET 请求支持 "Qiniu " 开头。
      * @param url                 回调地址
      * @param body                回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
-     * @param contentType         回调ContentType
+     * @param contentType         回调 ContentType
      * @return
      */
+    @Deprecated
     public boolean isValidCallback(String originAuthorization, String url, byte[] body, String contentType) {
-        String authorization = "QBox " + signRequest(url, body, contentType);
+        Headers header = null;
+        if (!StringUtils.isNullOrEmpty(contentType)) {
+            header = new Headers.Builder()
+                    .add(HTTP_HEADER_KEY_CONTENT_TYPE, contentType)
+                    .build();
+        }
+        return isValidCallback(originAuthorization, new Request(url, "GET", header, body));
+    }
+
+    /**
+     * 验证回调签名是否正确，此方法支持验证 QBox 和 Qiniu 签名
+     *
+     * @param originAuthorization 待验证签名字符串，以 "QBox " 或 "Qiniu " 作为起始字符
+     * @param callback            callback 请求信息
+     * @return
+     */
+    public boolean isValidCallback(String originAuthorization, Request callback) {
+        if (callback == null) {
+            return false;
+        }
+
+        String authorization = "";
+        if (originAuthorization.startsWith(QINIU_AUTHORIZATION_PREFIX)) {
+            authorization = QINIU_AUTHORIZATION_PREFIX + signQiniuAuthorization(callback.url, callback.method, callback.body, callback.header);
+        } else if (originAuthorization.startsWith(QBOX_AUTHORIZATION_PREFIX)) {
+            String contentType = null;
+            if (callback.header != null) {
+                contentType = callback.header.get(HTTP_HEADER_KEY_CONTENT_TYPE);
+            }
+            authorization = QBOX_AUTHORIZATION_PREFIX + signRequest(callback.url, callback.body, contentType);
+        }
         return authorization.equals(originAuthorization);
     }
+
 
     /**
      * 下载签名
@@ -362,7 +398,7 @@ public final class Auth {
     public String signQiniuAuthorization(String url, String method, byte[] body, String contentType) {
         Headers headers = null;
         if (!StringUtils.isNullOrEmpty(contentType)) {
-            headers = new Headers.Builder().set("Content-Type", contentType).build();
+            headers = new Headers.Builder().set(HTTP_HEADER_KEY_CONTENT_TYPE, contentType).build();
         }
         return signQiniuAuthorization(url, method, body, headers);
     }
@@ -377,7 +413,7 @@ public final class Auth {
         sb.append(method).append(" ").append(uri.getPath());
 
         if (uri.getQuery() != null) {
-            sb.append("?").append(uri.getQuery());
+            sb.append("?").append(uri.getRawQuery());
         }
 
         sb.append("\nHost: ").append(uri.getHost() != null ? uri.getHost() : "");
@@ -389,12 +425,12 @@ public final class Auth {
         String contentType = null;
 
         if (null != headers) {
-            contentType = headers.get("Content-Type");
+            contentType = headers.get(HTTP_HEADER_KEY_CONTENT_TYPE);
             if (contentType != null) {
-                sb.append("\nContent-Type: ").append(contentType);
+                sb.append("\n").append(HTTP_HEADER_KEY_CONTENT_TYPE).append(": ").append(contentType);
             }
 
-            List<Header> xQiniuheaders = genXQiniuHeader(headers);
+            List<Header> xQiniuheaders = genXQiniuSignHeader(headers);
             java.util.Collections.sort(xQiniuheaders);
             if (xQiniuheaders.size() > 0) {
                 for (Header h : xQiniuheaders) {
@@ -416,11 +452,13 @@ public final class Auth {
         return this.accessKey + ":" + digest;
     }
 
-    private List<Header> genXQiniuHeader(Headers headers) {
+    private List<Header> genXQiniuSignHeader(Headers headers) {
+
         ArrayList<Header> hs = new ArrayList<Header>();
         for (String name : headers.names()) {
             if (name.length() > "X-Qiniu-".length() && name.startsWith("X-Qiniu-")) {
-                for (String value : headers.values(name)) {
+                String value = headers.get(name);
+                if (value != null) {
                     hs.add(new Header(canonicalMIMEHeaderKey(name), value));
                 }
             }
@@ -446,7 +484,7 @@ public final class Auth {
 
     @Deprecated
     public StringMap authorizationV2(String url) {
-        return authorizationV2(url, "GET", null, null);
+        return authorizationV2(url, "GET", null, (String) null);
     }
 
     //连麦 RoomToken
@@ -520,6 +558,26 @@ public final class Auth {
             } else {
                 return c;
             }
+        }
+    }
+
+    public static class Request {
+        private final String url;
+        private final String method;
+        private final Headers header;
+        private final byte[] body;
+
+        /**
+         * @param url    回调地址
+         * @param method 回调请求方式
+         * @param header 回调头，注意 Content-Type Key 字段需为：{@link Auth#HTTP_HEADER_KEY_CONTENT_TYPE}，大小写敏感
+         * @param body   回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
+         **/
+        public Request(String url, String method, Headers header, byte[] body) {
+            this.url = url;
+            this.method = method;
+            this.header = header;
+            this.body = body;
         }
     }
 }
