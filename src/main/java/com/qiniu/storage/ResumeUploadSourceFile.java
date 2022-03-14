@@ -28,9 +28,9 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
         long offset = 0;
         int blockIndex = 0;
         while (offset < fileSize) {
-            int lastSize = (int) (fileSize - offset);
-            int blockSizeP = Math.min(lastSize, blockSize);
-            Block block = new Block(config, offset, blockSizeP, blockIndex);
+            long lastSize = fileSize - offset;
+            long blockSizeP = Math.min(lastSize, (long)blockSize);
+            Block block = new Block(config, offset, (int)blockSizeP, blockIndex);
             blockList.add(block);
             offset += blockSizeP;
             blockIndex += 1;
