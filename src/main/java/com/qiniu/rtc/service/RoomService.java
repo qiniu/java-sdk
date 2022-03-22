@@ -87,7 +87,7 @@ public class RoomService extends AbstractService {
      */
     public Response listActiveRoom(String appId, String roomNamePrefix, UrlParam urlParam) throws QiniuException {
         String urlPattern = "/v3/apps/%s/rooms?prefix=%s&offset=%d&limit=%d";
-        return getCall(urlPattern, appId, roomNamePrefix, urlParam.getOffset(), urlParam.getOffset());
+        return getCall(urlPattern, appId, roomNamePrefix, urlParam.getOffset(), urlParam.getLimit());
     }
 
     /**
