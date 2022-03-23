@@ -609,10 +609,27 @@ public class BucketTest {
                     clearBucketLifeCycleRule(bucket, bucketManager);
 
                     // 追加规则
-                    rule = new BucketLifeCycleRule("a", "x");
+                    rule = new BucketLifeCycleRule("aa", "x")
+                            .setToLineAfterDays(1)
+                            .setToArchiveAfterDays(2)
+                            .setToDeepArchiveAfterDays(3)
+                            .setDeleteAfterDays(4);
                     System.out.println(rule.asQueryString());
                     response = bucketManager.putBucketLifecycleRule(bucket, rule);
                     assertEquals(200, response.statusCode);
+                    rules = bucketManager.getBucketLifeCycleRule(bucket);
+                    boolean exist = false;
+                    for (BucketLifeCycleRule r : rules) {
+                        if (r.getName().equals("aa") &&
+                                r.getPrefix().equals("x") &&
+                                r.getToLineAfterDays() == 1 &&
+                                r.getToArchiveAfterDays() == 2 &&
+                                r.getToDeepArchiveAfterDays() == 3 &&
+                                r.getDeleteAfterDays() == 4) {
+                            exist = true;
+                        }
+                    }
+                    assertTrue(exist, "rules put fail");
 
                     // 更新规则（name不存在）
                     try {
@@ -624,10 +641,28 @@ public class BucketTest {
                     }
 
                     // 更新规则
-                    rule = new BucketLifeCycleRule("a", null);
+                    rule = new BucketLifeCycleRule("aa", "x")
+                            .setToLineAfterDays(11)
+                            .setToArchiveAfterDays(12)
+                            .setToDeepArchiveAfterDays(13)
+                            .setDeleteAfterDays(14);
                     System.out.println(rule.asQueryString());
                     response = bucketManager.updateBucketLifeCycleRule(bucket, rule);
                     assertEquals(200, response.statusCode);
+
+                    rules = bucketManager.getBucketLifeCycleRule(bucket);
+                    exist = false;
+                    for (BucketLifeCycleRule r : rules) {
+                        if (r.getName().equals("aa") &&
+                                r.getPrefix().equals("x") &&
+                                r.getToLineAfterDays() == 11 &&
+                                r.getToArchiveAfterDays() == 12 &&
+                                r.getToDeepArchiveAfterDays() == 13 &&
+                                r.getDeleteAfterDays() == 14) {
+                            exist = true;
+                        }
+                    }
+                    assertTrue(exist, "rules update fail");
 
                     // 重复设置（name、prefix重复）
                     try {
@@ -639,7 +674,7 @@ public class BucketTest {
 
                     // 重复设置（name重复）
                     try {
-                        rule = new BucketLifeCycleRule("a", "b");
+                        rule = new BucketLifeCycleRule("aa", "b");
                         System.out.println(rule.asQueryString());
                         response = bucketManager.putBucketLifecycleRule(bucket, rule);
                         fail();
@@ -649,7 +684,7 @@ public class BucketTest {
 
                     // 重复设置（prefix重复）
                     try {
-                        rule = new BucketLifeCycleRule("b", null);
+                        rule = new BucketLifeCycleRule("b", "x");
                         System.out.println(rule.asQueryString());
                         response = bucketManager.putBucketLifecycleRule(bucket, rule);
                         fail();
@@ -690,7 +725,6 @@ public class BucketTest {
             for (BucketLifeCycleRule r : rules) {
                 System.out.println("name=" + r.getName());
                 System.out.println("prefix=" + r.getPrefix());
-                assertNotEquals("x", r.getPrefix());
             }
         } finally {
             // 删除规则

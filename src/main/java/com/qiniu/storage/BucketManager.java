@@ -336,7 +336,7 @@ public final class BucketManager {
      *
      * @param bucket 空间名称
      * @param key    文件名称
-     * @param type   type=0 表示普通存储，type=1 表示低频存存储, type=2 表示归档存储
+     * @param type   type=0 表示普通存储，type=1 表示低频存存储, type=2 表示归档存储, type=3 表示深度归档存储
      * @throws QiniuException
      */
     public Response changeType(String bucket, String key, StorageType type)
