@@ -6,5 +6,5 @@ import lombok.Data;
 public class CallbackParam {
     private String eventCbUrl;
     private String eventCbSecret;
-    private String eventCbVersion;
+    private int eventCbVersion;
 }
