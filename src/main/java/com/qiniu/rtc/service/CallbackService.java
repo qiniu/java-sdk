@@ -35,7 +35,7 @@ public class CallbackService extends AbstractService {
                 || StringUtils.isNullOrEmpty(param.getEventCbSecret())) {
             throw new IllegalArgumentException("CallbackParam cannot be null...");
         }
-        param.setEventCbVersion("1");
+        param.setEventCbVersion(1); //only support http
         String urlPattern = "/v3/apps/%s";
         return postCall(param, urlPattern, appId);
     }
