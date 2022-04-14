@@ -10,9 +10,11 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
+import sun.nio.ch.DirectBuffer;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  * 同步分片上传

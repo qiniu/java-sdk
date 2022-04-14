@@ -19,8 +19,8 @@ public final class TestConfig {
     public static final String dummyInvalidUptoken = "invalidtoken";
 
     // test: ak, sk, auth
-    public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
-    public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
+    public static final String testAccessKey = "dxVQk8gyk3WswArbNhdKIwmwibJ9nFsQhMNUmtIM"; // System.getenv("QINIU_ACCESS_KEY");
+    public static final String testSecretKey = "s-95BDHpzyHPzHAe7WGdAeTy98vVwqdki-0U027j";// System.getenv("QINIU_SECRET_KEY");
     // 内部测试环境 AK/SK
     public static final String innerAccessKey = System.getenv("testAK");
     public static final String innerSecretKey = System.getenv("testSK");
@@ -29,13 +29,13 @@ public final class TestConfig {
     public static final String smsAccessKey = "test";
     public static final String smsSecretKey = "test";
 
-    public static final String testDefaultKey = "do_not_delete/1.png";
+    public static final String testDefaultKey = "data_hh_8KB_0"; //"do_not_delete/1.png";
     public static final String getTestDefaultMp4FileKey = "do_not_delete/1.mp4";
     public static final String testMp4FileKey = "do_not_delete/1.mp4";
 
     // z0
-    public static final String testBucket_z0 = "javasdk";
-    public static final String testKey_z0 = "do_not_delete/1.png";
+    public static final String testBucket_z0 = "kodo-phone-zone0-space"; //""javasdk";
+    public static final String testKey_z0 = "data_hh_8KB_0"; // ""do_not_delete/1.png";
     public static final String testDomain_z0 = "javasdk.peterpy.cn";
     public static final String testUrl_z0 = "http://" + testDomain_z0 + "/" + testKey_z0;
     public static final String testDomain_z0_timeStamp = "javasdk-timestamp.peterpy.cn";
