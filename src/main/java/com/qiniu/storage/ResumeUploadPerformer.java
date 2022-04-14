@@ -5,7 +5,6 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 abstract class ResumeUploadPerformer {
 
