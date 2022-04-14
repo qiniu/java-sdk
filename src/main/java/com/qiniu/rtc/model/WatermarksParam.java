@@ -17,6 +17,10 @@ public class WatermarksParam {
         private int y;
         private int w;
         private int h;
+
+        /**
+         * @see com.qiniu.rtc.model.StretchModeEnum
+         */
         private String stretchMode;
     }
 }
