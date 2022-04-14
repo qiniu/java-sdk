@@ -29,13 +29,13 @@ public final class TestConfig {
     public static final String smsAccessKey = "test";
     public static final String smsSecretKey = "test";
 
-    public static final String testDefaultKey = "data_hh_8KB_0"; //"do_not_delete/1.png";
+    public static final String testDefaultKey = "do_not_delete/1.png";
     public static final String getTestDefaultMp4FileKey = "do_not_delete/1.mp4";
     public static final String testMp4FileKey = "do_not_delete/1.mp4";
 
     // z0
-    public static final String testBucket_z0 = "kodo-phone-zone0-space"; //""javasdk";
-    public static final String testKey_z0 = "data_hh_8KB_0"; // ""do_not_delete/1.png";
+    public static final String testBucket_z0 = "javasdk";
+    public static final String testKey_z0 = "do_not_delete/1.png";
     public static final String testDomain_z0 = "javasdk.peterpy.cn";
     public static final String testUrl_z0 = "http://" + testDomain_z0 + "/" + testKey_z0;
     public static final String testDomain_z0_timeStamp = "javasdk-timestamp.peterpy.cn";
