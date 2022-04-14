@@ -19,8 +19,8 @@ public final class TestConfig {
     public static final String dummyInvalidUptoken = "invalidtoken";
 
     // test: ak, sk, auth
-    public static final String testAccessKey = "dxVQk8gyk3WswArbNhdKIwmwibJ9nFsQhMNUmtIM"; // System.getenv("QINIU_ACCESS_KEY");
-    public static final String testSecretKey = "s-95BDHpzyHPzHAe7WGdAeTy98vVwqdki-0U027j";// System.getenv("QINIU_SECRET_KEY");
+    public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
+    public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
     // 内部测试环境 AK/SK
     public static final String innerAccessKey = System.getenv("testAK");
     public static final String innerSecretKey = System.getenv("testSK");

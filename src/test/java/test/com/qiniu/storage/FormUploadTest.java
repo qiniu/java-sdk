@@ -60,7 +60,7 @@ public class FormUploadTest {
     public void hello(UploadManager up, String bucket) {
         final String expectKey = "你好?&=\r\n";
         StringMap params = new StringMap().put("x:foo", "foo_val");
-        params.put("x-qn-meta-fooKey", "foo_val");
+
         String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
         Response r = null;
         try {
