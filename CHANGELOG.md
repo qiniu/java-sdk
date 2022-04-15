@@ -1,4 +1,7 @@
 # Changelog
+## 7.10.0 （2022-04-15）
+* 对象存储，新增支持 [深度归档存储类型](https://developer.qiniu.com/kodo/3956/kodo-category#deep_archive)
+
 
 ## 7.9.5 (2022-03-28)
 
