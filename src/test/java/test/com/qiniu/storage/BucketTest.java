@@ -620,12 +620,12 @@ public class BucketTest {
                     rules = bucketManager.getBucketLifeCycleRule(bucket);
                     boolean exist = false;
                     for (BucketLifeCycleRule r : rules) {
-                        if (r.getName().equals("aa") &&
-                                r.getPrefix().equals("x") &&
-                                r.getToLineAfterDays() == 1 &&
-                                r.getToArchiveAfterDays() == 2 &&
-                                r.getToDeepArchiveAfterDays() == 3 &&
-                                r.getDeleteAfterDays() == 4) {
+                        if (r.getName().equals("aa")
+                                && r.getPrefix().equals("x")
+                                && r.getToLineAfterDays() == 1
+                                && r.getToArchiveAfterDays() == 2
+                                && r.getToDeepArchiveAfterDays() == 3
+                                && r.getDeleteAfterDays() == 4) {
                             exist = true;
                         }
                     }
@@ -653,12 +653,12 @@ public class BucketTest {
                     rules = bucketManager.getBucketLifeCycleRule(bucket);
                     exist = false;
                     for (BucketLifeCycleRule r : rules) {
-                        if (r.getName().equals("aa") &&
-                                r.getPrefix().equals("x") &&
-                                r.getToLineAfterDays() == 11 &&
-                                r.getToArchiveAfterDays() == 12 &&
-                                r.getToDeepArchiveAfterDays() == 13 &&
-                                r.getDeleteAfterDays() == 14) {
+                        if (r.getName().equals("aa")
+                                && r.getPrefix().equals("x")
+                                && r.getToLineAfterDays() == 11
+                                && r.getToArchiveAfterDays() == 12
+                                && r.getToDeepArchiveAfterDays() == 13
+                                && r.getDeleteAfterDays() == 14) {
                             exist = true;
                         }
                     }
@@ -858,8 +858,8 @@ public class BucketTest {
             System.out.println("name=" + r.getName());
             System.out.println("prefix=" + r.getPrefix());
             System.out.println("suffix=" + r.getSuffix());
-            System.out.println("event=" + Arrays.asList(r.getEvents()).toString());
-            System.out.println("callbackUrls=" + Arrays.asList(r.getCallbackUrls()).toString());
+            System.out.println("event=" + Arrays.asList(r.getEvents()));
+            System.out.println("callbackUrls=" + Arrays.asList(r.getCallbackUrls()));
         }
         // 删除Event
         for (BucketEventRule r : rules) {
