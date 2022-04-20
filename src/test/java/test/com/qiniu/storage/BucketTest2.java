@@ -219,6 +219,41 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testStat() {
+        String copyKey = TestConfig.testBucket_z0 + "_status_copy";
+        try {
+            bucketManager.copy(TestConfig.testBucket_z0, TestConfig.testKey_z0, TestConfig.testBucket_z0, copyKey, true);
+            bucketManager.changeType(TestConfig.testBucket_z0, copyKey, StorageType.Archive);
+            bucketManager.restoreArchive(TestConfig.testBucket_z0, copyKey, 1);
+            FileInfo info = bucketManager.stat(TestConfig.testBucket_z0, copyKey);
+            assertNotNull(info.hash);
+            assertNotNull(info.mimeType);
+            assertNotNull(info.restoreStatus);
+
+            bucketManager.copy(TestConfig.testBucket_z0, TestConfig.testKey_z0, TestConfig.testBucket_z0, copyKey, true);
+            bucketManager.changeType(TestConfig.testBucket_z0, copyKey, StorageType.DeepArchive);
+            bucketManager.restoreArchive(TestConfig.testBucket_z0, copyKey, 1);
+            bucketManager.deleteAfterDays(TestConfig.testBucket_z0, copyKey, 1);
+            info = bucketManager.stat(TestConfig.testBucket_z0, copyKey);
+            assertNotNull(info.hash);
+            assertNotNull(info.mimeType);
+            assertNotNull(info.restoreStatus);
+            assertNotNull(info.expiration);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            fail("status change type fail:" + e);
+        }
+
+        try {
+            FileInfo info = bucketManager.stat(TestConfig.testBucket_z0, copyKey);
+            assertNotNull(info.hash);
+            assertNotNull(info.mimeType);
+            assertNotNull(info.restoreStatus);
+            assertNotNull(info.transitionToDeepArchive);
+            assertNotNull(info.expiration);
+        } catch (QiniuException e) {
+            fail("status fail:" + e);
+        }
+
         // test exists
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
