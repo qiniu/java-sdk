@@ -219,7 +219,15 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testStat() {
+        String ruleName = "javaStatusRule";
         String copyKey = TestConfig.testBucket_z0 + "_status_copy";
+
+        try {
+            bucketManager.deleteBucketLifecycleRule(TestConfig.testBucket_z0, ruleName);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        }
+
         try {
             bucketManager.copy(TestConfig.testBucket_z0, TestConfig.testKey_z0, TestConfig.testBucket_z0, copyKey, true);
             bucketManager.changeType(TestConfig.testBucket_z0, copyKey, StorageType.Archive);
@@ -229,6 +237,13 @@ public class BucketTest2 {
             assertNotNull(info.mimeType);
             assertNotNull(info.restoreStatus);
 
+            bucketManager.delete(TestConfig.testBucket_z0, copyKey);
+            BucketLifeCycleRule rule = new BucketLifeCycleRule(ruleName, "");
+            rule.setToLineAfterDays(1);
+            rule.setToArchiveAfterDays(2);
+            rule.setToDeepArchiveAfterDays(3);
+            rule.setDeleteAfterDays(4);
+            bucketManager.putBucketLifecycleRule(TestConfig.testBucket_z0, rule);
             bucketManager.copy(TestConfig.testBucket_z0, TestConfig.testKey_z0, TestConfig.testBucket_z0, copyKey, true);
             bucketManager.changeType(TestConfig.testBucket_z0, copyKey, StorageType.DeepArchive);
             bucketManager.restoreArchive(TestConfig.testBucket_z0, copyKey, 1);
@@ -238,9 +253,18 @@ public class BucketTest2 {
             assertNotNull(info.mimeType);
             assertNotNull(info.restoreStatus);
             assertNotNull(info.expiration);
+            assertNotNull(info.transitionToIA);
+            assertNotNull(info.transitionToArchive);
+            assertNotNull(info.transitionToDeepArchive);
         } catch (QiniuException e) {
             e.printStackTrace();
             fail("status change type fail:" + e);
+        } finally {
+            try {
+                bucketManager.deleteBucketLifecycleRule(TestConfig.testBucket_z0, ruleName);
+            } catch (QiniuException e) {
+                e.printStackTrace();
+            }
         }
 
         try {

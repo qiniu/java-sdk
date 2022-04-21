@@ -97,7 +97,8 @@ public final class FileInfo {
      *
      * 例如：值为1568736000的时间，表示文件会在2019/9/18当天转为归档存储类型。
      */
-    public Long transitionToARCHIVE;
+    @SerializedName("transitionToARCHIVE")
+    public Long transitionToArchive;
 
     /**
      * 文件生命周期中转为深度归档存储的日期，int64 类型，Unix 时间戳格式 ，具体日期计算参考 生命周期管理。
