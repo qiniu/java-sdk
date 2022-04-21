@@ -247,13 +247,10 @@ public class BucketTest2 {
             rule.setDeleteAfterDays(4);
             bucketManager.putBucketLifecycleRule(TestConfig.testBucket_z0, rule);
             bucketManager.copy(TestConfig.testBucket_z0, TestConfig.testKey_z0, TestConfig.testBucket_z0, copyKey, true);
-            bucketManager.changeType(TestConfig.testBucket_z0, copyKey, StorageType.DeepArchive);
-            bucketManager.restoreArchive(TestConfig.testBucket_z0, copyKey, 1);
             bucketManager.deleteAfterDays(TestConfig.testBucket_z0, copyKey, 1);
             info = bucketManager.stat(TestConfig.testBucket_z0, copyKey);
             assertNotNull(info.hash);
             assertNotNull(info.mimeType);
-            assertNotNull(info.restoreStatus);
             assertNotNull(info.expiration);
             assertNotNull(info.transitionToIA);
             assertNotNull(info.transitionToArchive);
