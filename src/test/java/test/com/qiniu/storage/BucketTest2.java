@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
+
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -89,7 +91,7 @@ public class BucketTest2 {
     @Tag("IntegrationTest")
     public void testList() {
         try {
-            String[] buckets = new String[] { TestConfig.testBucket_z0 };
+            String[] buckets = new String[]{TestConfig.testBucket_z0};
             for (String bucket : buckets) {
                 FileListing l = bucketManager.listFiles(bucket, null, null, 2, null);
                 assertNotNull(l.items[0]);
@@ -131,7 +133,7 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testListIterator() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "", 20, null);
 
@@ -154,7 +156,7 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testListIteratorWithDefaultLimit() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "");
 
@@ -175,7 +177,7 @@ public class BucketTest2 {
     @Tag("IntegrationTest")
     public void testListV2() {
         try {
-            String[] buckets = new String[] { TestConfig.testBucket_z0 };
+            String[] buckets = new String[]{TestConfig.testBucket_z0};
             for (String bucket : buckets) {
                 String prefix = "sdfisjfisjei473ysfGYDEJDSDJWEDJNFD23rje";
                 FileListing l = bucketManager.listFilesV2(bucket, prefix, null, 2, null);
@@ -296,11 +298,11 @@ public class BucketTest2 {
 
         // test bucket not exits or file not exists
         Map<String[], Integer> entryCodeMap = new HashMap<String[], Integer>();
-        entryCodeMap.put(new String[] { TestConfig.testBucket_z0, TestConfig.dummyKey },
+        entryCodeMap.put(new String[]{TestConfig.testBucket_z0, TestConfig.dummyKey},
                 TestConfig.ERROR_CODE_KEY_NOT_EXIST);
-        entryCodeMap.put(new String[] { TestConfig.dummyBucket, TestConfig.testKey_z0 },
+        entryCodeMap.put(new String[]{TestConfig.dummyBucket, TestConfig.testKey_z0},
                 TestConfig.ERROR_CODE_BUCKET_NOT_EXIST);
-        entryCodeMap.put(new String[] { TestConfig.dummyBucket, TestConfig.dummyKey },
+        entryCodeMap.put(new String[]{TestConfig.dummyBucket, TestConfig.dummyKey},
                 TestConfig.ERROR_CODE_BUCKET_NOT_EXIST);
 
         for (Map.Entry<String[], Integer> entry : entryCodeMap.entrySet()) {
@@ -342,11 +344,11 @@ public class BucketTest2 {
         }
 
         Map<String[], Integer> entryCodeMap = new HashMap<String[], Integer>();
-        entryCodeMap.put(new String[] { TestConfig.testBucket_z0, TestConfig.dummyKey },
+        entryCodeMap.put(new String[]{TestConfig.testBucket_z0, TestConfig.dummyKey},
                 TestConfig.ERROR_CODE_KEY_NOT_EXIST);
-        entryCodeMap.put(new String[] { TestConfig.testBucket_z0, null }, TestConfig.ERROR_CODE_BUCKET_NOT_EXIST);
-        entryCodeMap.put(new String[] { TestConfig.dummyBucket, null }, TestConfig.ERROR_CODE_BUCKET_NOT_EXIST);
-        entryCodeMap.put(new String[] { TestConfig.dummyBucket, TestConfig.dummyKey },
+        entryCodeMap.put(new String[]{TestConfig.testBucket_z0, null}, TestConfig.ERROR_CODE_BUCKET_NOT_EXIST);
+        entryCodeMap.put(new String[]{TestConfig.dummyBucket, null}, TestConfig.ERROR_CODE_BUCKET_NOT_EXIST);
+        entryCodeMap.put(new String[]{TestConfig.dummyBucket, TestConfig.dummyKey},
                 TestConfig.ERROR_CODE_BUCKET_NOT_EXIST);
 
         for (Map.Entry<String[], Integer> entry : entryCodeMap.entrySet()) {
@@ -418,7 +420,7 @@ public class BucketTest2 {
     @Tag("IntegrationTest")
     public void testChangeMime() {
         List<String[]> cases = new ArrayList<String[]>();
-        cases.add(new String[] { TestConfig.testBucket_z0, TestConfig.testKey_z0, "image/png" });
+        cases.add(new String[]{TestConfig.testBucket_z0, TestConfig.testKey_z0, "image/png"});
 
         for (String[] icase : cases) {
             String bucket = icase[0];
@@ -439,7 +441,7 @@ public class BucketTest2 {
     @Tag("IntegrationTest")
     public void testChangeHeaders() {
         List<String[]> cases = new ArrayList<String[]>();
-        cases.add(new String[] { TestConfig.testBucket_z0, TestConfig.testKey_z0 });
+        cases.add(new String[]{TestConfig.testBucket_z0, TestConfig.testKey_z0});
 
         for (String[] icase : cases) {
             String bucket = icase[0];
@@ -466,7 +468,7 @@ public class BucketTest2 {
     @Disabled
     @Tag("IntegrationTest")
     public void testPrefetch() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
                 bucketManager.setImage(bucket, "https://developer.qiniu.com/");
@@ -487,7 +489,7 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testFetch() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
                 String resUrl = "http://devtools.qiniu.com/qiniu.png";
@@ -514,7 +516,7 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testBucketInfo() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
                 BucketInfo info = bucketManager.getBucketInfo(bucket);
@@ -534,7 +536,7 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testPutReferAntiLeech() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             BucketReferAntiLeech leech = new BucketReferAntiLeech();
             Response response;
@@ -549,7 +551,7 @@ public class BucketTest2 {
                 assertEquals(200, response.statusCode);
                 bucketInfo = bucketManager.getBucketInfo(bucket);
                 assertEquals(1, bucketInfo.getAntiLeechMode());
-                assertArrayEquals((new String[] { "www.qiniu.com" }), bucketInfo.getReferWhite());
+                assertArrayEquals((new String[]{"www.qiniu.com"}), bucketInfo.getReferWhite());
                 assertEquals(false, bucketInfo.isNoRefer());
 
                 // 测试黑名单
@@ -561,7 +563,7 @@ public class BucketTest2 {
                 assertEquals(200, response.statusCode);
                 bucketInfo = bucketManager.getBucketInfo(bucket);
                 assertEquals(2, bucketInfo.getAntiLeechMode());
-                assertArrayEquals((new String[] { "www.baidu.com" }), bucketInfo.getReferBlack());
+                assertArrayEquals((new String[]{"www.baidu.com"}), bucketInfo.getReferBlack());
                 assertEquals(true, bucketInfo.isNoRefer());
 
                 // 测试关闭
@@ -590,7 +592,7 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testBucketLifeCycleRule() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             Response response;
             BucketLifeCycleRule rule;
@@ -696,8 +698,8 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testBucketEvent() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
-        String[] keys = new String[] { TestConfig.testKey_z0, TestConfig.testKey_na0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
+        String[] keys = new String[]{TestConfig.testKey_z0, TestConfig.testKey_na0};
         for (int i = 0; i < buckets.length; i++) {
             String bucket = buckets[i];
             String key = keys[i];
@@ -710,7 +712,7 @@ public class BucketTest2 {
 
                 // 追加Event（invalid events）
                 try {
-                    rule = new BucketEventRule("a", new String[] {}, new String[] {});
+                    rule = new BucketEventRule("a", new String[]{}, new String[]{});
                     System.out.println(rule.asQueryString());
                     response = bucketManager.putBucketEvent(bucket, rule);
                     fail();
@@ -720,7 +722,7 @@ public class BucketTest2 {
 
                 // 追加Event（error:callbackURL must starts with http:// or https://）
                 try {
-                    rule = new BucketEventRule("a", new String[] { "put", "mkfile" }, new String[] {});
+                    rule = new BucketEventRule("a", new String[]{"put", "mkfile"}, new String[]{});
                     System.out.println(rule.asQueryString());
                     response = bucketManager.putBucketEvent(bucket, rule);
                     fail();
@@ -730,10 +732,10 @@ public class BucketTest2 {
 
                 // 追加Event
                 rule = new BucketEventRule("a",
-                        new String[] { "put", "mkfile", "delete", "copy", "move", "append", "disable", "enable",
-                                "deleteMarkerCreate" },
-                        new String[] { "https://requestbin.fullcontact.com/1dsqext1?inspect",
-                                "https://requestbin.fullcontact.com/160bunp1?inspect" });
+                        new String[]{"put", "mkfile", "delete", "copy", "move", "append", "disable", "enable",
+                                "deleteMarkerCreate"},
+                        new String[]{"https://requestbin.fullcontact.com/1dsqext1?inspect",
+                                "https://requestbin.fullcontact.com/160bunp1?inspect"});
                 System.out.println(rule.asQueryString());
                 response = bucketManager.putBucketEvent(bucket, rule);
                 assertEquals(200, response.statusCode);
@@ -785,7 +787,7 @@ public class BucketTest2 {
                 // 更新Event
                 rule.setName("b");
                 rule.setPrefix("c");
-                rule.setEvents(new String[] { "disable", "enable", "deleteMarkerCreate" });
+                rule.setEvents(new String[]{"disable", "enable", "deleteMarkerCreate"});
                 System.out.println(rule.asQueryString());
                 response = bucketManager.updateBucketEvent(bucket, rule);
                 assertEquals(200, response.statusCode);
@@ -825,11 +827,11 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testCorsRules() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
-            CorsRule rule1 = new CorsRule(new String[] { "*" }, new String[] { "" });
-            CorsRule rule2 = new CorsRule(new String[] { "*" }, new String[] { "GET", "POST" });
-            CorsRule rule3 = new CorsRule(new String[] { "" }, new String[] { "GET", "POST" });
+            CorsRule rule1 = new CorsRule(new String[]{"*"}, new String[]{""});
+            CorsRule rule2 = new CorsRule(new String[]{"*"}, new String[]{"GET", "POST"});
+            CorsRule rule3 = new CorsRule(new String[]{""}, new String[]{"GET", "POST"});
             List<CorsRule[]> rulesList = new ArrayList<>();
             rulesList.add(corsRules(rule1));
             rulesList.add(corsRules(rule2));
@@ -867,7 +869,7 @@ public class BucketTest2 {
     @Tag("IntegrationTest")
     // TODO
     public void testPutBucketSourceConfig() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
 
@@ -883,9 +885,9 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testPutBucketMaxAge() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
-            final long[] maxAges = { Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE };
+            final long[] maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
             try {
                 for (long maxAge : maxAges) {
                     // 设置max-age
@@ -915,12 +917,12 @@ public class BucketTest2 {
     public void testPutBucketMaxAge2() {
         String msg = " 空间删除了访问域名，若测试，请先在空间绑定域名,  ";
 
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
-        String[] urls = new String[] { TestConfig.testUrl_z0, TestConfig.testUrl_na0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
+        String[] urls = new String[]{TestConfig.testUrl_z0, TestConfig.testUrl_na0};
         for (int i = 0; i < buckets.length; i++) {
             String bucket = buckets[i];
             String url = urls[i];
-            final long[] maxAges = { Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE };
+            final long[] maxAges = {Integer.MIN_VALUE, -54321, -1, 0, 1, 8, 1234567, 11111111, Integer.MAX_VALUE};
             try {
                 for (long maxAge : maxAges) {
                     // 设置max-age
@@ -955,7 +957,7 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testPutBucketAccessMode() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             Response response;
             try {
@@ -989,7 +991,7 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testBucketQuota() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             try {
                 testBucketQuota(bucket, -2, -2);
@@ -1262,7 +1264,7 @@ public class BucketTest2 {
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
             String key = entry.getValue();
-            String[] array = { key };
+            String[] array = {key};
             String copyFromKey = "copyFrom" + Math.random();
 
             String moveFromKey = "moveFrom" + Math.random();
@@ -1312,7 +1314,7 @@ public class BucketTest2 {
     @Disabled
     @Tag("IntegrationTest")
     public void testSetAndUnsetImage() {
-        String[] buckets = new String[] { TestConfig.testBucket_z0 };
+        String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
             String srcSiteUrl = "http://developer.qiniu.com/";
             String host = "developer.qiniu.com";
