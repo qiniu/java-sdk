@@ -8,6 +8,7 @@ import com.qiniu.rtc.model.UrlParam;
 import com.qiniu.rtc.model.WatermarksParam;
 import com.qiniu.util.Auth;
 
+@Deprecated
 public class MergeService extends AbstractService {
     /**
      * 初始化
