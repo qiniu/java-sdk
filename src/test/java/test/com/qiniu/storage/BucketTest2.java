@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class BucketTest2 {
 
     List<Integer> batchStatusCode = Arrays.asList(200, 298);
@@ -809,8 +811,8 @@ public class BucketTest2 {
             System.out.println("name=" + r.getName());
             System.out.println("prefix=" + r.getPrefix());
             System.out.println("suffix=" + r.getSuffix());
-            System.out.println("event=" + Arrays.asList(r.getEvents()).toString());
-            System.out.println("callbackUrls=" + Arrays.asList(r.getCallbackUrls()).toString());
+            System.out.println("event=" + Arrays.asList(r.getEvents()));
+            System.out.println("callbackUrls=" + Arrays.asList(r.getCallbackUrls()));
         }
         // 删除Event
         for (BucketEventRule r : rules) {
