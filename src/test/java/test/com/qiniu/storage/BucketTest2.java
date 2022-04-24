@@ -254,9 +254,9 @@ public class BucketTest2 {
             assertNotNull(info.hash);
             assertNotNull(info.mimeType);
             assertNotNull(info.expiration);
-            assertNotNull(info.transitionToIA);
-            assertNotNull(info.transitionToArchive);
-            assertNotNull(info.transitionToDeepArchive);
+//            assertNotNull(info.transitionToIA);
+//            assertNotNull(info.transitionToArchive);
+//            assertNotNull(info.transitionToDeepArchive);
         } catch (QiniuException e) {
             e.printStackTrace();
             fail("status change type fail:" + e);
