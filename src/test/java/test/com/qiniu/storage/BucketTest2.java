@@ -272,8 +272,6 @@ public class BucketTest2 {
             FileInfo info = bucketManager.stat(TestConfig.testBucket_z0, copyKey);
             assertNotNull(info.hash);
             assertNotNull(info.mimeType);
-            assertNotNull(info.restoreStatus);
-            assertNotNull(info.transitionToDeepArchive);
             assertNotNull(info.expiration);
         } catch (QiniuException e) {
             fail("status fail:" + e);
