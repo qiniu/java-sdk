@@ -1,4 +1,8 @@
 # Changelog
+
+## 7.10.1 (2022-04-25)
+* 对象存储，补充 stat api 可查看对象元数据信息
+
 ## 7.10.0 （2022-04-15）
 * 对象存储，新增支持 [深度归档存储类型](https://developer.qiniu.com/kodo/3956/kodo-category#deep_archive)
 
