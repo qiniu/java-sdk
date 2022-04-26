@@ -18,6 +18,14 @@ import org.junit.jupiter.api.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -215,6 +223,60 @@ public class BucketTest2 {
     @Test
     @Tag("IntegrationTest")
     public void testStat() {
+        String ruleName = "javaStatusRule";
+        String copyKey = TestConfig.testBucket_z0 + "_status_copy";
+
+        try {
+            bucketManager.deleteBucketLifecycleRule(TestConfig.testBucket_z0, ruleName);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            bucketManager.copy(TestConfig.testBucket_z0, TestConfig.testKey_z0, TestConfig.testBucket_z0, copyKey, true);
+            bucketManager.changeType(TestConfig.testBucket_z0, copyKey, StorageType.Archive);
+            bucketManager.restoreArchive(TestConfig.testBucket_z0, copyKey, 1);
+            FileInfo info = bucketManager.stat(TestConfig.testBucket_z0, copyKey);
+            assertNotNull(info.hash);
+            assertNotNull(info.mimeType);
+            assertNotNull(info.restoreStatus);
+
+            bucketManager.delete(TestConfig.testBucket_z0, copyKey);
+            BucketLifeCycleRule rule = new BucketLifeCycleRule(ruleName, "");
+            rule.setToLineAfterDays(1);
+            rule.setToArchiveAfterDays(2);
+            rule.setToDeepArchiveAfterDays(3);
+            rule.setDeleteAfterDays(4);
+            bucketManager.putBucketLifecycleRule(TestConfig.testBucket_z0, rule);
+            bucketManager.copy(TestConfig.testBucket_z0, TestConfig.testKey_z0, TestConfig.testBucket_z0, copyKey, true);
+            bucketManager.deleteAfterDays(TestConfig.testBucket_z0, copyKey, 1);
+            info = bucketManager.stat(TestConfig.testBucket_z0, copyKey);
+            assertNotNull(info.hash);
+            assertNotNull(info.mimeType);
+            assertNotNull(info.expiration);
+//            assertNotNull(info.transitionToIA);
+//            assertNotNull(info.transitionToArchive);
+//            assertNotNull(info.transitionToDeepArchive);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            fail("status change type fail:" + e);
+        } finally {
+            try {
+                bucketManager.deleteBucketLifecycleRule(TestConfig.testBucket_z0, ruleName);
+            } catch (QiniuException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileInfo info = bucketManager.stat(TestConfig.testBucket_z0, copyKey);
+            assertNotNull(info.hash);
+            assertNotNull(info.mimeType);
+            assertNotNull(info.expiration);
+        } catch (QiniuException e) {
+            fail("status fail:" + e);
+        }
+
         // test exists
         Map<String, String> bucketKeyMap = new HashMap<String, String>();
         bucketKeyMap.put(TestConfig.testBucket_z0, TestConfig.testKey_z0);
