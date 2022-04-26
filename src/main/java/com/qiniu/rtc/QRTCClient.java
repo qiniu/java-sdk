@@ -53,6 +53,7 @@ public class QRTCClient {
         callbackService = new CallbackService(auth);
         mergeService = new MergeService(auth);
         appService = new AppService(auth);
+        mergeServiceV4 = new MergeServiceV4(auth);
     }
 
     /////////////////////////app service//////////////////////////////////////
