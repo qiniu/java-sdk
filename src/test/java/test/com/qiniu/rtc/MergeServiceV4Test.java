@@ -24,8 +24,7 @@ import java.util.*;
 class MergeServiceV4Test {
     public static QRTCClient client = null;
 
-    public static String InternalUrlTag = "/.i/";
-    public static String roomName = "room1";
+    public static String roomName = "room";
 
     @BeforeAll
     static void setUp() {
@@ -33,40 +32,47 @@ class MergeServiceV4Test {
     }
 
     @Test
-    void createMergeJob() throws Exception{
+    void MergeJob() throws Exception {
         MergeJob mergeJob = new MergeJob();
         mergeJob.setType("basic");
 
         MediaInput mediaInput1 = new MediaInput();
         mediaInput1.setKind("media");
-        mediaInput1.setUserId("zhuozi001");
-        mediaInput1.setPosition(new MediaPosition(0,0,1080,720, 1));
+        mediaInput1.setUserId("zhuozi1");
+        mediaInput1.setPosition(new MediaPosition(0, 0, 601, 480, 1));
 
         MediaInput mediaInput2 = new MediaInput();
         mediaInput2.setKind("image");
-        mediaInput2.setPosition(new MediaPosition(0,0,50,50, 2));
+        mediaInput2.setPosition(new MediaPosition(0, 0, 50, 50, 2));
         mediaInput2.setUrl("https://www.boredpanda.com/blog/wp-content/uploads/2020/06/Artist-shows-alternative-versions-of-famous-logos-in-different-styles-5ed4ac823b564__880.jpg");
 
         List<MediaInput> inputs = new ArrayList<MediaInput>();
-        inputs.add(mediaInput1); inputs.add(mediaInput2);
+        inputs.add(mediaInput1);
+        inputs.add(mediaInput2);
 
         MediaOutput mediaOutput1 = new MediaOutput();
         mediaOutput1.setType("rtmp");
-        String rtmpurl = generateExpiryskUrl("zhuozi001001",  3600*3);
-        System.out.println(rtmpurl);
-        mediaOutput1.setUrl(rtmpurl);
+        mediaOutput1.setUrl("rtmp://pili-publish.qnsdk.com/sdk-live/zhuozi001?expire=1650964845&token=Zk7Ku-e90IVu2gsVItS2e7b2rR8=");
 
         List<MediaOutput> outputs = new ArrayList<>();
         outputs.add(mediaOutput1);
 
+        MediaConfig mediaConfig = new MediaConfig();
+        mediaConfig.setFps(20);
+        mediaConfig.setWidth(600);
+        mediaConfig.setHeight(480);
+        mediaConfig.setKbps(1000);
+
+        mergeJob.setConfig(mediaConfig);
         mergeJob.setInputs(inputs);
         mergeJob.setOutputs(outputs);
         System.out.println(new Gson().toJson(mergeJob));
         QRTCResult<MergeResult> result = client.createMergeJob(roomName, mergeJob);
+
         System.out.println("创建合流 res" + new Gson().toJson(result));
         assert result.getCode() == 200;
         assert result.getResult() != null;
-        MergeResult mergeResult  = result.getResult();
+        MergeResult mergeResult = result.getResult();
 
         assert mergeResult.getStatus().equals("OK");
         assert !StringUtils.isNullOrEmpty(mergeResult.getId());
@@ -74,7 +80,7 @@ class MergeServiceV4Test {
         String mergeJobId = mergeResult.getId();
 
         //删除水印
-        Thread.sleep(1000 * 2 * 60);
+        Thread.sleep(1000 * 60);
         mergeJob.setId(mergeJobId);
         mergeJob.getInputs().remove(1);
         result = client.updateMergeJob(roomName, mergeJob);
@@ -88,11 +94,11 @@ class MergeServiceV4Test {
         assert !StringUtils.isNullOrEmpty(mergeResult.getId());
 
         //添加水印
-        Thread.sleep(1000 * 2 * 60);
-        mediaInput2.setPosition(new MediaPosition(200, 200, 50, 50, 0));
+        Thread.sleep(1000 * 60);
+        mediaInput2.setPosition(new MediaPosition(200, 200, 50, 50, 2));
         mergeJob.getInputs().add(mediaInput2);
         result = client.updateMergeJob(roomName, mergeJob);
-        System.out.println("添加水印 res" +  new Gson().toJson(result));
+        System.out.println("添加水印 res" + new Gson().toJson(result));
 
         assert result.getCode() == 200;
         assert result.getResult() != null;
@@ -102,7 +108,7 @@ class MergeServiceV4Test {
         assert !StringUtils.isNullOrEmpty(mergeResult.getId());
 
         // 停止合流
-        Thread.sleep(1000 * 2 * 60);
+        Thread.sleep(1000 * 60);
         result = client.stopMergeJobById(roomName, mergeJobId);
         System.out.println("停止合流 res" + new Gson().toJson(result));
 
@@ -113,37 +119,4 @@ class MergeServiceV4Test {
         assert mergeResult.getStatus().equals("OK");
         assert !StringUtils.isNullOrEmpty(mergeResult.getId());
     }
-
-    public static String generateExpiryskUrl(String streamKey, long expiretime) throws Exception {
-        String domain = "rtmp://pili-publish.qnsdk.com";
-        String hub = "sdk-live";
-        String accesskey = TestConfig.testAccessKey;
-        String secretkey = TestConfig.testSecretKey;
-
-        long expire = System.currentTimeMillis() / 1000 + expiretime;
-        String signStr = "/" + hub + "/" + streamKey + "?e=" + expire;
-        byte[] sum = (new HMac()).HmacSHA1Encrypt(signStr, secretkey);
-        String sign = UrlSafeBase64.encodeToString(sum);
-        String token = accesskey + ":" + sign;
-//        token = token.replaceAll("/", "_").replaceAll("\\+", "-");
-        String path = domain + signStr + "&token=" + token;
-        return path;
-    }
-
-    public static class HMac {
-        private static final String MAC_NAME = "HmacSHA1";
-        private static final String UTF8 = "UTF-8";
-
-        public byte[] HmacSHA1Encrypt(String dataStr, String secretKeyStr) throws Exception {
-            SecretKey secretKeySpec = new SecretKeySpec(secretKeyStr.getBytes(), MAC_NAME);
-            //生成一个指定 Mac 算法 的 Mac 对象
-            Mac mac = Mac.getInstance(MAC_NAME);
-            //用给定密钥初始化 Mac 对象
-            mac.init(secretKeySpec);
-
-            //完成 Mac 操作
-            return mac.doFinal(dataStr.getBytes());
-        }
-    }
-
 }

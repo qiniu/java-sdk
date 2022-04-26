@@ -25,7 +25,7 @@ public class MergeJob implements Serializable {
     private List<MediaOutput> outputs;
 
     /**
-     * 可选 合流任务设置。
+     * 合流任务设置。
      */
     private MediaConfig config;
 
