@@ -16,11 +16,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.*;
 
-/**
- * author: 桌子
- * Email : zhuozi@meili-inc.com
- * datetime: 2022-04-24 13:58
- */
 class MergeServiceV4Test {
     public static QRTCClient client = null;
 
