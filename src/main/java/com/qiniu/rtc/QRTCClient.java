@@ -25,6 +25,8 @@ public class QRTCClient {
     private ForwardService forwardService;
     private CallbackService callbackService;
     private MergeService mergeService;
+    private MergeServiceV4 mergeServiceV4;
+
     private AppService appService;
     // 应用ID
     private final String appId;
@@ -51,6 +53,7 @@ public class QRTCClient {
         callbackService = new CallbackService(auth);
         mergeService = new MergeService(auth);
         appService = new AppService(auth);
+        mergeServiceV4 = new MergeServiceV4(auth);
     }
 
     /////////////////////////app service//////////////////////////////////////
@@ -281,6 +284,7 @@ public class QRTCClient {
      * @return
      * @throws QiniuException
      */
+    @Deprecated
     public QRTCResult<MergeResult> createMergeJob(final String roomName, final MergeParam mergeParam) throws QiniuException {
         ServiceCallFunc func = new ServiceCallFunc() {
             @Override
@@ -300,6 +304,7 @@ public class QRTCClient {
      * @return
      * @throws QiniuException
      */
+    @Deprecated
     public QRTCResult<MergeResult> updateMergeTrack(final MergeTrackParam mergeTrackParam, final String roomName, final String jobId)
             throws QiniuException {
         ServiceCallFunc updateMergeTrackFunc = new ServiceCallFunc() {
@@ -321,6 +326,7 @@ public class QRTCClient {
      * @return
      * @throws QiniuException
      */
+    @Deprecated
     public QRTCResult<MergeResult> updateMergeWatermarks(final WatermarksParam watermarksParam, final String roomName, final String jobId)
             throws QiniuException {
         ServiceCallFunc updateMergeWatermarksFunc = new ServiceCallFunc() {
@@ -341,11 +347,42 @@ public class QRTCClient {
      * @return
      * @throws QiniuException
      */
+    @Deprecated
     public QRTCResult<MergeResult> stopMergeJob(final String roomName, final String jobId) throws QiniuException {
         ServiceCallFunc func = new ServiceCallFunc() {
             @Override
             public Response call() throws QiniuException {
                 return mergeService.stopMergeJob(appId, roomName, jobId);
+            }
+        };
+        return buildResult(func, MergeResult.class);
+    }
+
+    public QRTCResult<MergeResult> createMergeJob(final String roomName, final MergeJob job) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return mergeServiceV4.createMergeJob(job, appId, roomName);
+            }
+        };
+        return buildResult(func, MergeResult.class);
+    }
+
+    public QRTCResult<MergeResult> updateMergeJob(final String roomName, final MergeJob job) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return mergeServiceV4.updateMergeJob(job, appId, roomName);
+            }
+        };
+        return buildResult(func, MergeResult.class);
+    }
+
+    public QRTCResult<MergeResult> stopMergeJobById(final String roomName, final String jobId) throws QiniuException {
+        ServiceCallFunc func = new ServiceCallFunc() {
+            @Override
+            public Response call() throws QiniuException {
+                return mergeServiceV4.stopMergeJob(jobId, appId, roomName);
             }
         };
         return buildResult(func, MergeResult.class);
