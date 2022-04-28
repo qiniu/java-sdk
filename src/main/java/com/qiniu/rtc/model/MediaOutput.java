@@ -42,9 +42,9 @@ public class MediaOutput implements Serializable {
 
     @Override
     public String toString() {
-        return "MediaOutput{" +
-                "type='" + type + '\'' +
-                ", url='" + url + '\'' +
-                '}';
+        return "MediaOutput{"
+                + "type='" + type + '\''
+                + ", url='" + url + '\''
+                + '}';
     }
 }

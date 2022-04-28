@@ -4,6 +4,7 @@ import com.qiniu.rtc.model.MergeJob;
 import com.qiniu.util.Auth;
 import com.qiniu.http.Response;
 import com.qiniu.common.QiniuException;
+import com.qiniu.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map;
 public class MergeServiceV4 extends AbstractService {
     /**
      * 初始化
+     *
      * @param auth
      */
     public MergeServiceV4(Auth auth) {
@@ -19,7 +21,8 @@ public class MergeServiceV4 extends AbstractService {
 
     /**
      * 创建合流任务
-     * @param job 任务信息
+     *
+     * @param job      任务信息
      * @param appId
      * @param roomName
      * @return
@@ -32,6 +35,7 @@ public class MergeServiceV4 extends AbstractService {
 
     /**
      * 更新合流任务
+     *
      * @param job
      * @param appId
      * @param roomName
@@ -39,19 +43,26 @@ public class MergeServiceV4 extends AbstractService {
      * @throws QiniuException
      */
     public Response updateMergeJob(MergeJob job, String appId, String roomName) throws QiniuException {
+        if (job == null || StringUtils.isNullOrEmpty(job.getId())) {
+            throw new IllegalArgumentException("");
+        }
         String urlPattern = "/v4/apps/%s/rooms/%s/jobs/update";
-        return postCall(job,urlPattern, appId, roomName);
+        return postCall(job, urlPattern, appId, roomName);
     }
 
     /**
      * 删除合流任务
-     * @param jobId 合流任务ID
+     *
+     * @param jobId    合流任务ID
      * @param appId
      * @param roomName
      * @return
      * @throws QiniuException
      */
     public Response stopMergeJob(String jobId, String appId, String roomName) throws QiniuException {
+        if (StringUtils.isNullOrEmpty(jobId)) {
+            throw new IllegalArgumentException("");
+        }
         String urlPattern = "/v4/apps/%s/rooms/%s/jobs/stop";
         Map<String, String> params = new HashMap<>();
         params.put("id", jobId);

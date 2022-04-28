@@ -99,14 +99,14 @@ public class MediaConfig implements Serializable {
 
     @Override
     public String toString() {
-        return "MediaConfig{" +
-                "fps=" + fps +
-                ", kbps=" + kbps +
-                ", width=" + width +
-                ", height=" + height +
-                ", holdLastFrame=" + holdLastFrame +
-                ", audioOnly=" + audioOnly +
-                ", stretchMode=" + stretchMode +
-                '}';
+        return "MediaConfig{"
+                + "fps=" + fps
+                + ", kbps=" + kbps
+                + ", width=" + width
+                + ", height=" + height
+                + ", holdLastFrame=" + holdLastFrame
+                + ", audioOnly=" + audioOnly
+                + ", stretchMode=" + stretchMode
+                + '}';
     }
 }
