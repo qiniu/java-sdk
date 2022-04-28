@@ -6,14 +6,10 @@ import com.qiniu.rtc.QRTCClient;
 import com.qiniu.rtc.model.*;
 import com.qiniu.util.StringUtils;
 
-import com.qiniu.util.UrlSafeBase64;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.util.*;
 
 class MergeServiceV4Test {
@@ -27,7 +23,7 @@ class MergeServiceV4Test {
     }
 
     @Test
-    void MergeJob() throws Exception {
+    void mergeJob() throws Exception {
         MergeJob mergeJob = new MergeJob();
         mergeJob.setType("basic");
 
@@ -47,7 +43,7 @@ class MergeServiceV4Test {
 
         MediaOutput mediaOutput1 = new MediaOutput();
         mediaOutput1.setType("rtmp");
-        mediaOutput1.setUrl("rtmp://pili-publish.qnsdk.com/sdk-live/zhuozi001?expire=1650964845&token=Zk7Ku-e90IVu2gsVItS2e7b2rR8=");
+        mediaOutput1.setUrl("rtmp://pili-publish.qnsdk.com/sdk-live/zhuozi0001?expire=1651139796&token=XWZ8aS4vTaI13QsS0YUWy1HhJB4=");
 
         List<MediaOutput> outputs = new ArrayList<>();
         outputs.add(mediaOutput1);

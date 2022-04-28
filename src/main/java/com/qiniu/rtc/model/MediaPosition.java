@@ -78,12 +78,12 @@ public class MediaPosition implements Serializable {
 
     @Override
     public String toString() {
-        return "MediaPosition{" +
-                "x=" + x +
-                ", y=" + y +
-                ", w=" + w +
-                ", h=" + h +
-                ", z=" + z +
-                '}';
+        return "MediaPosition{"
+                + "x=" + x
+                + ", y=" + y
+                + ", w=" + w
+                + ", h=" + h
+                + ", z=" + z
+                + '}';
     }
 }

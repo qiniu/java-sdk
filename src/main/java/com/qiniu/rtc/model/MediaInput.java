@@ -88,13 +88,13 @@ public class MediaInput implements Serializable {
 
     @Override
     public String toString() {
-        return "MediaInput{" +
-                "userId='" + userId + '\'' +
-                ", tag='" + tag + '\'' +
-                ", url='" + url + '\'' +
-                ", kind='" + kind + '\'' +
-                ", stretchMode=" + stretchMode +
-                ", position=" + position +
-                '}';
+        return "MediaInput{"
+                + "kind='" + kind + '\''
+                + ", userId='" + userId + '\''
+                + ", url='" + url + '\''
+                + ", tag='" + tag + '\''
+                + ", position=" + position
+                + ", stretchMode=" + stretchMode
+                + '}';
     }
 }

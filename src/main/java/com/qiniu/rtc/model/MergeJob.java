@@ -71,12 +71,12 @@ public class MergeJob implements Serializable {
 
     @Override
     public String toString() {
-        return "MergeJob{" +
-                "id='" + id + '\'' +
-                ", type='" + type + '\'' +
-                ", inputs=" + inputs +
-                ", outputs=" + outputs +
-                ", config=" + config +
-                '}';
+        return "MergeJob{"
+                + "id='" + id + '\''
+                + ", type='" + type + '\''
+                + ", inputs=" + inputs
+                + ", outputs=" + outputs
+                + ", config=" + config
+                + '}';
     }
 }
