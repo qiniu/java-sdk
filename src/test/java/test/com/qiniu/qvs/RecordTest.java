@@ -1,14 +1,10 @@
 package test.com.qiniu.qvs;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.RecordManager;
 import com.qiniu.util.Auth;
 import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 
 public class RecordTest {
     Auth auth = TestConfig.testAuth;

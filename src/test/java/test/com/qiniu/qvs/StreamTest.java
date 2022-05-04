@@ -1,17 +1,11 @@
 package test.com.qiniu.qvs;
 
-import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.StreamManager;
-import com.qiniu.qvs.model.DynamicLiveRoute;
-import com.qiniu.qvs.model.PatchOperation;
-import com.qiniu.qvs.model.StaticLiveRoute;
 import com.qiniu.qvs.model.Stream;
 import com.qiniu.util.Auth;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
 public class StreamTest {
