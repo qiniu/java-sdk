@@ -24,7 +24,7 @@ public class TemplateTest {
         this.templateManager = new TemplateManager(auth);
     }
 
-    @Test
+ /* @Test
     @Tag("IntegrationTest")
     public void testCreateTemplate() {
         Template template = new Template();
@@ -110,4 +110,5 @@ public class TemplateTest {
 //            }
 //        }
 //    }
+*/
 }

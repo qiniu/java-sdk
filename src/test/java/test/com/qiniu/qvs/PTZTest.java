@@ -24,7 +24,7 @@ public class PTZTest {
         this.ptzManager = new PTZManager(auth);
     }
 
-    @Test
+/* @Test
     @Tag("IntegrationTest")
     public void testPTZControl() {
         try {
@@ -39,8 +39,9 @@ public class PTZTest {
             }
         }
     }
+ */
 
-    @Test
+ /* @Test
     @Tag("IntegrationTest")
     public void testFocusControl() {
         try {
@@ -55,6 +56,7 @@ public class PTZTest {
             }
         }
     }
+  */
 
 //    @Test
 //    @Tag("IntegrationTest")
@@ -72,7 +74,7 @@ public class PTZTest {
 //        }
 //    }
 
-    @Test
+  /* @Test
     @Tag("IntegrationTest")
     public void testPresetsControl() {
         name = "" + System.currentTimeMillis();
@@ -88,8 +90,9 @@ public class PTZTest {
             }
         }
     }
+   */
 
-    @Test
+   /* @Test
     @Tag("IntegrationTest")
     public void testListPresets() {
         try {
@@ -104,4 +107,5 @@ public class PTZTest {
             }
         }
     }
+    */
 }

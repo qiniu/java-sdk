@@ -24,7 +24,7 @@ public class NameSpaceTest {
         this.nameSpaceManager = new NameSpaceManager(auth);
     }
 
-    @Test
+/*  @Test
     @Tag("IntegrationTest")
     public void testCreateNameSpace() {
         NameSpace nameSpace = new NameSpace();
@@ -43,6 +43,7 @@ public class NameSpaceTest {
             }
         }
     }
+*/
 
     @Test
     @Tag("IntegrationTest")
@@ -93,7 +94,7 @@ public class NameSpaceTest {
         }
     }
 
-    @Test
+/*  @Test
     @Tag("IntegrationTest")
     public void testDisableNameSpace() {
         try {
@@ -123,6 +124,7 @@ public class NameSpaceTest {
             }
         }
     }
+*/
 
 //    @Test
 //    @Tag("IntegrationTest")

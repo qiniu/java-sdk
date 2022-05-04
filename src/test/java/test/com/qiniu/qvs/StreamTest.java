@@ -38,7 +38,7 @@ public class StreamTest {
 
     }
 
-    @Test
+/*  @Test
     @Tag("IntegrationTest")
     public void testCreateStream() {
         // stream.setStreamID("teststream002");
@@ -255,4 +255,5 @@ public class StreamTest {
             }
         }
     }
+*/
 }

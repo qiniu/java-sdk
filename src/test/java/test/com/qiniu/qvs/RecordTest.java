@@ -26,7 +26,7 @@ public class RecordTest {
         this.recordManager = new RecordManager(auth);
     }
 
-    @Test
+/*  @Test
     @Tag("IntegrationTest")
     public void testOndemandRecord() throws Exception {
         try {
@@ -80,4 +80,5 @@ public class RecordTest {
             }
         }
     }
+*/
 }

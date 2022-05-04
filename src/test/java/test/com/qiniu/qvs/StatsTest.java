@@ -25,7 +25,7 @@ public class StatsTest {
         this.statsManager = new StatsManager(auth);
     }
 
-    @Test
+/*  @Test
     @Tag("IntegrationTest")
     public void testQueryFlow() {
         try {
@@ -56,4 +56,5 @@ public class StatsTest {
             }
         }
     }
+*/
 }
