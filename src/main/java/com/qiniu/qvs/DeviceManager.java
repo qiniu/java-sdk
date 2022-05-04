@@ -10,8 +10,6 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlUtils;
 
-import java.net.URLEncoder;
-
 public class DeviceManager {
     private final String apiServer;
     private final Client client;
