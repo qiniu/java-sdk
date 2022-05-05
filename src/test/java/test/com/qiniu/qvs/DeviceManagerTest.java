@@ -27,23 +27,24 @@ public class DeviceManagerTest {
         this.deviceManager = new DeviceManager(auth);
     }
 
-//    @Test
-//    @Tag("IntegrationTest")
-//    public void testCreateDevice() {
-//        Device device = Device.builder().username("admin").password("QQQNNN111").build();
-//        try {
-//            res = deviceManager.createDevice(namespaceId, device);
-//            assertNotNull(res);
-//            System.out.println(res.bodyString());
-//        } catch (QiniuException e) {
-////            assertEquals(401, res.statusCode);
-//            e.printStackTrace();
-//        } finally {
-//            if (res != null) {
-//                res.close();
-//            }
-//        }
-//    }
+/*  @Test
+    @Tag("IntegrationTest")
+    public void testCreateDevice() {
+        Device device = Device.builder().username("admin").password("QQQNNN111").build();
+        try {
+            res = deviceManager.createDevice(namespaceId, device);
+            assertNotNull(res);
+            System.out.println(res.bodyString());
+        } catch (QiniuException e) {
+//            assertEquals(401, res.statusCode);
+            e.printStackTrace();
+        } finally {
+            if (res != null) {
+                res.close();
+            }
+        }
+    }
+*/
 
     @Test
     @Tag("IntegrationTest")
@@ -86,7 +87,7 @@ public class DeviceManagerTest {
         int offset = 0;
         int line = 3;
         int qtype = 0;
-        String prefix = "310";
+        String prefix = "中文";
         String state = "notReg";
         try {
             res = deviceManager.listDevice(namespaceId, offset, line, prefix, state, qtype);
@@ -119,7 +120,7 @@ public class DeviceManagerTest {
 //        }
 //    }
 
-    @Test
+ /* @Test
     @Tag("IntegrationTest")
     public void testStartDevice() {
         try {
@@ -135,22 +136,22 @@ public class DeviceManagerTest {
         }
     }
 
-//    @Test
-//    @Tag("IntegrationTest")
-//    public void testStopDevice() {
-//        try {
-//            res = deviceManager.stopDevice(namespaceId, gbId, channels);
-//            res2 = deviceManager.startDevice(namespaceId, gbId, channels);
-//            assertNotNull(res);
-//            System.out.println(res.bodyString());
-//        } catch (QiniuException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (res != null) {
-//                res.close();
-//            }
-//        }
-//    }
+    @Test
+    @Tag("IntegrationTest")
+    public void testStopDevice() {
+        try {
+            res = deviceManager.stopDevice(namespaceId, gbId, channels);
+            res2 = deviceManager.startDevice(namespaceId, gbId, channels);
+            assertNotNull(res);
+            System.out.println(res.bodyString());
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } finally {
+            if (res != null) {
+                res.close();
+            }
+        }
+    }
 
     @Test
     @Tag("IntegrationTest")
@@ -168,21 +169,21 @@ public class DeviceManagerTest {
         }
     }
 
-//    @Test
-//    @Tag("IntegrationTest")
-//    public void testQueryChannel() {
-//        try {
-//            res = deviceManager.queryChannel(namespaceId, gbId, channels[0]);//TODO
-//            assertNotNull(res);
-//            System.out.println(res.bodyString());
-//        } catch (QiniuException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (res != null) {
-//                res.close();
-//            }
-//        }
-//    }
+    @Test
+    @Tag("IntegrationTest")
+    public void testQueryChannel() {
+        try {
+            res = deviceManager.queryChannel(namespaceId, gbId, channels[0]);//TODO
+            assertNotNull(res);
+            System.out.println(res.bodyString());
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } finally {
+            if (res != null) {
+                res.close();
+            }
+        }
+    }
 
     @Test
     @Tag("IntegrationTest")
@@ -200,4 +201,5 @@ public class DeviceManagerTest {
             }
         }
     }
+*/
 }

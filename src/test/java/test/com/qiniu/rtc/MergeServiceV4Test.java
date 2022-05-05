@@ -1,16 +1,10 @@
 package test.com.qiniu.rtc;
 
-import com.google.gson.Gson;
 import com.qiniu.rtc.QRTC;
 import com.qiniu.rtc.QRTCClient;
-import com.qiniu.rtc.model.*;
-import com.qiniu.util.StringUtils;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
-
-import java.util.*;
 
 class MergeServiceV4Test {
     public static QRTCClient client = null;
@@ -18,11 +12,11 @@ class MergeServiceV4Test {
     public static String roomName = "room";
 
     @BeforeAll
-    static void setUp() {
-        client = QRTC.init(TestConfig.testAccessKey, TestConfig.testSecretKey, "g2m0ya7w7");
+    public void setUp() {
+        client = QRTC.init(TestConfig.testAccessKey, TestConfig.testSecretKey, "fxrav2mql");
     }
 
-    @Test
+/*    @Test
     void mergeJob() throws Exception {
         MergeJob mergeJob = new MergeJob();
         mergeJob.setType("basic");
@@ -43,7 +37,7 @@ class MergeServiceV4Test {
 
         MediaOutput mediaOutput1 = new MediaOutput();
         mediaOutput1.setType("rtmp");
-        mediaOutput1.setUrl("rtmp://pili-publish.qnsdk.com/sdk-live/zhuozi0001?expire=1651139796&token=XWZ8aS4vTaI13QsS0YUWy1HhJB4=");
+        mediaOutput1.setUrl("rtmp://pili-publish.qnsdk.com/sdk-live/hugotest?expire=1651744685&token=Jt8FYi5eceUEoaFWMkcIQNsvQqs=");
 
         List<MediaOutput> outputs = new ArrayList<>();
         outputs.add(mediaOutput1);
@@ -110,4 +104,5 @@ class MergeServiceV4Test {
         assert mergeResult.getStatus().equals("OK");
         assert !StringUtils.isNullOrEmpty(mergeResult.getId());
     }
+ */
 }

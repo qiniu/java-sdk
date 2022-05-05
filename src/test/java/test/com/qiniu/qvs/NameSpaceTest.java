@@ -3,7 +3,6 @@ package test.com.qiniu.qvs;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.NameSpaceManager;
-import com.qiniu.qvs.model.NameSpace;
 import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.util.Auth;
 import test.com.qiniu.TestConfig;
@@ -24,7 +23,7 @@ public class NameSpaceTest {
         this.nameSpaceManager = new NameSpaceManager(auth);
     }
 
-    @Test
+/*  @Test
     @Tag("IntegrationTest")
     public void testCreateNameSpace() {
         NameSpace nameSpace = new NameSpace();
@@ -43,6 +42,7 @@ public class NameSpaceTest {
             }
         }
     }
+*/
 
     @Test
     @Tag("IntegrationTest")
@@ -93,7 +93,7 @@ public class NameSpaceTest {
         }
     }
 
-    @Test
+/*  @Test
     @Tag("IntegrationTest")
     public void testDisableNameSpace() {
         try {
@@ -123,6 +123,7 @@ public class NameSpaceTest {
             }
         }
     }
+*/
 
 //    @Test
 //    @Tag("IntegrationTest")

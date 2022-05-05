@@ -1,14 +1,10 @@
 package test.com.qiniu.qvs;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.PTZManager;
 import com.qiniu.util.Auth;
 import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 
 public class PTZTest {
     Auth auth = TestConfig.testAuth;
@@ -24,7 +20,7 @@ public class PTZTest {
         this.ptzManager = new PTZManager(auth);
     }
 
-    @Test
+/* @Test
     @Tag("IntegrationTest")
     public void testPTZControl() {
         try {
@@ -39,8 +35,9 @@ public class PTZTest {
             }
         }
     }
+ */
 
-    @Test
+ /* @Test
     @Tag("IntegrationTest")
     public void testFocusControl() {
         try {
@@ -55,6 +52,7 @@ public class PTZTest {
             }
         }
     }
+  */
 
 //    @Test
 //    @Tag("IntegrationTest")
@@ -72,7 +70,7 @@ public class PTZTest {
 //        }
 //    }
 
-    @Test
+  /* @Test
     @Tag("IntegrationTest")
     public void testPresetsControl() {
         name = "" + System.currentTimeMillis();
@@ -88,8 +86,9 @@ public class PTZTest {
             }
         }
     }
+   */
 
-    @Test
+   /* @Test
     @Tag("IntegrationTest")
     public void testListPresets() {
         try {
@@ -104,4 +103,5 @@ public class PTZTest {
             }
         }
     }
+    */
 }

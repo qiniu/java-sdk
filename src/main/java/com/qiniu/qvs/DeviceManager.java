@@ -70,10 +70,9 @@ public class DeviceManager {
      */
     public Response listDevice(String namespaceId, int offset, int line, String prefix, String state, int qtype)
             throws QiniuException {
-        String requestUrl = String.format("%s/v1/namespaces/%s/devices", apiServer, namespaceId);
         StringMap map = new StringMap().put("offset", offset).put("line", line).put("qtype", qtype)
                 .put("prefix", prefix).put("state", state);
-        requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
+        String requestUrl = String.format("%s/v1/namespaces/%s/devices?%s", apiServer, namespaceId, map.formString());
         return QvsResponse.get(requestUrl, client, auth);
     }
 
@@ -81,9 +80,8 @@ public class DeviceManager {
      * 获取通道列表
      */
     public Response listChannels(String namespaceId, String gbId, String prefix) throws QiniuException {
-        String requestUrl = String.format("%s/v1/namespaces/%s/devices/%s/channels", apiServer, namespaceId, gbId);
         StringMap map = new StringMap().put("prefix", prefix);
-        requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
+        String requestUrl = String.format("%s/v1/namespaces/%s/devices/%s/channels?%s", apiServer, namespaceId, gbId, map.formString());
         return QvsResponse.get(requestUrl, client, auth);
     }
 

@@ -1,13 +1,9 @@
 package test.com.qiniu.qvs;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.StatsManager;
 import com.qiniu.util.Auth;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
 public class StatsTest {
@@ -25,7 +21,7 @@ public class StatsTest {
         this.statsManager = new StatsManager(auth);
     }
 
-    @Test
+/*  @Test
     @Tag("IntegrationTest")
     public void testQueryFlow() {
         try {
@@ -56,4 +52,5 @@ public class StatsTest {
             }
         }
     }
+*/
 }

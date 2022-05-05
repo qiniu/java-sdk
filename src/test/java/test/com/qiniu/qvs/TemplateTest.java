@@ -1,14 +1,9 @@
 package test.com.qiniu.qvs;
 
-import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.TemplateManager;
-import com.qiniu.qvs.model.PatchOperation;
-import com.qiniu.qvs.model.Template;
 import com.qiniu.util.Auth;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
 public class TemplateTest {
@@ -24,7 +19,7 @@ public class TemplateTest {
         this.templateManager = new TemplateManager(auth);
     }
 
-    @Test
+ /* @Test
     @Tag("IntegrationTest")
     public void testCreateTemplate() {
         Template template = new Template();
@@ -110,4 +105,5 @@ public class TemplateTest {
 //            }
 //        }
 //    }
+*/
 }

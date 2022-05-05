@@ -80,11 +80,10 @@ public class StreamManager {
         获取流列表
     */
     public Response listStream(String namespaceId, int offset, int line, int qtype, String prefix, String sortBy) throws QiniuException {
-        String requestUrl = String.format("%s/v1/namespaces/%s/streams", apiServer, namespaceId);
         StringMap map = new StringMap().put("offset", offset).
                 put("line", line).put("qtype", qtype).
                 putNotEmpty("prefix", prefix).putNotEmpty("sortBy", sortBy);
-        requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, map);
+        String requestUrl = String.format("%s/v1/namespaces/%s/streams?%s", apiServer, namespaceId, map.formString());
         return QvsResponse.get(requestUrl, client, auth);
     }
 
