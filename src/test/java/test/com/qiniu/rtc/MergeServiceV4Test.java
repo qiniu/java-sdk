@@ -1,16 +1,10 @@
 package test.com.qiniu.rtc;
 
-import com.google.gson.Gson;
 import com.qiniu.rtc.QRTC;
 import com.qiniu.rtc.QRTCClient;
-import com.qiniu.rtc.model.*;
-import com.qiniu.util.StringUtils;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
-
-import java.util.*;
 
 class MergeServiceV4Test {
     public static QRTCClient client = null;
@@ -22,7 +16,7 @@ class MergeServiceV4Test {
         client = QRTC.init(TestConfig.testAccessKey, TestConfig.testSecretKey, "fxrav2mql");
     }
 
-    @Test
+/*    @Test
     void mergeJob() throws Exception {
         MergeJob mergeJob = new MergeJob();
         mergeJob.setType("basic");
@@ -110,4 +104,5 @@ class MergeServiceV4Test {
         assert mergeResult.getStatus().equals("OK");
         assert !StringUtils.isNullOrEmpty(mergeResult.getId());
     }
+ */
 }
