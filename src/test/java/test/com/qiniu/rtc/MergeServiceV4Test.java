@@ -12,7 +12,7 @@ class MergeServiceV4Test {
     public static String roomName = "room";
 
     @BeforeAll
-    static void setUp() {
+    public void setUp() {
         client = QRTC.init(TestConfig.testAccessKey, TestConfig.testSecretKey, "fxrav2mql");
     }
 
