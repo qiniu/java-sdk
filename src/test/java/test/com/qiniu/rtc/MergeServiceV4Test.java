@@ -19,7 +19,7 @@ class MergeServiceV4Test {
 
     @BeforeAll
     static void setUp() {
-        client = QRTC.init(TestConfig.testAccessKey, TestConfig.testSecretKey, "g2m0ya7w7");
+        client = QRTC.init(TestConfig.testAccessKey, TestConfig.testSecretKey, "fxrav2mql");
     }
 
     @Test
@@ -43,7 +43,7 @@ class MergeServiceV4Test {
 
         MediaOutput mediaOutput1 = new MediaOutput();
         mediaOutput1.setType("rtmp");
-        mediaOutput1.setUrl("rtmp://pili-publish.qnsdk.com/sdk-live/zhuozi0001?expire=1651139796&token=XWZ8aS4vTaI13QsS0YUWy1HhJB4=");
+        mediaOutput1.setUrl("rtmp://pili-publish.qnsdk.com/sdk-live/hugotest?expire=1651744685&token=Jt8FYi5eceUEoaFWMkcIQNsvQqs=");
 
         List<MediaOutput> outputs = new ArrayList<>();
         outputs.add(mediaOutput1);
