@@ -8,12 +8,19 @@ public enum StorageType {
      * 普通存储
      */
     COMMON,
+
     /**
      * 低频存储
      */
     INFREQUENCY,
+
     /**
      * 归档存储
      */
-    Archive
+    Archive,
+
+    /**
+     * 深度归档存储
+     */
+    DeepArchive
 }
