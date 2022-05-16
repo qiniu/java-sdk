@@ -59,7 +59,7 @@ public final class Auth {
             "asyncOps",
     };
     private static boolean[] isTokenTable = genTokenTable();
-    private static int toLower = 'a' - 'A';
+    private static byte toLower = 'a' - 'A';
     public final String accessKey;
     private final SecretKeySpec secretKey;
 
