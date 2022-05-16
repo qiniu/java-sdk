@@ -908,7 +908,7 @@ public final class BucketManager {
      */
     public Response putCorsRules(String bucket, CorsRule[] rules) throws QiniuException {
         String url = String.format("%s/corsRules/set/%s", configHelper.ucHost(), bucket);
-        Response res = post(url, Json.encode(rules).getBytes());
+        Response res = post(url, Json.encode(rules).getBytes(Constants.UTF_8));
         if (!res.isOK()) {
             throw new QiniuException(res);
         }

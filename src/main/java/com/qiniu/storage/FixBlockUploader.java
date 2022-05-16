@@ -1,6 +1,7 @@
 package com.qiniu.storage;
 
 import com.google.gson.Gson;
+import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
@@ -443,7 +444,7 @@ public class FixBlockUploader {
         final StringMap headers = new StringMap().put("Authorization", "UpToken " + token.getUpToken());
         sortAsc(etags);
         byte[] data = new MakefileBody(etags, fileName, params)
-                .json().getBytes(Charset.forName("UTF-8"));
+                .json().getBytes(Constants.UTF_8);
 
         // 1
         Response res = makeFile1(url, data, headers, true);
@@ -494,7 +495,7 @@ public class FixBlockUploader {
         try {
             String part3 = upToken.split(":")[2];
             byte[] b = UrlSafeBase64.decode(part3);
-            StringMap m = Json.decode(new String(b, Charset.forName("UTF-8")));
+            StringMap m = Json.decode(new String(b, Constants.UTF_8));
             String scope = m.get("scope").toString();
             return scope.split(":")[0];
         } catch (Exception e) {
@@ -909,7 +910,7 @@ public class FixBlockUploader {
             if (recorder != null) {
                 try {
                     byte[] data = recorder.get(recordFileKey);
-                    record = new Gson().fromJson(new String(data, Charset.forName("UTF-8")), Record.class);
+                    record = new Gson().fromJson(new String(data, Constants.UTF_8), Record.class);
                     if (!record.isValid()) {
                         record = null;
                     }
@@ -930,7 +931,7 @@ public class FixBlockUploader {
         public void syncRecord(Record record) {
             if (needRecord && recorder != null && record.etagIdxes.size() > 0) {
                 sortAsc(record.etagIdxes);
-                recorder.set(recordFileKey, new Gson().toJson(record).getBytes(Charset.forName("UTF-8")));
+                recorder.set(recordFileKey, new Gson().toJson(record).getBytes(Constants.UTF_8));
             }
         }
 

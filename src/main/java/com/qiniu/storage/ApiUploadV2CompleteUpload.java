@@ -1,11 +1,13 @@
 package com.qiniu.storage;
 
+import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringUtils;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -214,7 +216,7 @@ public class ApiUploadV2CompleteUpload extends ApiUpload {
             }
 
             String bodyString = Json.encode(bodyMap);
-            byte[] body = bodyString.getBytes();
+            byte[] body = bodyString.getBytes(Constants.UTF_8);
             setBody(body, 0, body.length, null);
         }
     }
