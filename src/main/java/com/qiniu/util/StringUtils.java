@@ -139,7 +139,7 @@ public final class StringUtils {
 
     public static String md5Lower(String src) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("MD5");
-        digest.update(src.getBytes(Charset.forName("UTF-8")));
+        digest.update(src.getBytes(Constants.UTF_8));
         byte[] md5Bytes = digest.digest();
         return Hex.encodeHexString(md5Bytes);
     }

@@ -1,6 +1,7 @@
 package com.qiniu.http;
 
 
+import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
@@ -96,7 +97,7 @@ public final class Response {
             try {
                 body = response.body().bytes();
                 if (response.code() >= 400 && !StringUtils.isNullOrEmpty(reqId) && body != null) {
-                    ErrorBody errorBody = Json.decode(new String(body), ErrorBody.class);
+                    ErrorBody errorBody = Json.decode(new String(body, Constants.UTF_8), ErrorBody.class);
                     error = errorBody.error;
                 }
             } catch (Exception e) {
@@ -123,7 +124,7 @@ public final class Response {
             try {
                 body = response.body().bytes();
                 if (response.code() >= 400 && !StringUtils.isNullOrEmpty(reqId) && body != null) {
-                    ErrorBody errorBody = Json.decode(new String(body), ErrorBody.class);
+                    ErrorBody errorBody = Json.decode(new String(body, Constants.UTF_8), ErrorBody.class);
                     error = errorBody.error;
                 }
             } catch (Exception e) {

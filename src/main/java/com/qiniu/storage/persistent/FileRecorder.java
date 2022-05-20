@@ -1,5 +1,6 @@
 package com.qiniu.storage.persistent;
 
+import com.qiniu.common.Constants;
 import com.qiniu.storage.Recorder;
 import com.qiniu.util.StringUtils;
 

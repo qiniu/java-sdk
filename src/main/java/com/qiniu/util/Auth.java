@@ -1,6 +1,7 @@
 package com.qiniu.util;
 
 import com.google.gson.annotations.SerializedName;
+import com.qiniu.common.Constants;
 import com.qiniu.http.Client;
 import com.qiniu.http.Headers;
 
@@ -58,7 +59,7 @@ public final class Auth {
             "asyncOps",
     };
     private static boolean[] isTokenTable = genTokenTable();
-    private static int toLower = 'a' - 'A';
+    private static byte toLower = 'a' - 'A';
     public final String accessKey;
     private final SecretKeySpec secretKey;
 
@@ -104,7 +105,7 @@ public final class Auth {
     // returned without modifications.
     private static String canonicalMIMEHeaderKey(String name) {
         // com.qiniu.http.Headers 已确保 header name 字符的合法性，直接使用 byte ，否则要使用 char //
-        byte[] a = name.getBytes(Charset.forName("UTF-8"));
+        byte[] a = name.getBytes(Constants.UTF_8);
         for (int i = 0; i < a.length; i++) {
             byte c = a[i];
             if (!validHeaderFieldByte(c)) {
@@ -123,7 +124,7 @@ public final class Auth {
             a[i] = c;
             upper = c == '-'; // for next time
         }
-        return new String(a);
+        return new String(a, Constants.UTF_8);
     }
 
     private static boolean validHeaderFieldByte(byte b) {
@@ -443,7 +444,7 @@ public final class Auth {
 
         if (body != null && body.length > 0 && null != contentType && !"".equals(contentType)
                 && !"application/octet-stream".equals(contentType)) {
-            sb.append(new String(body));
+            sb.append(new String(body, Constants.UTF_8));
         }
         Mac mac = createMac();
         mac.update(StringUtils.utf8Bytes(sb.toString()));
