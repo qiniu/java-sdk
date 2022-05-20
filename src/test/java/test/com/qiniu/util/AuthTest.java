@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -87,7 +88,9 @@ public class AuthTest {
     @Tag("UnitTest")
     public void testQiniuAuthorization() {
         try {
-            Boolean isDisableQiniuTimestampSignature = (Boolean) Auth.class.getDeclaredMethod("isDisableQiniuTimestampSignature").invoke(null);
+            Method isDisableQiniuTimestampSignatureMethod = Auth.class.getDeclaredMethod("isDisableQiniuTimestampSignature");
+            isDisableQiniuTimestampSignatureMethod.setAccessible(true);
+            Boolean isDisableQiniuTimestampSignature = (Boolean) isDisableQiniuTimestampSignatureMethod.invoke(null);
             if (!isDisableQiniuTimestampSignature) {
                 return;
             }

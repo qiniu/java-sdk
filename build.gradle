@@ -53,7 +53,7 @@ apply plugin: 'checkstyle'
 
 def versionName() {
     String config = 'src/main/java/com/qiniu/common/Constants.java'
-    String fileContents = "String VERSION = \"7.10.0\";"; // new File(config).text
+    String fileContents = new File(config).text
     Matcher myMatcher = fileContents =~ /VERSION = "(.+)";/
     String version = myMatcher[0][1]
     println(version)

@@ -223,7 +223,9 @@ public class SmsTest {
     @Test
     @Tag("IntegrationTest")
     public void testComposeHeader() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        Boolean isDisableQiniuTimestampSignature = (Boolean) Auth.class.getDeclaredMethod("isDisableQiniuTimestampSignature").invoke(null);
+        Method isDisableQiniuTimestampSignatureMethod = Auth.class.getDeclaredMethod("isDisableQiniuTimestampSignature");
+        isDisableQiniuTimestampSignatureMethod.setAccessible(true);
+        Boolean isDisableQiniuTimestampSignature = (Boolean) isDisableQiniuTimestampSignatureMethod.invoke(null);
         if (!isDisableQiniuTimestampSignature) {
             return;
         }
