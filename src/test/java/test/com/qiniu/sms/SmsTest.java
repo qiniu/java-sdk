@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
 
+import javax.annotation.processing.ProcessingEnvironment;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -221,6 +223,11 @@ public class SmsTest {
     @Test
     @Tag("IntegrationTest")
     public void testComposeHeader() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        Boolean isDisableQiniuTimestampSignature = (Boolean) Auth.class.getDeclaredMethod("isDisableQiniuTimestampSignature").invoke(null);
+        if (!isDisableQiniuTimestampSignature) {
+            return;
+        }
+
         Class<SmsManager> clazz = SmsManager.class;
         Method declaredMethod = clazz.getDeclaredMethod("composeHeader", String.class, String.class, byte[].class,
                 String.class);
