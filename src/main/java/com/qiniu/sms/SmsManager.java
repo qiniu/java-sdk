@@ -226,6 +226,17 @@ public class SmsManager {
     }
 
     /**
+     * 查询单个模板信息
+     *
+     * @param templateId  模板ID
+     */
+    public TemplateInfo.Item describeTemplateItem(String templateId) throws QiniuException {
+        Response resp = describeTemplate(templateId);
+        TemplateInfo.Item item = Json.decode(resp.bodyString(), TemplateInfo.Item.class);
+        return item;
+    }
+
+    /**
      * 创建模板
      *
      * @param name        模板名称,必填
