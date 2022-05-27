@@ -216,6 +216,16 @@ public class SmsManager {
     }
 
     /**
+     * 查询单个模板信息
+     *
+     * @param templateId  模板ID
+     */
+    public Response describeTemplate(String templateId) throws QiniuException {
+        String requestUrl = String.format("%s/v1/template/%s", configuration.smsHost(), templateId);
+        return get(requestUrl);
+    }
+
+    /**
      * 创建模板
      *
      * @param name        模板名称,必填
