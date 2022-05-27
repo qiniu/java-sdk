@@ -187,6 +187,29 @@ public class SmsTest {
 
     @Test
     @Tag("IntegrationTest")
+    public void testDescribeSingleTemplate() {
+        try {
+            Response response = smsManager.describeTemplate("templateId");
+            assertNotNull(response);
+        } catch (QiniuException e) {
+            assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(401)));
+        }
+    }
+
+    @Test
+    @Tag("IntegrationTest")
+    public void testDescribeSingleTemplateItem() {
+        try {
+            TemplateInfo.Item item = smsManager.describeTemplateItem("templateId");
+            assertNotNull(item);
+        } catch (QiniuException e) {
+            assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(401)));
+        }
+    }
+
+
+    @Test
+    @Tag("IntegrationTest")
     public void testCreateTemplate() {
         try {
             Response response = smsManager.createTemplate("name", "template", "notification", "desc", "signatureId");
