@@ -7,7 +7,6 @@ import com.qiniu.http.MethodType;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringUtils;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
