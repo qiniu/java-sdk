@@ -28,7 +28,7 @@ public class Region {
      */
     private String rsHost = "rs.qbox.me";
     private String rsfHost = "rsf.qbox.me";
-    private String apiHost = "api.qiniu.com";
+    private String apiHost = "api.qiniuapi.com";
     private String ucHost = "uc.qbox.me";
 
     Region() {

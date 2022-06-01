@@ -42,7 +42,7 @@ public class Zone {
                 .iovipHttp("http://iovip.qbox.me").iovipHttps("https://iovip.qbox.me")
                 .rsHttp("http://rs.qiniu.com").rsHttps("https://rs.qbox.me")
                 .rsfHttp("http://rsf.qiniu.com").rsfHttps("https://rsf.qbox.me")
-                .apiHttp("http://api.qiniu.com").apiHttps("https://api.qiniu.com")
+                .apiHttp("http://api.qiniuapi.com").apiHttps("https://api.qiniuapi.com")
                 .build();
     }
 
@@ -84,7 +84,7 @@ public class Zone {
                 .iovipHttp("http://iovip-z1.qbox.me").iovipHttps("https://iovip-z1.qbox.me")
                 .rsHttp("http://rs-z1.qiniu.com").rsHttps("https://rs-z1.qbox.me")
                 .rsfHttp("http://rsf-z1.qiniu.com").rsfHttps("https://rsf-z1.qbox.me")
-                .apiHttp("http://api-z1.qiniu.com").apiHttps("https://api-z1.qiniu.com")
+                .apiHttp("http://api-z1.qiniuapi.com").apiHttps("https://api-z1.qiniuapi.com")
                 .build();
     }
 
@@ -126,7 +126,7 @@ public class Zone {
                 .iovipHttp("http://iovip-z2.qbox.me").iovipHttps("https://iovip-z2.qbox.me")
                 .rsHttp("http://rs-z2.qiniu.com").rsHttps("https://rs-z2.qbox.me")
                 .rsfHttp("http://rsf-z2.qiniu.com").rsfHttps("https://rsf-z2.qbox.me")
-                .apiHttp("http://api-z2.qiniu.com").apiHttps("https://api-z2.qiniu.com")
+                .apiHttp("http://api-z2.qiniuapi.com").apiHttps("https://api-z2.qiniuapi.com")
                 .build();
     }
 
@@ -147,7 +147,7 @@ public class Zone {
                 .iovipHttp("http://iovip-na0.qbox.me").iovipHttps("https://iovip-na0.qbox.me")
                 .rsHttp("http://rs-na0.qiniu.com").rsHttps("https://rs-na0.qbox.me")
                 .rsfHttp("http://rsf-na0.qiniu.com").rsfHttps("https://rsf-na0.qbox.me")
-                .apiHttp("http://api-na0.qiniu.com").apiHttps("https://api-na0.qiniu.com")
+                .apiHttp("http://api-na0.qiniuapi.com").apiHttps("https://api-na0.qiniuapi.com")
                 .build();
     }
 
@@ -168,7 +168,7 @@ public class Zone {
                 .iovipHttp("http://iovip-as0.qbox.me").iovipHttps("https://iovip-as0.qbox.me")
                 .rsHttp("http://rs-as0.qiniu.com").rsHttps("https://rs-as0.qbox.me")
                 .rsfHttp("http://rsf-as0.qiniu.com").rsfHttps("https://rsf-as0.qbox.me")
-                .apiHttp("http://api-as0.qiniu.com").apiHttps("https://api-as0.qiniu.com")
+                .apiHttp("http://api-as0.qiniuapi.com").apiHttps("https://api-as0.qiniuapi.com")
                 .build();
     }
 
