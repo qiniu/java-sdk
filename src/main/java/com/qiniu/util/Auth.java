@@ -2,19 +2,22 @@ package com.qiniu.util;
 
 import com.google.gson.annotations.SerializedName;
 import com.qiniu.common.Constants;
+import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Headers;
+import okhttp3.Request;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public final class Auth {
+    public static final String DISABLE_QINIU_TIMESTAMP_SIGNATURE_ENV_KEY = "DISABLE_QINIU_TIMESTAMP_SIGNATURE";
     public static final String DTOKEN_ACTION_VOD = "linking:vod";
     public static final String DTOKEN_ACTION_STATUS = "linking:status";
     public static final String DTOKEN_ACTION_TUTK = "linking:tutk";
@@ -467,19 +470,41 @@ public final class Auth {
     }
 
     public Headers qiniuAuthorization(String url, String method, byte[] body, Headers headers) {
-        String authorization = "Qiniu " + signQiniuAuthorization(url, method, body, headers);
+        Headers.Builder builder = null;
         if (headers == null) {
-            headers = new Headers.Builder().set("Authorization", authorization).build();
+            builder = new Headers.Builder();
         } else {
-            headers = headers.newBuilder().set("Authorization", authorization).build();
+            builder = headers.newBuilder();
         }
-        return headers;
+
+        setDefaultHeader(builder);
+
+        String authorization = "Qiniu " + signQiniuAuthorization(url, method, body, builder.build());
+        builder.set("Authorization", authorization).build();
+        return builder.build();
     }
 
     @Deprecated
     public StringMap authorizationV2(String url, String method, byte[] body, String contentType) {
-        String authorization = "Qiniu " + signRequestV2(url, method, body, contentType);
-        return new StringMap().put("Authorization", authorization);
+        Headers headers = null;
+        if (!StringUtils.isNullOrEmpty(contentType)) {
+            headers = new Headers.Builder().set(HTTP_HEADER_KEY_CONTENT_TYPE, contentType).build();
+        }
+
+        headers = qiniuAuthorization(url, method, body, headers);
+        if (headers == null) {
+            return null;
+        }
+
+        Set<String> headerKeys = headers.names();
+        StringMap headerMap = new StringMap();
+        for (String key : headerKeys) {
+            String value = headers.get(key);
+            if (value != null) {
+                headerMap.put(key, value);
+            }
+        }
+        return headerMap;
     }
 
     @Deprecated
@@ -522,6 +547,28 @@ public final class Auth {
 
     public String generateLinkingDeviceStatusTokenWithExpires(String appid, String deviceName, long expires) {
         return generateLinkingDeviceTokenWithExpires(appid, deviceName, expires, new String[]{DTOKEN_ACTION_STATUS});
+    }
+
+
+    private static void setDefaultHeader(Headers.Builder builder) {
+        if (!isDisableQiniuTimestampSignature()) {
+            builder.set("X-Qiniu-Date", XQiniuDate());
+        }
+    }
+
+    private static boolean isDisableQiniuTimestampSignature() {
+        String value = System.getenv(DISABLE_QINIU_TIMESTAMP_SIGNATURE_ENV_KEY);
+        if (value == null) {
+            return false;
+        }
+        value = value.toLowerCase();
+        return value.equals("true") || value.equals("yes") || value.equals("y") || value.equals("1");
+    }
+
+    private static String XQiniuDate() {
+        DateFormat format = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return format.format(new Date());
     }
 
     class LinkingDtokenStatement {

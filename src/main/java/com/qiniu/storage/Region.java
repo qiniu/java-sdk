@@ -28,7 +28,7 @@ public class Region {
      */
     private String rsHost = "rs.qbox.me";
     private String rsfHost = "rsf.qbox.me";
-    private String apiHost = "api.qiniu.com";
+    private String apiHost = "api.qiniuapi.com";
     private String ucHost = "uc.qbox.me";
 
     Region() {
@@ -53,12 +53,12 @@ public class Region {
     public static Region region0() {
         return new Builder().
                 region("z0").
-                srcUpHost("up.qiniup.com", "up-jjh.qiniup.com", "up-xs.qiniup.com").
-                accUpHost("upload.qiniup.com", "upload-jjh.qiniup.com", "upload-xs.qiniup.com").
+                srcUpHost("up.qiniup.com").
+                accUpHost("upload.qiniup.com").
                 iovipHost("iovip.qbox.me").
                 rsHost("rs.qbox.me").
                 rsfHost("rsf.qbox.me").
-                apiHost("api.qiniu.com").
+                apiHost("api.qiniuapi.com").
                 build();
     }
 
@@ -126,7 +126,7 @@ public class Region {
                 iovipHost("iovip-z1.qbox.me").
                 rsHost("rs-z1.qbox.me").
                 rsfHost("rsf-z1.qbox.me").
-                apiHost("api-z1.qiniu.com").
+                apiHost("api-z1.qiniuapi.com").
                 build();
     }
 
@@ -165,12 +165,12 @@ public class Region {
     public static Region region2() {
         return new Builder().
                 region("z2").
-                srcUpHost("up-z2.qiniup.com", "up-dg.qiniup.com", "up-fs.qiniup.com").
-                accUpHost("upload-z2.qiniup.com", "upload-dg.qiniup.com", "upload-fs.qiniup.com").
+                srcUpHost("up-z2.qiniup.com").
+                accUpHost("upload-z2.qiniup.com").
                 iovipHost("iovip-z2.qbox.me").
                 rsHost("rs-z2.qbox.me").
                 rsfHost("rsf-z2.qbox.me").
-                apiHost("api-z2.qiniu.com").
+                apiHost("api-z2.qiniuapi.com").
                 build();
     }
 
@@ -192,7 +192,7 @@ public class Region {
                 iovipHost("iovip-na0.qbox.me").
                 rsHost("rs-na0.qbox.me").
                 rsfHost("rsf-na0.qbox.me").
-                apiHost("api-na0.qiniu.com").
+                apiHost("api-na0.qiniuapi.com").
                 build();
     }
 
@@ -214,7 +214,7 @@ public class Region {
                 iovipHost("iovip-as0.qbox.me").
                 rsHost("rs-as0.qbox.me").
                 rsfHost("rsf-as0.qbox.me").
-                apiHost("api-as0.qiniu.com").
+                apiHost("api-as0.qiniuapi.com").
                 build();
     }
 

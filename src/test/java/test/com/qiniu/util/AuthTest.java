@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -85,6 +87,18 @@ public class AuthTest {
     @Test
     @Tag("UnitTest")
     public void testQiniuAuthorization() {
+        try {
+            Method isDisableQiniuTimestampSignatureMethod = Auth.class.getDeclaredMethod("isDisableQiniuTimestampSignature");
+            isDisableQiniuTimestampSignatureMethod.setAccessible(true);
+            Boolean isDisableQiniuTimestampSignature = (Boolean) isDisableQiniuTimestampSignatureMethod.invoke(null);
+            if (!isDisableQiniuTimestampSignature) {
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         String ak = "MY_ACCESS_KEY";
         String sk = "MY_SECRET_KEY";
         String method = "POST";
