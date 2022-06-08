@@ -1,5 +1,8 @@
 # Changelog
 
+## 7.11.0（2022-06-08）
+* 对象存储，管理类 API 发送请求时增加 [X-Qiniu-Date](https://developer.qiniu.com/kodo/3924/common-request-headers) （生成请求的时间） header
+
 ## 7.10.4 (2022-05-27)
 * 添加查询单个短信模板接口
 
