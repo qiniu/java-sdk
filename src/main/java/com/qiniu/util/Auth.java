@@ -2,10 +2,8 @@ package com.qiniu.util;
 
 import com.google.gson.annotations.SerializedName;
 import com.qiniu.common.Constants;
-import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Headers;
-import okhttp3.Request;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -60,8 +58,8 @@ public final class Auth {
     private static final String[] deprecatedPolicyFields = new String[]{
             "asyncOps",
     };
-    private static boolean[] isTokenTable = genTokenTable();
-    private static byte toLower = 'a' - 'A';
+    private static final boolean[] isTokenTable = genTokenTable();
+    private static final byte toLower = 'a' - 'A';
     public final String accessKey;
     private final SecretKeySpec secretKey;
 
@@ -552,7 +550,7 @@ public final class Auth {
 
     private static void setDefaultHeader(Headers.Builder builder) {
         if (!isDisableQiniuTimestampSignature()) {
-            builder.set("X-Qiniu-Date", XQiniuDate());
+            builder.set("X-Qiniu-Date", xQiniuDate());
         }
     }
 
@@ -565,7 +563,7 @@ public final class Auth {
         return value.equals("true") || value.equals("yes") || value.equals("y") || value.equals("1");
     }
 
-    private static String XQiniuDate() {
+    private static String xQiniuDate() {
         DateFormat format = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
         return format.format(new Date());
