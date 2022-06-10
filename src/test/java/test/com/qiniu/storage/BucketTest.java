@@ -79,6 +79,15 @@ public class BucketTest {
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
                 try {
                     String[] domains = bucketManager.domainList(file.getBucketName());
+                    domains = bucketManager.domainList("sdk-z0");
+                    assertNotNull(domains);
+                    domains = bucketManager.domainList("sdk-z1");
+                    assertNotNull(domains);
+                    domains = bucketManager.domainList("sdk-z2");
+                    assertNotNull(domains);
+                    domains = bucketManager.domainList("sdk-na0");
+                    assertNotNull(domains);
+                    domains = bucketManager.domainList("sdk-as0");
                     assertNotNull(domains);
                 } catch (QiniuException e) {
                     assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(401)));
