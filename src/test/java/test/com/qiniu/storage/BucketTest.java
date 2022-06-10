@@ -74,20 +74,11 @@ public class BucketTest {
     @Test
     @Tag("IntegrationTest")
     public void testDomains() throws Exception {
-        testFileWithHandler(new TestFileHandler() {
+        testAllRegionFileWithHandler(new TestFileHandler() {
             @Override
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
                 try {
                     String[] domains = bucketManager.domainList(file.getBucketName());
-                    domains = bucketManager.domainList("sdk-z0");
-                    assertNotNull(domains);
-                    domains = bucketManager.domainList("sdk-z1");
-                    assertNotNull(domains);
-                    domains = bucketManager.domainList("sdk-z2");
-                    assertNotNull(domains);
-                    domains = bucketManager.domainList("sdk-na0");
-                    assertNotNull(domains);
-                    domains = bucketManager.domainList("sdk-as0");
                     assertNotNull(domains);
                 } catch (QiniuException e) {
                     assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(401)));
@@ -1819,6 +1810,19 @@ public class BucketTest {
         }
 
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration cfg = new Configuration(file.getRegion());
+            BucketManager bucketManager = new BucketManager(TestConfig.testAuth, cfg);
+            handler.testFile(file, bucketManager);
+        }
+    }
+
+    private void testAllRegionFileWithHandler(TestFileHandler handler) throws Exception {
+        if (handler == null) {
+            return;
+        }
+
+        TestConfig.TestFile[] files = TestConfig.getAllRegionTestFileArray();
         for (TestConfig.TestFile file : files) {
             Configuration cfg = new Configuration(file.getRegion());
             BucketManager bucketManager = new BucketManager(TestConfig.testAuth, cfg);
