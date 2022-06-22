@@ -144,7 +144,7 @@ public final class BucketManager {
     }
 
     public Response domainListResponse(String bucket) throws QiniuException {
-        String url = String.format("%s/v6/domain/list?tbl=%s", configHelper.apiHost(), bucket);
+        String url = String.format("%s/v6/domain/list?tbl=%s", configHelper.apiHost(auth.accessKey, bucket), bucket);
         Response res = get(url);
         if (!res.isOK()) {
             throw new QiniuException(res);
@@ -1022,7 +1022,7 @@ public final class BucketManager {
      */
     public Response putBucketQuota(String bucket, BucketQuota bucketQuota) throws QiniuException {
         String url = String.format("%s/setbucketquota/%s/size/%d/count/%d",
-                configHelper.apiHost(), bucket, bucketQuota.getSize(), bucketQuota.getCount());
+                configHelper.apiHost(auth.accessKey, bucket), bucket, bucketQuota.getSize(), bucketQuota.getCount());
         Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
@@ -1044,7 +1044,7 @@ public final class BucketManager {
     }
 
     public Response getBucketQuotaResponse(String bucket) throws QiniuException {
-        String url = String.format("%s/getbucketquota/%s", configHelper.apiHost(), bucket);
+        String url = String.format("%s/getbucketquota/%s", configHelper.apiHost(auth.accessKey, bucket), bucket);
         Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
