@@ -240,21 +240,6 @@ public class Region {
         return regionAs0();
     }
 
-    /**
-     * 雾存储 华东-1
-     */
-    public static Region regionFogCnEast1() {
-        return new Builder()
-                .region("fog-cn-east-1")
-                .srcUpHost("up-fog-cn-east-1.qiniup.com")
-                .accUpHost("upload-fog-cn-east-1.qiniup.com")
-                .iovipHost("iovip-fog-cn-east-1.qbox.me")
-                .rsHost("rs-fog-cn-east-1.qbox.me")
-                .rsfHost("rsf-fog-cn-east-1.qbox.me")
-                .apiHost("api-fog-cn-east-1.qiniuapi.com")
-                .build();
-    }
-
     /*
      * 自动根据AccessKey和Bucket来判断所在机房，并获取相关的域名
      * 空间所在的对应机房可以在空间创建的时候选择，或者创建完毕之后，从后台查看
