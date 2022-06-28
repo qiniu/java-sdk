@@ -1097,7 +1097,8 @@ public final class BucketManager {
     /**
      * 批量文件管理请求
      * <p>
-     * 如果遇到超时比较多，可在创建 BucketManager 时尝试增加超时时间，具体方式如下：
+     * 如果遇到超时比较多，可减小单次 batch 操作的数量，或者在创建 BucketManager 时尝试增加超时时间；
+     * 增加超时时间的具体方式如下：
      * Configuration cfg = new Configuration();
      * cfg.readTimeout = 120;
      * BucketManager bucketManager = new BucketManager(auth, cfg);
@@ -1109,7 +1110,7 @@ public final class BucketManager {
     }
 
     /**
-     * 文件管理批量操作指令构建对象
+     * 文件管理批量操作指令构建对象，单次 BatchOperations 的操作数最多为 1000（即 add 最多 1000 个），如果遇到超时，需要调小操作数量
      */
     public static class BatchOperations {
         private ArrayList<String> ops;
