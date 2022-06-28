@@ -1096,6 +1096,13 @@ public final class BucketManager {
 
     /**
      * 批量文件管理请求
+     * <p>
+     * 如果遇到超时比较多，可在创建 BucketManager 时尝试增加超时时间，具体方式如下：
+     * Configuration cfg = new Configuration();
+     * cfg.readTimeout = 120;
+     * BucketManager bucketManager = new BucketManager(auth, cfg);
+     * <p>
+     * 如果 BucketManager 定义了 Client ，可以指定 Client 的超时时间。
      */
     public Response batch(BatchOperations operations) throws QiniuException {
         return rsPost(operations.execBucket(), "/batch", operations.toBody());
