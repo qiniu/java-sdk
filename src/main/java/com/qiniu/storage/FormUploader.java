@@ -20,6 +20,7 @@ public final class FormUploader extends BaseUploader {
     private final byte[] data;
     private final String mime;
     private final boolean checkCrc;
+    private final Configuration config;
     private final ConfigHelper configHelper;
     private StringMap params;
     private String filename;
@@ -52,25 +53,41 @@ public final class FormUploader extends BaseUploader {
         this.mime = mime;
         this.checkCrc = checkCrc;
         this.configHelper = new ConfigHelper(configuration);
+        this.config = configuration;
     }
 
     @Override
     Response uploadFlows() throws QiniuException {
         buildParams();
-        String host = configHelper.upHost(upToken);
-        try {
-            if (data != null) {
-                return client.multipartPost(configHelper.upHost(upToken), params, "file", filename, data,
-                        mime, new StringMap());
-            } else {
-                return client.multipartPost(configHelper.upHost(upToken), params, "file", filename, file,
-                        mime, new StringMap());
+
+        Retry.RequestRetryConfig retryConfig = new Retry.RequestRetryConfig.Builder().
+                setRetryMax(this.config.retryMax)
+                .build();
+        return Retry.retryRequestAction(retryConfig, new Retry.RequestRetryAction() {
+            @Override
+            public String getRequestHost() throws QiniuException {
+                return configHelper.upHost(upToken);
             }
-        } catch (QiniuException e) {
-            if (e.response == null || e.response.needSwitchServer()) {
-                changeHost(upToken, host);
+
+            @Override
+            public void tryChangeRequestHost(String oldHost) throws QiniuException {
+                changeHost(upToken, oldHost);
             }
-            throw e;
+
+            @Override
+            public Response doRequest(String host) throws QiniuException {
+                return uploadWithHost(host);
+            }
+        });
+    }
+
+    Response uploadWithHost(String host) throws QiniuException {
+        if (data != null) {
+            return client.multipartPost(host, params, "file", filename, data,
+                    mime, new StringMap());
+        } else {
+            return client.multipartPost(host, params, "file", filename, file,
+                    mime, new StringMap());
         }
     }
 
@@ -79,30 +96,90 @@ public final class FormUploader extends BaseUploader {
      */
     public void asyncUpload(final UpCompletionHandler handler) throws IOException {
         buildParams();
-        final String host = configHelper.upHost(upToken);
+        asyncRetryUploadBetweenRegion(handler);
+    }
+
+    /**
+     * 支持区域间重试
+     */
+    private void asyncRetryUploadBetweenRegion(final UpCompletionHandler handler) {
+        UploadToken token = null;
+        try {
+            token = new UploadToken(upToken);
+        } catch (QiniuException exception) {
+            exception.printStackTrace();
+            handler.complete(key, Response.createError(null, "", 0, exception.getMessage()));
+            return;
+        }
+
+        final UploadToken finalToken = token;
+        asyncRetryUploadBetweenHosts(0, new UpCompletionHandler() {
+            @Override
+            public void complete(String key, Response r) {
+                if (!Retry.shouldSwitchRegionAndRetry(r, null)
+                        || !couldReloadSource() || !reloadSource()
+                        || config.region == null || !config.region.switchRegion(finalToken)) {
+                    handler.complete(key, r);
+                } else {
+                    asyncRetryUploadBetweenRegion(handler);
+                }
+            }
+        });
+    }
+
+    /**
+     * 支持 hosts 间重试
+     */
+    private void asyncRetryUploadBetweenHosts(final int retryIndex, final UpCompletionHandler handler) {
+        String host = null;
+        try {
+            host = configHelper.upHost(upToken);
+        } catch (QiniuException exception) {
+            exception.printStackTrace();
+            handler.complete(key, Response.createError(null, "", 0, exception.getMessage()));
+            return;
+        }
+
+        final String finalHost = host;
+        asyncUploadWithHost(finalHost, new UpCompletionHandler() {
+            @Override
+            public void complete(String key, Response r) {
+                if (Retry.requestShouldSwitchHost(r, null)) {
+                    changeHost(upToken, finalHost);
+                }
+
+                if (Retry.requestShouldRetry(r, null) && retryIndex < config.retryMax) {
+                    asyncRetryUploadBetweenHosts((retryIndex+1), handler);
+                } else {
+                    handler.complete(key, r);
+                }
+            }
+        });
+    }
+
+    private void asyncUploadWithHost(String host, final UpCompletionHandler handler) {
         if (data != null) {
-            client.asyncMultipartPost(host, params, "file", filename,
-                    data, mime, new StringMap(), new AsyncCallback() {
+            client.asyncMultipartPost(host, params, "file", filename, data, mime, new StringMap(),
+                    new AsyncCallback() {
                         @Override
                         public void complete(Response res) {
-                            if (res != null && res.needSwitchServer()) {
-                                changeHost(upToken, host);
-                            }
                             handler.complete(key, res);
                         }
                     });
-            return;
+        } else {
+            try {
+                client.asyncMultipartPost(host, params, "file", filename, file, mime, new StringMap(),
+                        new AsyncCallback() {
+                            @Override
+                            public void complete(Response res) {
+                                handler.complete(key, res);
+                            }
+                        });
+            } catch (QiniuException exception) {
+                // 看代码逻辑此处永远不会执行，仅为象征处理
+                handler.complete(key, Response.createError(null, "", 0, exception.getMessage()));
+            }
         }
-        client.asyncMultipartPost(configHelper.upHost(upToken), params, "file", filename,
-                file, mime, new StringMap(), new AsyncCallback() {
-                    @Override
-                    public void complete(Response res) {
-                        if (res != null && res.needSwitchServer()) {
-                            changeHost(upToken, host);
-                        }
-                        handler.complete(key, res);
-                    }
-                });
     }
 
     @Override

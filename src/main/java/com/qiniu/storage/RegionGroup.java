@@ -12,7 +12,7 @@ public class RegionGroup extends Region {
     private final List<Region> regionList = new ArrayList<>();
 
 
-    public boolean addRegion(Region region) {
+    public synchronized boolean addRegion(Region region) {
         if (region == null) {
             return false;
         }
@@ -27,7 +27,7 @@ public class RegionGroup extends Region {
     }
 
     @Override
-    boolean switchRegion(RegionReqInfo regionReqInfo) {
+    synchronized boolean switchRegion(RegionReqInfo regionReqInfo) {
         if (currentRegion != null && currentRegion.isValid() && currentRegion.switchRegion(regionReqInfo)) {
             return true;
         }

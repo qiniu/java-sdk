@@ -89,61 +89,26 @@ abstract class ResumeUploadPerformer {
         }
     }
 
-    Response retryUploadAction(UploadAction action) throws QiniuException {
-        Response response = null;
-        int retryCount = 0;
-
-        do {
-            boolean shouldSwitchHost = false;
-            boolean shouldRetry = false;
-            QiniuException exception = null;
-            String host = getUploadHost();
-            try {
-                response = action.uploadAction(host);
-                // 判断是否需要重试
-                if (response == null || response.needRetry()) {
-                    shouldRetry = true;
-                }
-                // 判断是否需要切换 host
-                if (response == null || response.needSwitchServer()) {
-                    shouldSwitchHost = true;
-                }
-            } catch (QiniuException e) {
-                exception = e;
-                // 判断是否需要重试
-                if (!e.isUnrecoverable() && (e.response == null || e.response.needRetry())) {
-                    shouldRetry = true;
-                } else {
-                    throw e;
-                }
-
-                if (!e.isUnrecoverable() && (e.response == null || e.response.needSwitchServer())) {
-                    shouldSwitchHost = true;
-                }
+    Response retryUploadAction(final UploadAction action) throws QiniuException {
+        Retry.RequestRetryConfig retryConfig = new Retry.RequestRetryConfig.Builder().
+                setRetryMax(this.config.retryMax)
+                .build();
+        return Retry.retryRequestAction(retryConfig, new Retry.RequestRetryAction() {
+            @Override
+            public String getRequestHost() throws QiniuException {
+                return getUploadHost();
             }
 
-            if (!shouldRetry) {
-                break;
+            @Override
+            public void tryChangeRequestHost(String oldHost) throws QiniuException {
+                changeHost(oldHost);
             }
 
-            retryCount++;
-            if (retryCount >= config.retryMax) {
-                QiniuException innerException = null;
-                if (response != null) {
-                    innerException = new QiniuException(response);
-                } else {
-                    innerException = new QiniuException(exception);
-                }
-                throw new QiniuException(innerException, "failed after retry times");
+            @Override
+            public Response doRequest(String host) throws QiniuException {
+                return action.uploadAction(host);
             }
-
-            if (shouldSwitchHost) {
-                changeHost(host);
-            }
-
-        } while (true);
-
-        return response;
+        });
     }
 
     interface UploadAction {
