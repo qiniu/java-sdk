@@ -7,7 +7,7 @@ import com.qiniu.common.QiniuException;
 import java.util.Arrays;
 import java.util.List;
 
-public class Region {
+public class Region implements Cloneable {
 
     // 有效时间戳，过了有效期，region会无效，此处只在取时缓存判断； -1 为无限期
     private long timestamp = -1;
@@ -292,12 +292,30 @@ public class Region {
         return apiHost;
     }
 
+    String getUcHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        return ucHost;
+    }
+
     boolean isValid() {
         if (timestamp < 0) {
             return true;
         } else {
             return System.currentTimeMillis() < timestamp * 1000;
         }
+    }
+
+    public Object clone() {
+        Region newRegion = new Region();
+        newRegion.timestamp = timestamp;
+        newRegion.region = region;
+        newRegion.srcUpHosts = srcUpHosts;
+        newRegion.accUpHosts = accUpHosts;
+        newRegion.iovipHost = iovipHost;
+        newRegion.rsHost = rsHost;
+        newRegion.rsfHost = rsfHost;
+        newRegion.apiHost = apiHost;
+        newRegion.ucHost = ucHost;
+        return newRegion;
     }
 
     /**

@@ -149,7 +149,7 @@ public final class FormUploader extends BaseUploader {
                 }
 
                 if (Retry.requestShouldRetry(r, null) && retryIndex < config.retryMax) {
-                    asyncRetryUploadBetweenHosts((retryIndex+1), handler);
+                    asyncRetryUploadBetweenHosts((retryIndex + 1), handler);
                 } else {
                     handler.complete(key, r);
                 }

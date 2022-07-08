@@ -128,7 +128,11 @@ public final class Configuration implements Cloneable {
     }
 
     public Configuration(Region region) {
-        this.region = region;
+        if (region instanceof RegionGroup) {
+            this.region = (Region) region.clone();
+        } else {
+            this.region = region;
+        }
         configHelper = new ConfigHelper(this);
     }
 

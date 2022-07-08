@@ -5,7 +5,7 @@ import com.qiniu.common.QiniuException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RegionGroup extends Region {
+public class RegionGroup extends Region implements Cloneable {
 
     private Region currentRegion = null;
     private int currentRegionIndex = 0;
@@ -124,5 +124,19 @@ public class RegionGroup extends Region {
         if (currentRegionIndex < regionList.size()) {
             currentRegion = regionList.get(currentRegionIndex);
         }
+    }
+
+    @Override
+    public synchronized Object clone() {
+        RegionGroup region = new RegionGroup();
+        for (Region subRegion : regionList) {
+            if (subRegion != null) {
+                subRegion = (Region) subRegion.clone();
+                region.addRegion(subRegion);
+            }
+        }
+        region.currentRegionIndex = currentRegionIndex;
+        region.updateCurrentRegion();
+        return region;
     }
 }
