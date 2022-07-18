@@ -63,6 +63,12 @@ public class PfopTest {
                 assertNotNull(jobid);
                 assertNotEquals("", jobid);
                 ids.add(jobid);
+
+                String purl = "https://api.qiniu.com/status/get/prefop?id=" + jobid;
+                System.out.println(purl);
+                OperationStatus status = operationManager.prefop(bucket, jobid);
+                System.out.println(new Gson().toJson(status));
+                assertEquals(jobid, status.id);
             } catch (QiniuException e) {
                 e.printStackTrace();
                 fail(e.response.toString());

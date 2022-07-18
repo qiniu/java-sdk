@@ -190,6 +190,9 @@ class AutoRegion extends Region {
      */
     @Override
     List<String> getSrcUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (regionReqInfo == null) {
+            return null;
+        }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getSrcUpHost(regionReqInfo);
     }
@@ -199,6 +202,9 @@ class AutoRegion extends Region {
      */
     @Override
     List<String> getAccUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (regionReqInfo == null) {
+            return null;
+        }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getAccUpHost(regionReqInfo);
     }
@@ -208,6 +214,9 @@ class AutoRegion extends Region {
      */
     @Override
     String getIovipHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (regionReqInfo == null) {
+            return "";
+        }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getIovipHost(regionReqInfo);
     }
@@ -218,7 +227,7 @@ class AutoRegion extends Region {
     @Override
     String getRsHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (regionReqInfo == null) {
-            return Configuration.defaultRsHost;
+            return "";
         }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getRsHost(regionReqInfo);
@@ -229,6 +238,9 @@ class AutoRegion extends Region {
      */
     @Override
     String getRsfHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (regionReqInfo == null) {
+            return "";
+        }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getRsfHost(regionReqInfo);
     }
@@ -239,7 +251,7 @@ class AutoRegion extends Region {
     @Override
     String getApiHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (regionReqInfo == null) {
-            return Configuration.defaultApiHost;
+            return "";
         }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getApiHost(regionReqInfo);
