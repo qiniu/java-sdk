@@ -80,7 +80,7 @@ public class Region {
                 accUpHost("upload-cn-east-2.qiniup.com").
                 iovipHost("iovip-cn-east-2.qiniuio.com").
                 rsHost("rs-cn-east-2.qiniuapi.com").
-                rsfHost("rsf-cn-east-2-qiniuapi.com").
+                rsfHost("rsf-cn-east-2.qiniuapi.com").
                 apiHost("api-cn-east-2.qiniuapi.com").
                 build();
     }
