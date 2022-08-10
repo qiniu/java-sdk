@@ -182,9 +182,9 @@ public class Region {
     }
 
     /**
-     * 首尔机房相关域名
+     * 亚太-首尔机房相关域名
      */
-    public static Region regionNorthEast1() {
+    public static Region regionApNorthEast1() {
         return new Builder().
                 region("ap-northeast-1").
                 srcUpHost("up-ap-northeast-1.qiniup.com").
