@@ -195,6 +195,11 @@
 * 修复put方法遇到InputStream为0的时候进入死循环的问题
 * 修复put方法遇到IputStream的时候，出现的block's crc32 is not correct的问题
 
+## 7.2.6 (2017-03-23)
+### 修正
+* 删除v1版本的access token签名中对application/json的body的签名
+* 更新qetag中关闭File对象生成的InputStream对象
+
 ## 7.2.5 (2017-02-20)
 ### 增加
 * 批量修改mimeType的操作
