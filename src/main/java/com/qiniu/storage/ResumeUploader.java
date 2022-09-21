@@ -278,8 +278,7 @@ public class ResumeUploader extends BaseUploader {
             return;
         }
 
-        boolean isCopy = source.recoverFromRecordInfo(uploadSource);
-        if (!isCopy) {
+        if (!source.recoverFromRecordInfo(uploadSource)) {
             removeUploadProgressFromLocal();
             return;
         }

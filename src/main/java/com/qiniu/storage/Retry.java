@@ -6,7 +6,7 @@ import com.qiniu.http.Response;
 
 class Retry {
 
-    static boolean shouldSwitchRegionAndRetry(Response response, QiniuException exception) {
+    static boolean shouldUploadAgain(Response response, QiniuException exception) {
         Response checkResponse = response;
         if (checkResponse == null && exception != null) {
             checkResponse = exception.response;

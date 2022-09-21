@@ -116,7 +116,7 @@ public final class FormUploader extends BaseUploader {
         asyncRetryUploadBetweenHosts(0, new UpCompletionHandler() {
             @Override
             public void complete(String key, Response r) {
-                if (!Retry.shouldSwitchRegionAndRetry(r, null)
+                if (!Retry.shouldUploadAgain(r, null)
                         || !couldReloadSource() || !reloadSource()
                         || config.region == null || !config.region.switchRegion(finalToken)) {
                     handler.complete(key, r);

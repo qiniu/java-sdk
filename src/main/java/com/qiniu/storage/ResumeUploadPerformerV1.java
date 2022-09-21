@@ -67,6 +67,13 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
                 throw new QiniuException(new Exception("block's ctx is empty"));
             }
             block.context = ctx;
+
+            Long expiredAt = response.getExpiredAt();
+            if (expiredAt == null) {
+                throw new QiniuException(new Exception("block's expiredAt is empty"));
+            }
+            block.expiredAt = expiredAt;
+
             block.data = null;
         }
 
