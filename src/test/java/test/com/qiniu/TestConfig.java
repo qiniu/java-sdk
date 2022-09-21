@@ -122,29 +122,76 @@ public final class TestConfig {
         z0_auto.regionId = "z0";
         z0_auto.region = Region.region0();
 
-        TestFile fog = new TestFile();
-        fog.key = fileSaveKey;
-        fog.mimeType = fileMimeType;
-        fog.bucketName = "java-sdk-fog-cn-east1";
-        fog.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
-        fog.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
-        fog.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
-        fog.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
-        fog.regionId = "fog-cn-east-1";
-        fog.region = Region.regionFogCnEast1();
+        return new TestFile[]{z0};
+    }
 
-        TestFile fog1 = new TestFile();
-        fog1.key = fileSaveKey;
-        fog1.mimeType = fileMimeType;
-        fog1.bucketName = "java-sdk-fog-cn-east1";
-        fog1.testDomain = "javasdk-fog-cn-east1.peterpy.cn";
-        fog1.testUrl = "http://" + fog.testDomain + "/" + fileSaveKey;
-        fog1.testDomainTimeStamp = "javasdk-fog-cn-east1-timestamp.peterpy.cn";
-        fog1.testUrlTimeStamp = "http://" + fog.testDomainTimeStamp + "/" + fileSaveKey;
-        fog1.regionId = "fog-cn-east-1";
-        fog1.region = toRegion(Zone.zoneFogCnEast1());
+    public static TestFile[] getAllRegionTestFileArray() {
+        return getAllRegionTestFileArray(testDefaultKey, "image/png");
+    }
 
-        return new TestFile[] { z0 };
+    public static TestFile[] getAllRegionTestFileArray(String fileSaveKey, String fileMimeType) {
+        if (StringUtils.isNullOrEmpty(fileSaveKey)) {
+            fileSaveKey = testDefaultKey;
+        }
+        if (StringUtils.isNullOrEmpty(fileMimeType)) {
+            fileMimeType = "application/octet-stream";
+        }
+
+        TestFile na0 = new TestFile();
+        na0.key = fileSaveKey;
+        na0.mimeType = fileMimeType;
+        na0.bucketName = testBucket_na0;
+        na0.testDomain = testDomain_na0;
+        na0.testUrl = "http://" + testDomain_na0 + "/" + fileSaveKey;
+        na0.testDomainTimeStamp = testDomain_na0_timeStamp;
+        na0.testUrlTimeStamp = "http://" + testDomain_na0_timeStamp + "/" + fileSaveKey;
+        na0.regionId = "na0";
+        na0.region = Region.regionNa0();
+
+        TestFile z0 = new TestFile();
+        z0.key = fileSaveKey;
+        z0.mimeType = fileMimeType;
+        z0.bucketName = testBucket_z0;
+        z0.testDomain = testDomain_z0;
+        z0.testUrl = "http://" + testDomain_z0 + "/" + fileSaveKey;
+        z0.testDomainTimeStamp = testDomain_z0_timeStamp;
+        z0.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + fileSaveKey;
+        z0.regionId = "z0";
+        z0.region = Region.region0();
+
+        TestFile z1 = new TestFile();
+        z1.key = fileSaveKey;
+        z1.mimeType = fileMimeType;
+        z1.bucketName = testBucket_z1;
+        z1.regionId = "z1";
+        z1.region = Region.region1();
+
+        TestFile z2 = new TestFile();
+        z2.key = fileSaveKey;
+        z2.mimeType = fileMimeType;
+        z2.bucketName = "sdk-z2";
+        z2.regionId = "z2";
+        z2.region = Region.region2();
+
+        TestFile as0 = new TestFile();
+        as0.key = fileSaveKey;
+        as0.mimeType = fileMimeType;
+        as0.bucketName = "sdk-as0";
+        as0.regionId = "as0";
+        as0.region = Region.regionAs0();
+
+        TestFile z0_auto = new TestFile();
+        z0_auto.key = fileSaveKey;
+        z0_auto.mimeType = fileMimeType;
+        z0_auto.bucketName = testBucket_z0;
+        z0_auto.testDomain = testDomain_z0;
+        z0_auto.testUrl = "http://" + testDomain_z0 + "/" + fileSaveKey;
+        z0_auto.testDomainTimeStamp = testDomain_z0_timeStamp;
+        z0_auto.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + fileSaveKey;
+        z0_auto.regionId = "z0";
+        z0_auto.region = Region.region0();
+
+        return new TestFile[]{z0, z1, z2, as0, na0};
     }
 
     public static TestFile[] getRetryTestFileArray() {
@@ -200,9 +247,9 @@ public final class TestConfig {
         String s1 = toDomain(http);
         String s2 = toDomain(https);
         if (s2 != null && !s2.equalsIgnoreCase(s1)) {
-            return new String[] { s1, s2 };
+            return new String[]{s1, s2};
         }
-        return new String[] { s1 };
+        return new String[]{s1};
     }
 
     private static String toDomain(String d1) {
