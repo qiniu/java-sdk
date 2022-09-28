@@ -138,7 +138,7 @@ public class ResumeUploader extends BaseUploader {
         try {
             recoverUploadProgressFromLocal();
             Response response = super.upload();
-            if (response != null && response.isOK()) {
+            if (response != null && (response.isOK() || response.isContextExpiredError())) {
                 removeUploadProgressFromLocal();
             }
             return response;

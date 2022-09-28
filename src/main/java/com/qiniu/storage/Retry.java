@@ -23,19 +23,41 @@ class Retry {
     }
 
     static Boolean requestShouldRetry(Response response, QiniuException exception) {
-        if (exception != null && !exception.isUnrecoverable() && (exception.response == null || exception.response.needRetry())) {
+        if (response != null && response.needRetry()) {
+            return true;
+        }
+
+        if (exception == null || exception.isUnrecoverable()) {
+            return false;
+        }
+
+        if (exception.response != null && exception.response.needRetry()) {
             // 异常需可恢复
             return true;
         }
-        return response == null || response.needRetry();
+
+        return false;
     }
 
     static Boolean requestShouldSwitchHost(Response response, QiniuException exception) {
-        if (exception != null && !exception.isUnrecoverable() && (exception.response == null || exception.response.needSwitchServer())) {
+        if (response != null && response.needSwitchServer()) {
+            return true;
+        }
+
+        if (exception == null) {
+            return true;
+        }
+
+        if (exception.isUnrecoverable()) {
+            return false;
+        }
+
+        if (exception.response == null || exception.response.needSwitchServer()) {
             // 异常需可恢复
             return true;
         }
-        return response == null || response.needSwitchServer();
+
+        return false;
     }
 
     static Response retryRequestAction(RequestRetryConfig config, RequestRetryAction action) throws QiniuException {
@@ -48,12 +70,15 @@ class Retry {
         }
 
         Response response = null;
+        QiniuException exception = null;
+
         int retryCount = 0;
 
         do {
             boolean shouldSwitchHost = false;
             boolean shouldRetry = false;
-            QiniuException exception = null;
+
+            exception = null;
             String host = action.getRequestHost();
             try {
                 response = action.doRequest(host);
@@ -89,6 +114,10 @@ class Retry {
             }
 
         } while (true);
+
+        if (exception != null) {
+            throw exception;
+        }
 
         return response;
     }

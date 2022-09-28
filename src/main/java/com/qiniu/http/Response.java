@@ -180,7 +180,7 @@ public final class Response {
     }
 
     public boolean isContextExpiredError() {
-        return statusCode == 701;
+        return statusCode == 701 || (statusCode == 612 && error.contains("no such uploadId"));
     }
 
 
