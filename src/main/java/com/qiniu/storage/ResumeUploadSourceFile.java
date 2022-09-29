@@ -117,8 +117,8 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
 
             for (int i = 0; i < source.blockList.size(); i++) {
                 Block block = source.blockList.get(i);
-                // 服务端是 7 天，此处有效期少 1 天，为 6 天
-                long expireAtTimestamp = block.expiredAt - 24 * 3600;
+                // 服务端是 7 天，此处有效期少 2h
+                long expireAtTimestamp = block.expiredAt - 2 * 3600;
                 needRecovered = expireAtTimestamp > currentTimestamp;
                 if (!needRecovered) {
                     break;
@@ -129,8 +129,8 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
                 return false;
             }
 
-            // 服务端是 7 天，此处有效期少 1 天，为 6 天
-            long expireAtTimestamp = source.expireAt - 24 * 3600;
+            // 服务端是 7 天，此处有效期少 2h
+            long expireAtTimestamp = source.expireAt - 2 * 3600;
             needRecovered = expireAtTimestamp > currentTimestamp;
         }
 
