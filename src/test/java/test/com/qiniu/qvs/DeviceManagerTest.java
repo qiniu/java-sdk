@@ -201,5 +201,39 @@ public class DeviceManagerTest {
             }
         }
     }
+
+    @Test
+    @Tag("IntegrationTest")
+    public void testQueryGBRecordHistories() {
+        try {
+            res = deviceManager.queryGBRecordHistories("qiniu", "31011500991180013385", "34020000001310000001",
+                    1665190800, 1665192093);
+            assertNotNull(res);
+            System.out.println(res.bodyString());
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } finally {
+            if (res != null) {
+                res.close();
+            }
+        }
+    }
+
+    @Test
+    @Tag("IntegrationTest")
+    public void controlGBRecord() {
+        try {
+            res = deviceManager.controlGBRecord("qiniu", "31011500991180013385_34020000001310000001_history_1665190800_1665192092", "play",
+                    "5", 2.0F);
+            assertNotNull(res);
+            System.out.println(res.bodyString());
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } finally {
+            if (res != null) {
+                res.close();
+            }
+        }
+    }
 */
 }

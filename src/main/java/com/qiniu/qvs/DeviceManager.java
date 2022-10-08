@@ -156,4 +156,14 @@ public class DeviceManager {
         StringMap params = new StringMap().putNotNull("base64_pcm", base64_pcm);
         return QvsResponse.post(url, params, client, auth);
     }
+
+    /*
+     * 本地录像回放控制
+     * streamId 流ID可以从查询本地录像列表接口queryGBRecordHistories获取的streamId
+     */
+    public Response controlGBRecord(String namespaceId, String streamId, String command, String range, float scale) throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/streams/%s/playback/control", apiServer, namespaceId, streamId);
+        StringMap params = new StringMap().putNotNull("command", command).put("range", range).put("scale", scale);
+        return QvsResponse.post(url, params, client, auth);
+    }
 }
