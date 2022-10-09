@@ -7,6 +7,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.DeviceManager;
 import com.qiniu.qvs.model.PatchOperation;
+import com.qiniu.qvs.model.PlayContral;
 import com.qiniu.util.Auth;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -219,12 +220,12 @@ public class DeviceManagerTest {
         }
     }
 
-    @Test
-    @Tag("IntegrationTest")
-    public void controlGBRecord() {
+     @Test
+     @Tag("IntegrationTest")
+     public void controlGBRecord() {
         try {
-            res = deviceManager.controlGBRecord("qiniu", "31011500991180013385_34020000001310000001_history_1665190800_1665192092", "play",
-                    "5", 2.0F);
+            PlayContral playContral = new PlayContral("play","5",2.0F);
+            res = deviceManager.controlGBRecord("qiniu", "31011500991180013385_34020000001310000001_history_1665190800_1665192092", playContral);
             assertNotNull(res);
             System.out.println(res.bodyString());
         } catch (QiniuException e) {
