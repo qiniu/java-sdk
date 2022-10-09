@@ -5,6 +5,9 @@ import com.qiniu.qvs.model.VoiceChat;
 import com.qiniu.util.StringMap;
 
 public class QvsMap {
+    private QvsMap() {
+    }
+
     public static StringMap getVoiceChatMap(VoiceChat voiceChat) {
         StringMap params = new StringMap().putNotNull("isV2", voiceChat.getLatency());
         params.put("channels", voiceChat.getChannels());
