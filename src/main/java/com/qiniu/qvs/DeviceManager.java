@@ -141,16 +141,8 @@ public class DeviceManager {
 
     public Response getVoiceChatUrl(String namespaceId, String gbId, VoiceChat voiceChat) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/devices/%s/talk", apiServer, namespaceId, gbId);
-        StringMap params = getStringMap(voiceChat);
+        StringMap params = QvsMap.getVoiceChatMap(voiceChat);
         return com.qiniu.qvs.QvsResponse.post(url, params, client, auth);
-    }
-
-    private StringMap getStringMap(VoiceChat voiceChat) {
-        StringMap params = new StringMap().putNotNull("isV2", voiceChat.getLatency());
-        params.put("channels", voiceChat.getChannels());
-        params.put("version", voiceChat.getVersion());
-        params.put("transProtocol", voiceChat.getTransProtocol());
-        return params;
     }
 
     public Response sendVoiceChatData(String url, String base64_pcm) throws QiniuException {
@@ -164,14 +156,7 @@ public class DeviceManager {
      */
     public Response controlGBRecord(String namespaceId, String streamId, PlayContral playContral) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/streams/%s/playback/control", apiServer, namespaceId, streamId);
-        StringMap params = getPlayContralMap(playContral);
+        StringMap params = QvsMap.getPlayContralMap(playContral);
         return QvsResponse.post(url, params, client, auth);
-    }
-
-    private StringMap getPlayContralMap(PlayContral playContral) {
-        StringMap params = new StringMap().putNotNull("command", playContral.getCommand());
-        params.put("range", playContral.getRange());
-        params.put("scale", playContral.getScale());
-        return params;
     }
 }

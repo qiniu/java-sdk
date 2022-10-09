@@ -7,7 +7,6 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.DeviceManager;
 import com.qiniu.qvs.model.PatchOperation;
-import com.qiniu.qvs.model.PlayContral;
 import com.qiniu.util.Auth;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
