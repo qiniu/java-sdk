@@ -5,15 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
 import com.qiniu.common.QiniuException;
 import com.qiniu.streaming.StreamingManager;
 import com.qiniu.streaming.model.ActivityRecords;
 import com.qiniu.streaming.model.StreamAttribute;
 import com.qiniu.streaming.model.StreamListing;
+import com.qiniu.streaming.model.StreamStatus;
 import com.qiniu.util.Auth;
+
 import test.com.qiniu.TestConfig;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 
 /**
  * Created by bailong on 16/9/22 Updated by panyuan on 19/3/12
@@ -88,12 +92,8 @@ public class StreamingTest {
         assertEquals(0, attr.disabledTill);
         assertNotEquals(0, attr.updatedAt);
 
-        try {
-            manager.status(stream);
-            fail();
-        } catch (QiniuException e) {
-            assertEquals(619, e.code());
-        }
+        StreamStatus status = manager.status(stream);
+        assertEquals(0, status.startAt);
 
         try {
             manager.saveAs(stream, null, 0, 0);
