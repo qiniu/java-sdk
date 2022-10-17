@@ -5,6 +5,7 @@ import com.qiniu.qvs.model.Device;
 import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.qvs.model.PlayContral;
 import com.qiniu.qvs.model.VoiceChat;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
@@ -138,22 +139,24 @@ public class DeviceManager {
         return QvsResponse.get(url, client, auth);
     }
 
-    public Response getVoiceChatUrl(String namespaceId, String gbId, VoiceChat voiceChat)  throws QiniuException {
+    public Response getVoiceChatUrl(String namespaceId, String gbId, VoiceChat voiceChat) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/devices/%s/talk", apiServer, namespaceId, gbId);
-        StringMap params = getStringMap(voiceChat);
+        StringMap params = QvsMap.getVoiceChatMap(voiceChat);
         return com.qiniu.qvs.QvsResponse.post(url, params, client, auth);
     }
 
-    private StringMap getStringMap(VoiceChat voiceChat) {
-        StringMap params = new StringMap().putNotNull("isV2", voiceChat.getLatency());
-        params.put("channels", voiceChat.getChannels());
-        params.put("version", voiceChat.getVersion());
-        params.put("transProtocol", voiceChat.getTransProtocol());
-        return params;
+    public Response sendVoiceChatData(String url, String base64_pcm) throws QiniuException {
+        StringMap params = new StringMap().putNotNull("base64_pcm", base64_pcm);
+        return QvsResponse.post(url, params, client, auth);
     }
 
-    public Response sendVoiceChatData(String url, String base64_pcm)  throws QiniuException {
-        StringMap params = new StringMap().putNotNull("base64_pcm", base64_pcm);
+    /*
+     * 本地录像回放控制
+     * streamId 流ID可以从查询本地录像列表接口queryGBRecordHistories获取的streamId
+     */
+    public Response controlGBRecord(String namespaceId, String streamId, PlayContral playContral) throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/streams/%s/playback/control", apiServer, namespaceId, streamId);
+        StringMap params = QvsMap.getPlayContralMap(playContral);
         return QvsResponse.post(url, params, client, auth);
     }
 }
