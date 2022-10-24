@@ -36,13 +36,13 @@ public abstract class BaseUploader {
         while (true) {
             try {
                 response = uploadFlows();
-                if (!couldSwitchRegionAndRetry(response, null)
+                if (!Retry.shouldSwitchRegionAndRetry(response, null)
                         || !couldReloadSource() || !reloadSource()
                         || config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
                     break;
                 }
             } catch (QiniuException e) {
-                if (!couldSwitchRegionAndRetry(null, e)
+                if (!Retry.shouldSwitchRegionAndRetry(null, e)
                         || !couldReloadSource() || !reloadSource()
                         || config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
                     throw e;
@@ -57,20 +57,4 @@ public abstract class BaseUploader {
     abstract boolean couldReloadSource();
 
     abstract boolean reloadSource();
-
-    private boolean couldSwitchRegionAndRetry(Response response, QiniuException exception) {
-        Response checkResponse = response;
-        if (checkResponse == null && exception != null) {
-            checkResponse = exception.response;
-        }
-
-        if (checkResponse != null) {
-            int statusCode = checkResponse.statusCode;
-            return (statusCode > -2 && statusCode < 200) || (statusCode > 299
-                    && statusCode != 401 && statusCode != 413 && statusCode != 419
-                    && statusCode != 608 && statusCode != 614 && statusCode != 630);
-        }
-
-        return exception == null || !exception.isUnrecoverable();
-    }
 }

@@ -61,15 +61,42 @@ class ConfigHelper {
     }
 
     public String rsHost() {
-        return getScheme() + config.defaultRsHost;
+        String host = "";
+        try {
+            host = config.region.getRsHost(null);
+        } catch (QiniuException exception) {
+            exception.printStackTrace();
+        }
+        if (host == null || host.length() == 0) {
+            host = Configuration.defaultRsHost;
+        }
+        return getScheme() + host;
     }
 
     public String apiHost() {
-        return getScheme() + config.defaultApiHost;
+        String host = "";
+        try {
+            host = config.region.getApiHost(null);
+        } catch (QiniuException exception) {
+            exception.printStackTrace();
+        }
+        if (host == null || host.length() == 0) {
+            host = Configuration.defaultApiHost;
+        }
+        return getScheme() + host;
     }
 
     public String ucHost() {
-        return getScheme() + config.defaultUcHost;
+        String host = "";
+        try {
+            host = config.region.getUcHost(null);
+        } catch (QiniuException exception) {
+            exception.printStackTrace();
+        }
+        if (host == null || host.length() == 0) {
+            host = Configuration.defaultUcHost;
+        }
+        return getScheme() + host;
     }
 
     private String getScheme() {

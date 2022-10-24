@@ -10,10 +10,12 @@ import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,6 +34,17 @@ public class FormUploadTest {
     @Tag("IntegrationTest")
     public void testSimple() {
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+            hello(uploadManager, file.getBucketName());
+        }
+    }
+
+    @Test
+    @Tag("IntegrationTest")
+    public void testSyncRetry() {
+        TestConfig.TestFile[] files = TestConfig.getRetryTestFileArray();
         for (TestConfig.TestFile file : files) {
             Configuration config = new Configuration(file.getRegion());
             UploadManager uploadManager = new UploadManager(config);
@@ -245,44 +258,58 @@ public class FormUploadTest {
     @Test
     @Tag("IntegrationTest")
     public void testAsync() {
-        final String expectKey = "你好?&=\r\n";
-        StringMap params = new StringMap().put("x:foo", "foo_val");
-
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {
             Configuration config = new Configuration(file.getRegion());
             UploadManager uploadManager = new UploadManager(config);
-
             String bucket = file.getBucketName();
-            String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
-            final CountDownLatch signal = new CountDownLatch(1);
-            try {
-                uploadManager.asyncPut("hello".getBytes(), expectKey, token, params, null, false,
-                        new UpCompletionHandler() {
-                            @Override
-                            public void complete(String key, Response r) {
-                                signal.countDown();
-                                StringMap map = null;
-                                try {
-                                    map = r.jsonToMap();
-                                } catch (QiniuException e) {
-                                    e.printStackTrace();
-                                    fail();
-                                }
-                                assertEquals(200, r.statusCode);
-                                assert map != null;
-                                assertEquals("Fqr0xh3cxeii2r7eDztILNmuqUNN", map.get("hash"));
-                                assertEquals(expectKey, map.get("key"));
+            asyncUpload(uploadManager, bucket);
+        }
+    }
+
+    @Test
+    @Tag("IntegrationTest")
+    public void testAsyncRetry() {
+        TestConfig.TestFile[] files = TestConfig.getRetryTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration config = new Configuration(file.getRegion());
+            UploadManager uploadManager = new UploadManager(config);
+            asyncUpload(uploadManager, file.getBucketName());
+        }
+    }
+
+    private void asyncUpload(UploadManager up, String bucket) {
+        final String expectKey = "你好?&=\r\n";
+        StringMap params = new StringMap().put("x:foo", "foo_val");
+
+        String token = TestConfig.testAuth.uploadToken(bucket, expectKey);
+        final CountDownLatch signal = new CountDownLatch(1);
+        try {
+            up.asyncPut("hello".getBytes(), expectKey, token, params, null, false,
+                    new UpCompletionHandler() {
+                        @Override
+                        public void complete(String key, Response r) {
+                            signal.countDown();
+                            StringMap map = null;
+                            try {
+                                map = r.jsonToMap();
+                            } catch (QiniuException e) {
+                                e.printStackTrace();
+                                fail();
                             }
-                        });
-            } catch (IOException e) {
-                fail();
-            }
-            try {
-                signal.await(120, TimeUnit.SECONDS); // wait for callback
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+                            assertEquals(200, r.statusCode);
+                            assert map != null;
+                            assertEquals("Fqr0xh3cxeii2r7eDztILNmuqUNN", map.get("hash"));
+                            assertEquals(expectKey, map.get("key"));
+                        }
+                    });
+        } catch (IOException e) {
+            fail();
+        }
+        try {
+            signal.await(120, TimeUnit.SECONDS); // wait for callback
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

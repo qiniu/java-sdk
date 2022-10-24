@@ -14,7 +14,7 @@ class AutoRegion extends Region {
     /**
      * uc接口域名
      */
-    private final String ucServer;
+    private String ucServer;
 
     /**
      * 空间机房，域名信息缓存
@@ -26,6 +26,8 @@ class AutoRegion extends Region {
      */
     private Client client;
 
+    private AutoRegion(){
+    }
 
     AutoRegion(String ucServer) {
         this.ucServer = ucServer;
@@ -188,6 +190,9 @@ class AutoRegion extends Region {
      */
     @Override
     List<String> getSrcUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (regionReqInfo == null) {
+            return null;
+        }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getSrcUpHost(regionReqInfo);
     }
@@ -197,6 +202,9 @@ class AutoRegion extends Region {
      */
     @Override
     List<String> getAccUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (regionReqInfo == null) {
+            return null;
+        }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getAccUpHost(regionReqInfo);
     }
@@ -206,6 +214,9 @@ class AutoRegion extends Region {
      */
     @Override
     String getIovipHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (regionReqInfo == null) {
+            return "";
+        }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getIovipHost(regionReqInfo);
     }
@@ -215,6 +226,9 @@ class AutoRegion extends Region {
      */
     @Override
     String getRsHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (regionReqInfo == null) {
+            return "";
+        }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getRsHost(regionReqInfo);
     }
@@ -224,6 +238,9 @@ class AutoRegion extends Region {
      */
     @Override
     String getRsfHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (regionReqInfo == null) {
+            return "";
+        }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getRsfHost(regionReqInfo);
     }
@@ -233,8 +250,26 @@ class AutoRegion extends Region {
      */
     @Override
     String getApiHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (regionReqInfo == null) {
+            return "";
+        }
         RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
         return regionGroup.getApiHost(regionReqInfo);
+    }
+
+    @Override
+    String getUcHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        String host = ucServer.replace("http://", "");
+        host = host.replace("https://", "");
+        return host;
+    }
+
+    public Object clone() {
+        AutoRegion newRegion = new AutoRegion();
+        newRegion.ucServer = ucServer;
+        newRegion.regions = regions;
+        newRegion.client = client;
+        return newRegion;
     }
 
     private static class RegionIndex {

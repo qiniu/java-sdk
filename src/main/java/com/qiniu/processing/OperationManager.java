@@ -160,7 +160,10 @@ public final class OperationManager {
 
     /**
      * 根据persistentId查询任务状态
+     *
+     * Use {@link OperationManager#prefop(String bucket, String persistentId)} instead
      */
+    @Deprecated
     public OperationStatus prefop(String persistentId) throws QiniuException {
         return prefop(persistentId, OperationStatus.class);
     }
@@ -168,9 +171,33 @@ public final class OperationManager {
     /**
      * 根据persistentId查询任务状态
      * 返回结果的 class
+     * Use {@link OperationManager#prefop(String bucket, String persistentId, Class<T>)} instead
      */
+    @Deprecated
     public <T> T prefop(String persistentId, Class<T> retClass) throws QiniuException {
         String url = String.format("%s/status/get/prefop?id=%s", configuration.apiHost(), persistentId);
+        Response response = this.client.get(url);
+        if (!response.isOK()) {
+            throw new QiniuException(response);
+        }
+        T object = response.jsonToObject(retClass);
+        response.close();
+        return object;
+    }
+
+    /**
+     * 根据persistentId查询任务状态，如果您配置的是 AutoRegion 请使用这个方法进行 prefop
+     */
+    public OperationStatus prefop(String bucket, String persistentId) throws QiniuException {
+        return prefop(bucket, persistentId, OperationStatus.class);
+    }
+
+    /**
+     * 根据 persistentId 查询任务状态，如果您配置的是 AutoRegion 请使用这个方法进行 prefop
+     * 返回结果的 class
+     */
+    public <T> T prefop(String bucket, String persistentId, Class<T> retClass) throws QiniuException {
+        String url = String.format("%s/status/get/prefop?id=%s", configuration.apiHost(auth.accessKey, bucket), persistentId);
         Response response = this.client.get(url);
         if (!response.isOK()) {
             throw new QiniuException(response);

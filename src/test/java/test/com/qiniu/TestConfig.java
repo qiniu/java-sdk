@@ -3,6 +3,7 @@ package test.com.qiniu;
 import com.qiniu.common.AutoZone;
 import com.qiniu.common.Zone;
 import com.qiniu.storage.Region;
+import com.qiniu.storage.RegionGroup;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringUtils;
 
@@ -191,6 +192,36 @@ public final class TestConfig {
         z0_auto.region = Region.region0();
 
         return new TestFile[]{z0, z1, z2, as0, na0};
+    }
+
+    public static TestFile[] getRetryTestFileArray() {
+        String fileSaveKey = testDefaultKey;
+        String fileMimeType = "image/png";
+        TestFile na0 = new TestFile();
+        na0.key = fileSaveKey;
+        na0.mimeType = fileMimeType;
+        na0.bucketName = testBucket_na0;
+        na0.testDomain = testDomain_na0;
+        na0.testUrl = "http://" + testDomain_na0 + "/" + fileSaveKey;
+        na0.testDomainTimeStamp = testDomain_na0_timeStamp;
+        na0.testUrlTimeStamp = "http://" + testDomain_na0_timeStamp + "/" + fileSaveKey;
+        na0.regionId = "na0";
+
+        Region region00 = new Region.Builder().
+                region("custom").
+                srcUpHost("mock.qiniu.com", "mock-na0.qiniup.com").
+                accUpHost("mock.qiniu.com", "mock-upload-na0.qiniup.com").
+                build();
+        Region region01 = new Region.Builder().
+                region("custom").
+                srcUpHost("mock.qiniu.com", "up-na0.qiniup.com").
+                accUpHost("mock.qiniu.com", "upload-na0.qiniup.com").
+                build();
+        RegionGroup regionGroup = new RegionGroup();
+        regionGroup.addRegion(region00);
+        regionGroup.addRegion(region01);
+        na0.region = regionGroup;
+        return new TestFile[] { na0 };
     }
 
     private static Region toRegion(Zone zone) {

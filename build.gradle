@@ -21,7 +21,7 @@ jacocoTestReport {
 
 dependencies {
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.14.4'
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'org.projectlombok:lombok:1.18.22'
     testImplementation group: 'com.qiniu', name: 'happy-dns-java', version: '0.1.6'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
@@ -52,7 +52,7 @@ apply plugin: 'checkstyle'
 
 
 def versionName() {
-    String config = 'src/main/java/com/qiniu/common/Constants.java'
+    String config = getProjectDir().getPath() + '/src/main/java/com/qiniu/common/Constants.java'
     String fileContents = new File(config).text
     Matcher myMatcher = fileContents =~ /VERSION = "(.+)";/
     String version = myMatcher[0][1]
