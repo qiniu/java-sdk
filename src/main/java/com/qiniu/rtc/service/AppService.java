@@ -62,7 +62,7 @@ public class AppService extends AbstractService {
      * @throws QiniuException
      */
     public Response updateApp(AppParam appParam) throws QiniuException {
-        String urlPattern = "/v3/apps";
-        return postCall(appParam, urlPattern);
+        String urlPattern = "/v3/apps/%s";
+        return postCall(appParam, urlPattern, appParam.getAppId());
     }
 }
