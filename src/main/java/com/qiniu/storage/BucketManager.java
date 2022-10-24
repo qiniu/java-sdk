@@ -144,7 +144,7 @@ public final class BucketManager {
     }
 
     public Response domainListResponse(String bucket) throws QiniuException {
-        String url = String.format("%s/v6/domain/list?tbl=%s", configHelper.apiHost(), bucket);
+        String url = String.format("%s/v6/domain/list?tbl=%s", configHelper.apiHost(auth.accessKey, bucket), bucket);
         Response res = get(url);
         if (!res.isOK()) {
             throw new QiniuException(res);
@@ -1022,7 +1022,7 @@ public final class BucketManager {
      */
     public Response putBucketQuota(String bucket, BucketQuota bucketQuota) throws QiniuException {
         String url = String.format("%s/setbucketquota/%s/size/%d/count/%d",
-                configHelper.apiHost(), bucket, bucketQuota.getSize(), bucketQuota.getCount());
+                configHelper.apiHost(auth.accessKey, bucket), bucket, bucketQuota.getSize(), bucketQuota.getCount());
         Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
@@ -1044,7 +1044,7 @@ public final class BucketManager {
     }
 
     public Response getBucketQuotaResponse(String bucket) throws QiniuException {
-        String url = String.format("%s/getbucketquota/%s", configHelper.apiHost(), bucket);
+        String url = String.format("%s/getbucketquota/%s", configHelper.apiHost(auth.accessKey, bucket), bucket);
         Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
@@ -1096,13 +1096,21 @@ public final class BucketManager {
 
     /**
      * 批量文件管理请求
+     * <p>
+     * 如果遇到超时比较多，可减小单次 batch 操作的数量，或者在创建 BucketManager 时尝试增加超时时间；
+     * 增加超时时间的具体方式如下：
+     * Configuration cfg = new Configuration();
+     * cfg.readTimeout = 120;
+     * BucketManager bucketManager = new BucketManager(auth, cfg);
+     * <p>
+     * 如果 BucketManager 定义了 Client ，可以指定 Client 的超时时间。
      */
     public Response batch(BatchOperations operations) throws QiniuException {
         return rsPost(operations.execBucket(), "/batch", operations.toBody());
     }
 
     /**
-     * 文件管理批量操作指令构建对象
+     * 文件管理批量操作指令构建对象，单次 BatchOperations 的操作数最多为 1000（即 add 最多 1000 个），如果遇到超时，需要调小操作数量
      */
     public static class BatchOperations {
         private ArrayList<String> ops;

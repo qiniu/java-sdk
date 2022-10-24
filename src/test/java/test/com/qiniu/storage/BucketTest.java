@@ -74,7 +74,7 @@ public class BucketTest {
     @Test
     @Tag("IntegrationTest")
     public void testDomains() throws Exception {
-        testFileWithHandler(new TestFileHandler() {
+        testAllRegionFileWithHandler(new TestFileHandler() {
             @Override
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
                 try {
@@ -1810,6 +1810,19 @@ public class BucketTest {
         }
 
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+        for (TestConfig.TestFile file : files) {
+            Configuration cfg = new Configuration(file.getRegion());
+            BucketManager bucketManager = new BucketManager(TestConfig.testAuth, cfg);
+            handler.testFile(file, bucketManager);
+        }
+    }
+
+    private void testAllRegionFileWithHandler(TestFileHandler handler) throws Exception {
+        if (handler == null) {
+            return;
+        }
+
+        TestConfig.TestFile[] files = TestConfig.getAllRegionTestFileArray();
         for (TestConfig.TestFile file : files) {
             Configuration cfg = new Configuration(file.getRegion());
             BucketManager bucketManager = new BucketManager(TestConfig.testAuth, cfg);
