@@ -1,4 +1,11 @@
 # Changelog
+## 7.12.0（2022-10-25）
+* 增加亚太-首尔区域固定 Region
+* 移除雾存储区域：华东一区
+* 升级 gson 版本至 2.8.9
+* 表单上传支持主备域名
+* 优化私有云使用姿势，不再单独配置 rs api uc域名
+* 优化分片上传 ctx 超时检测
 
 ## 7.11.0（2022-06-08）
 * 对象存储，管理类 API 发送请求时增加 [X-Qiniu-Date](https://developer.qiniu.com/kodo/3924/common-request-headers) （生成请求的时间） header
