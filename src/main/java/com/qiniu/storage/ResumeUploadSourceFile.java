@@ -108,13 +108,29 @@ class ResumeUploadSourceFile extends ResumeUploadSource {
         }
 
         boolean needRecovered = true;
-        if (source.resumableUploadAPIVersion == Configuration.ResumableUploadAPIVersion.V2) {
+
+        long currentTimestamp = new Date().getTime() / 1000;
+        if (source.resumableUploadAPIVersion == Configuration.ResumableUploadAPIVersion.V1) {
+            if (source.blockList == null || source.blockList.size() == 0) {
+                return false;
+            }
+
+            for (int i = 0; i < source.blockList.size(); i++) {
+                Block block = source.blockList.get(i);
+                // 服务端是 7 天，此处有效期少 2h
+                long expireAtTimestamp = block.expiredAt - 2 * 3600;
+                needRecovered = expireAtTimestamp > currentTimestamp;
+                if (!needRecovered) {
+                    break;
+                }
+            }
+        } else if (source.resumableUploadAPIVersion == Configuration.ResumableUploadAPIVersion.V2) {
             if (StringUtils.isNullOrEmpty(source.uploadId)) {
                 return false;
             }
-            // 服务端是 7 天，此处有效期少 1 天，为 6 天
-            long currentTimestamp = new Date().getTime() / 1000;
-            long expireAtTimestamp = source.expireAt - 24 * 3600;
+
+            // 服务端是 7 天，此处有效期少 2h
+            long expireAtTimestamp = source.expireAt - 2 * 3600;
             needRecovered = expireAtTimestamp > currentTimestamp;
         }
 

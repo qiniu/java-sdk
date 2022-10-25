@@ -33,22 +33,38 @@ public abstract class BaseUploader {
 
     private Response uploadWithRegionRetry() throws QiniuException {
         Response response = null;
+        QiniuException exception = null;
         while (true) {
+            response = null;
+            exception = null;
+
             try {
                 response = uploadFlows();
-                if (!Retry.shouldSwitchRegionAndRetry(response, null)
-                        || !couldReloadSource() || !reloadSource()
-                        || config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
-                    break;
-                }
             } catch (QiniuException e) {
-                if (!Retry.shouldSwitchRegionAndRetry(null, e)
-                        || !couldReloadSource() || !reloadSource()
-                        || config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
-                    throw e;
-                }
+                exception = e;
+            }
+
+            if (!Retry.shouldUploadAgain(response, exception)
+                    || !couldReloadSource() || !reloadSource()) {
+                break;
+            }
+
+            // context 过期，不需要切换 region
+            if (response != null && response.isContextExpiredError() ||
+                    exception != null && exception.response != null && exception.response.isContextExpiredError()) {
+                continue;
+            }
+
+            // 切换 region
+            if (config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
+                break;
             }
         }
+
+        if (exception != null) {
+            throw exception;
+        }
+
         return response;
     }
 

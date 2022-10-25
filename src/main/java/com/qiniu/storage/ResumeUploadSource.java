@@ -180,6 +180,10 @@ abstract class ResumeUploadSource {
 
         // context: 块上传上下文信息 【resume v1 特有】
         String context;
+
+        // expiredAt: 上传有效期 【resume v1 特有】
+        long expiredAt;
+
         // etag: 块etag【resume v2 特有】
         String etag;
 

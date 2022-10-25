@@ -138,7 +138,7 @@ public class ResumeUploader extends BaseUploader {
         try {
             recoverUploadProgressFromLocal();
             Response response = super.upload();
-            if (response != null && response.isOK()) {
+            if (response != null && (response.isOK() || response.isContextExpiredError())) {
                 removeUploadProgressFromLocal();
             }
             return response;
@@ -278,8 +278,7 @@ public class ResumeUploader extends BaseUploader {
             return;
         }
 
-        boolean isCopy = source.recoverFromRecordInfo(uploadSource);
-        if (!isCopy) {
+        if (!source.recoverFromRecordInfo(uploadSource)) {
             removeUploadProgressFromLocal();
             return;
         }

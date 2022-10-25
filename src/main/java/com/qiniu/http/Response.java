@@ -179,6 +179,11 @@ public final class Response {
         return (statusCode >= 500 && statusCode < 600 && statusCode != 579) || statusCode == 996;
     }
 
+    public boolean isContextExpiredError() {
+        return statusCode == 701 || (statusCode == 612 && error.contains("no such uploadId"));
+    }
+
+
     public boolean needSwitchServer() {
         return isNetworkBroken() || (statusCode >= 500 && statusCode < 600 && statusCode != 579);
     }
