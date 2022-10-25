@@ -29,7 +29,6 @@ public class RtcTest {
         client = QRTC.init(TestConfig.testAccessKey, TestConfig.testSecretKey, result.getResult().getAppId());
     }
 
-
     @Disabled
     @Test
     public void testApp() throws QiniuException {
@@ -41,6 +40,7 @@ public class RtcTest {
         AppParam appParam = new AppParam();
         appParam.setTitle("test_rtc_example");
         appParam.setMaxUsers(15);
+        appParam.setAppId(result.getResult().getAppId());
         result = client.updateApp(appParam);
         assert result.getCode() == 200;
     }
