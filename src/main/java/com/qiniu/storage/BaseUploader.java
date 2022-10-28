@@ -50,8 +50,8 @@ public abstract class BaseUploader {
             }
 
             // context 过期，不需要切换 region
-            if (response != null && response.isContextExpiredError() ||
-                    exception != null && exception.response != null && exception.response.isContextExpiredError()) {
+            if (response != null && response.isContextExpiredError()
+                    || exception != null && exception.response != null && exception.response.isContextExpiredError()) {
                 continue;
             }
 
