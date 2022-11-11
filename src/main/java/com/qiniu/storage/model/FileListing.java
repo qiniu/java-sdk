@@ -21,6 +21,8 @@ public final class FileListing {
 
     /**
      * 列举操作是否已到所有文件列表结尾，如果为true表示无需再发送列举请求
+     *
+     * @return 是否 list 结束
      */
     public boolean isEOF() {
         return StringUtils.isNullOrEmpty(marker);

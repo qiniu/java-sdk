@@ -37,6 +37,11 @@ public final class UrlFactory {
 
     /**
      * 构建一个直播地址生成的UrlFactory对象
+     *
+     * @param hub            hub
+     * @param auth           auth
+     * @param rtmpPubDomain  rtmpPubDomain
+     * @param rtmpPlayDomain rtmpPlayDomain
      */
     public UrlFactory(String hub, Auth auth, String rtmpPubDomain, String rtmpPlayDomain) {
         this(hub, auth, rtmpPubDomain, rtmpPlayDomain, null, null, null);
@@ -44,6 +49,14 @@ public final class UrlFactory {
 
     /**
      * 构建一个直播地址生成的UrlFactory对象
+     *
+     * @param hub               hub
+     * @param auth              auth
+     * @param rtmpPublishDomain rtmpPublishDomain
+     * @param rtmpPlayDomain    rtmpPlayDomain
+     * @param hlsPlayDomain     hlsPlayDomain
+     * @param hdlPlayDomain     hdlPlayDomain
+     * @param snapshotDomain    snapshotDomain
      */
     public UrlFactory(String hub, Auth auth, String rtmpPublishDomain, String rtmpPlayDomain,
                       String hlsPlayDomain, String hdlPlayDomain, String snapshotDomain) {
@@ -60,6 +73,7 @@ public final class UrlFactory {
      * 生成无鉴权的RTMP推流地址
      *
      * @param streamKey 流名称
+     * @return 推流地址
      */
     public String rtmpPublishUrl(String streamKey) {
         return String.format("rtmp://%s/%s/%s", rtmpPublishDomain, hub, streamKey);
@@ -70,6 +84,7 @@ public final class UrlFactory {
      *
      * @param streamKey          流名称
      * @param expireAfterSeconds 流过期时间，单位秒
+     * @return 推流地址
      */
     public String rtmpPublishUrl(String streamKey, int expireAfterSeconds) {
         long expire = System.currentTimeMillis() / 1000 + expireAfterSeconds;
@@ -88,6 +103,7 @@ public final class UrlFactory {
      * 构建直播RTMP播放地址
      *
      * @param streamKey 流名称
+     * @return 播放地址
      */
     public String rtmpPlayUrl(String streamKey) {
         return String.format("rtmp://%s/%s/%s", rtmpPlayDomain, hub, streamKey);
@@ -97,6 +113,7 @@ public final class UrlFactory {
      * 构建直播HLS播放地址
      *
      * @param streamKey 流名称
+     * @return 播放地址
      */
     public String hlsPlayUrl(String streamKey) {
         return String.format("http://%s/%s/%s.m3u8", hlsPlayDomain, hub, streamKey);
@@ -106,6 +123,7 @@ public final class UrlFactory {
      * 构建直播FLV播放地址
      *
      * @param streamKey 流名称
+     * @return 播放地址
      */
     public String hdlPlayUrl(String streamKey) {
         return String.format("http://%s/%s/%s.flv", hdlPlayDomain, hub, streamKey);
@@ -115,6 +133,7 @@ public final class UrlFactory {
      * 构建直播截图访问地址
      *
      * @param streamKey 流名称
+     * @return 直播截图访问地址
      */
     public String snapshotUrl(String streamKey) {
         return String.format("http://%s/%s/%s.jpg", snapshotDomain, hub, streamKey);

@@ -28,6 +28,15 @@ public final class FormUploader extends BaseUploader {
 
     /**
      * 构建一个表单上传字节数组的对象
+     *
+     * @param client        上传 Client
+     * @param upToken       上传 token
+     * @param key           文件上传后存储的 key
+     * @param data          上传的数据
+     * @param params        自定义参数
+     * @param mime          MimeTYpe
+     * @param checkCrc      是否开启 Crc 检测
+     * @param configuration 上传配置信息
      */
     public FormUploader(Client client, String upToken, String key, byte[] data, StringMap params,
                         String mime, boolean checkCrc, Configuration configuration) {
@@ -36,6 +45,15 @@ public final class FormUploader extends BaseUploader {
 
     /**
      * 构建一个表单上传文件的对象
+     *
+     * @param client        上传 Client
+     * @param upToken       上传 token
+     * @param key           文件上传后存储的 key
+     * @param file          上传的文件
+     * @param params        自定义参数
+     * @param mime          MimeTYpe
+     * @param checkCrc      是否开启 Crc 检测
+     * @param configuration 上传配置信息
      */
     public FormUploader(Client client, String upToken, String key, File file, StringMap params,
                         String mime, boolean checkCrc, Configuration configuration) {
@@ -93,6 +111,9 @@ public final class FormUploader extends BaseUploader {
 
     /**
      * 异步上传文件
+     *
+     * @param handler 结束回调
+     * @throws IOException 异常
      */
     public void asyncUpload(final UpCompletionHandler handler) throws IOException {
         buildParams();

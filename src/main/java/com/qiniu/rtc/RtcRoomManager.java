@@ -32,7 +32,7 @@ public class RtcRoomManager {
      * @param appId    房间所属帐号的 app
      * @param roomName 操作所查询的连麦房间
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     @Deprecated
     public Response listUser(String appId, String roomName) throws QiniuException {
@@ -46,7 +46,7 @@ public class RtcRoomManager {
      * @param roomName 操作房间名
      * @param userId   被踢人员
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     @Deprecated
     public Response kickUser(String appId, String roomName, String userId) throws QiniuException {
@@ -61,7 +61,7 @@ public class RtcRoomManager {
      * @param offset 分页查询的位移标记
      * @param limit  此次查询的最大长度
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     @Deprecated
     public Response listActiveRooms(String appId, String prefix, int offset, int limit) throws QiniuException {
@@ -89,7 +89,7 @@ public class RtcRoomManager {
      * @param permission 该用户的房间管理权限，"admin" 或 "user"，默认为 "user" 。当权限角色为 "admin" 时，拥有将其他用户移除出房
      *                   间等特权.
      * @return roomToken
-     * @throws Exception
+     * @throws Exception 异常
      */
     @Deprecated
     public String getRoomToken(String appId, String roomName, String userId,

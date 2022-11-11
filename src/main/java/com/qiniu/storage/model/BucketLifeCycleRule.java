@@ -67,7 +67,7 @@ public class BucketLifeCycleRule {
     /**
      * 获得规则名称，在设置的bucket中规则名称是唯一的
      *
-     * @return
+     * @return 规则名
      */
     public String getName() {
         return this.name;
@@ -78,8 +78,8 @@ public class BucketLifeCycleRule {
      * 同时长度小于50， 不能为空<br>
      * 由字母，数字和下划线组成
      *
-     * @param name
-     * @return
+     * @param name 规则名
+     * @return 规则信息
      */
     public BucketLifeCycleRule setName(String name) {
         this.name = name;
@@ -89,7 +89,7 @@ public class BucketLifeCycleRule {
     /**
      * 获得前缀
      *
-     * @return
+     * @return 前缀
      */
     public String getPrefix() {
         return this.prefix;
@@ -99,8 +99,8 @@ public class BucketLifeCycleRule {
      * 以该前缀开头的文件应用此规则<br>
      * 同一个 bucket 里面前缀不能重复，规则按最长前缀匹配
      *
-     * @param prefix
-     * @return
+     * @param prefix 前缀
+     * @return 规则信息
      */
     public BucketLifeCycleRule setPrefix(String prefix) {
         this.prefix = prefix;
@@ -110,7 +110,7 @@ public class BucketLifeCycleRule {
     /**
      * 获得 指定多少天后删除存储空间内的文件
      *
-     * @return
+     * @return 多少天后删除存储空间内的文件
      */
     public int getDeleteAfterDays() {
         return this.deleteAfterDays;
@@ -119,10 +119,10 @@ public class BucketLifeCycleRule {
     /**
      * 指定存储空间内的文件多少天后删除<br>
      * 0 - 不删除<br>
-     * > 0 表示多少天后删除
+     * 大于 0 表示多少天后删除
      *
-     * @param deleteAfterDays
-     * @return
+     * @param deleteAfterDays 多少天后删除
+     * @return 规则信息
      */
     public BucketLifeCycleRule setDeleteAfterDays(int deleteAfterDays) {
         this.deleteAfterDays = deleteAfterDays;
@@ -132,7 +132,7 @@ public class BucketLifeCycleRule {
     /**
      * 获得在多少天后转低频存储
      *
-     * @return
+     * @return 多少天后转低频存储
      */
     public int getToLineAfterDays() {
         return this.toLineAfterDays;
@@ -143,9 +143,9 @@ public class BucketLifeCycleRule {
      *
      * @param toLineAfterDays
      *       0  - 表示不转低频<br>
-     *       < 0 表示上传的文件立即使用低频存储<br>
-     *       > 0 表示转低频的天数
-     * @return
+     *       小于 0 表示上传的文件立即使用低频存储<br>
+     *       大于 0 表示转低频的天数
+     * @return 规则信息
      */
     public BucketLifeCycleRule setToLineAfterDays(int toLineAfterDays) {
         this.toLineAfterDays = toLineAfterDays;
@@ -155,7 +155,7 @@ public class BucketLifeCycleRule {
     /**
      * 获得在多少天后转归档存储
      *
-     * @return
+     * @return 多少天后转归档存储
      */
     public int getToArchiveAfterDays() {
         return toArchiveAfterDays;
@@ -166,9 +166,9 @@ public class BucketLifeCycleRule {
      *
      * @param toArchiveAfterDays
      *       0  - 表示不转归档存储<br>
-     *       < 0 表示上传的文件立即使用归档存储<br>
-     *       > 0 表示多少天后转归档存储
-     * @return
+     *       小于 0 表示上传的文件立即使用归档存储<br>
+     *       大于 0 表示多少天后转归档存储
+     * @return 规则信息
      */
     public BucketLifeCycleRule setToArchiveAfterDays(int toArchiveAfterDays) {
         this.toArchiveAfterDays = toArchiveAfterDays;
@@ -178,7 +178,7 @@ public class BucketLifeCycleRule {
     /**
      * 获得在多少天后转深度归档存储
      *
-     * @return
+     * @return 多少天后转深度归档存储
      */
     public int getToDeepArchiveAfterDays() {
         return toDeepArchiveAfterDays;
@@ -189,9 +189,9 @@ public class BucketLifeCycleRule {
      *
      * @param toDeepArchiveAfterDays
      *       0  - 表示不转深度归档存储<br>
-     *       < 0 表示上传的文件立即使用深度归档存储<br>
-     *       > 0 表示多少天后转深度归档存储
-     * @return
+     *       小于 0 表示上传的文件立即使用深度归档存储<br>
+     *       大于 0 表示多少天后转深度归档存储
+     * @return 规则信息
      */
     public BucketLifeCycleRule setToDeepArchiveAfterDays(int toDeepArchiveAfterDays) {
         this.toDeepArchiveAfterDays = toDeepArchiveAfterDays;
@@ -199,7 +199,9 @@ public class BucketLifeCycleRule {
     }
 
     /**
-     * 编码成query参数格式
+     * 编码成 query 参数格式
+     *
+     * @return query
      */
     public String asQueryString() {
         return String.format("name=%s&prefix=%s&delete_after_days=%d&to_line_after_days=%d&to_archive_after_days=%d&to_deep_archive_after_days=%d",

@@ -40,6 +40,8 @@ public final class Client {
 
     /**
      * 构建一个自定义配置的 HTTP Client 类
+     *
+     * @param cfg 配置信息
      */
     public Client(Configuration cfg) {
         this(cfg.dns, cfg.useDnsHostFirst, cfg.proxy,
@@ -57,6 +59,17 @@ public final class Client {
 
     /**
      * 构建一个自定义配置的 HTTP Client 类
+     *
+     * @param dns                          dns 解析类
+     * @param hostFirst                    是否优先使用 host
+     * @param proxy                        代理
+     * @param connTimeout                  链接超时
+     * @param readTimeout                  读超时
+     * @param writeTimeout                 写超时
+     * @param dispatcherMaxRequests        并发最大请求数
+     * @param dispatcherMaxRequestsPerHost 单 Host 并发最大请求数
+     * @param connectionPoolMaxIdleCount   连接池中请求最大空闲数
+     * @param connectionPoolMaxIdleMinutes 连接池中请求最大空闲分钟数
      */
     public Client(final Dns dns, final boolean hostFirst, final ProxyConfiguration proxy,
                   int connTimeout, int readTimeout, int writeTimeout, int dispatcherMaxRequests,

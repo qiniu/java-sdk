@@ -114,6 +114,8 @@ public class Api {
         /**
          * 获取请求的 urlPrefix， scheme + host
          * eg: https://upload.qiniu.com
+         *
+         * @return urlPrefix
          */
         public String getUrlPrefix() {
             return urlPrefix;
@@ -153,6 +155,7 @@ public class Api {
          * 获取 url 的 path 信息
          *
          * @return path 信息
+         * @throws QiniuException 异常
          */
         public String getPath() throws QiniuException {
             if (path == null) {
@@ -253,6 +256,7 @@ public class Api {
          * 获取请求头信息
          *
          * @return 请求头信息
+         * @throws QiniuException 异常
          */
         public StringMap getHeader() throws QiniuException {
             StringMap header = new StringMap();
@@ -266,6 +270,7 @@ public class Api {
          * 获取 URL
          *
          * @return url
+         * @throws QiniuException 异常
          */
         public URL getUrl() throws QiniuException {
             try {
@@ -325,6 +330,7 @@ public class Api {
          * 相关：{@link RequestStreamBody#writeTo(BufferedSink) sinkSize}
          *
          * @param streamBodySinkSize 每次读取 streamBody 的大小
+         * @return Request
          */
         public Request setStreamBodySinkSize(long streamBodySinkSize) {
             this.streamBodySinkSize = streamBodySinkSize;
@@ -354,7 +360,7 @@ public class Api {
         /**
          * 构造 body 信息，如果需要设置请求体，子类需要重写
          *
-         * @throws QiniuException
+         * @throws QiniuException 异常
          */
         protected void buildBodyInfo() throws QiniuException {
 

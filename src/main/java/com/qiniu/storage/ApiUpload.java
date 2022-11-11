@@ -57,6 +57,7 @@ public class ApiUpload extends Api {
          * 获取上传凭证
          *
          * @return 上传凭证
+         * @throws QiniuException 异常
          */
         protected UploadToken getUploadToken() throws QiniuException {
             return new UploadToken(token);

@@ -798,6 +798,7 @@ public class FixBlockUploader {
         /**
          * @param key   start with X-Qn-Meta-
          * @param value not null or empty
+         * @return OptionsMeta
          */
         public OptionsMeta addMetadata(String key, String value) {
             if (metadata == null) {
@@ -810,6 +811,7 @@ public class FixBlockUploader {
         /**
          * @param key   start with x:
          * @param value not null or empty
+         * @return OptionsMeta
          */
         public OptionsMeta addCustomVar(String key, String value) {
             if (customVars == null) {

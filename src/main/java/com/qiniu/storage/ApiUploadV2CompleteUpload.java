@@ -17,7 +17,6 @@ import java.util.Map;
  * Part 列表（ 包括 PartNumber 和调用 uploadPart API 服务端返回的 Etag ）。服务端收到用户提交的 Part 列表后，会逐一验证每个数据
  * Part 的有效性。当所有的数据 Part 验证通过后，会把这些数据 Part 组合成一个完整的 Object。
  * <p>
- * <p>
  * 一个文件被分成多个 part，上传所有的 part，然后在七牛云根据 part 信息合成文件
  * |----------------------------- file -----------------------------|
  * |------ part ------|------ part ------|------ part ------|...
@@ -38,7 +37,6 @@ import java.util.Map;
  * 3. 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖
  * 4. {@link ApiUploadV2InitUpload}、{@link ApiUploadV2UploadPart}、{@link ApiUploadV2CompleteUpload}、{@link ApiUploadV2ListParts}、
  * {@link ApiUploadV2AbortUpload} 分片 V2 API的 key 需要统一（要么有设置且相同，要么均不设置）
- * <p>
  * <p>
  * https://developer.qiniu.com/kodo/6368/complete-multipart-upload
  */
@@ -92,7 +90,7 @@ public class ApiUploadV2CompleteUpload extends ApiUpload {
          *                  就会变成无效，再次请求与该 UploadId 相关操作都会失败。【必须】
          * @param partsInfo 已经上传 Part 列表【必须】
          *                  包括 PartNumber(int) 和调用 uploadPart API 服务端返回的 Etag(string)
-         *                  eg：[{ "etag": "<Etag>", "partNumber": <PartNumber> }, ...]
+         *                  eg：[{ "etag": "[Etag]", "partNumber": [PartNumber] }, ...]
          *                  注意事项：
          *                  1. 每一个上传的 Part 都有一个标识它的号码 PartNumber，范围是 1 - 10000，单个 Part大小范围 1 MB - 1 GB。
          *                  Multipart Upload 要求除最后一个 Part 以外，其他的 Part 大小都要大于等于 1 MB。因不确定是否为最后一个 Part，

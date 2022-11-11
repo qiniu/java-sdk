@@ -16,7 +16,7 @@ public class RoomService extends AbstractService {
     /**
      * 初始化
      *
-     * @param auth
+     * @param auth auth
      */
     public RoomService(Auth auth) {
         super(auth);
@@ -26,10 +26,10 @@ public class RoomService extends AbstractService {
     /**
      * 创建房间
      *
-     * @param appId
-     * @param roomParam
-     * @return
-     * @throws QiniuException
+     * @param appId     appId
+     * @param roomParam roomParam
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response createRoom(String appId, RoomParam roomParam) throws QiniuException {
         String urlPattern = "/v3/apps/%s/createroom";
@@ -39,10 +39,10 @@ public class RoomService extends AbstractService {
     /**
      * 删除房间
      *
-     * @param appId
-     * @param roomName
-     * @return
-     * @throws QiniuException
+     * @param appId    appId
+     * @param roomName roomName
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response deleteRoom(String appId, String roomName) throws QiniuException {
         String urlPattern = "/v3/apps/%s/rooms/%s";
@@ -52,11 +52,8 @@ public class RoomService extends AbstractService {
     /**
      * @param appId    房间所属帐号的 app
      * @param roomName 操作所查询的连麦房间
-     * @param appId
-     * @param roomName
-     * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
-     * @return
-     * @throws QiniuException
+     * @return Response  如果不读取Response的数据，请注意调用Close方法关闭
+     * @throws QiniuException 异常
      */
     public Response listUser(String appId, String roomName) throws QiniuException {
         String urlPattern = "/v3/apps/%s/rooms/%s/users";
@@ -66,11 +63,11 @@ public class RoomService extends AbstractService {
     /**
      * 踢出房间内的某个用户
      *
-     * @param appId
-     * @param roomName
-     * @param userId
-     * @return
-     * @throws QiniuException
+     * @param appId    appId
+     * @param roomName roomName
+     * @param userId   userId
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response kickUser(String appId, String roomName, String userId) throws QiniuException {
         String urlPattern = "/v3/apps/%s/rooms/%s/users/%s";
@@ -80,10 +77,11 @@ public class RoomService extends AbstractService {
     /**
      * 获取当前所有活跃的房间
      *
-     * @param roomNamePrefix
+     * @param appId          appId
+     * @param roomNamePrefix roomNamePrefix
      * @param urlParam       分页参数
-     * @return
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response listActiveRoom(String appId, String roomNamePrefix, UrlParam urlParam) throws QiniuException {
         String urlPattern = "/v3/apps/%s/rooms?prefix=%s&offset=%d&limit=%d";
@@ -93,6 +91,7 @@ public class RoomService extends AbstractService {
     /**
      * 获取房间TOKEN
      *
+     * @param access access
      * @return roomToken 房间token
      * @throws Exception 未知异常
      */

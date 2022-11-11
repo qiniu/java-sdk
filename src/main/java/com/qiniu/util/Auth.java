@@ -184,10 +184,10 @@ public final class Auth {
     /**
      * 生成HTTP请求签名字符串
      *
-     * @param urlString
-     * @param body
-     * @param contentType
-     * @return
+     * @param urlString   签名请求的 url
+     * @param body        签名请求的 body
+     * @param contentType 签名请求的 contentType
+     * @return 签名信息
      */
     @Deprecated // private
     public String signRequest(String urlString, byte[] body, String contentType) {
@@ -220,7 +220,7 @@ public final class Auth {
      * @param url                 回调地址
      * @param body                回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
      * @param contentType         回调 ContentType
-     * @return
+     * @return 签名是否正确
      */
     @Deprecated
     public boolean isValidCallback(String originAuthorization, String url, byte[] body, String contentType) {
@@ -238,7 +238,7 @@ public final class Auth {
      *
      * @param originAuthorization 待验证签名字符串，以 "QBox " 或 "Qiniu " 作为起始字符
      * @param callback            callback 请求信息
-     * @return
+     * @return 签名是否正确
      */
     public boolean isValidCallback(String originAuthorization, Request callback) {
         if (callback == null) {
@@ -264,7 +264,7 @@ public final class Auth {
      *
      * @param baseUrl 待签名文件url，如 http://img.domain.com/u/3.jpg 、
      *                http://img.domain.com/u/3.jpg?imageView2/1/w/120
-     * @return
+     * @return 签名
      */
     public String privateDownloadUrl(String baseUrl) {
         return privateDownloadUrl(baseUrl, 3600);
@@ -276,7 +276,7 @@ public final class Auth {
      * @param baseUrl 待签名文件url，如 http://img.domain.com/u/3.jpg 、
      *                http://img.domain.com/u/3.jpg?imageView2/1/w/120
      * @param expires 有效时长，单位秒。默认3600s
-     * @return
+     * @return 签名
      */
     public String privateDownloadUrl(String baseUrl, long expires) {
         long deadline = System.currentTimeMillis() / 1000 + expires;
@@ -384,12 +384,13 @@ public final class Auth {
     }
 
     /**
-     * 生成HTTP请求签名字符串
+     * 生成 HTTP 请求签名字符串
      *
-     * @param url
-     * @param body
-     * @param contentType
-     * @return
+     * @param url         签名请求的 url
+     * @param method      签名请求的 method
+     * @param body        签名请求的 body
+     * @param contentType 签名请求的 contentType
+     * @return 签名
      */
     @Deprecated
     public String signRequestV2(String url, String method, byte[] body, String contentType) {

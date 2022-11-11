@@ -64,10 +64,10 @@ public final class BucketManager {
     /**
      * EncodedEntryURI格式，其中 bucket+":"+key 称之为 entry
      *
-     * @param bucket
-     * @param key
+     * @param bucket 空间名
+     * @param key    文件 key
      * @return UrlSafeBase64.encodeToString(entry)
-     * @link http://developer.qiniu.com/kodo/api/data-format
+     * <a href="http://developer.qiniu.com/kodo/api/data-format"> 相关链接 </a>
      */
     public static String encodedEntry(String bucket, String key) {
         String encodedEntry;
@@ -84,7 +84,7 @@ public final class BucketManager {
      *
      * @param bucket 空间名称
      * @return UrlSafeBase64.encodeToString(bucket)
-     * @link http://developer.qiniu.com/kodo/api/data-format
+     * <a href="http://developer.qiniu.com/kodo/api/data-format"> 相关链接 </a>
      */
     public static String encodedEntry(String bucket) {
         return encodedEntry(bucket, null);
@@ -94,6 +94,7 @@ public final class BucketManager {
      * 获取账号下所有空间名称列表
      *
      * @return 空间名称列表
+     * @throws QiniuException 异常
      */
     public String[] buckets() throws QiniuException {
         Response res = bucketsResponse();
@@ -114,10 +115,10 @@ public final class BucketManager {
     /**
      * 创建空间
      *
-     * @param bucketName
-     * @param region
-     * @return
-     * @throws QiniuException
+     * @param bucketName 空间名
+     * @param region     区域信息
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response createBucket(String bucketName, String region) throws QiniuException {
         String url = String.format("%s/mkbucketv3/%s/region/%s", configHelper.rsHost(auth.accessKey, bucketName),
@@ -132,9 +133,9 @@ public final class BucketManager {
     /**
      * 获取该空间下所有的domain
      *
-     * @param bucket
-     * @return 该空间名下的domain
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @return 该空间名下的 domain
+     * @throws QiniuException 异常
      */
     public String[] domainList(String bucket) throws QiniuException {
         Response res = domainListResponse(bucket);
@@ -190,8 +191,8 @@ public final class BucketManager {
      * @param marker    上一次获取文件列表时返回的 marker
      * @param limit     每次迭代的长度限制，最大1000，推荐值 100
      * @param delimiter 指定目录分隔符，列出所有公共前缀（模拟列出目录效果）。缺省值为空字符串
-     * @return
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response listV1(String bucket, String prefix, String marker, int limit, String delimiter)
             throws QiniuException {
@@ -221,7 +222,7 @@ public final class BucketManager {
      * @param limit     每次迭代的长度限制，推荐值 1000
      * @param delimiter 指定目录分隔符，列出所有公共前缀（模拟列出目录效果）。缺省值为空字符串
      * @return Response 返回一个 okhttp response 对象
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     public Response listV2(String bucket, String prefix, String marker, int limit, String delimiter)
             throws QiniuException {
@@ -264,8 +265,8 @@ public final class BucketManager {
      * @param bucket  空间名称
      * @param fileKey 文件名称
      * @return 文件属性
-     * @throws QiniuException
-     * @link http://developer.qiniu.com/kodo/api/stat
+     * @throws QiniuException 异常
+     *                        <a href="http://developer.qiniu.com/kodo/api/stat"> 相关链接 </a>
      */
     public FileInfo stat(String bucket, String fileKey) throws QiniuException {
         Response res = statResponse(bucket, fileKey);
@@ -287,8 +288,9 @@ public final class BucketManager {
      *
      * @param bucket 空间名称
      * @param key    文件名称
-     * @throws QiniuException
-     * @link http://developer.qiniu.com/kodo/api/delete
+     * @return Response
+     * @throws QiniuException 异常
+     *                        <a href="http://developer.qiniu.com/kodo/api/delete"> 相关链接 </a>
      */
     public Response delete(String bucket, String key) throws QiniuException {
         return rsPost(bucket, String.format("/delete/%s", encodedEntry(bucket, key)), null);
@@ -300,8 +302,9 @@ public final class BucketManager {
      * @param bucket 空间名称
      * @param key    文件名称
      * @param mime   文件的新MimeType
-     * @throws QiniuException
-     * @link http://developer.qiniu.com/kodo/api/chgm
+     * @return Response
+     * @throws QiniuException 异常
+     *                        <a href="http://developer.qiniu.com/kodo/api/chgm"> 相关链接 </a>
      */
     public Response changeMime(String bucket, String key, String mime)
             throws QiniuException {
@@ -317,8 +320,9 @@ public final class BucketManager {
      * @param bucket  空间名称
      * @param key     文件名称
      * @param headers 需要修改的文件元数据
-     * @throws QiniuException
-     * @link https://developer.qiniu.com/kodo/api/1252/chgm
+     * @return Response
+     * @throws QiniuException 异常
+     *                        <a href="https://developer.qiniu.com/kodo/api/1252/chgm"> 相关链接 </a>
      */
     public Response changeHeaders(String bucket, String key, Map<String, String> headers)
             throws QiniuException {
@@ -337,7 +341,8 @@ public final class BucketManager {
      * @param bucket 空间名称
      * @param key    文件名称
      * @param type   type=0 表示普通存储，type=1 表示低频存存储, type=2 表示归档存储, type=3 表示深度归档存储
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response changeType(String bucket, String key, StorageType type)
             throws QiniuException {
@@ -353,7 +358,8 @@ public final class BucketManager {
      * @param bucket          空间名称
      * @param key             文件名称
      * @param freezeAfterDays 解冻有效时长，取值范围 1～7
-     * @return
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response restoreArchive(String bucket, String key, int freezeAfterDays)
             throws QiniuException {
@@ -370,7 +376,8 @@ public final class BucketManager {
      * @param bucket 空间名称
      * @param key    文件名称
      * @param status 0表示启用；1表示禁用。
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response changeStatus(String bucket, String key, int status)
             throws QiniuException {
@@ -386,7 +393,8 @@ public final class BucketManager {
      * @param oldFileKey 文件名称
      * @param newFileKey 新文件名
      * @param force      强制覆盖空间中已有同名（和 newFileKey 相同）的文件
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response rename(String bucket, String oldFileKey, String newFileKey, boolean force)
             throws QiniuException {
@@ -399,8 +407,9 @@ public final class BucketManager {
      * @param bucket     空间名称
      * @param oldFileKey 文件名称
      * @param newFileKey 新文件名
-     * @throws QiniuException
-     * @link http://developer.qiniu.com/kodo/api/move
+     * @return Response
+     * @throws QiniuException 异常
+     *                        <a href="http://developer.qiniu.com/kodo/api/move">相关链接</a>
      */
     public Response rename(String bucket, String oldFileKey, String newFileKey)
             throws QiniuException {
@@ -415,7 +424,8 @@ public final class BucketManager {
      * @param toBucket    目的空间名称
      * @param toFileKey   目的文件名称
      * @param force       强制覆盖空间中已有同名（和 toFileKey 相同）的文件
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey, boolean force)
             throws QiniuException {
@@ -432,7 +442,8 @@ public final class BucketManager {
      * @param fromFileKey 源文件名称
      * @param toBucket    目的空间名称
      * @param toFileKey   目的文件名称
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response copy(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
             throws QiniuException {
@@ -451,7 +462,8 @@ public final class BucketManager {
      * @param toBucket    目的空间名称
      * @param toFileKey   目的文件名称
      * @param force       强制覆盖空间中已有同名（和 toFileKey 相同）的文件
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response move(String fromBucket, String fromFileKey, String toBucket,
                          String toFileKey, boolean force) throws QiniuException {
@@ -468,7 +480,8 @@ public final class BucketManager {
      * @param fromFileKey 源文件名称
      * @param toBucket    目的空间名称
      * @param toFileKey   目的文件名称
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response move(String fromBucket, String fromFileKey, String toBucket, String toFileKey)
             throws QiniuException {
@@ -482,7 +495,8 @@ public final class BucketManager {
      *
      * @param url    待抓取的文件链接
      * @param bucket 文件抓取后保存的空间
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public FetchRet fetch(String url, String bucket) throws QiniuException {
         return fetch(url, bucket, null);
@@ -495,7 +509,8 @@ public final class BucketManager {
      * @param url    待抓取的文件链接
      * @param bucket 文件抓取后保存的空间
      * @param key    文件抓取后保存的文件名
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public FetchRet fetch(String url, String bucket, String key) throws QiniuException {
         Response res = fetchResponse(url, bucket, key);
@@ -524,7 +539,7 @@ public final class BucketManager {
      * @param bucket 文件抓取后保存的空间
      * @param key    文件抓取后保存的文件名
      * @return Response
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     public Response asynFetch(String url, String bucket, String key) throws QiniuException {
         StringMap params = new StringMap().putNotNull("key", key);
@@ -547,7 +562,7 @@ public final class BucketManager {
      * @param callbackhost     回调时使用的Host
      * @param fileType         存储文件类型 0:正常存储(默认),1:低频存储
      * @return Response
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     public Response asynFetch(String url, String bucket, String key, String md5, String etag,
                               String callbackurl, String callbackbody, String callbackbodytype,
@@ -573,7 +588,7 @@ public final class BucketManager {
      * @param bucket 文件抓取后保存的空间
      * @param params 其他参数
      * @return Response
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     public Response asyncFetch(String url, String bucket, StringMap params) throws QiniuException {
         if (params == null) params = new StringMap();
@@ -590,7 +605,7 @@ public final class BucketManager {
      * @param region      抓取任务所在bucket区域 华东 z0 华北 z1 华南 z2 北美 na0 东南亚 as0
      * @param fetchWorkId 抓取任务id
      * @return Response
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     public Response checkAsynFetchid(String region, String fetchWorkId) throws QiniuException {
         String path = String.format("http://api-%s.qiniu.com/sisyphus/fetch?id=%s", region, fetchWorkId);
@@ -603,7 +618,8 @@ public final class BucketManager {
      *
      * @param bucket 空间名称
      * @param key    文件名称
-     * @throws QiniuException
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response prefetch(String bucket, String key) throws QiniuException {
         String resource = encodedEntry(bucket, key);
@@ -620,6 +636,8 @@ public final class BucketManager {
      *
      * @param bucket     空间名称
      * @param srcSiteUrl 镜像回源地址
+     * @return Response
+     * @throws QiniuException 异常
      */
     @Deprecated
     public Response setImage(String bucket, String srcSiteUrl) throws QiniuException {
@@ -632,6 +650,8 @@ public final class BucketManager {
      * @param bucket     空间名称
      * @param srcSiteUrl 镜像回源地址
      * @param host       镜像回源Host
+     * @return Response
+     * @throws QiniuException 异常
      */
     @Deprecated
     public Response setImage(String bucket, String srcSiteUrl, String host) throws QiniuException {
@@ -651,6 +671,8 @@ public final class BucketManager {
      * 取消空间的镜像源站设置
      *
      * @param bucket 空间名称
+     * @return Response
+     * @throws QiniuException 异常
      */
     @Deprecated
     public Response unsetImage(String bucket) throws QiniuException {
@@ -664,18 +686,20 @@ public final class BucketManager {
      * @param bucket 空间名称
      * @param key    文件名称
      * @param days   存活时间，单位：天
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response deleteAfterDays(String bucket, String key, int days) throws QiniuException {
         return rsPost(bucket, String.format("/deleteAfterDays/%s/%d", encodedEntry(bucket, key), days), null);
     }
 
     /**
-     * 设置Bucket noIndexPage属性<br>
-     * noIndexPage为0表示启用indexPage，为1表示不启用indexPage
+     * 设置 Bucket noIndexPage 属性<br>
      *
-     * @param bucket
-     * @param type
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @param type   type 为 0 表示启用 indexPage，为 1 表示不启用indexPage
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response setIndexPage(String bucket, IndexPageType type) throws QiniuException {
         String url = String.format("%s/noIndexPage?bucket=%s&noIndexPage=%s",
@@ -690,9 +714,9 @@ public final class BucketManager {
     /**
      * 查询空间信息
      *
-     * @param bucket
-     * @return
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @return bucket 信息
+     * @throws QiniuException 异常
      */
     public BucketInfo getBucketInfo(String bucket) throws QiniuException {
         Response res = getBucketInfoResponse(bucket);
@@ -712,11 +736,12 @@ public final class BucketManager {
     }
 
     /**
-     * 设置空间referer防盗链
+     * 设置空间 referer 防盗链
      *
-     * @param bucket
-     * @param antiLeech
-     * @throws QiniuException
+     * @param bucket    空间名
+     * @param antiLeech 空间 referer 防盗链信息
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response putReferAntiLeech(String bucket, BucketReferAntiLeech antiLeech) throws QiniuException {
         String url = String.format("%s/referAntiLeech?bucket=%s&%s",
@@ -731,10 +756,10 @@ public final class BucketManager {
     /**
      * 设置存储空间内文件的生命周期规则
      *
-     * @param bucket
-     * @param rule
-     * @return
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @param rule   生命周期规则
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response putBucketLifecycleRule(String bucket, BucketLifeCycleRule rule) throws QiniuException {
         String url = String.format("%s/rules/add?bucket=%s&%s", configHelper.ucHost(), bucket, rule.asQueryString());
@@ -748,10 +773,10 @@ public final class BucketManager {
     /**
      * 删除特定存储空间上设定的规则
      *
-     * @param bucket
-     * @param ruleName
-     * @return
-     * @throws QiniuException
+     * @param bucket   空间名
+     * @param ruleName 规则名
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response deleteBucketLifecycleRule(String bucket, String ruleName) throws QiniuException {
         String url = String.format("%s/rules/delete?bucket=%s&name=%s", configHelper.ucHost(), bucket, ruleName);
@@ -765,10 +790,10 @@ public final class BucketManager {
     /**
      * 更新特定存储空间上的生命周期规则
      *
-     * @param bucket
-     * @param rule
-     * @return
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @param rule   生命周期规则
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response updateBucketLifeCycleRule(String bucket, BucketLifeCycleRule rule) throws QiniuException {
         String url = String.format("%s/rules/update?bucket=%s&%s",
@@ -783,9 +808,9 @@ public final class BucketManager {
     /**
      * 获取指定空间上设置的生命周期规则
      *
-     * @param bucket
-     * @return
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @return 生命周期规则
+     * @throws QiniuException 异常
      */
     public BucketLifeCycleRule[] getBucketLifeCycleRule(String bucket) throws QiniuException {
         Response res = getBucketLifeCycleRuleResponse(bucket);
@@ -816,10 +841,10 @@ public final class BucketManager {
     /**
      * 增加事件通知规则
      *
-     * @param bucket
-     * @param rule
-     * @return
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @param rule   通知规则
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response putBucketEvent(String bucket, BucketEventRule rule) throws QiniuException {
         String url = String.format("%s/events/add?bucket=%s&%s", configHelper.ucHost(), bucket, rule.asQueryString());
@@ -833,10 +858,10 @@ public final class BucketManager {
     /**
      * 删除事件通知规则
      *
-     * @param bucket
-     * @param ruleName
-     * @return
-     * @throws QiniuException
+     * @param bucket   空间名
+     * @param ruleName 规则名
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response deleteBucketEvent(String bucket, String ruleName) throws QiniuException {
         String url = String.format("%s/events/delete?bucket=%s&name=%s", configHelper.ucHost(), bucket, ruleName);
@@ -850,10 +875,10 @@ public final class BucketManager {
     /**
      * 更新事件通知规则
      *
-     * @param bucket
-     * @param rule
-     * @return
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @param rule   通知规则
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response updateBucketEvent(String bucket, BucketEventRule rule) throws QiniuException {
         String url = String.format("%s/events/update?bucket=%s&%s",
@@ -868,9 +893,9 @@ public final class BucketManager {
     /**
      * 获取事件通知规则
      *
-     * @param bucket
-     * @return
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @return 事件通知
+     * @throws QiniuException 异常
      */
     public BucketEventRule[] getBucketEvents(String bucket) throws QiniuException {
         Response res = getBucketEventsResponse(bucket);
@@ -899,12 +924,12 @@ public final class BucketManager {
     }
 
     /**
-     * 设置bucket的cors（跨域）规则
+     * 设置 bucket 的 cors（跨域）规则
      *
-     * @param bucket
-     * @param rules
-     * @return
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @param rules  跨域）规则
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response putCorsRules(String bucket, CorsRule[] rules) throws QiniuException {
         String url = String.format("%s/corsRules/set/%s", configHelper.ucHost(), bucket);
@@ -916,11 +941,11 @@ public final class BucketManager {
     }
 
     /**
-     * 获取bucket的cors（跨域）规则
+     * 获取 bucket的cors（跨域）规则
      *
-     * @param bucket
-     * @return
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @return 跨域规则
+     * @throws QiniuException 异常
      */
     public CorsRule[] getCorsRules(String bucket) throws QiniuException {
         Response res = getCorsRulesResponse(bucket);
@@ -949,12 +974,12 @@ public final class BucketManager {
     }
 
     /**
-     * 设置原图保护模式，1表示开启原图保护，0表示关闭，默认为0
+     * 设置原图保护模式
      *
-     * @param bucket
-     * @param mode
-     * @return
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @param mode   原图保护模式，1表示开启原图保护，0表示关闭，默认为0
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response putBucketAccessStyleMode(String bucket, AccessStyleMode mode) throws QiniuException {
         String url = String.format("%s/accessMode/%s/mode/%d", configHelper.ucHost(), bucket, mode.getType());
@@ -966,13 +991,12 @@ public final class BucketManager {
     }
 
     /**
-     * 设置Bucket的cache-control: max-age属性<br>
-     * maxAge为0或者负数表示为默认值（31536000）
+     * 设置 Bucket 的cache-control: max-age 属性<br>
      *
-     * @param bucket
-     * @param maxAge
-     * @return
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @param maxAge max-age，为 0 或者负数表示为默认值（31536000）
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response putBucketMaxAge(String bucket, long maxAge) throws QiniuException {
         String url = String.format("%s/maxAge?bucket=%s&maxAge=%d", configHelper.ucHost(), bucket, maxAge);
@@ -986,9 +1010,10 @@ public final class BucketManager {
     /**
      * 设置bucket私有属性，0公有空间，1私有空间
      *
-     * @param bucket
-     * @param acl
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @param acl    私有属性
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response putBucketAccessMode(String bucket, AclType acl) throws QiniuException {
         String url = String.format("%s/private?bucket=%s&private=%s", configHelper.ucHost(), bucket, acl.getType());
@@ -1000,12 +1025,13 @@ public final class BucketManager {
     }
 
     /**
-     * 设置bucket私有属性，0公有空间，1私有空间<br>
+     * 设置 bucket 私有属性，0: 公有空间，1: 私有空间<br>
      * 推荐使用putBucketAccessMode
      *
-     * @param bucket
-     * @param acl
-     * @throws QiniuException
+     * @param bucket 空间名
+     * @param acl    私有属性
+     * @return Response
+     * @throws QiniuException 异常
      */
     @Deprecated
     public Response setBucketAcl(String bucket, AclType acl) throws QiniuException {
@@ -1015,10 +1041,10 @@ public final class BucketManager {
     /**
      * 设置空间配额，配置解释请参考BucketQuota
      *
-     * @param bucket
-     * @param bucketQuota
-     * @return
-     * @throws QiniuException
+     * @param bucket      空间名
+     * @param bucketQuota 空间配额
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response putBucketQuota(String bucket, BucketQuota bucketQuota) throws QiniuException {
         String url = String.format("%s/setbucketquota/%s/size/%d/count/%d",
@@ -1033,8 +1059,9 @@ public final class BucketManager {
     /**
      * 获取空间配额
      *
-     * @param bucket
-     * @return
+     * @param bucket 空间名
+     * @return BucketQuota
+     * @throws QiniuException 异常
      */
     public BucketQuota getBucketQuota(String bucket) throws QiniuException {
         Response res = getBucketQuotaResponse(bucket);
@@ -1104,6 +1131,10 @@ public final class BucketManager {
      * BucketManager bucketManager = new BucketManager(auth, cfg);
      * <p>
      * 如果 BucketManager 定义了 Client ，可以指定 Client 的超时时间。
+     *
+     * @param operations batch 操作信息
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response batch(BatchOperations operations) throws QiniuException {
         return rsPost(operations.execBucket(), "/batch", operations.toBody());
@@ -1122,6 +1153,11 @@ public final class BucketManager {
 
         /**
          * 添加chgm指令
+         *
+         * @param bucket      空间名
+         * @param key         文件的 key
+         * @param newMimeType 修改后的 MimeType
+         * @return BatchOperations
          */
         public BatchOperations addChgmOp(String bucket, String key, String newMimeType) {
             String resource = encodedEntry(bucket, key);
@@ -1132,7 +1168,13 @@ public final class BucketManager {
         }
 
         /**
-         * 添加copy指令
+         * 添加 copy 指令
+         *
+         * @param fromBucket  源空间名
+         * @param fromFileKey 源文件的 key
+         * @param toBucket    目标空间名
+         * @param toFileKey   目标文件的 key
+         * @return BatchOperations
          */
         public BatchOperations addCopyOp(String fromBucket, String fromFileKey, String toBucket, String toFileKey) {
             String from = encodedEntry(fromBucket, fromFileKey);
@@ -1144,6 +1186,11 @@ public final class BucketManager {
 
         /**
          * 添加重命名指令
+         *
+         * @param fromBucket  源空间名
+         * @param fromFileKey 源文件的 key
+         * @param toFileKey   目标文件的 key
+         * @return BatchOperations
          */
         public BatchOperations addRenameOp(String fromBucket, String fromFileKey, String toFileKey) {
             return addMoveOp(fromBucket, fromFileKey, fromBucket, toFileKey);
@@ -1151,6 +1198,12 @@ public final class BucketManager {
 
         /**
          * 添加move指令
+         *
+         * @param fromBucket 源空间名
+         * @param fromKey    源文件的 keys
+         * @param toBucket   目标空间名
+         * @param toKey      目标文件的 keys
+         * @return BatchOperations
          */
         public BatchOperations addMoveOp(String fromBucket, String fromKey, String toBucket, String toKey) {
             String from = encodedEntry(fromBucket, fromKey);
@@ -1162,6 +1215,10 @@ public final class BucketManager {
 
         /**
          * 添加delete指令
+         *
+         * @param bucket 空间名
+         * @param keys   文件的 keys
+         * @return BatchOperations
          */
         public BatchOperations addDeleteOp(String bucket, String... keys) {
             for (String key : keys) {
@@ -1173,6 +1230,10 @@ public final class BucketManager {
 
         /**
          * 添加stat指令
+         *
+         * @param bucket 空间名
+         * @param keys   文件的 keys
+         * @return BatchOperations
          */
         public BatchOperations addStatOps(String bucket, String... keys) {
             for (String key : keys) {
@@ -1184,6 +1245,11 @@ public final class BucketManager {
 
         /**
          * 添加changeType指令
+         *
+         * @param bucket keys 所在 bucket
+         * @param type   存储类型
+         * @param keys   keys
+         * @return BatchOperations
          */
         public BatchOperations addChangeTypeOps(String bucket, StorageType type, String... keys) {
             for (String key : keys) {
@@ -1194,7 +1260,12 @@ public final class BucketManager {
         }
 
         /**
-         * 添加changeStatus指令
+         * 添加 changeStatus 指令
+         *
+         * @param bucket keys 所在 bucket
+         * @param status 存储状态
+         * @param keys   keys
+         * @return BatchOperations
          */
         public BatchOperations addChangeStatusOps(String bucket, int status, String... keys) {
             for (String key : keys) {
@@ -1205,7 +1276,12 @@ public final class BucketManager {
         }
 
         /**
-         * 添加deleteAfterDays指令
+         * 添加 deleteAfterDays 指令
+         *
+         * @param bucket keys 所在 bucket
+         * @param days   天数
+         * @param keys   keys
+         * @return BatchOperations
          */
         public BatchOperations addDeleteAfterDaysOps(String bucket, int days, String... keys) {
             for (String key : keys) {

@@ -36,8 +36,9 @@ public class BucketReferAntiLeech {
      * 设置防盗链模式,
      * 0 - 关闭Refer防盗链, 1 - 开启Referer白名单，2 - 开启Referer黑名单
      *
-     * @param mode
-     * @throws Exception
+     * @param mode 防盗链模式
+     * @return 防盗链信息
+     * @throws Exception 异常
      */
     public BucketReferAntiLeech setMode(int mode) throws Exception {
         if (mode != 0 && mode != 1 && mode != 2) {
@@ -48,9 +49,10 @@ public class BucketReferAntiLeech {
     }
 
     /**
-     * 设置是否允许空referer，默认为true
+     * 设置是否允许空 referer，默认为 true
      *
-     * @param allowEmptyReferer
+     * @param allowEmptyReferer 是否允许空 设置是否允许空referer
+     * @return 防盗链信息
      */
     public BucketReferAntiLeech setAllowEmptyReferer(boolean allowEmptyReferer) {
         this.allowEmptyReferer = allowEmptyReferer;
@@ -58,11 +60,13 @@ public class BucketReferAntiLeech {
     }
 
     /**
-     * 设置pattern<br>
-     * pattern不可为空<br>
+     * 设置 pattern <br>
+     * pattern 不可为空<br>
      * 当前允许的匹配字符串格式分为三种: foo.com、*.foo.com、*，用;隔开
      *
-     * @param pattern
+     * @param pattern 防盗链匹配规则
+     * @return 防盗链信息
+     * @throws Exception 异常
      */
     public BucketReferAntiLeech setPattern(String pattern) throws Exception {
         if (pattern == null || pattern.isEmpty()) {
@@ -76,9 +80,9 @@ public class BucketReferAntiLeech {
      * 追加pattern<br>
      * pattern
      *
-     * @param pattern
-     * @return
-     * @throws Exception
+     * @param pattern  防盗链匹配规则
+     * @return 防盗链信息
+     * @throws Exception 异常
      */
     public BucketReferAntiLeech addPattern(String pattern) throws Exception {
         if (pattern == null || pattern.isEmpty()) {
@@ -94,7 +98,7 @@ public class BucketReferAntiLeech {
     /**
      * 编码成query参数格式
      *
-     * @return
+     * @return query
      */
     public String asQueryString() {
         final int allowEmptyReferer = this.allowEmptyReferer ? 1 : 0;

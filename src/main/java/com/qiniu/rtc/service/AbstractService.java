@@ -20,7 +20,7 @@ public abstract class AbstractService {
     /**
      * 初始化
      *
-     * @param auth
+     * @param auth 权限信息
      */
     public AbstractService(Auth auth) {
         if (null == auth) {
@@ -34,11 +34,11 @@ public abstract class AbstractService {
     /**
      * post json 接口
      *
-     * @param param
-     * @param urlPattern
-     * @param pt
-     * @return
-     * @throws QiniuException
+     * @param param      请求参数
+     * @param urlPattern urlPattern
+     * @param pt         url 参数
+     * @return 请求响应
+     * @throws QiniuException 异常
      */
     protected Response postCall(Object param, String urlPattern, Object... pt) throws QiniuException {
         //build url
@@ -51,11 +51,11 @@ public abstract class AbstractService {
     /**
      * delete call
      *
-     * @param param
-     * @param urlPattern
-     * @param pt
-     * @return
-     * @throws QiniuException
+     * @param param      请求参数
+     * @param urlPattern urlPattern
+     * @param pt         url 参数
+     * @return 请求响应
+     * @throws QiniuException 异常
      */
     protected Response deleteCall(Object param, String urlPattern, Object... pt) throws QiniuException {
         //build url
@@ -72,10 +72,10 @@ public abstract class AbstractService {
     /**
      * get request
      *
-     * @param urlPattern
-     * @param pt
-     * @return
-     * @throws QiniuException
+     * @param urlPattern urlPattern
+     * @param pt         url 参数
+     * @return 请求响应
+     * @throws QiniuException 异常
      */
     protected Response getCall(String urlPattern, Object... pt) throws QiniuException {
         //build url

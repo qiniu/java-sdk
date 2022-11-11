@@ -19,17 +19,15 @@ import java.io.InputStream;
  * <p>
  * 分片上传 v1
  * 参考文档：<a href="https://developer.qiniu.com/kodo/7443/shard-to-upload">分片上传</a>
- * <p/>
+ * <p>
  * 上传通过将一个文件分割为固定大小的块(4M)，每次上传一个块的内容（服务端只分块，没有分片）。
  * 等待所有块都上传完成之后，再将这些块拼接起来，构成一个完整的文件。
- * <p/>
  * <p>
  * 分片上传 v2
  * 参考文档：<a href="https://developer.qiniu.com/kodo/6364/multipartupload-interface">分片上传</a>
- * <p/>
+ * <p>
  * 上传通过将一个文件分割为固定大小的块(大小可配置，通过 Configuration.resumableUploadAPIV2BlockSize)，每次上传一个块的内容。
  * 等待所有块都上传完成之后，再将这些块拼接起来，构成一个完整的文件。
- * <p/>
  * <p>
  * 另外分片上传还支持纪录上传进度，如果本次上传被暂停，那么下次还可以从上次
  * 上次完成的文件偏移位置，继续开始上传，这样就实现了断点续传功能。

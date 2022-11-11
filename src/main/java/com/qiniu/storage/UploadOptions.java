@@ -48,6 +48,9 @@ public final class UploadOptions {
 
         /**
          * 用于服务器上传回调通知的自定义参数，参数的key必须以x: 开头  eg: x:foo
+         *
+         * @param params 用户自定义信息
+         * @return 构造器
          */
         public Builder params(StringMap params) {
             this.params = params;
@@ -55,7 +58,10 @@ public final class UploadOptions {
         }
 
         /**
-         * 用于设置meta数据，参数的key必须以x-qn-meta- 开头  eg: x-qn-meta-key
+         * 用于设置 meta 数据，参数的key必须以x-qn-meta- 开头  eg: x-qn-meta-key
+         *
+         * @param params meta数据
+         * @return 构造器
          */
         public Builder metaData(StringMap params) {
             this.metaDataParam = params;
@@ -64,6 +70,9 @@ public final class UploadOptions {
 
         /**
          * 指定上传文件的MimeType
+         *
+         * @param mimeType MimeType
+         * @return 构造器
          */
         public Builder mimeType(String mimeType) {
             this.mimeType = mimeType;
@@ -71,7 +80,10 @@ public final class UploadOptions {
         }
 
         /**
-         * 启用上传内容crc32校验
+         * 启用上传内容 crc32 校验
+         *
+         * @param checkCrc 是否启用 crc32 校验
+         * @return 构造器
          */
         public Builder checkCrc(boolean checkCrc) {
             this.checkCrc = checkCrc;

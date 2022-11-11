@@ -51,6 +51,7 @@ public final class StreamingManager {
      * 创建一个新的直播流对象，其鉴权方式默认和直播应用设置的鉴权方式一致
      *
      * @param streamKey 直播流名称，可包含 字母、数字、中划线、下划线；1 ~ 200 个字符长
+     * @throws QiniuException 异常
      */
     public void create(String streamKey) throws QiniuException {
         String path = "";
@@ -62,6 +63,8 @@ public final class StreamingManager {
      * 获取流对象的相关信息
      *
      * @param streamKey 直播流名称
+     * @return StreamAttribute
+     * @throws QiniuException 异常
      */
     public StreamAttribute attribute(String streamKey) throws QiniuException {
         String path = encodeKey(streamKey);
@@ -85,6 +88,8 @@ public final class StreamingManager {
      * @param live   是否直播中
      * @param prefix 流名称前缀
      * @param marker 下一次列举的位置
+     * @return StreamListing
+     * @throws QiniuException 异常
      */
     public StreamListing listStreams(boolean live, String prefix, String marker) throws QiniuException {
         StringMap map = new StringMap();
@@ -106,6 +111,7 @@ public final class StreamingManager {
      *
      * @param streamKey         流名称
      * @param expireAtTimestamp 禁用截至时间戳，单位秒
+     * @throws QiniuException 异常
      */
     public void disableTill(String streamKey, long expireAtTimestamp) throws QiniuException {
         String path = encodeKey(streamKey) + "/disabled";
@@ -117,6 +123,7 @@ public final class StreamingManager {
      * 启用流
      *
      * @param streamKey 流名称
+     * @throws QiniuException 异常
      */
     public void enable(String streamKey) throws QiniuException {
         disableTill(streamKey, 0);
@@ -126,6 +133,8 @@ public final class StreamingManager {
      * 获取流状态
      *
      * @param streamKey 流名称
+     * @return StreamStatus
+     * @throws QiniuException 异常
      */
     public StreamStatus status(String streamKey) throws QiniuException {
         String path = encodeKey(streamKey) + "/live";
@@ -137,6 +146,8 @@ public final class StreamingManager {
      *
      * @param streamKey 流名称
      * @param fileName  录制后保存的文件名
+     * @return String
+     * @throws QiniuException 异常
      */
     public String saveAs(String streamKey, String fileName) throws QiniuException {
         return saveAs(streamKey, fileName, 0, 0);
@@ -149,6 +160,8 @@ public final class StreamingManager {
      * @param fileName  录制后保存的文件名
      * @param start     录制开始的时间戳，单位秒
      * @param end       录制结束的时间戳，单位秒
+     * @return String
+     * @throws QiniuException 异常
      */
     public String saveAs(String streamKey, String fileName, long start, long end) throws QiniuException {
         return saveAs(streamKey, fileName, start, end, null);
@@ -163,6 +176,8 @@ public final class StreamingManager {
      * @param start     录制开始的时间戳，单位秒
      * @param end       录制结束的时间戳，单位秒
      * @param other     文档中指定的其它参数
+     * @return String
+     * @throws QiniuException 异常
      */
     public String saveAs(String streamKey, String fileName, long start, long end, StringMap other)
             throws QiniuException {
@@ -181,6 +196,8 @@ public final class StreamingManager {
      * @param streamKey 流名称
      * @param start     开始时间戳，单位秒
      * @param end       结束时间戳，单位秒
+     * @return ActivityRecords
+     * @throws QiniuException 异常
      */
     public ActivityRecords history(String streamKey, long start, long end) throws QiniuException {
         if (start <= 0 || end < 0 || (start >= end && end != 0)) {

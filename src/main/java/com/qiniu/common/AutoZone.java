@@ -61,6 +61,7 @@ public final class AutoZone extends Zone {
      * @param accessKey 账号 accessKey
      * @param bucket    空间名
      * @return 机房域名信息
+     * @throws QiniuException 异常
      */
     public ZoneInfo queryZoneInfo(String accessKey, String bucket) throws QiniuException {
         ZoneIndex index = new ZoneIndex(accessKey, bucket);

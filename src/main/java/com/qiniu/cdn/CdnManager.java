@@ -93,6 +93,7 @@ public final class CdnManager {
      * @param encryptKey     时间戳防盗链的签名密钥，从七牛后台获取
      * @param deadline       链接的有效期时间戳，是以秒为单位的Unix时间戳
      * @return signedUrl     最终的带时间戳防盗链的url
+     * @throws QiniuException 异常
      */
     public static String createTimestampAntiLeechUrl(
             String host, String fileName, final StringMap queryStringMap, String encryptKey, long deadline)
@@ -127,6 +128,7 @@ public final class CdnManager {
      *
      * @param urls 待刷新文件外链列表
      * @return 刷新请求的回复
+     * @throws QiniuException 异常
      */
     public CdnResult.RefreshResult refreshUrls(String[] urls) throws QiniuException {
         return refreshUrlsAndDirs(urls, null);
@@ -139,6 +141,7 @@ public final class CdnManager {
      *
      * @param dirs 待刷新目录列表
      * @return 刷新请求的回复
+     * @throws QiniuException 异常
      */
     public CdnResult.RefreshResult refreshDirs(String[] dirs) throws QiniuException {
         return refreshUrlsAndDirs(null, dirs);
@@ -152,6 +155,7 @@ public final class CdnManager {
      * @param urls 待刷新文件外链列表
      * @param dirs 待刷新目录列表
      * @return 刷新请求的回复
+     * @throws QiniuException 异常
      */
     public CdnResult.RefreshResult refreshUrlsAndDirs(String[] urls, String[] dirs) throws QiniuException {
         //check params
@@ -182,6 +186,7 @@ public final class CdnManager {
      *
      * @param urls 待预取的文件外链列表
      * @return 预取请求的回复
+     * @throws QiniuException 异常
      */
     public CdnResult.PrefetchResult prefetchUrls(String[] urls) throws QiniuException {
         if (urls != null && urls.length > MAX_API_PREFETCH_URL_COUNT) {
@@ -205,6 +210,7 @@ public final class CdnManager {
      * @param endDate     截至日期，格式为：2017-02-20
      * @param granularity 数据粒度，支持的取值为 5min ／ hour ／day
      * @return 获取带宽数据请求的回复
+     * @throws QiniuException 异常
      */
     public CdnResult.BandwidthResult getBandwidthData(String[] domains, String startDate, String endDate,
                                                       String granularity) throws QiniuException {
@@ -230,6 +236,7 @@ public final class CdnManager {
      * @param endDate     截至日期，格式为：2017-02-20
      * @param granularity 数据粒度，支持的取值为 5min ／ hour ／day
      * @return 获取流量数据请求的回复
+     * @throws QiniuException 异常
      */
     public CdnResult.FluxResult getFluxData(String[] domains, String startDate, String endDate,
                                             String granularity) throws QiniuException {
@@ -253,6 +260,7 @@ public final class CdnManager {
      * @param domains 待获取日志下载信息的域名列表
      * @param logDate 待获取日志的具体日期，格式为：2017-02-18
      * @return 获取日志下载链接的回复
+     * @throws QiniuException 异常
      */
     public CdnResult.LogListResult getCdnLogList(String[] domains, String logDate) throws QiniuException {
         HashMap<String, String> req = new HashMap<>();

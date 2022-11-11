@@ -8,6 +8,7 @@ public class Zone {
 
     // 区域名称：z0 华东  z1 华北  z2 华南  na0 北美  as0 东南亚
     private String region = "z0";
+
     /**
      * 上传，备用上传，备用上传IP和源站资源域名使用各个机房对应的域名
      */
@@ -34,6 +35,7 @@ public class Zone {
 
     /**
      * 华东机房相关域名
+     * @return 域名信息
      */
     public static Zone zone0() {
         return new Builder().region("z0")
@@ -48,6 +50,7 @@ public class Zone {
 
     /**
      * 华东机房相关域名
+     * @return 域名信息
      */
     public static Zone huadong() {
         return zone0();
@@ -55,6 +58,7 @@ public class Zone {
 
     /**
      * 华东机房内网上传相关域名
+     * @return 域名信息
      */
     public static Zone qvmZone0() {
         return new Builder().region("z0")
@@ -69,6 +73,7 @@ public class Zone {
 
     /**
      * 华东机房内网上传相关域名
+     * @return 域名信息
      */
     public static Zone qvmHuadong() {
         return qvmZone0();
@@ -76,6 +81,7 @@ public class Zone {
 
     /**
      * 华北机房相关域名
+     * @return 域名信息
      */
     public static Zone zone1() {
         return new Builder().region("z1")
@@ -90,6 +96,7 @@ public class Zone {
 
     /**
      * 华北机房相关域名
+     * @return 域名信息
      */
     public static Zone huabei() {
         return zone1();
@@ -97,6 +104,7 @@ public class Zone {
 
     /**
      * 华北机房内网上传相关域名
+     * @return 域名信息
      */
     public static Zone qvmZone1() {
         return new Builder().region("z1")
@@ -111,6 +119,7 @@ public class Zone {
 
     /**
      * 华北机房内网上传相关域名
+     * @return 域名信息
      */
     public static Zone qvmHuabei() {
         return qvmZone1();
@@ -118,6 +127,7 @@ public class Zone {
 
     /**
      * 华南机房相关域名
+     * @return 域名信息
      */
     public static Zone zone2() {
         return new Builder().region("z2")
@@ -132,6 +142,7 @@ public class Zone {
 
     /**
      * 华南机房相关域名
+     * @return 域名信息
      */
     public static Zone huanan() {
         return zone2();
@@ -139,6 +150,7 @@ public class Zone {
 
     /**
      * 北美机房相关域名
+     * @return 域名信息
      */
     public static Zone zoneNa0() {
         return new Builder().region("na0")
@@ -153,6 +165,7 @@ public class Zone {
 
     /**
      * 北美机房相关域名
+     * @return 域名信息
      */
     public static Zone beimei() {
         return zoneNa0();
@@ -160,6 +173,7 @@ public class Zone {
 
     /**
      * 新加坡相关域名
+     * @return 域名信息
      */
     public static Zone zoneAs0() {
         return new Builder().region("as0")
@@ -174,6 +188,7 @@ public class Zone {
 
     /**
      * 新加坡机房相关域名
+     * @return 域名信息
      */
     public static Zone xinjiapo() {
         return zoneAs0();
@@ -182,31 +197,59 @@ public class Zone {
     /**
      * 自动根据AccessKey和Bucket来判断所在机房，并获取相关的域名
      * 空间所在的对应机房可以在空间创建的时候选择，或者创建完毕之后，从后台查看
+     *
+     * @return 域名信息
      */
     public static Zone autoZone() {
         return new Builder().autoZone();
     }
 
+    /**
+     * 获取区域 ID
+     *
+     * @param zoneReqInfo token 信息
+     * @return 区域 ID
+     */
     public String getRegion(ZoneReqInfo zoneReqInfo) {
         return this.region;
     }
 
     /**
-     * 保留自动获取上传和资源抓取，更新相关域名接口
+     * 获取上传 HTTP URL
+     *
+     * @param zoneReqInfo  token 信息
+     * @return URL
      */
-
     public String getUpHttp(ZoneReqInfo zoneReqInfo) {
         return this.upHttp;
     }
 
+    /**
+     * 获取上传 HTTPS URL
+     *
+     * @param zoneReqInfo  token 信息
+     * @return URL
+     */
     public String getUpHttps(ZoneReqInfo zoneReqInfo) {
         return this.upHttps;
     }
 
+    /**
+     * 获取备用上传 HTTP URL
+     *
+     * @param zoneReqInfo  token 信息
+     * @return URL
+     */
     public String getUpBackupHttp(ZoneReqInfo zoneReqInfo) {
         return this.upBackupHttp;
     }
 
+    /**
+     * 获取备用上传 HTTPS URL
+     *
+     * @param zoneReqInfo  token 信息
+     * @return URL
+     */
     public String getUpBackupHttps(ZoneReqInfo zoneReqInfo) {
         return this.upBackupHttps;
     }
@@ -228,34 +271,69 @@ public class Zone {
     }
 
     /**
-     * 保留自动获取资源管理，资源列表，资源处理相关域名接口
+     * 获取 RS HTTP URL
+     *
+     * @param zoneReqInfo token 信息
+     * @return r
      */
     public String getRsHttp(ZoneReqInfo zoneReqInfo) {
         return rsHttp;
     }
 
+    /**
+     * 获取 RS HTTPS URL
+     *
+     * @param zoneReqInfo token 信息
+     * @return r
+     */
     public String getRsHttps(ZoneReqInfo zoneReqInfo) {
         return rsHttps;
     }
 
+    /**
+     * 获取 RSF HTTP URL
+     *
+     * @param zoneReqInfo token 信息
+     * @return r
+     */
     public String getRsfHttp(ZoneReqInfo zoneReqInfo) {
         return rsfHttp;
     }
 
+    /**
+     * 获取 RSF HTTPS URL
+     *
+     * @param zoneReqInfo token 信息
+     * @return r
+     */
     public String getRsfHttps(ZoneReqInfo zoneReqInfo) {
         return rsfHttps;
     }
 
+    /**
+     * 获取 API HTTP URL
+     *
+     * @param zoneReqInfo token 信息
+     * @return r
+     */
     public String getApiHttp(ZoneReqInfo zoneReqInfo) {
         return apiHttp;
     }
 
+    /**
+     * 获取 API HTTPS URL
+     *
+     * @param zoneReqInfo token 信息
+     * @return r
+     */
     public String getApiHttps(ZoneReqInfo zoneReqInfo) {
         return apiHttps;
     }
 
     /**
-     * 获取资源管理，资源列表，资源处理相关域名
+     * 获取区域 ID
+     *
+     * @return 区域 ID
      */
     public String getRegion() {
         return this.region;
@@ -391,14 +469,18 @@ public class Zone {
 
 
         /**
-         * 自动选择,其它参数设置无效
+         * 自动选择区域，其它参数设置无效
+         *
+         * @return 区域信息
          */
         public Zone autoZone() {
             return AutoZone.instance;
         }
 
         /**
-         * 返回构建好的Zone对象
+         * 构建 Zone 对象
+         *
+         * @return 区域信息
          */
         public Zone build() {
             return zone;

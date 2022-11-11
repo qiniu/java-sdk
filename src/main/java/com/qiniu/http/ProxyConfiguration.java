@@ -24,7 +24,7 @@ public final class ProxyConfiguration {
      * @param port        端口
      * @param user        用户名，无则填null
      * @param password    用户密码，无则填null
-     * @param type
+     * @param type        type
      */
     public ProxyConfiguration(String hostAddress, int port, String user, String password, Proxy.Type type) {
         this.hostAddress = hostAddress;

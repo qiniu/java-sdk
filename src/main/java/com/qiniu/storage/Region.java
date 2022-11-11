@@ -49,6 +49,8 @@ public class Region implements Cloneable {
 
     /**
      * 华东机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region region0() {
         return new Builder().
@@ -64,6 +66,8 @@ public class Region implements Cloneable {
 
     /**
      * 华东机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region huadong() {
         return region0();
@@ -72,6 +76,8 @@ public class Region implements Cloneable {
 
     /**
      * 华东浙江 2 机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region regionCnEast2() {
         return new Builder().
@@ -87,6 +93,8 @@ public class Region implements Cloneable {
 
     /**
      * 华东浙江 2 机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region huadongZheJiang2() {
         return regionCnEast2();
@@ -95,6 +103,8 @@ public class Region implements Cloneable {
 
     /**
      * 华东机房内网上传相关域名
+     *
+     * @return 区域信息
      */
     public static Region qvmRegion0() {
         return new Builder().
@@ -110,6 +120,8 @@ public class Region implements Cloneable {
 
     /**
      * 华东机房内网上传相关域名
+     *
+     * @return 区域信息
      */
     public static Region qvmHuadong() {
         return qvmRegion0();
@@ -117,6 +129,8 @@ public class Region implements Cloneable {
 
     /**
      * 华北机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region region1() {
         return new Builder().
@@ -132,6 +146,8 @@ public class Region implements Cloneable {
 
     /**
      * 华北机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region huabei() {
         return region1();
@@ -139,6 +155,8 @@ public class Region implements Cloneable {
 
     /**
      * 华北机房内网上传相关域名
+     *
+     * @return 区域信息
      */
     public static Region qvmRegion1() {
         return new Builder().
@@ -154,6 +172,8 @@ public class Region implements Cloneable {
 
     /**
      * 华北机房内网上传相关域名
+     *
+     * @return 区域信息
      */
     public static Region qvmHuabei() {
         return qvmRegion1();
@@ -161,6 +181,8 @@ public class Region implements Cloneable {
 
     /**
      * 华南机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region region2() {
         return new Builder().
@@ -176,6 +198,8 @@ public class Region implements Cloneable {
 
     /**
      * 华南机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region huanan() {
         return region2();
@@ -183,6 +207,8 @@ public class Region implements Cloneable {
 
     /**
      * 亚太-首尔机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region regionApNorthEast1() {
         return new Builder().
@@ -198,6 +224,8 @@ public class Region implements Cloneable {
 
     /**
      * 北美机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region regionNa0() {
         return new Builder().
@@ -213,6 +241,8 @@ public class Region implements Cloneable {
 
     /**
      * 北美机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region beimei() {
         return regionNa0();
@@ -220,6 +250,8 @@ public class Region implements Cloneable {
 
     /**
      * 新加坡相关域名
+     *
+     * @return 区域信息
      */
     public static Region regionAs0() {
         return new Builder().
@@ -235,6 +267,8 @@ public class Region implements Cloneable {
 
     /**
      * 新加坡机房相关域名
+     *
+     * @return 区域信息
      */
     public static Region xinjiapo() {
         return regionAs0();
@@ -380,6 +414,9 @@ public class Region implements Cloneable {
 
         /**
          * 自动选择,其它参数设置无效
+         *
+         * @param ucServer uc host
+         * @return 区域信息
          */
         public Region autoRegion(String ucServer) {
             return new AutoRegion(ucServer);
@@ -387,6 +424,8 @@ public class Region implements Cloneable {
 
         /**
          * 返回构建好的Region对象
+         *
+         * @return 区域信息
          */
         public Region build() {
             return region;

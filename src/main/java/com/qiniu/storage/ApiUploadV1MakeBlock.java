@@ -10,7 +10,6 @@ import java.io.InputStream;
  * 分片上传 v1 版 api: 创建块
  * 本接口用于为后续分片上传创建一个新的 block，同时上传该块第一个 chunk 数据。
  * <p>
- * <p>
  * 一个文件被分成多个 block ，一个块可以被分成多个 chunk
  * |----------------------------- file -----------------------------|
  * |------ block ------|------ block ------|------ block ------|...
@@ -32,7 +31,6 @@ import java.io.InputStream;
  * 4. 同一个 block 中的块上传需要依赖该块中上一次上传的返回的 ctx, 所以同一个块的上传无法实现并发，
  * 如果想实现并发，可以使一个 block 中仅包含一个 chunk, 也即 chunk size = 4M, make block 接口
  * 不依赖 ctx，可以实现并发；需要注意的一点是 ctx 的顺序必须与 block 在文件中的顺序一致。
- * <p>
  * <p>
  * https://developer.qiniu.com/kodo/1286/mkblk
  */

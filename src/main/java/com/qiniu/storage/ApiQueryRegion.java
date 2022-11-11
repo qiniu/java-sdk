@@ -98,6 +98,7 @@ public class ApiQueryRegion extends ApiUpload {
         /**
          * 获取 region id
          *
+         * @param region 区域信息
          * @return region id
          */
         public String getRegionId(Map<String, Object> region) {
@@ -121,6 +122,7 @@ public class ApiQueryRegion extends ApiUpload {
         /**
          * 获取 region 缓存有效期
          *
+         * @param region 区域信息
          * @return region 缓存有效期
          */
         public Long getRegionTTL(Map<String, Object> region) {
@@ -144,6 +146,7 @@ public class ApiQueryRegion extends ApiUpload {
         /**
          * 获取 region 上传的 Host 列表
          *
+         * @param region 区域信息
          * @return Host 列表
          */
         public List<String> getRegionUpHosts(Map<String, Object> region) {

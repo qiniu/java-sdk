@@ -45,7 +45,7 @@ public class RtcAppManager {
      * @param noAutoKickUser bool 类型，可选，禁止自动踢人（抢流）。默认为 false ，即同一个身份的 client (app/room/user) ，新的连
      *                       麦请求可以成功，旧连接被关闭。
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     @Deprecated
     public Response createApp(String hub, String title, int maxUsers,
@@ -70,7 +70,7 @@ public class RtcAppManager {
     /**
      * @param appId 房间所属帐号的 app
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     @Deprecated
     public Response getApp(String appId) throws QiniuException {
@@ -82,7 +82,7 @@ public class RtcAppManager {
     /**
      * @param appId 房间所属帐号的 app
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     @Deprecated
     public Response deleteApp(String appId) throws QiniuException {
@@ -99,7 +99,7 @@ public class RtcAppManager {
      * @param noAutoKickUser bool 类型，可选，禁止自动踢人（抢流）。默认为 false ，即同一个身份的 client (app/room/user) ，新的连
      *                       麦请求可以成功，旧连接被关闭。
      * @return Response      如果不读取Response的数据，请注意调用Close方法关闭
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     @Deprecated
     public Response updateApp(String appId, String hub, String title, int maxUsers, boolean noAutoKickUser) throws

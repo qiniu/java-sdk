@@ -42,6 +42,9 @@ public class Headers {
 
     /**
      * Returns the last value corresponding to the specified field, or null.
+     *
+     * @param name header key
+     * @return header value
      */
     public String get(String name) {
         return innerHeaders.get(name);
@@ -49,6 +52,8 @@ public class Headers {
 
     /**
      * Returns an immutable case-insensitive set of header names.
+     *
+     * @return header names
      */
     public Set<String> names() {
         return innerHeaders.names();
@@ -56,6 +61,9 @@ public class Headers {
 
     /**
      * Returns an immutable list of the header values for {@code name}.
+     *
+     * @param name name
+     * @return values for {@code name}
      */
     public List<String> values(String name) {
         return innerHeaders.values(name);
