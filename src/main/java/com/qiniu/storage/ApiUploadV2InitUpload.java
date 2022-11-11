@@ -9,7 +9,6 @@ import com.qiniu.http.MethodType;
  * 使用 Multipart Upload 方式上传数据前，必须先调用 API 来获取一个全局唯一的 UploadId ，后续的块数据通过 uploadPart API 上传，
  * 整个文件完成 completeMultipartUpload API ，已经上传块的删除 abortMultipartUpload API 都依赖该 UploadId 。
  * <p>
- * <p>
  * 一个文件被分成多个 part，上传所有的 part，然后在七牛云根据 part 信息合成文件
  * |----------------------------- file -----------------------------|
  * |------ part ------|------ part ------|------ part ------|...
@@ -30,7 +29,6 @@ import com.qiniu.http.MethodType;
  * 3. 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖
  * 4. {@link ApiUploadV2InitUpload}、{@link ApiUploadV2UploadPart}、{@link ApiUploadV2CompleteUpload}、{@link ApiUploadV2ListParts}、
  * {@link ApiUploadV2AbortUpload} 分片 V2 API的 key 需要统一（要么有设置且相同，要么均不设置）
- * <p>
  * <p>
  * https://developer.qiniu.com/kodo/6365/initialize-multipartupload
  */

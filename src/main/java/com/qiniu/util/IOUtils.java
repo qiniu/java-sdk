@@ -14,11 +14,11 @@ public class IOUtils {
 
     /**
      * 输入InputSteam，返回byte[].
-     * 参考：https://github.com/apache/commons-io/blob/master/src/main/java/org/apache/commons/io/IOUtils.java<br>
+     * 参考：<a href="https://github.com/apache/commons-io/blob/master/src/main/java/org/apache/commons/io/IOUtils.java"> 链接 </a><br>
      *
-     * @param input
-     * @return
-     * @throws IOException
+     * @param input 输入流
+     * @return byte 数组
+     * @throws IOException 异常
      */
     public static byte[] toByteArray(final InputStream input) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {

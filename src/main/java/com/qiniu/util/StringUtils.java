@@ -15,6 +15,9 @@ public final class StringUtils {
     }
 
     /**
+     * @param array array
+     * @param sep   sep
+     * @return 拼接后的字符串
      * @see #join(Object[] array, String sep, String prefix)
      */
     public static String join(Object[] array, String sep) {
@@ -22,6 +25,9 @@ public final class StringUtils {
     }
 
     /**
+     * @param list list
+     * @param sep  sep
+     * @return 拼接后的字符串
      * @see #join(Object[] array, String sep, String prefix)
      */
     public static String join(Collection list, String sep) {
@@ -29,6 +35,10 @@ public final class StringUtils {
     }
 
     /**
+     * @param list   list
+     * @param sep    sep
+     * @param prefix 前缀
+     * @return 拼接后的字符串
      * @see #join(Object[] array, String sep, String prefix)
      */
     public static String join(Collection list, String sep, String prefix) {

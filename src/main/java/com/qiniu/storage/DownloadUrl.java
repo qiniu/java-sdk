@@ -62,7 +62,7 @@ public class DownloadUrl {
      * 如果希望浏览器的动作是下载而不是打开，可以给该资源URL添加参数 attname 来指定文件名
      *
      * @param attname 文件名
-     * @return
+     * @return DownloadUrl
      */
     public DownloadUrl setAttname(String attname) {
         this.attname = attname;
@@ -90,13 +90,13 @@ public class DownloadUrl {
      * 配置 style【可选】
      * 如果觉得 fop 这样的形式够冗长，还可以为这些串行的 fop 集合定义一个友好别名。如此一来，就可以用友好URL风格进行访问，这个别名就是 style 。
      * eg:
-     * > 对 userBucket 的 fop（imageView2/2/w/320/h/480） 使用 style 的方式, 分隔符为 "-"
-     * >> 使用 qrsctl 命令定义 style: （qrsctl separator <bucket> <styleSeparator>）
-     * >> qrsctl separator userBucket -
-     * >> 定义数据处理的别名为 aliasName: (qrsctl style <bucket> <aliasName> <fop>)
-     * >> qrsctl style userBucket iphone imageView2/2/w/320/h/480
+     *     对 userBucket 的 fop（imageView2/2/w/320/h/480） 使用 style 的方式, 分隔符为 "-"
+     *     使用 qrsctl 命令定义 style: （qrsctl separator [bucket] [styleSeparator]）
+     *     qrsctl separator userBucket -
+     *     定义数据处理的别名为 aliasName: (qrsctl style [bucket] [aliasName] [fop])
+     *     qrsctl style userBucket iphone imageView2/2/w/320/h/480
      * <p>
-     * https://developer.qiniu.com/dora/6217/directions-for-use-pfop
+     * <a href="https://developer.qiniu.com/dora/6217/directions-for-use-pfop"> 相关链接 </a>
      *
      * @param style          style 名【必须】
      * @param styleSeparator url 和数据处理之间的分隔符【必须】

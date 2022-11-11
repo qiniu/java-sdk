@@ -61,6 +61,8 @@ public class SmsManager {
      * @param templateId 模板Id，必填
      * @param mobiles    手机号码数组，必填
      * @param parameters 参数,必填
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response sendMessage(String templateId, String[] mobiles, Map<String, String> parameters)
             throws QiniuException {
@@ -78,6 +80,8 @@ public class SmsManager {
      * @param templateId 模板Id，必填
      * @param mobile     手机号码，必填
      * @param parameters 参数,必填
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response sendSingleMessage(String templateId, String mobile, Map<String, String> parameters)
             throws QiniuException {
@@ -95,6 +99,8 @@ public class SmsManager {
      * @param templateId 模板Id，必填
      * @param mobile     手机号码，必填
      * @param parameters 参数,必填
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response sendOverseaMessage(String templateId, String mobile, Map<String, String> parameters)
             throws QiniuException {
@@ -112,6 +118,8 @@ public class SmsManager {
      * @param mobiles 手机号码数组，必填
      * @param content 短信内容，必须是已经审核通过的签名和模版，必填。
      *                例如：【七牛云】您的验证码是 287712，5分钟内有效
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response sendFulltextMessage(String[] mobiles, String content) throws QiniuException {
         String requestUrl = String.format("%s/v1/message/fulltext", configuration.smsHost());
@@ -128,6 +136,8 @@ public class SmsManager {
      *                    取值范围为: "passed"(通过), "rejected"(未通过), "reviewing"(审核中)。
      * @param page        页码。默认为 1,非必填
      * @param pageSize    分页大小。默认为 20,非必填
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response describeSignature(String auditStatus, int page, int pageSize) throws QiniuException {
         String requestUrl = String.format("%s/v1/signature", configuration.smsHost());
@@ -158,6 +168,8 @@ public class SmsManager {
      *                  store_name 电商平台店铺名的全称或简称
      *                  trade_name 商标名的全称或简称
      * @param pics      签名对应的资质证明图片进行 base64 编码格式转换后的字符串,非必填
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response createSignature(String signature, String source, String[] pics) throws QiniuException {
         String requestUrl = String.format("%s/v1/signature", configuration.smsHost());
@@ -173,6 +185,8 @@ public class SmsManager {
      *
      * @param signatureId 签名Id, 必填
      * @param signature   签名,必填
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response modifySignature(String signatureId, String signature) throws QiniuException {
         String reqUrl = String.format("%s/v1/signature/%s", configuration.smsHost(), signatureId);
@@ -185,6 +199,8 @@ public class SmsManager {
      * 删除签名  审核不通过的情况下才可以重新编辑签名，已经审核通过的签名无法重新编辑。
      *
      * @param signatureId 签名Id, 必填
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response deleteSignature(String signatureId) throws QiniuException {
         String requestUrl = String.format("%s/v1/signature/%s", configuration.smsHost(), signatureId);
@@ -198,6 +214,8 @@ public class SmsManager {
      *                    取值范围为: "passed"(通过), "rejected"(未通过), "reviewing"(审核中)。
      * @param page        页码。默认为 1,非必填
      * @param pageSize    分页大小。默认为 20,非必填
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response describeTemplate(String auditStatus, int page, int pageSize) throws QiniuException {
         String requestUrl = String.format("%s/v1/template", configuration.smsHost());
@@ -218,7 +236,9 @@ public class SmsManager {
     /**
      * 查询单个模板信息
      *
-     * @param templateId  模板ID
+     * @param templateId 模板ID
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response describeTemplate(String templateId) throws QiniuException {
         String requestUrl = String.format("%s/v1/template/%s", configuration.smsHost(), templateId);
@@ -228,7 +248,9 @@ public class SmsManager {
     /**
      * 查询单个模板信息
      *
-     * @param templateId  模板ID
+     * @param templateId 模板ID
+     * @return Response
+     * @throws QiniuException 异常
      */
     public TemplateInfo.Item describeTemplateItem(String templateId) throws QiniuException {
         Response resp = describeTemplate(templateId);
@@ -245,6 +267,8 @@ public class SmsManager {
      *                    取值范围为: notification (通知类短信), verification (验证码短信), marketing (营销类短信)。
      * @param description 申请理由简述,必填
      * @param signatureId 已经审核通过的签名,必填
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response createTemplate(String name, String template, String type, String description, String signatureId)
             throws QiniuException {
@@ -266,6 +290,8 @@ public class SmsManager {
      * @param template    模板内容,必填
      * @param description 申请理由简述,必填
      * @param signatureId 已经审核通过的签名,必填
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response modifyTemplate(String templateId, String name, String template, String description,
                                    String signatureId) throws QiniuException {
@@ -282,6 +308,8 @@ public class SmsManager {
      * 删除模板
      *
      * @param templateId 模板Id, 必填
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response deleteTemplate(String templateId) throws QiniuException {
         String requestUrl = String.format("%s/v1/template/%s", configuration.smsHost(), templateId);

@@ -11,7 +11,6 @@ import java.io.InputStream;
  * 分片上传 v2 版 api: 分块上传数据
  * 初始化一个 Multipart Upload 任务之后，可以根据指定的 EncodedObjectName 和 UploadId 来分 Part 上传数据。
  * <p>
- * <p>
  * 一个文件被分成多个 part，上传所有的 part，然后在七牛云根据 part 信息合成文件
  * |----------------------------- file -----------------------------|
  * |------ part ------|------ part ------|------ part ------|...
@@ -32,7 +31,6 @@ import java.io.InputStream;
  * 3. 如果你用同一个 PartNumber 上传了新的数据，那么服务端已有的这个号码的 Part 数据将被覆盖
  * 4. {@link ApiUploadV2InitUpload}、{@link ApiUploadV2UploadPart}、{@link ApiUploadV2CompleteUpload}、{@link ApiUploadV2ListParts}、
  * {@link ApiUploadV2AbortUpload} 分片 V2 API的 key 需要统一（要么有设置且相同，要么均不设置）
- * <p>
  * <p>
  * https://developer.qiniu.com/kodo/6366/upload-part
  */

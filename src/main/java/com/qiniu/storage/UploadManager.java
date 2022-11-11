@@ -119,7 +119,7 @@ public final class UploadManager {
      *                    用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
      * @param mime        文件 mime type【可选】
      * @param checkCrc    是否检测 crc【可选】
-     * @return
+     * @return Response
      * @throws QiniuException 上传失败异常
      */
     public Response put(InputStream inputStream, long size, String key, String token, StringMap params,
@@ -143,7 +143,7 @@ public final class UploadManager {
      * @param data  上传的数据【必须】
      * @param key   上传数据保存的文件名【可选】
      * @param token 上传凭证【必须】
-     * @return
+     * @return Response
      * @throws QiniuException 上传失败异常
      */
     public Response put(final byte[] data, final String key, final String token) throws QiniuException {
@@ -162,7 +162,7 @@ public final class UploadManager {
      *                 用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
      * @param mime     指定文件mimetype【可选】
      * @param checkCrc 是否验证crc32【可选】
-     * @return
+     * @return Response
      * @throws QiniuException 上传失败异常
      */
     public Response put(final byte[] data, final String key, final String token, StringMap params,
@@ -181,6 +181,8 @@ public final class UploadManager {
      * @param filePath 上传的文件路径【必须】
      * @param key      上传文件保存的文件名【可选】
      * @param token    上传凭证【必须】
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response put(String filePath, String key, String token) throws QiniuException {
         return put(filePath, key, token, null, null, false);
@@ -209,6 +211,8 @@ public final class UploadManager {
      *                 用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
      * @param mime     指定文件mimetype【可选】
      * @param checkCrc 是否验证crc32【可选】
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response put(String filePath, String key, String token, StringMap params,
                         String mime, boolean checkCrc) throws QiniuException {
@@ -233,6 +237,8 @@ public final class UploadManager {
      * @param file  上传的文件对象【必须】
      * @param key   上传文件保存的文件名【可选】
      * @param token 上传凭证【必须】
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response put(File file, String key, String token) throws QiniuException {
         return put(file, key, token, null, null, false);
@@ -256,8 +262,11 @@ public final class UploadManager {
      * @param file     上传的文件对象【必须】
      * @param key      上传文件保存的文件名【可选】
      * @param token    上传凭证【必须】
+     * @param params   用户自定义信息【可选】
      * @param mime     指定文件mimetype【可选】
      * @param checkCrc 是否验证crc32【可选】
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response put(File file, String key, String token, StringMap params,
                         String mime, boolean checkCrc) throws QiniuException {
@@ -296,7 +305,7 @@ public final class UploadManager {
      * @param mime     指定文件mimetype【可选】
      * @param checkCrc 是否验证crc32【可选】
      * @param handler  上传完成的回调函数【必须】
-     * @throws IOException 上传异常
+     * @throws QiniuException 上传异常
      */
     public void asyncPut(final byte[] data, final String key, final String token, StringMap params,
                          String mime, boolean checkCrc, UpCompletionHandler handler) throws IOException {
@@ -333,6 +342,8 @@ public final class UploadManager {
      *               自定义文件 metadata 信息，key 需要增加前缀 x-qn-meta- ：如 params.put("x-qn-meta-key", "foo")
      *               用户自定义变量，key 需要增加前缀 x: ：如 params.put("x:foo", "foo")
      * @param mime   指定文件mimetype【可选】
+     * @return Response
+     * @throws QiniuException 上传异常
      */
     public Response put(InputStream stream, String key, String token, StringMap params,
                         String mime) throws QiniuException {

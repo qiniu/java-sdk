@@ -14,11 +14,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 七牛云rtc java sdk
+ * 七牛云 rtc java sdk
  * qrtc java sdk api
  *
- * @QRTC TEAM
- * @Version 8.0
+ * @author QRTC TEAM
+ * @version 8.0
  */
 public class QRTC {
     //版本号
@@ -35,7 +35,10 @@ public class QRTC {
     /**
      * 初始化QRTCClient
      *
-     * @return
+     * @param accessKey accessKey
+     * @param secretKey secretKey
+     * @param appId     appId
+     * @return QRTCClient
      */
     public static QRTCClient init(String accessKey, String secretKey, String appId) {
         if (null == appId || null == accessKey || null == secretKey) {
@@ -53,9 +56,11 @@ public class QRTC {
     /**
      * 创建app
      *
-     * @param appParam APP创建参数
-     * @return
-     * @throws QiniuException
+     * @param appParam  APP创建参数
+     * @param accessKey accessKey
+     * @param secretKey secretKey
+     * @return QRTCResult
+     * @throws QiniuException 异常
      */
     public static QRTCResult<AppResult> createApp(AppParam appParam, String accessKey, String secretKey) throws QiniuException {
         Response response = null;
@@ -73,7 +78,7 @@ public class QRTC {
      *
      * @param response
      * @return
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     private static QRTCResult<AppResult> formatCreateAppResult(Response response) throws QiniuException {
         if (null == response || StringUtils.isNullOrEmpty(response.bodyString())) {
@@ -90,7 +95,7 @@ public class QRTC {
      * @param accessKey
      * @param secretKey
      * @return
-     * @throws QiniuException
+     * @throws QiniuException 异常
      */
     private static Response fetchCreateApp(AppParam appParam, String accessKey, String secretKey) throws QiniuException {
         AppService appService = new AppService(Auth.create(accessKey, secretKey));
@@ -101,8 +106,8 @@ public class QRTC {
     /**
      * 根据appId 获取当前的client
      *
-     * @param appId
-     * @return
+     * @param appId appId
+     * @return QRTCClient
      */
     public static QRTCClient getClient(String appId) {
         return holder.get(appId);

@@ -12,7 +12,7 @@ import com.qiniu.util.StringUtils;
  * 对七牛空间中的文件进行持久化处理，适用于官方的fop指令和客户开发的ufop指令
  * 例如图片处理指令，视频转码指令等
  *
- * @link http://developer.qiniu.com/dora
+ * <a href="http://developer.qiniu.com/dora"> 相关链接 </a>
  */
 public final class OperationManager {
     /**
@@ -66,7 +66,8 @@ public final class OperationManager {
      * @param fops   fops指令，如果有多个指令，需要使用分号(;)进行拼接，例如 avthumb/mp4/xxx|saveas/xxx;vframe/jpg/xxx|saveas/xxx
      * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
      * @throws QiniuException 触发失败异常，包含错误响应等信息
-     * @link http://developer.qiniu.com/dora/api/persistent-data-processing-pfop
+     *
+     *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 链接 </a>
      * @deprecated 数据持久化处理时，请指定 pipeline 参数以保障处理效率
      */
     public String pfop(String bucket, String key, String fops) throws QiniuException {
@@ -82,7 +83,7 @@ public final class OperationManager {
      * @param params notifyURL、force、pipeline 等参数
      * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
      * @throws QiniuException 触发失败异常，包含错误响应等信息
-     * @link http://developer.qiniu.com/dora/api/persistent-data-processing-pfop
+     *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 相关链接 </a>
      */
     public String pfop(String bucket, String key, String fops, StringMap params) throws QiniuException {
         params = params == null ? new StringMap() : params;
@@ -112,7 +113,7 @@ public final class OperationManager {
      * @param notifyURL 处理结果通知地址，任务完成后自动以POST方式将处理结果提交到指定的地址
      * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
      * @throws QiniuException 触发失败异常，包含错误响应等信息
-     * @link http://developer.qiniu.com/dora/api/persistent-data-processing-pfop
+     *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 相关链接 </a>
      */
     public String pfop(String bucket, String key, String fops, String pipeline, String notifyURL)
             throws QiniuException {
@@ -130,7 +131,7 @@ public final class OperationManager {
      * @param force    用于对同一个指令进行强制处理时指定，一般用于覆盖空间已有文件或者重试失败的指令
      * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
      * @throws QiniuException 触发失败异常，包含错误响应等信息
-     * @link http://developer.qiniu.com/dora/api/persistent-data-processing-pfop
+     *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 相关链接 </a>
      */
     public String pfop(String bucket, String key, String fops, String pipeline, boolean force)
             throws QiniuException {
@@ -149,7 +150,7 @@ public final class OperationManager {
      * @param force     用于对同一个指令进行强制处理时指定，一般用于覆盖空间已有文件或者重试失败的指令
      * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
      * @throws QiniuException 触发失败异常，包含错误响应等信息
-     * @link http://developer.qiniu.com/dora/api/persistent-data-processing-pfop
+     *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 相关链接 </a>
      */
     public String pfop(String bucket, String key, String fops, String pipeline, String notifyURL, boolean force)
             throws QiniuException {
@@ -160,8 +161,11 @@ public final class OperationManager {
 
     /**
      * 根据persistentId查询任务状态
-     *
      * Use {@link OperationManager#prefop(String bucket, String persistentId)} instead
+     *
+     * @param persistentId 操作 ID
+     * @return OperationStatus
+     * @throws QiniuException 异常
      */
     @Deprecated
     public OperationStatus prefop(String persistentId) throws QiniuException {
@@ -171,7 +175,13 @@ public final class OperationManager {
     /**
      * 根据persistentId查询任务状态
      * 返回结果的 class
-     * Use {@link OperationManager#prefop(String bucket, String persistentId, Class<T>)} instead
+     * Use {@link OperationManager#prefop(String, String, Class) } instead
+     *
+     * @param <T>          泛型
+     * @param persistentId 操作 ID
+     * @param retClass     返回类型
+     * @return T  retClass 声明类的对象
+     * @throws QiniuException 异常
      */
     @Deprecated
     public <T> T prefop(String persistentId, Class<T> retClass) throws QiniuException {
@@ -187,6 +197,11 @@ public final class OperationManager {
 
     /**
      * 根据persistentId查询任务状态，如果您配置的是 AutoRegion 请使用这个方法进行 prefop
+     *
+     * @param bucket       空间名
+     * @param persistentId 操作 ID
+     * @return OperationStatus
+     * @throws QiniuException 异常
      */
     public OperationStatus prefop(String bucket, String persistentId) throws QiniuException {
         return prefop(bucket, persistentId, OperationStatus.class);
@@ -195,6 +210,13 @@ public final class OperationManager {
     /**
      * 根据 persistentId 查询任务状态，如果您配置的是 AutoRegion 请使用这个方法进行 prefop
      * 返回结果的 class
+     *
+     * @param <T>          泛型
+     * @param bucket       空间名
+     * @param persistentId 操作 ID
+     * @param retClass     返回对象类型
+     * @return T
+     * @throws QiniuException 异常
      */
     public <T> T prefop(String bucket, String persistentId, Class<T> retClass) throws QiniuException {
         String url = String.format("%s/status/get/prefop?id=%s", configuration.apiHost(auth.accessKey, bucket), persistentId);

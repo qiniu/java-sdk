@@ -15,7 +15,7 @@ public class CallbackService extends AbstractService {
     /**
      * 初始化
      *
-     * @param auth
+     * @param auth auth
      */
     public CallbackService(Auth auth) {
         super(auth);
@@ -24,10 +24,10 @@ public class CallbackService extends AbstractService {
     /**
      * 设置http业务回调
      *
-     * @param appId
-     * @param param
-     * @return
-     * @throws QiniuException
+     * @param appId appId
+     * @param param param
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response setHttpCallback(String appId, CallbackParam param) throws QiniuException {
         if (null == param

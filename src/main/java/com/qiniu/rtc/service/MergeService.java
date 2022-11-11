@@ -13,7 +13,7 @@ public class MergeService extends AbstractService {
     /**
      * 初始化
      *
-     * @param auth
+     * @param auth auth
      */
     public MergeService(Auth auth) {
         super(auth);
@@ -22,9 +22,11 @@ public class MergeService extends AbstractService {
     /**
      * 创建合流任务
      *
-     * @param appId
-     * @param roomName
-     * @return
+     * @param mergeParam 合流业务请求参数
+     * @param appId      appId
+     * @param roomName   roomName
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response createMergeJob(MergeParam mergeParam, String appId, String roomName) throws QiniuException {
         String urlPattern = "/v3/apps/%s/rooms/%s/merge_job";
@@ -34,10 +36,10 @@ public class MergeService extends AbstractService {
     /**
      * 更新合流track 信息
      *
-     * @param mergeTrackParam
-     * @param param
-     * @return
-     * @throws QiniuException
+     * @param mergeTrackParam MergeTrackParam
+     * @param param           UrlParam
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response updateMergeTrack(MergeTrackParam mergeTrackParam, UrlParam param)
             throws QiniuException {
@@ -49,10 +51,10 @@ public class MergeService extends AbstractService {
     /**
      * 更新合流水印
      *
-     * @param watermarksParam
-     * @param urlParam
-     * @return
-     * @throws QiniuException
+     * @param watermarksParam WatermarksParam
+     * @param urlParam        UrlParam
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response updateMergeWatermarks(WatermarksParam watermarksParam, UrlParam urlParam)
             throws QiniuException {
@@ -63,11 +65,11 @@ public class MergeService extends AbstractService {
     /**
      * 停止合流任务
      *
-     * @param appId
-     * @param roomName
-     * @param jobId
-     * @return
-     * @throws QiniuException
+     * @param appId    appId
+     * @param roomName roomName
+     * @param jobId    jobId
+     * @return Response
+     * @throws QiniuException 异常
      */
     public Response stopMergeJob(String appId, String roomName, String jobId) throws QiniuException {
         String urlPattern = "/v3/apps/%s/rooms/%s/merge_job/%s";

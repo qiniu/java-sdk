@@ -19,8 +19,8 @@ public final class FileRecorder implements Recorder {
     /**
      * 断点记录文件保存的目录
      *
-     * @param directory
-     * @throws IOException
+     * @param directory 目录
+     * @throws IOException 异常
      */
     public FileRecorder(String directory) throws IOException {
         this(new File(directory));
@@ -29,8 +29,8 @@ public final class FileRecorder implements Recorder {
     /**
      * 断点记录文件保存的目录
      *
-     * @param directory
-     * @throws IOException
+     * @param directory 目录
+     * @throws IOException 异常
      */
     public FileRecorder(File directory) throws IOException {
         this.directory = directory;

@@ -8,9 +8,9 @@ public final class UploadPolicy {
 
     /**
      * 指定上传的目标资源空间 Bucket 和资源键 Key（最大为 750 字节）。有三种格式：
-     * <bucket>，表示允许用户上传文件到指定的 bucket。在这种格式下文件只能新增（分片上传 v1 版 需要指定 insertOnly 为 1 才是新增，否则也为覆盖上传），若已存在同名资源（且文件内容/etag不一致），上传会失败；若已存在资源的内容/etag一致，则上传会返回成功。
-     * <bucket>:<key>，表示只允许用户上传指定 key 的文件。在这种格式下文件默认允许修改，若已存在同名资源则会被覆盖。如果只希望上传指定 key 的文件，并且不允许修改，那么可以将下面的 insertOnly 属性值设为 1。
-     * <bucket>:<keyPrefix>，表示只允许用户上传指定以 keyPrefix 为前缀的文件，当且仅当 isPrefixalScope 字段为 1 时生效，isPrefixalScope 为 1 时无法覆盖上传。
+     * [bucket]，表示允许用户上传文件到指定的 bucket。在这种格式下文件只能新增（分片上传 v1 版 需要指定 insertOnly 为 1 才是新增，否则也为覆盖上传），若已存在同名资源（且文件内容/etag不一致），上传会失败；若已存在资源的内容/etag一致，则上传会返回成功。
+     * [bucket]:[key]，表示只允许用户上传指定 key 的文件。在这种格式下文件默认允许修改，若已存在同名资源则会被覆盖。如果只希望上传指定 key 的文件，并且不允许修改，那么可以将下面的 insertOnly 属性值设为 1。
+     * [bucket]:[keyPrefix]，表示只允许用户上传指定以 keyPrefix 为前缀的文件，当且仅当 isPrefixalScope 字段为 1 时生效，isPrefixalScope 为 1 时无法覆盖上传。
      */
     public final String scope;
 
@@ -37,7 +37,7 @@ public final class UploadPolicy {
 
     /**
      * Web 端文件上传成功后，浏览器执行 303 跳转的 URL。通常用于表单上传。
-     * 文件上传成功后会跳转到 <returnUrl>?upload_ret=<queryString>，<queryString>包含 returnBody 内容。
+     * 文件上传成功后会跳转到 [returnUrl]?upload_ret=[queryString]，[queryString]包含 returnBody 内容。
      * 如不设置 returnUrl，则直接将 returnBody 的内容返回给客户端。
      */
     public String returnUrl;
@@ -53,7 +53,7 @@ public final class UploadPolicy {
      * 上传成功后，七牛云向业务服务器发送 POST 请求的 URL。必须是公网上可以正常进行 POST 请求并能响应 HTTP/1.1 200 OK 的有效 URL。
      * 另外，为了给客户端有一致的体验，我们要求 callbackUrl 返回包 Content-Type 为 “application/json”，即返回的内容必须是合法的
      * JSON 文本。出于高可用的考虑，本字段允许设置多个 callbackUrl（用英文符号 ; 分隔），在前一个 callbackUrl 请求失败的时候会依次
-     * 重试下一个 callbackUrl。一个典型例子是：http://<ip1>/callback;http://<ip2>/callback，并同时指定下面的 callbackHost 字段。
+     * 重试下一个 callbackUrl。一个典型例子是：http://[ip1]/callback;http://[ip2]/callback，并同时指定下面的 callbackHost 字段。
      * 在 callbackUrl 中使用 ip 的好处是减少对 dns 解析的依赖，可改善回调的性能和稳定性。指定 callbackUrl，必须指定 callbackbody，
      * 且值不能为空
      */
@@ -67,7 +67,7 @@ public final class UploadPolicy {
     /**
      * 上传成功后，七牛云向业务服务器发送 Content-Type: application/x-www-form-urlencoded 的 POST 请求。业务服务器可以通过直接读取
      * 请求的 query 来获得该字段，支持魔法变量和自定义变量。callbackBody 要求是合法的 url query string。
-     * 例如 key=$(key)&hash=$(etag)&w=$(imageInfo.width)&h=$(imageInfo.height)。如果 callbackBodyType 指定为 application/json，
+     * 如果 callbackBodyType 指定为 application/json，
      * 则 callbackBody 应为 json 格式，例如:{“key”:"$(key)",“hash”:"$(etag)",“w”:"$(imageInfo.width)",“h”:"$(imageInfo.height)"}。
      */
     public String callbackBody;

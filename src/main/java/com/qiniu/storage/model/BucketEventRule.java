@@ -64,7 +64,7 @@ public class BucketEventRule {
     /**
      * 获取规则名称，在设置的bucket中规则名称是唯一的
      *
-     * @return
+     * @return 规则名称
      */
     public String getName() {
         return name;
@@ -73,7 +73,8 @@ public class BucketEventRule {
     /**
      * 规则名称，在设置的bucket中规则名称需要是唯一的
      *
-     * @param name
+     * @param name 规则名称
+     * @return 规则信息
      */
     public BucketEventRule setName(String name) {
         this.name = name;
@@ -83,7 +84,7 @@ public class BucketEventRule {
     /**
      * 获取前缀，以该前缀开头的文件应用此规则
      *
-     * @return
+     * @return 前缀
      */
     public String getPrefix() {
         return prefix;
@@ -92,8 +93,8 @@ public class BucketEventRule {
     /**
      * 设置前缀，以该前缀开头的文件应用此规则
      *
-     * @param prefix
-     * @return
+     * @param prefix 前缀
+     * @return 规则信息
      */
     public BucketEventRule setPrefix(String prefix) {
         this.prefix = prefix;
@@ -103,7 +104,7 @@ public class BucketEventRule {
     /**
      * 获取后缀，以该后缀结尾的文件应用此规则
      *
-     * @return
+     * @return 后缀
      */
     public String getSuffix() {
         return suffix;
@@ -112,8 +113,8 @@ public class BucketEventRule {
     /**
      * 设置后缀，以该后缀结尾的文件应用此规则
      *
-     * @param suffix
-     * @return
+     * @param suffix 后缀
+     * @return 规则信息
      */
     public BucketEventRule setSuffix(String suffix) {
         this.suffix = suffix;
@@ -123,7 +124,7 @@ public class BucketEventRule {
     /**
      * 获取事件类型，可以有多个
      *
-     * @return
+     * @return 事件类型
      */
     public String[] getEvents() {
         return events;
@@ -133,8 +134,8 @@ public class BucketEventRule {
      * 设置事件类型，可以指定多个<br>
      * 包括 put,mkfile,delete,copy,move,append,disable,enable,deleteMarkerCreate
      *
-     * @param events
-     * @return
+     * @param events 事件类型
+     * @return 规则信息
      */
     public BucketEventRule setEvents(String[] events) {
         this.events = events;
@@ -142,19 +143,19 @@ public class BucketEventRule {
     }
 
     /**
-     * 获取通知URL，可以有多个
+     * 获取通知 URL，可以有多个
      *
-     * @return
+     * @return 通知 URL
      */
     public String[] getCallbackUrls() {
         return callbackUrls;
     }
 
     /**
-     * 设置通知URL，可以指定多个，失败依次重试
+     * 设置通知 URL，可以指定多个，失败依次重试
      *
-     * @param callbackUrls
-     * @return
+     * @param callbackUrls 通知 URL
+     * @return 规则信息
      */
     public BucketEventRule setCallbackUrls(String[] callbackUrls) {
         this.callbackUrls = callbackUrls;
@@ -162,9 +163,9 @@ public class BucketEventRule {
     }
 
     /**
-     * 获取为了签名设置好的accessKey
+     * 获取为了签名设置好的 accessKey
      *
-     * @return
+     * @return accessKey
      */
     public String getAccessKey() {
         return accessKey;
@@ -173,8 +174,8 @@ public class BucketEventRule {
     /**
      * 可选，设置的话会对通知请求用对应的ak、sk进行签名
      *
-     * @param accessKey
-     * @return
+     * @param accessKey accessKey
+     * @return 规则信息
      */
     public BucketEventRule setAccessKey(String accessKey) {
         this.accessKey = accessKey;
@@ -182,9 +183,9 @@ public class BucketEventRule {
     }
 
     /**
-     * 获取通知请求的host
+     * 获取通知请求的 host
      *
-     * @return
+     * @return host
      */
     public String getHost() {
         return host;
@@ -193,8 +194,8 @@ public class BucketEventRule {
     /**
      * 可选，通知请求的host
      *
-     * @param host
-     * @return
+     * @param host host
+     * @return 规则信息
      */
     public BucketEventRule setHost(String host) {
         this.host = host;
@@ -202,9 +203,9 @@ public class BucketEventRule {
     }
 
     /**
-     * 编码成query参数格式
+     * 编码成 query 参数格式
      *
-     * @return
+     * @return query
      */
     public String asQueryString() {
         String query = String.format("name=%s&prefix=%s&suffix=%s&%s&%s",

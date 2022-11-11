@@ -10,7 +10,6 @@ import java.io.InputStream;
  * 分片上传 v1 版 api: 上传片
  * 上传指定块的一片数据，具体数据量可根据现场环境调整。同一块的每片数据必须串行上传。
  * <p>
- * <p>
  * 一个文件被分成多个 block ，一个块可以被分成多个 chunk
  * |----------------------------- file -----------------------------|
  * |------ block ------|------ block ------|------ block ------|...
@@ -32,7 +31,6 @@ import java.io.InputStream;
  * 4. 同一个 block 中的块上传需要依赖该块中上一次上传的返回的 ctx, 所以同一个块的上传无法实现并发，
  * 如果想实现并发，可以使一个 block 中仅包含一个 chunk, 也即 chunk size = 4M, make block 接口
  * 不依赖 ctx，可以实现并发；需要注意的一点是 ctx 的顺序必须与 block 在文件中的顺序一致。
- * <p>
  * <p>
  * https://developer.qiniu.com/kodo/1251/bput
  */
