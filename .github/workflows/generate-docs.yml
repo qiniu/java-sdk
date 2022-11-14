@@ -40,20 +40,17 @@ jobs:
           java-version: '11'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Unit Test
-        run: |
-          ./gradlew jar -d
       - name: Generate Docs
         run: |
           rm -rf build/docs
           mkdir -p build/docs
-          javadoc -sourcepath ./src/main/java -subpackages com -d ./build/docs -encoding UTF-8 -charset UTF-8 -windowtitle "七牛 Java SDK API 文档" -doctitle "Java SDK" || true
+          ./gradlew apiJavadocs -d
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: build/docs
+          path: build/docs/javadoc
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
