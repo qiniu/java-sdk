@@ -42,12 +42,12 @@ jobs:
         run: chmod +x gradlew
       - name: Unit Test
         run: |
-          ./gradlew build -d
+          ./gradlew jar -d
       - name: Generate Docs
         run: |
           rm -rf build/docs
           mkdir -p build/docs
-          javadoc -sourcepath ./src/main/java -subpackages com -d ./build/docs -encoding UTF-8 -charset UTF-8 -windowtitle "七牛 Java SDK API 文档" -doctitle "Java SDK"
+          javadoc -sourcepath ./src/main/java -subpackages com -d ./build/docs -encoding UTF-8 -charset UTF-8 -windowtitle "七牛 Java SDK API 文档" -doctitle "Java SDK" || true
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
