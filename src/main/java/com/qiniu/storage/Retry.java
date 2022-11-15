@@ -5,6 +5,8 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 
 class Retry {
+    private Retry() {
+    }
 
     static boolean shouldUploadAgain(Response response, QiniuException exception) {
         Response checkResponse = response;

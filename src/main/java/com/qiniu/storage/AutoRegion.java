@@ -26,7 +26,7 @@ class AutoRegion extends Region {
      */
     private Client client;
 
-    private AutoRegion(){
+    private AutoRegion() {
     }
 
     AutoRegion(String ucServer) {

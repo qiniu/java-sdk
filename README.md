@@ -3,6 +3,7 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 [![Build Status](https://travis-ci.org/qiniu/java-sdk.svg)](https://travis-ci.org/qiniu/java-sdk)
 [![GitHub release](https://img.shields.io/github/v/tag/qiniu/java-sdk.svg?label=release)](https://github.com/qiniu/java-sdk/releases)
+[![Docs](https://img.shields.io/github/v/tag/qiniu/java-sdk.svg?label=docs&color=yellow)](https://qiniu.github.io/java-sdk/)
 [![Coverage Status](https://codecov.io/gh/qiniu/java-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/qiniu/java-sdk)
 [![Latest Stable Version](https://img.shields.io/maven-central/v/com.qiniu/qiniu-java-sdk.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.qiniu%22%20AND%20a%3A%22qiniu-java-sdk%22)
 ## 安装
@@ -43,7 +44,7 @@ Auth auth = Auth.create(accessKey, secretKey);
 String token = auth.uploadToken(bucketName);
 String key = "file save key";
 Response r = uploadManager.put("hello world".getBytes(), key, token);
-   
+
 // 分片上传 v2
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
