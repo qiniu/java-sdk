@@ -28,9 +28,9 @@ abstract class ResumeUploadSource {
 
     ResumeUploadSource(Configuration config, String recordKey) {
         this.config = config;
+        this.resumableUploadAPIVersion = config.resumableUploadAPIVersion;
         this.blockSize = getBlockSize(config);
         this.recordKey = recordKey;
-        this.resumableUploadAPIVersion = config.resumableUploadAPIVersion;
     }
 
     // 所有块数据是否 正在上传 或者 已上传，为 true 则说明没有需要上传的数据块

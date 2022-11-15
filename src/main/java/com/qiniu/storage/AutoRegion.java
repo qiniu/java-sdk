@@ -335,13 +335,13 @@ class AutoRegion extends Region {
 
         private List<String> allSrcHosts() {
             List<String> hosts = new ArrayList<>();
-            if (acc != null) {
-                List<String> mainHosts = acc.get("main");
+            if (src != null) {
+                List<String> mainHosts = src.get("main");
                 if (mainHosts != null && mainHosts.size() > 0) {
                     hosts.addAll(mainHosts);
                 }
 
-                List<String> backupHosts = acc.get("backup");
+                List<String> backupHosts = src.get("backup");
                 if (backupHosts != null && backupHosts.size() > 0) {
                     hosts.addAll(backupHosts);
                 }
@@ -351,13 +351,13 @@ class AutoRegion extends Region {
 
         private List<String> allAccHosts() {
             List<String> hosts = new ArrayList<>();
-            if (src != null) {
-                List<String> mainHosts = src.get("main");
+            if (acc != null) {
+                List<String> mainHosts = acc.get("main");
                 if (mainHosts != null && mainHosts.size() > 0) {
                     hosts.addAll(mainHosts);
                 }
 
-                List<String> backupHosts = src.get("backup");
+                List<String> backupHosts = acc.get("backup");
                 if (backupHosts != null && backupHosts.size() > 0) {
                     hosts.addAll(backupHosts);
                 }
