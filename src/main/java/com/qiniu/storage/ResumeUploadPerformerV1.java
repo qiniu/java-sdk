@@ -14,6 +14,11 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
     }
 
     @Override
+    int actionType() {
+        return ApiType.ActionTypeUploadByResumeV1;
+    }
+
+    @Override
     boolean shouldUploadInit() {
         return false;
     }

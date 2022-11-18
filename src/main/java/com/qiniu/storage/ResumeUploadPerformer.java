@@ -38,6 +38,7 @@ abstract class ResumeUploadPerformer {
         return uploadSource.isAllBlocksUploaded();
     }
 
+    abstract int actionType();
 
     abstract boolean shouldUploadInit();
 
@@ -79,7 +80,7 @@ abstract class ResumeUploadPerformer {
     }
 
     private String getUploadHost() throws QiniuException {
-        return configHelper.upHost(token.getToken());
+        return configHelper.upHost(token.getToken(), actionType());
     }
 
     private void changeHost(String host) {

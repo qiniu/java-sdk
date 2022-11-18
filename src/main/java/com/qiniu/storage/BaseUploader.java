@@ -56,7 +56,7 @@ public abstract class BaseUploader {
             }
 
             // 切换 region
-            if (config.region == null || !config.region.switchRegion(new UploadToken(upToken))) {
+            if (config.region == null || !this.config.region.switchRegion(new UploadToken(upToken), actionType())) {
                 break;
             }
         }
@@ -73,4 +73,6 @@ public abstract class BaseUploader {
     abstract boolean couldReloadSource();
 
     abstract boolean reloadSource();
+
+    abstract int actionType();
 }

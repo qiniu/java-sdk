@@ -17,9 +17,14 @@ class AutoRegion extends Region {
     private String ucServer;
 
     /**
-     * 空间机房，域名信息缓存
+     * 空间机房，域名信息缓存，此缓存绑定了 actionType、token、bucket，且仅 AutoRegion 对象内部有效。
      */
-    private Map<RegionIndex, RegionGroup> regions;
+    private Map<String, Region> regions;
+
+    /**
+     * 全局空间信息缓存，此缓存绑定了 token、bucket，全局有效。
+     */
+    private static Map<String, UCRet> globalRegionCache = new ConcurrentHashMap<>();
 
     /**
      * 定义HTTP请求管理相关方法
@@ -37,66 +42,65 @@ class AutoRegion extends Region {
 
     /**
      * 通过 API 接口查询上传域名
-     * z0: http://uc.qbox.me/v2/query?ak=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5&bucket=sdk-z0
-     * z1: http://uc.qbox.me/v2/query?ak=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5&bucket=sdk-z1
-     * z2: http://uc.qbox.me/v2/query?ak=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5&bucket=sdk-z2
-     * as0: http://uc.qbox.me/v2/query?ak=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5&bucket=sdk-as0
-     * na0: http://uc.qbox.me/v2/query?ak=vHg2e7nOh7Jsucv2Azr5FH6omPgX22zoJRWa0FN5&bucket=sdk-na0
      */
-    private UCRet getRegionJson(RegionIndex index) throws QiniuException {
-        String address = ucServer + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
+    private UCRet queryRegionInfoFromServerIfNeeded(RegionIndex index) throws QiniuException {
+        String cacheKey = index.accessKey + index.bucket;
+        UCRet ret = globalRegionCache.get(cacheKey);
+        if (ret != null && ret.isValid()) {
+            return ret;
+        }
 
+        String address = ucServer + "/v4/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
         Response r = client.get(address);
-        return r.jsonToObject(UCRet.class);
+        ret = r.jsonToObject(UCRet.class);
+        if (ret != null) {
+            ret.setupDeadline();
+            globalRegionCache.put(cacheKey, ret);
+        }
+        return ret;
     }
 
-    static RegionGroup regionGroup(UCRet ret) {
+    static Region regionGroup(UCRet ret, int actionType) {
         if (ret == null || ret.hosts == null || ret.hosts.length == 0) {
             return null;
         }
 
         RegionGroup group = new RegionGroup();
+
+        String[] apis = ApiType.apisWithActionType(actionType);
+        if (apis != null && apis.length > 0 && ret.universal != null &&
+                ret.universal.support_apis != null &&
+                ret.universal.support_apis.length > 0) {
+
+            boolean support = true;
+            for (String api : apis) {
+
+                // 需要支持的  api 是否存在，任何一个不存在则不支持。
+                boolean contain = false;
+                for (String supportApi : ret.universal.support_apis) {
+                    if (api.equals(supportApi)) {
+                        contain = true;
+                        break;
+                    }
+                }
+
+                if (!contain) {
+                    support = false;
+                    break;
+                }
+            }
+
+            if (support) {
+                if (ret.universal.region == null || ret.universal.region.length() == 0) {
+                    ret.universal.region = "universal";
+                }
+                Region region = ret.universal.createRegion();
+                group.addRegion(region);
+            }
+        }
+
         for (HostRet host : ret.hosts) {
-            long timestamp = host.ttl + System.currentTimeMillis() / 1000;
-            List<String> srcUpHosts = new ArrayList<>();
-            List<String> accUpHosts = new ArrayList<>();
-            if (host.up != null) {
-                srcUpHosts = host.up.allSrcHosts();
-                accUpHosts = host.up.allAccHosts();
-            }
-
-            String iovipHost = null;
-            if (host.io != null) {
-                iovipHost = host.io.getOneHost();
-            }
-
-            String rsHost = null;
-            if (host.rs != null) {
-                rsHost = host.rs.getOneHost();
-            }
-
-            String rsfHost = null;
-            if (host.rsf != null) {
-                rsfHost = host.rsf.getOneHost();
-            }
-
-            String apiHost = null;
-            if (host.api != null) {
-                apiHost = host.api.getOneHost();
-            }
-
-            String ucHost = null;
-            if (host.uc != null) {
-                ucHost = host.uc.getOneHost();
-            }
-
-            // 根据 iovipHost 反推 regionId
-            String regionId = host.region;
-            if (regionId == null) {
-                regionId = "";
-            }
-
-            Region region = new Region(timestamp, regionId, srcUpHosts, accUpHosts, iovipHost, rsHost, rsfHost, apiHost, ucHost);
+            Region region = host.createRegion();
             group.addRegion(region);
         }
 
@@ -106,23 +110,24 @@ class AutoRegion extends Region {
     /**
      * 首先从缓存读取Region信息，如果没有则发送请求从接口查询
      *
-     * @param accessKey 账号 accessKey
-     * @param bucket    空间名
+     * @param accessKey  账号 accessKey
+     * @param bucket     空间名
+     * @param actionType action 类型
      * @return 机房域名信息
      */
-    private RegionGroup queryRegionInfo(String accessKey, String bucket) throws QiniuException {
+    private Region queryRegionInfo(String accessKey, String bucket, int actionType) throws QiniuException {
         RegionIndex index = new RegionIndex(accessKey, bucket);
-        RegionGroup regionGroup = regions.get(index);
+        String cacheKey = index.accessKey  + "::" + index.bucket + "::" + ApiType.actionTypeString(actionType);
+        Region region = regions.get(cacheKey);
 
         Exception ex = null;
-        // 隔一段时间重新获取 uc 信息 // || regionGroup.createTime < System.currentTimeMillis() - 1000 * 3600 * 8
-        if (regionGroup == null || !regionGroup.isValid()) {
+        if (region == null || !region.isValid()) {
             for (int i = 0; i < 2; i++) {
                 try {
-                    UCRet ret = getRegionJson(index);
-                    regionGroup = AutoRegion.regionGroup(ret);
-                    if (regionGroup != null) {
-                        regions.put(index, regionGroup);
+                    UCRet ret = queryRegionInfoFromServerIfNeeded(index);
+                    region = AutoRegion.regionGroup(ret, actionType);
+                    if (region != null) {
+                        regions.put(cacheKey, region);
                         break;
                     }
                 } catch (Exception e) {
@@ -132,13 +137,13 @@ class AutoRegion extends Region {
         }
 
         // info 不能为 null //
-        if (regionGroup == null) {
+        if (region == null) {
             if (ex instanceof QiniuException) {
                 throw (QiniuException) ex;
             }
             throw new QiniuException(ex, "auto region get region info from uc failed.");
         }
-        return regionGroup;
+        return region;
     }
 
     /**
@@ -147,27 +152,27 @@ class AutoRegion extends Region {
      * @param regionReqInfo 封装了 accessKey 和 bucket 的对象
      * @return 机房域名信息
      */
-    private RegionGroup queryRegionInfo(RegionReqInfo regionReqInfo) throws QiniuException {
-        return queryRegionInfo(regionReqInfo.getAccessKey(), regionReqInfo.getBucket());
+    private Region queryRegionInfo(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
+        return queryRegionInfo(regionReqInfo.getAccessKey(), regionReqInfo.getBucket(), actionType);
     }
 
     @Override
-    boolean switchRegion(RegionReqInfo regionReqInfo) {
-        Region currentRegion = getCurrentRegion(regionReqInfo);
+    boolean switchRegion(RegionReqInfo regionReqInfo, int actionType) {
+        Region currentRegion = getCurrentRegion(regionReqInfo, actionType);
         if (currentRegion == null) {
             return false;
         } else {
-            return currentRegion.switchRegion(regionReqInfo);
+            return currentRegion.switchRegion(regionReqInfo, actionType);
         }
     }
 
     @Override
-    String getRegion(RegionReqInfo regionReqInfo) {
-        Region currentRegion = getCurrentRegion(regionReqInfo);
+    String getRegion(RegionReqInfo regionReqInfo, int actionType) {
+        Region currentRegion = getCurrentRegion(regionReqInfo, actionType);
         if (currentRegion == null) {
             return "";
         } else {
-            return currentRegion.getRegion(regionReqInfo);
+            return currentRegion.getRegion(regionReqInfo, actionType);
         }
     }
 
@@ -176,10 +181,11 @@ class AutoRegion extends Region {
         return true;
     }
 
-    Region getCurrentRegion(RegionReqInfo regionReqInfo) {
+    @Override
+    Region getCurrentRegion(RegionReqInfo regionReqInfo, int actionType) {
         try {
-            RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
-            return regionGroup.getCurrentRegion(regionReqInfo);
+            Region region = queryRegionInfo(regionReqInfo, actionType);
+            return region.getCurrentRegion(regionReqInfo, actionType);
         } catch (QiniuException e) {
             return null;
         }
@@ -189,24 +195,24 @@ class AutoRegion extends Region {
      * 获取源站直传域名
      */
     @Override
-    List<String> getSrcUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
+    List<String> getSrcUpHost(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
         if (regionReqInfo == null) {
             return null;
         }
-        RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
-        return regionGroup.getSrcUpHost(regionReqInfo);
+        Region region = queryRegionInfo(regionReqInfo, actionType);
+        return region.getSrcUpHost(regionReqInfo, actionType);
     }
 
     /**
      * 获取加速上传域名
      */
     @Override
-    List<String> getAccUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
+    List<String> getAccUpHost(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
         if (regionReqInfo == null) {
             return null;
         }
-        RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
-        return regionGroup.getAccUpHost(regionReqInfo);
+        Region region = queryRegionInfo(regionReqInfo, actionType);
+        return region.getAccUpHost(regionReqInfo, actionType);
     }
 
     /**
@@ -217,8 +223,8 @@ class AutoRegion extends Region {
         if (regionReqInfo == null) {
             return "";
         }
-        RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
-        return regionGroup.getIovipHost(regionReqInfo);
+        Region region = queryRegionInfo(regionReqInfo, ApiType.ActionTypeNone);
+        return region.getIovipHost(regionReqInfo);
     }
 
     /**
@@ -229,8 +235,8 @@ class AutoRegion extends Region {
         if (regionReqInfo == null) {
             return "";
         }
-        RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
-        return regionGroup.getRsHost(regionReqInfo);
+        Region region = queryRegionInfo(regionReqInfo, ApiType.ActionTypeNone);
+        return region.getRsHost(regionReqInfo);
     }
 
     /**
@@ -241,8 +247,8 @@ class AutoRegion extends Region {
         if (regionReqInfo == null) {
             return "";
         }
-        RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
-        return regionGroup.getRsfHost(regionReqInfo);
+        Region region = queryRegionInfo(regionReqInfo, ApiType.ActionTypeNone);
+        return region.getRsfHost(regionReqInfo);
     }
 
     /**
@@ -253,8 +259,8 @@ class AutoRegion extends Region {
         if (regionReqInfo == null) {
             return "";
         }
-        RegionGroup regionGroup = queryRegionInfo(regionReqInfo);
-        return regionGroup.getApiHost(regionReqInfo);
+        Region region = queryRegionInfo(regionReqInfo, ApiType.ActionTypeNone);
+        return region.getApiHost(regionReqInfo);
     }
 
     @Override
@@ -292,11 +298,37 @@ class AutoRegion extends Region {
     }
 
     private class UCRet {
+        // 有效期, 单位秒
+        long deadline;
+
         HostRet[] hosts;
+
+        HostRet universal;
+
+        private boolean isValid() {
+            return System.currentTimeMillis() < deadline * 1000;
+        }
+
+        private void setupDeadline() {
+            long ttl = 60;
+
+            HostRet ret = universal;
+            if (ret == null && hosts != null && hosts.length > 0) {
+                ret = hosts[0];
+            }
+
+            if (ret != null) {
+                ttl = ret.ttl;
+            }
+            deadline = System.currentTimeMillis()/1000 + ttl;
+        }
     }
 
     private class HostRet {
         long ttl;
+
+        String[] support_apis;
+
         String region;
         HostInfoRet up;
         HostInfoRet rs;
@@ -304,63 +336,81 @@ class AutoRegion extends Region {
         HostInfoRet uc;
         HostInfoRet api;
         HostInfoRet io;
+
+        Region createRegion() {
+            long timestamp = ttl + System.currentTimeMillis() / 1000;
+            List<String> srcUpHosts = new ArrayList<>();
+            List<String> accUpHosts = new ArrayList<>();
+            if (up != null) {
+                srcUpHosts = up.allSrcHosts();
+                accUpHosts = up.allAccHosts();
+            }
+
+            String iovipHost = null;
+            if (io != null) {
+                iovipHost = io.getOneHost();
+            }
+
+            String rsHost = null;
+            if (rs != null) {
+                rsHost = rs.getOneHost();
+            }
+
+            String rsfHost = null;
+            if (rsf != null) {
+                rsfHost = rsf.getOneHost();
+            }
+
+            String apiHost = null;
+            if (api != null) {
+                apiHost = api.getOneHost();
+            }
+
+            String ucHost = null;
+            if (uc != null) {
+                ucHost = uc.getOneHost();
+            }
+
+            // 根据 iovipHost 反推 regionId
+            String regionId = region;
+            if (regionId == null) {
+                regionId = "";
+            }
+
+           return new Region(timestamp, regionId, srcUpHosts, accUpHosts, iovipHost, rsHost, rsfHost, apiHost, ucHost);
+        }
     }
 
     private class HostInfoRet {
-        Map<String, List<String>> acc;
-        Map<String, List<String>> src;
+        List<String> domains;
+        List<String> old;
 
         private String getOneHost() {
-            List<String> hosts = allHosts();
-            if (hosts.size() > 0) {
-                return hosts.get(0);
+            if (domains != null && domains.size() > 0) {
+                return domains.get(0);
             } else {
                 return null;
             }
         }
 
-        private List<String> allHosts() {
-            List<String> hosts = new ArrayList<>();
-            List<String> srcHosts = allSrcHosts();
-            if (srcHosts.size() > 0) {
-                hosts.addAll(srcHosts);
-            }
-
-            List<String> accHosts = allAccHosts();
-            if (accHosts.size() > 0) {
-                hosts.addAll(accHosts);
-            }
-            return hosts;
-        }
-
         private List<String> allSrcHosts() {
             List<String> hosts = new ArrayList<>();
-            if (src != null) {
-                List<String> mainHosts = src.get("main");
-                if (mainHosts != null && mainHosts.size() > 0) {
-                    hosts.addAll(mainHosts);
+            if (domains != null && domains.size() > 1) {
+                for (int i = 1; i < domains.size(); i++) {
+                    hosts.add(domains.get(i));
                 }
-
-                List<String> backupHosts = src.get("backup");
-                if (backupHosts != null && backupHosts.size() > 0) {
-                    hosts.addAll(backupHosts);
-                }
+            } else {
+                return new ArrayList<>();
             }
             return hosts;
         }
 
         private List<String> allAccHosts() {
             List<String> hosts = new ArrayList<>();
-            if (acc != null) {
-                List<String> mainHosts = acc.get("main");
-                if (mainHosts != null && mainHosts.size() > 0) {
-                    hosts.addAll(mainHosts);
-                }
-
-                List<String> backupHosts = acc.get("backup");
-                if (backupHosts != null && backupHosts.size() > 0) {
-                    hosts.addAll(backupHosts);
-                }
+            if (domains != null && domains.size() > 0) {
+                hosts.add(domains.get(0));
+            } else {
+                return new ArrayList<>();
             }
             return hosts;
         }

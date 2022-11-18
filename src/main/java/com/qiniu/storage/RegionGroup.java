@@ -27,8 +27,8 @@ public class RegionGroup extends Region implements Cloneable {
     }
 
     @Override
-    synchronized boolean switchRegion(RegionReqInfo regionReqInfo) {
-        if (currentRegion != null && currentRegion.isValid() && currentRegion.switchRegion(regionReqInfo)) {
+    synchronized boolean switchRegion(RegionReqInfo regionReqInfo, int actionType) {
+        if (currentRegion != null && currentRegion.isValid() && currentRegion.switchRegion(regionReqInfo, actionType)) {
             return true;
         }
 
@@ -41,30 +41,34 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
-    String getRegion(RegionReqInfo regionReqInfo) {
+    @Override
+    String getRegion(RegionReqInfo regionReqInfo, int actionType) {
         if (currentRegion == null) {
             return "";
         } else {
-            return currentRegion.getRegion(regionReqInfo);
+            return currentRegion.getRegion(regionReqInfo, actionType);
         }
     }
 
-    List<String> getSrcUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
+    @Override
+    List<String> getSrcUpHost(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
         if (currentRegion == null) {
             return null;
         } else {
-            return currentRegion.getSrcUpHost(regionReqInfo);
+            return currentRegion.getSrcUpHost(regionReqInfo, actionType);
         }
     }
 
-    List<String> getAccUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
+    @Override
+    List<String> getAccUpHost(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
         if (currentRegion == null) {
             return null;
         } else {
-            return currentRegion.getAccUpHost(regionReqInfo);
+            return currentRegion.getAccUpHost(regionReqInfo, actionType);
         }
     }
 
+    @Override
     String getIovipHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
@@ -73,6 +77,7 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
+    @Override
     String getRsHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
@@ -81,6 +86,7 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
+    @Override
     String getRsfHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
@@ -89,6 +95,7 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
+    @Override
     String getApiHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
@@ -97,11 +104,12 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
-    Region getCurrentRegion(RegionReqInfo regionReqInfo) {
+    @Override
+    Region getCurrentRegion(RegionReqInfo regionReqInfo, int actionType) {
         if (currentRegion == null) {
             return null;
         } else if (currentRegion instanceof AutoRegion || currentRegion instanceof RegionGroup) {
-            return currentRegion.getCurrentRegion(regionReqInfo);
+            return currentRegion.getCurrentRegion(regionReqInfo, actionType);
         } else {
             return currentRegion;
         }
