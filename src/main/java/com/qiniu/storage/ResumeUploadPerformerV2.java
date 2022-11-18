@@ -16,7 +16,7 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
 
     @Override
     int actionType() {
-        return ApiType.ActionTypeUploadByResumeV1;
+        return ApiType.ActionTypeUploadByResumeV2;
     }
 
     @Override
