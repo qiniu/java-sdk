@@ -14,14 +14,9 @@ class ConfigHelper {
         makeSureRegion();
     }
 
-    @Deprecated
     public String upHost(String upToken) throws QiniuException {
-        return upHost(upToken, ApiType.ActionTypeNone);
-    }
-
-    public String upHost(String upToken, int actionType) throws QiniuException {
         try {
-            return upHost(upToken, actionType, null, false, false);
+            return upHost(upToken, null, false, false);
         } catch (QiniuException e) {
             if (e.response == null || e.response.needRetry()) {
                 try {
@@ -29,7 +24,7 @@ class ConfigHelper {
                 } catch (Exception e1) {
                     // do nothing
                 }
-                return upHost(upToken, actionType, null, false, true);
+                return upHost(upToken, null, false, true);
             }
             throw e;
         }
@@ -37,17 +32,13 @@ class ConfigHelper {
 
     @Deprecated
     public String tryChangeUpHost(String upToken, String lastUsedHost) throws QiniuException {
-        return tryChangeUpHost(upToken, ApiType.ActionTypeNone, lastUsedHost);
+        return upHost(upToken, lastUsedHost, true, false);
     }
 
-    public String tryChangeUpHost(String upToken, int actionType, String lastUsedHost) throws QiniuException {
-        return upHost(upToken, actionType, lastUsedHost, true, false);
-    }
-
-    private String upHost(String upToken, int actionType, String lastUsedHost, boolean changeHost, boolean mustReturnUpHost)
+    private String upHost(String upToken, String lastUsedHost, boolean changeHost, boolean mustReturnUpHost)
             throws QiniuException {
         return getScheme()
-                + getHelper().upHost(config.region, actionType, upToken, toDomain(lastUsedHost), changeHost, mustReturnUpHost);
+                + getHelper().upHost(config.region, upToken, toDomain(lastUsedHost), changeHost, mustReturnUpHost);
     }
 
     public String ioHost(String ak, String bucket) throws QiniuException {

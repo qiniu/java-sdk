@@ -208,15 +208,6 @@ public class ResumeUploader extends BaseUploader {
         }
     }
 
-    @Override
-    int actionType() {
-        int type = ApiType.ActionTypeNone;
-        if (uploadPerformer != null) {
-            type = uploadPerformer.actionType();
-        }
-        return type;
-    }
-
     private void close() {
         try {
             source.close();
@@ -311,7 +302,7 @@ public class ResumeUploader extends BaseUploader {
                 return;
             }
             jsonObject.add("source", sourceJson);
-            JsonElement regionJson = new Gson().toJsonTree(config.region.getCurrentRegion(new UploadToken(upToken), actionType()));
+            JsonElement regionJson = new Gson().toJsonTree(config.region.getCurrentRegion(new UploadToken(upToken)));
             if (regionJson == null) {
                 return;
             }

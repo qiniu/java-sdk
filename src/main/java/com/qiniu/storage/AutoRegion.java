@@ -17,7 +17,7 @@ class AutoRegion extends Region {
     private String ucServer;
 
     /**
-     * 空间机房，域名信息缓存，此缓存绑定了 actionType、token、bucket，且仅 AutoRegion 对象内部有效。
+     * 空间机房，域名信息缓存，此缓存绑定了 token、bucket，且仅 AutoRegion 对象内部有效。
      */
     private Map<String, Region> regions;
 
@@ -60,45 +60,12 @@ class AutoRegion extends Region {
         return ret;
     }
 
-    static Region regionGroup(UCRet ret, int actionType) {
+    static Region regionGroup(UCRet ret) {
         if (ret == null || ret.hosts == null || ret.hosts.length == 0) {
             return null;
         }
 
         RegionGroup group = new RegionGroup();
-
-        String[] apis = ApiType.apisWithActionType(actionType);
-        if (apis != null && apis.length > 0 && ret.universal != null &&
-                ret.universal.support_apis != null &&
-                ret.universal.support_apis.length > 0) {
-
-            boolean support = true;
-            for (String api : apis) {
-
-                // 需要支持的  api 是否存在，任何一个不存在则不支持。
-                boolean contain = false;
-                for (String supportApi : ret.universal.support_apis) {
-                    if (api.equals(supportApi)) {
-                        contain = true;
-                        break;
-                    }
-                }
-
-                if (!contain) {
-                    support = false;
-                    break;
-                }
-            }
-
-            if (support) {
-                if (ret.universal.region == null || ret.universal.region.length() == 0) {
-                    ret.universal.region = "universal";
-                }
-                Region region = ret.universal.createRegion();
-                group.addRegion(region);
-            }
-        }
-
         for (HostRet host : ret.hosts) {
             Region region = host.createRegion();
             group.addRegion(region);
@@ -110,14 +77,13 @@ class AutoRegion extends Region {
     /**
      * 首先从缓存读取Region信息，如果没有则发送请求从接口查询
      *
-     * @param accessKey  账号 accessKey
-     * @param bucket     空间名
-     * @param actionType action 类型
+     * @param accessKey 账号 accessKey
+     * @param bucket    空间名
      * @return 机房域名信息
      */
-    private Region queryRegionInfo(String accessKey, String bucket, int actionType) throws QiniuException {
+    private Region queryRegionInfo(String accessKey, String bucket) throws QiniuException {
         RegionIndex index = new RegionIndex(accessKey, bucket);
-        String cacheKey = index.accessKey  + "::" + index.bucket + "::" + ApiType.actionTypeString(actionType);
+        String cacheKey = index.accessKey + "::" + index.bucket;
         Region region = regions.get(cacheKey);
 
         Exception ex = null;
@@ -125,7 +91,7 @@ class AutoRegion extends Region {
             for (int i = 0; i < 2; i++) {
                 try {
                     UCRet ret = queryRegionInfoFromServerIfNeeded(index);
-                    region = AutoRegion.regionGroup(ret, actionType);
+                    region = AutoRegion.regionGroup(ret);
                     if (region != null) {
                         regions.put(cacheKey, region);
                         break;
@@ -152,27 +118,27 @@ class AutoRegion extends Region {
      * @param regionReqInfo 封装了 accessKey 和 bucket 的对象
      * @return 机房域名信息
      */
-    private Region queryRegionInfo(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
-        return queryRegionInfo(regionReqInfo.getAccessKey(), regionReqInfo.getBucket(), actionType);
+    private Region queryRegionInfo(RegionReqInfo regionReqInfo) throws QiniuException {
+        return queryRegionInfo(regionReqInfo.getAccessKey(), regionReqInfo.getBucket());
     }
 
     @Override
-    boolean switchRegion(RegionReqInfo regionReqInfo, int actionType) {
-        Region currentRegion = getCurrentRegion(regionReqInfo, actionType);
+    boolean switchRegion(RegionReqInfo regionReqInfo) {
+        Region currentRegion = getCurrentRegion(regionReqInfo);
         if (currentRegion == null) {
             return false;
         } else {
-            return currentRegion.switchRegion(regionReqInfo, actionType);
+            return currentRegion.switchRegion(regionReqInfo);
         }
     }
 
     @Override
-    String getRegion(RegionReqInfo regionReqInfo, int actionType) {
-        Region currentRegion = getCurrentRegion(regionReqInfo, actionType);
+    String getRegion(RegionReqInfo regionReqInfo) {
+        Region currentRegion = getCurrentRegion(regionReqInfo);
         if (currentRegion == null) {
             return "";
         } else {
-            return currentRegion.getRegion(regionReqInfo, actionType);
+            return currentRegion.getRegion(regionReqInfo);
         }
     }
 
@@ -182,10 +148,10 @@ class AutoRegion extends Region {
     }
 
     @Override
-    Region getCurrentRegion(RegionReqInfo regionReqInfo, int actionType) {
+    Region getCurrentRegion(RegionReqInfo regionReqInfo) {
         try {
-            Region region = queryRegionInfo(regionReqInfo, actionType);
-            return region.getCurrentRegion(regionReqInfo, actionType);
+            Region region = queryRegionInfo(regionReqInfo);
+            return region.getCurrentRegion(regionReqInfo);
         } catch (QiniuException e) {
             return null;
         }
@@ -195,24 +161,24 @@ class AutoRegion extends Region {
      * 获取源站直传域名
      */
     @Override
-    List<String> getSrcUpHost(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
+    List<String> getSrcUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (regionReqInfo == null) {
             return null;
         }
-        Region region = queryRegionInfo(regionReqInfo, actionType);
-        return region.getSrcUpHost(regionReqInfo, actionType);
+        Region region = queryRegionInfo(regionReqInfo);
+        return region.getSrcUpHost(regionReqInfo);
     }
 
     /**
      * 获取加速上传域名
      */
     @Override
-    List<String> getAccUpHost(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
+    List<String> getAccUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (regionReqInfo == null) {
             return null;
         }
-        Region region = queryRegionInfo(regionReqInfo, actionType);
-        return region.getAccUpHost(regionReqInfo, actionType);
+        Region region = queryRegionInfo(regionReqInfo);
+        return region.getAccUpHost(regionReqInfo);
     }
 
     /**
@@ -223,7 +189,7 @@ class AutoRegion extends Region {
         if (regionReqInfo == null) {
             return "";
         }
-        Region region = queryRegionInfo(regionReqInfo, ApiType.ActionTypeNone);
+        Region region = queryRegionInfo(regionReqInfo);
         return region.getIovipHost(regionReqInfo);
     }
 
@@ -235,7 +201,7 @@ class AutoRegion extends Region {
         if (regionReqInfo == null) {
             return "";
         }
-        Region region = queryRegionInfo(regionReqInfo, ApiType.ActionTypeNone);
+        Region region = queryRegionInfo(regionReqInfo);
         return region.getRsHost(regionReqInfo);
     }
 
@@ -247,7 +213,7 @@ class AutoRegion extends Region {
         if (regionReqInfo == null) {
             return "";
         }
-        Region region = queryRegionInfo(regionReqInfo, ApiType.ActionTypeNone);
+        Region region = queryRegionInfo(regionReqInfo);
         return region.getRsfHost(regionReqInfo);
     }
 
@@ -259,7 +225,7 @@ class AutoRegion extends Region {
         if (regionReqInfo == null) {
             return "";
         }
-        Region region = queryRegionInfo(regionReqInfo, ApiType.ActionTypeNone);
+        Region region = queryRegionInfo(regionReqInfo);
         return region.getApiHost(regionReqInfo);
     }
 
@@ -320,7 +286,7 @@ class AutoRegion extends Region {
             if (ret != null) {
                 ttl = ret.ttl;
             }
-            deadline = System.currentTimeMillis()/1000 + ttl;
+            deadline = System.currentTimeMillis() / 1000 + ttl;
         }
     }
 
@@ -377,7 +343,7 @@ class AutoRegion extends Region {
                 regionId = "";
             }
 
-           return new Region(timestamp, regionId, srcUpHosts, accUpHosts, iovipHost, rsHost, rsfHost, apiHost, ucHost);
+            return new Region(timestamp, regionId, srcUpHosts, accUpHosts, iovipHost, rsHost, rsfHost, apiHost, ucHost);
         }
     }
 

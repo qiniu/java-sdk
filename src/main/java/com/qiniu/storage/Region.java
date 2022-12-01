@@ -290,23 +290,23 @@ public class Region implements Cloneable {
         return new Builder().autoRegion(ucServer);
     }
 
-    boolean switchRegion(RegionReqInfo regionReqInfo, int apiType) {
+    boolean switchRegion(RegionReqInfo regionReqInfo) {
         return false;
     }
 
-    String getRegion(RegionReqInfo regionReqInfo, int actionType) {
+    String getRegion(RegionReqInfo regionReqInfo) {
         return this.region;
     }
 
-    Region getCurrentRegion(RegionReqInfo regionReqInfo, int actionType) {
+    Region getCurrentRegion(RegionReqInfo regionReqInfo) {
         return this;
     }
 
-    List<String> getSrcUpHost(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
+    List<String> getSrcUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return this.srcUpHosts;
     }
 
-    List<String> getAccUpHost(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
+    List<String> getAccUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return this.accUpHosts;
     }
 

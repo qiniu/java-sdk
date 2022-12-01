@@ -246,8 +246,8 @@ public class RegionTest {
         Region r0 = Region.region0();
         System.out.println("Region.region0() : " + new Gson().toJson(r0));
 
-        assertTrue(r0.getSrcUpHost(null, ApiType.ActionTypeNone).contains(rz.getSrcUpHost(null, ApiType.ActionTypeNone).get(0)));
-        assertTrue(r0.getAccUpHost(null, ApiType.ActionTypeNone).contains(rz.getAccUpHost(null, ApiType.ActionTypeNone).get(0)));
+        assertTrue(r0.getSrcUpHost(null).contains(rz.getSrcUpHost(null).get(0)));
+        assertTrue(r0.getAccUpHost(null).contains(rz.getAccUpHost(null).get(0)));
         assertEquals(r0.getIovipHost(null), rz.getIovipHost(null));
         assertEquals(r0.getRsHost(null), rz.getRsHost(null));
         assertEquals(r0.getRsfHost(null), rz.getRsfHost(null));

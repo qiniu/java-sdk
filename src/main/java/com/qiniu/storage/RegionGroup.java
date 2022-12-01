@@ -27,8 +27,8 @@ public class RegionGroup extends Region implements Cloneable {
     }
 
     @Override
-    synchronized boolean switchRegion(RegionReqInfo regionReqInfo, int actionType) {
-        if (currentRegion != null && currentRegion.isValid() && currentRegion.switchRegion(regionReqInfo, actionType)) {
+    synchronized boolean switchRegion(RegionReqInfo regionReqInfo) {
+        if (currentRegion != null && currentRegion.isValid() && currentRegion.switchRegion(regionReqInfo)) {
             return true;
         }
 
@@ -42,29 +42,29 @@ public class RegionGroup extends Region implements Cloneable {
     }
 
     @Override
-    String getRegion(RegionReqInfo regionReqInfo, int actionType) {
+    String getRegion(RegionReqInfo regionReqInfo) {
         if (currentRegion == null) {
             return "";
         } else {
-            return currentRegion.getRegion(regionReqInfo, actionType);
+            return currentRegion.getRegion(regionReqInfo);
         }
     }
 
     @Override
-    List<String> getSrcUpHost(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
+    List<String> getSrcUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
         } else {
-            return currentRegion.getSrcUpHost(regionReqInfo, actionType);
+            return currentRegion.getSrcUpHost(regionReqInfo);
         }
     }
 
     @Override
-    List<String> getAccUpHost(RegionReqInfo regionReqInfo, int actionType) throws QiniuException {
+    List<String> getAccUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
         } else {
-            return currentRegion.getAccUpHost(regionReqInfo, actionType);
+            return currentRegion.getAccUpHost(regionReqInfo);
         }
     }
 
@@ -105,11 +105,11 @@ public class RegionGroup extends Region implements Cloneable {
     }
 
     @Override
-    Region getCurrentRegion(RegionReqInfo regionReqInfo, int actionType) {
+    Region getCurrentRegion(RegionReqInfo regionReqInfo) {
         if (currentRegion == null) {
             return null;
         } else if (currentRegion instanceof AutoRegion || currentRegion instanceof RegionGroup) {
-            return currentRegion.getCurrentRegion(regionReqInfo, actionType);
+            return currentRegion.getCurrentRegion(regionReqInfo);
         } else {
             return currentRegion;
         }

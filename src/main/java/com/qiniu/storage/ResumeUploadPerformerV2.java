@@ -15,11 +15,6 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
     }
 
     @Override
-    int actionType() {
-        return ApiType.ActionTypeUploadByResumeV2;
-    }
-
-    @Override
     boolean shouldUploadInit() {
         // uploadId 无效时需要 init,
         // 当 uploadId 不存在即无效

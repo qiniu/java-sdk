@@ -78,7 +78,7 @@ public final class FormUploader extends BaseUploader {
         return Retry.retryRequestAction(retryConfig, new Retry.RequestRetryAction() {
             @Override
             public String getRequestHost() throws QiniuException {
-                return configHelper.upHost(upToken, actionType());
+                return configHelper.upHost(upToken);
             }
 
             @Override
@@ -133,7 +133,7 @@ public final class FormUploader extends BaseUploader {
             public void complete(String key, Response r) {
                 if (!Retry.shouldUploadAgain(r, null)
                         || !couldReloadSource() || !reloadSource()
-                        || config.region == null || !config.region.switchRegion(finalToken, actionType())) {
+                        || config.region == null || !config.region.switchRegion(finalToken)) {
                     handler.complete(key, r);
                 } else {
                     asyncRetryUploadBetweenRegion(handler);
@@ -205,11 +205,6 @@ public final class FormUploader extends BaseUploader {
     @Override
     boolean reloadSource() {
         return true;
-    }
-
-    @Override
-    int actionType() {
-        return ApiType.ActionTypeUploadByForm;
     }
 
     private void changeHost(String upToken, String host) {

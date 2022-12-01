@@ -23,21 +23,15 @@ class UpHostHelper {
     }
 
 
-    @Deprecated
     String upHost(Region region, String upToken, String lastUsedHost, boolean changeHost, boolean mustReturnUpHost) throws QiniuException {
-        return upHost(region, ApiType.ActionTypeNone, upToken, lastUsedHost, changeHost, mustReturnUpHost);
-    }
-
-    String upHost(Region region, int actionType, String upToken, String lastUsedHost, boolean changeHost, boolean mustReturnUpHost)
-            throws QiniuException {
         RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
 
         // auto region may failed here.
         List<String> accHosts;
         List<String> srcHosts;
         try {
-            accHosts = region.getAccUpHost(regionReqInfo, actionType);
-            srcHosts = region.getSrcUpHost(regionReqInfo, actionType);
+            accHosts = region.getAccUpHost(regionReqInfo);
+            srcHosts = region.getSrcUpHost(regionReqInfo);
         } catch (QiniuException e) { // it will success soon.
             if (mustReturnUpHost && conf.useDefaultUpHostIfNone) {
                 return failedUpHost("failed_get_region");
@@ -46,7 +40,7 @@ class UpHostHelper {
             }
         }
 
-        String regionKey = region.getRegion(regionReqInfo, actionType) + "_&//=_" + getRegionKey(srcHosts, accHosts);
+        String regionKey = region.getRegion(regionReqInfo) + "_&//=_" + getRegionKey(srcHosts, accHosts);
         RegionUpHost regionHost = regionHostsLRU.get(regionKey);
         if (regionHost == null) {
             regionHost = new RegionUpHost();
