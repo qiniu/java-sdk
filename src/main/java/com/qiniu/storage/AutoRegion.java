@@ -50,7 +50,7 @@ class AutoRegion extends Region {
             return ret;
         }
 
-        String address = ucServer + "/v4/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
+        String address = ucServer + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
         Response r = client.get(address);
         ret = r.jsonToObject(UCRet.class);
         if (ret != null) {
@@ -66,7 +66,7 @@ class AutoRegion extends Region {
         }
 
         RegionGroup group = new RegionGroup();
-        for (HostRet host : ret.hosts) {
+        for (ServerRets host : ret.hosts) {
             Region region = host.createRegion();
             group.addRegion(region);
         }
@@ -267,41 +267,35 @@ class AutoRegion extends Region {
         // 有效期, 单位秒
         long deadline;
 
-        HostRet[] hosts;
-
-        HostRet universal;
+        ServerRets[] hosts;
 
         private boolean isValid() {
             return System.currentTimeMillis() < deadline * 1000;
         }
 
         private void setupDeadline() {
-            long ttl = 60;
-
-            HostRet ret = universal;
-            if (ret == null && hosts != null && hosts.length > 0) {
-                ret = hosts[0];
-            }
-
-            if (ret != null) {
-                ttl = ret.ttl;
+            long ttl = (1L << 31) - 1;
+            if (hosts != null && hosts.length > 0) {
+                for (ServerRets hostRet : hosts) {
+                    if (hostRet != null && hostRet.ttl < ttl) {
+                        ttl = hostRet.ttl;
+                    }
+                }
             }
             deadline = System.currentTimeMillis() / 1000 + ttl;
         }
     }
 
-    private class HostRet {
+    private class ServerRets {
         long ttl;
 
-        String[] support_apis;
-
         String region;
-        HostInfoRet up;
-        HostInfoRet rs;
-        HostInfoRet rsf;
-        HostInfoRet uc;
-        HostInfoRet api;
-        HostInfoRet io;
+        ServerRet up;
+        ServerRet rs;
+        ServerRet rsf;
+        ServerRet uc;
+        ServerRet api;
+        ServerRet io;
 
         Region createRegion() {
             long timestamp = ttl + System.currentTimeMillis() / 1000;
@@ -347,36 +341,60 @@ class AutoRegion extends Region {
         }
     }
 
-    private class HostInfoRet {
-        List<String> domains;
-        List<String> old;
+    private class ServerRet {
+        HostInfoRet src;
+        HostInfoRet acc;
 
         private String getOneHost() {
-            if (domains != null && domains.size() > 0) {
-                return domains.get(0);
+            String host = null;
+            if (src != null) {
+                host = src.getOneHost();
+            }
+
+            if (host == null && acc != null) {
+                host = acc.getOneHost();
+            }
+            return host;
+        }
+
+        private List<String> allSrcHosts() {
+            if (src != null) {
+                return src.allHosts();
+            } else {
+                return new ArrayList<>();
+            }
+        }
+
+        private List<String> allAccHosts() {
+            if (acc != null) {
+                return acc.allHosts();
+            } else {
+                return new ArrayList<>();
+            }
+        }
+    }
+
+    private class HostInfoRet {
+        List<String> main;
+        List<String> backup;
+
+        private String getOneHost() {
+            if (main != null && main.size() > 0) {
+                return main.get(0);
+            } else if (backup != null && backup.size() > 0) {
+                return backup.get(0);
             } else {
                 return null;
             }
         }
 
-        private List<String> allSrcHosts() {
+        private List<String> allHosts() {
             List<String> hosts = new ArrayList<>();
-            if (domains != null && domains.size() > 1) {
-                for (int i = 1; i < domains.size(); i++) {
-                    hosts.add(domains.get(i));
-                }
-            } else {
-                return new ArrayList<>();
+            if (main != null && main.size() > 0) {
+                hosts.addAll(main);
             }
-            return hosts;
-        }
-
-        private List<String> allAccHosts() {
-            List<String> hosts = new ArrayList<>();
-            if (domains != null && domains.size() > 0) {
-                hosts.add(domains.get(0));
-            } else {
-                return new ArrayList<>();
+            if (backup != null && backup.size() > 0) {
+                hosts.addAll(backup);
             }
             return hosts;
         }
