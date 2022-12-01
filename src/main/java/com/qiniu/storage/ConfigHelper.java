@@ -30,7 +30,6 @@ class ConfigHelper {
         }
     }
 
-    @Deprecated
     public String tryChangeUpHost(String upToken, String lastUsedHost) throws QiniuException {
         return upHost(upToken, lastUsedHost, true, false);
     }
