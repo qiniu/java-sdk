@@ -117,11 +117,18 @@ public class RegionGroup extends Region implements Cloneable {
 
     @Override
     boolean isValid() {
-        if (currentRegion == null) {
+        if (regionList.size() == 0) {
             return false;
         }
-        // 只判断当前的
-        return currentRegion.isValid();
+
+        boolean valid = true;
+        for (Region region : regionList) {
+            if (region == null || !region.isValid()) {
+                valid = false;
+                break;
+            }
+        }
+        return valid;
     }
 
     private void updateCurrentRegion() {
