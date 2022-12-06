@@ -23,8 +23,7 @@ class UpHostHelper {
     }
 
 
-    String upHost(Region region, String upToken, String lastUsedHost, boolean changeHost, boolean mustReturnUpHost)
-            throws QiniuException {
+    String upHost(Region region, String upToken, String lastUsedHost, boolean changeHost, boolean mustReturnUpHost) throws QiniuException {
         RegionReqInfo regionReqInfo = new RegionReqInfo(upToken);
 
         // auto region may failed here.

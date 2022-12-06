@@ -38,7 +38,6 @@ abstract class ResumeUploadPerformer {
         return uploadSource.isAllBlocksUploaded();
     }
 
-
     abstract boolean shouldUploadInit();
 
     abstract Response uploadInit() throws QiniuException;

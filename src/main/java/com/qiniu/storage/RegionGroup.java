@@ -41,6 +41,7 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
+    @Override
     String getRegion(RegionReqInfo regionReqInfo) {
         if (currentRegion == null) {
             return "";
@@ -49,6 +50,7 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
+    @Override
     List<String> getSrcUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
@@ -57,6 +59,7 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
+    @Override
     List<String> getAccUpHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
@@ -65,6 +68,7 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
+    @Override
     String getIovipHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
@@ -73,6 +77,7 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
+    @Override
     String getRsHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
@@ -81,6 +86,7 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
+    @Override
     String getRsfHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
@@ -89,6 +95,7 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
+    @Override
     String getApiHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;
@@ -97,6 +104,7 @@ public class RegionGroup extends Region implements Cloneable {
         }
     }
 
+    @Override
     Region getCurrentRegion(RegionReqInfo regionReqInfo) {
         if (currentRegion == null) {
             return null;
@@ -109,11 +117,18 @@ public class RegionGroup extends Region implements Cloneable {
 
     @Override
     boolean isValid() {
-        if (currentRegion == null) {
+        if (regionList.size() == 0) {
             return false;
         }
-        // 只判断当前的
-        return currentRegion.isValid();
+
+        boolean valid = true;
+        for (Region region : regionList) {
+            if (region == null || !region.isValid()) {
+                valid = false;
+                break;
+            }
+        }
+        return valid;
     }
 
     private void updateCurrentRegion() {

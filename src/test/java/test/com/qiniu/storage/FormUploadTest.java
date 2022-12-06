@@ -79,13 +79,13 @@ public class FormUploadTest {
         try {
             r = up.put("hello".getBytes(), expectKey, token, params, null, false);
         } catch (QiniuException e) {
-            fail();
+            fail(e.toString());
         }
         StringMap map = null;
         try {
             map = r.jsonToMap();
         } catch (QiniuException e) {
-            fail();
+            fail(e.toString());
         }
         assertEquals(200, r.statusCode);
         assert map != null;

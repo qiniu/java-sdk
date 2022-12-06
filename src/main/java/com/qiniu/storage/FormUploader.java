@@ -20,11 +20,8 @@ public final class FormUploader extends BaseUploader {
     private final byte[] data;
     private final String mime;
     private final boolean checkCrc;
-    private final Configuration config;
-    private final ConfigHelper configHelper;
     private StringMap params;
     private String filename;
-    private Client client;
 
     /**
      * 构建一个表单上传字节数组的对象
@@ -64,14 +61,11 @@ public final class FormUploader extends BaseUploader {
                          String mime, boolean checkCrc, Configuration configuration) {
         super(client, upToken, key, configuration);
 
-        this.client = client;
         this.file = file;
         this.data = data;
         this.params = params;
         this.mime = mime;
         this.checkCrc = checkCrc;
-        this.configHelper = new ConfigHelper(configuration);
-        this.config = configuration;
     }
 
     @Override

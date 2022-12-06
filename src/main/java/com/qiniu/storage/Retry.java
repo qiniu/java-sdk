@@ -25,25 +25,24 @@ class Retry {
     }
 
     static Boolean requestShouldRetry(Response response, QiniuException exception) {
-        if (response != null && response.needRetry()) {
-            return true;
+        if (response != null) {
+            return response.needRetry();
         }
 
         if (exception == null || exception.isUnrecoverable()) {
             return false;
         }
 
-        if (exception.response != null && exception.response.needRetry()) {
-            // 异常需可恢复
-            return true;
+        if (exception.response != null) {
+            return exception.response.needRetry();
         }
 
-        return false;
+        return true;
     }
 
     static Boolean requestShouldSwitchHost(Response response, QiniuException exception) {
-        if (response != null && response.needSwitchServer()) {
-            return true;
+        if (response != null) {
+            return response.needSwitchServer();
         }
 
         if (exception == null) {
@@ -54,12 +53,11 @@ class Retry {
             return false;
         }
 
-        if (exception.response == null || exception.response.needSwitchServer()) {
-            // 异常需可恢复
-            return true;
+        if (exception.response != null) {
+            return exception.response.needSwitchServer();
         }
 
-        return false;
+        return true;
     }
 
     static Response retryRequestAction(RequestRetryConfig config, RequestRetryAction action) throws QiniuException {
