@@ -18,7 +18,7 @@
 ```
 或者 Gradle:
 ```groovy
-compile 'com.qiniu:qiniu-java-sdk:7.12.+'
+implementation 'com.qiniu:qiniu-java-sdk:7.12.+'
 ```
 
 ## 运行环境
