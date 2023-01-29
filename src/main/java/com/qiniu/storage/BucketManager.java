@@ -1332,6 +1332,10 @@ public final class BucketManager {
         public String execBucket() {
             return execBucket;
         }
+
+        public int size() {
+            return ops.size();
+        }
     }
 
     /**
