@@ -1074,7 +1074,7 @@ public final class BucketManager {
     public Response getBucketQuotaResponse(String bucket) throws QiniuException {
         String url = String.format("%s/getbucketquota/%s", configHelper.ucHost(), bucket);
         Response res = post(url, null);
-        if (res.statusCode == 200 && res.error == null) {
+        if (res.statusCode != 200 || res.error != null) {
             throw new QiniuException(res);
         }
         return res;
