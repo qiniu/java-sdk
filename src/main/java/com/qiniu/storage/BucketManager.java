@@ -145,7 +145,7 @@ public final class BucketManager {
     }
 
     public Response domainListResponse(String bucket) throws QiniuException {
-        String url = String.format("%s/v6/domain/list?tbl=%s", configHelper.apiHost(auth.accessKey, bucket), bucket);
+        String url = String.format("%s/v2/domains?tbl=%s", configHelper.ucHost(), bucket);
         Response res = get(url);
         if (!res.isOK()) {
             throw new QiniuException(res);
@@ -664,7 +664,8 @@ public final class BucketManager {
         if (encodedHost != null) {
             path += String.format("/host/%s", encodedHost);
         }
-        return pubPost(path);
+        path = String.format("%s%s", configHelper.ucHost(), path);
+        return post(path, null);
     }
 
     /**
@@ -676,8 +677,8 @@ public final class BucketManager {
      */
     @Deprecated
     public Response unsetImage(String bucket) throws QiniuException {
-        String path = String.format("/unimage/%s", bucket);
-        return pubPost(path);
+        String path = String.format("%s/unimage/%s", configHelper.ucHost(), bucket);
+        return post(path, null);
     }
 
     /**
@@ -1048,7 +1049,7 @@ public final class BucketManager {
      */
     public Response putBucketQuota(String bucket, BucketQuota bucketQuota) throws QiniuException {
         String url = String.format("%s/setbucketquota/%s/size/%d/count/%d",
-                configHelper.apiHost(auth.accessKey, bucket), bucket, bucketQuota.getSize(), bucketQuota.getCount());
+                configHelper.ucHost(), bucket, bucketQuota.getSize(), bucketQuota.getCount());
         Response res = post(url, null);
         if (!res.isOK()) {
             throw new QiniuException(res);
@@ -1071,9 +1072,9 @@ public final class BucketManager {
     }
 
     public Response getBucketQuotaResponse(String bucket) throws QiniuException {
-        String url = String.format("%s/getbucketquota/%s", configHelper.apiHost(auth.accessKey, bucket), bucket);
+        String url = String.format("%s/getbucketquota/%s", configHelper.ucHost(), bucket);
         Response res = post(url, null);
-        if (!res.isOK()) {
+        if (res.statusCode == 200 && res.error == null) {
             throw new QiniuException(res);
         }
         return res;
@@ -1097,11 +1098,6 @@ public final class BucketManager {
     private Response ioPost(String bucket, String path) throws QiniuException {
         check(bucket);
         String url = configHelper.ioHost(auth.accessKey, bucket) + path;
-        return post(url, null);
-    }
-
-    private Response pubPost(String path) throws QiniuException {
-        String url = "http://pu.qbox.me:10200" + path;
         return post(url, null);
     }
 
