@@ -20,6 +20,7 @@ public class Region implements Cloneable {
     private List<String> srcUpHosts;
     private List<String> accUpHosts;
     private String iovipHost;
+    private String iosrcHost;
 
     /*
      * 资源管理，资源列表，资源处理类域名
@@ -35,12 +36,13 @@ public class Region implements Cloneable {
     }
 
     Region(long timestamp, String region, List<String> srcUpHosts, List<String> accUpHosts, String iovipHost,
-           String rsHost, String rsfHost, String apiHost, String ucHost) {
+           String iosrcHost, String rsHost, String rsfHost, String apiHost, String ucHost) {
         this.timestamp = timestamp;
         this.region = region;
         this.srcUpHosts = srcUpHosts;
         this.accUpHosts = accUpHosts;
         this.iovipHost = iovipHost;
+        this.iosrcHost = iosrcHost;
         this.rsHost = rsHost;
         this.rsfHost = rsfHost;
         this.apiHost = apiHost;
@@ -58,6 +60,7 @@ public class Region implements Cloneable {
                 srcUpHost("up.qiniup.com").
                 accUpHost("upload.qiniup.com").
                 iovipHost("iovip.qbox.me").
+                iosrcHost("kodo-cn-east-1.qiniucs.com").
                 rsHost("rs.qbox.me").
                 rsfHost("rsf.qbox.me").
                 apiHost("api.qiniuapi.com").
@@ -85,6 +88,7 @@ public class Region implements Cloneable {
                 srcUpHost("up-cn-east-2.qiniup.com").
                 accUpHost("upload-cn-east-2.qiniup.com").
                 iovipHost("iovip-cn-east-2.qiniuio.com").
+                iosrcHost("kodo-cn-east-2.qiniucs.com").
                 rsHost("rs-cn-east-2.qiniuapi.com").
                 rsfHost("rsf-cn-east-2.qiniuapi.com").
                 apiHost("api-cn-east-2.qiniuapi.com").
@@ -112,6 +116,7 @@ public class Region implements Cloneable {
                 srcUpHost("free-qvm-z0-xs.qiniup.com").
                 accUpHost("free-qvm-z0-xs.qiniup.com").
                 iovipHost("iovip.qbox.me").
+                iosrcHost("kodo-cn-east-1.qiniucs.com").
                 rsHost("rs.qbox.me").
                 rsfHost("rsf.qbox.me").
                 apiHost("api.qiniu.com").
@@ -138,6 +143,7 @@ public class Region implements Cloneable {
                 srcUpHost("up-z1.qiniup.com").
                 accUpHost("upload-z1.qiniup.com").
                 iovipHost("iovip-z1.qbox.me").
+                iosrcHost("kodo-cn-north-1.qiniucs.com").
                 rsHost("rs-z1.qbox.me").
                 rsfHost("rsf-z1.qbox.me").
                 apiHost("api-z1.qiniuapi.com").
@@ -164,6 +170,7 @@ public class Region implements Cloneable {
                 srcUpHost("free-qvm-z1-zz.qiniup.com").
                 accUpHost("free-qvm-z1-zz.qiniup.com").
                 iovipHost("iovip-z1.qbox.me").
+                iosrcHost("kodo-cn-north-1.qiniucs.com").
                 rsHost("rs-z1.qbox.me").
                 rsfHost("rsf-z1.qbox.me").
                 apiHost("api-z1.qiniu.com").
@@ -190,6 +197,7 @@ public class Region implements Cloneable {
                 srcUpHost("up-z2.qiniup.com").
                 accUpHost("upload-z2.qiniup.com").
                 iovipHost("iovip-z2.qbox.me").
+                iosrcHost("kodo-cn-south-1.qiniucs.com").
                 rsHost("rs-z2.qbox.me").
                 rsfHost("rsf-z2.qbox.me").
                 apiHost("api-z2.qiniuapi.com").
@@ -216,6 +224,7 @@ public class Region implements Cloneable {
                 srcUpHost("up-ap-northeast-1.qiniup.com").
                 accUpHost("upload-ap-northeast-1.qiniup.com").
                 iovipHost("iovip-ap-northeast-1.qiniuio.com").
+                iosrcHost("kodo-ap-northeast-1.qiniucs.com").
                 rsHost("rs-ap-northeast-1.qiniuapi.com").
                 rsfHost("rsf-ap-northeast-1.qiniuapi.com").
                 apiHost("api-ap-northeast-1.qiniuapi.com").
@@ -233,6 +242,7 @@ public class Region implements Cloneable {
                 srcUpHost("up-na0.qiniup.com").
                 accUpHost("upload-na0.qiniup.com").
                 iovipHost("iovip-na0.qbox.me").
+                iosrcHost("kodo-us-north-1.qiniucs.com").
                 rsHost("rs-na0.qbox.me").
                 rsfHost("rsf-na0.qbox.me").
                 apiHost("api-na0.qiniuapi.com").
@@ -259,6 +269,7 @@ public class Region implements Cloneable {
                 srcUpHost("up-as0.qiniup.com").
                 accUpHost("upload-as0.qiniup.com").
                 iovipHost("iovip-as0.qbox.me").
+                iosrcHost("kodo-ap-southeast-1.qiniucs.com").
                 rsHost("rs-as0.qbox.me").
                 rsfHost("rsf-as0.qbox.me").
                 apiHost("api-as0.qiniuapi.com").
@@ -314,6 +325,10 @@ public class Region implements Cloneable {
         return iovipHost;
     }
 
+    String getIosrcHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        return iosrcHost;
+    }
+
     String getRsHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return rsHost;
     }
@@ -345,6 +360,7 @@ public class Region implements Cloneable {
         newRegion.srcUpHosts = srcUpHosts;
         newRegion.accUpHosts = accUpHosts;
         newRegion.iovipHost = iovipHost;
+        newRegion.iosrcHost = iosrcHost;
         newRegion.rsHost = rsHost;
         newRegion.rsfHost = rsfHost;
         newRegion.apiHost = apiHost;
@@ -368,6 +384,7 @@ public class Region implements Cloneable {
             region.srcUpHosts = originRegion.srcUpHosts;
             region.accUpHosts = originRegion.accUpHosts;
             region.iovipHost = originRegion.iovipHost;
+            region.iosrcHost = originRegion.iosrcHost;
             region.rsHost = originRegion.rsHost;
             region.rsfHost = originRegion.rsfHost;
             region.apiHost = originRegion.apiHost;
@@ -394,6 +411,11 @@ public class Region implements Cloneable {
 
         public Builder iovipHost(String iovipHost) {
             this.region.iovipHost = iovipHost;
+            return this;
+        }
+
+        public Builder iosrcHost(String iosrcHost) {
+            this.region.iosrcHost = iosrcHost;
             return this;
         }
 

@@ -5,6 +5,7 @@ import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
+import com.qiniu.storage.Region;
 import com.qiniu.storage.model.*;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringUtils;
@@ -45,7 +46,8 @@ public class BucketTest2 {
      */
     @BeforeEach
     public void setUp() throws Exception {
-        Configuration cfg = new Configuration(Zone.zone0());
+        Configuration cfg = new Configuration();
+        cfg.region = Region.region0();
         // cfg.useHttpsDomains = false;
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
         this.dummyBucketManager = new BucketManager(TestConfig.dummyAuth, new Configuration());
@@ -524,6 +526,22 @@ public class BucketTest2 {
             } catch (QiniuException e) {
                 assertEquals(612, e.response.statusCode);
             }
+        }
+    }
+
+    /**
+     * 测试获取bucket源站域名
+     */
+    @Test
+    @Tag("IntegrationTest")
+    public void testBucketDomain() {
+        String bucket = TestConfig.testBucket_z0;
+        try {
+            String domain = bucketManager.getBucketSrcDownloadDomain(bucket);
+            assertNotNull(domain, "domain is not null.");
+            assertTrue(domain.startsWith(bucket), "domain starts with " + bucket);
+        } catch (QiniuException e) {
+            fail(e);
         }
     }
 

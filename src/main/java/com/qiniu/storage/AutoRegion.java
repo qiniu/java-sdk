@@ -193,6 +193,15 @@ class AutoRegion extends Region {
         return region.getIovipHost(regionReqInfo);
     }
 
+    @Override
+    String getIosrcHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (regionReqInfo == null) {
+            return "";
+        }
+        Region region = queryRegionInfo(regionReqInfo);
+        return region.getIosrcHost(regionReqInfo);
+    }
+
     /**
      * 获取资源管理域名
      */
@@ -296,6 +305,7 @@ class AutoRegion extends Region {
         ServerRet uc;
         ServerRet api;
         ServerRet io;
+        ServerRet io_src;
 
         Region createRegion() {
             long timestamp = ttl + System.currentTimeMillis() / 1000;
@@ -309,6 +319,11 @@ class AutoRegion extends Region {
             String iovipHost = null;
             if (io != null) {
                 iovipHost = io.getOneHost();
+            }
+
+            String iosrcHost = null;
+            if (io_src != null) {
+                iosrcHost = io_src.getOneHost();
             }
 
             String rsHost = null;
@@ -337,7 +352,8 @@ class AutoRegion extends Region {
                 regionId = "";
             }
 
-            return new Region(timestamp, regionId, srcUpHosts, accUpHosts, iovipHost, rsHost, rsfHost, apiHost, ucHost);
+            return new Region(timestamp, regionId, srcUpHosts, accUpHosts, iovipHost,
+                    iosrcHost, rsHost, rsfHost, apiHost, ucHost);
         }
     }
 
