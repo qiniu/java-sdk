@@ -194,12 +194,12 @@ class AutoRegion extends Region {
     }
 
     @Override
-    String getIosrcHost(RegionReqInfo regionReqInfo) throws QiniuException {
+    String getIoSrcHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (regionReqInfo == null) {
             return "";
         }
         Region region = queryRegionInfo(regionReqInfo);
-        return region.getIosrcHost(regionReqInfo);
+        return region.getIoSrcHost(regionReqInfo);
     }
 
     /**
@@ -321,9 +321,9 @@ class AutoRegion extends Region {
                 iovipHost = io.getOneHost();
             }
 
-            String iosrcHost = null;
+            String ioSrcHost = null;
             if (io_src != null) {
-                iosrcHost = io_src.getOneHost();
+                ioSrcHost = io_src.getOneHost();
             }
 
             String rsHost = null;
@@ -353,7 +353,7 @@ class AutoRegion extends Region {
             }
 
             return new Region(timestamp, regionId, srcUpHosts, accUpHosts, iovipHost,
-                    iosrcHost, rsHost, rsfHost, apiHost, ucHost);
+                    ioSrcHost, rsHost, rsfHost, apiHost, ucHost);
         }
     }
 

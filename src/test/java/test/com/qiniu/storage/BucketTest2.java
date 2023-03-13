@@ -47,7 +47,7 @@ public class BucketTest2 {
     @BeforeEach
     public void setUp() throws Exception {
         Configuration cfg = new Configuration();
-        cfg.region = Region.region0();
+        cfg.region = Region.autoRegion();
         // cfg.useHttpsDomains = false;
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
         this.dummyBucketManager = new BucketManager(TestConfig.dummyAuth, new Configuration());
