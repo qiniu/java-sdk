@@ -1079,6 +1079,12 @@ public final class BucketManager {
         return res;
     }
 
+    /**
+     * 获取 Bucket 的源站域名
+     * @param bucket 空间名
+     * @return 源站域名
+     * @throws QiniuException 异常
+     */
     public String getBucketSrcDownloadDomain(String bucket) throws QiniuException {
         String domain = configHelper.iosrcDomain(auth.accessKey, bucket);
         if (domain.startsWith(bucket + ".")) {
