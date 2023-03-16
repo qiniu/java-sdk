@@ -1,7 +1,6 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.*;
@@ -31,8 +30,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class BucketTest2 {
 
@@ -537,18 +534,17 @@ public class BucketTest2 {
      */
     @Test
     @Tag("IntegrationTest")
-    public void testBucketIoSrcDomainDownload() {
+    public void testDefaultIoSrcDomainDownload() {
         String bucket = TestConfig.testBucket_z0;
         String key = "test_bucket_domain_file_key";
 
-        // 构造测试域名
-        String domain;
+        // 获取默认源站域名
+        String domain = "";
         try {
-            domain = bucketManager.getBucketSrcDownloadDomain(bucket);
+            domain = bucketManager.getDefaultIoSrcDomain(bucket);
             assertNotNull(domain, "domain is not null.");
         } catch (QiniuException e) {
             fail(e);
-            return;
         }
 
         // 构造测试数据
@@ -564,7 +560,6 @@ public class BucketTest2 {
                     key, TestConfig.testAuth.uploadToken(bucket), map, null);
         } catch (QiniuException e) {
             fail(e);
-            return;
         }
 
         // 测试文件是否存在
@@ -573,17 +568,15 @@ public class BucketTest2 {
             assertNotNull(info, "info is not null.");
         } catch (QiniuException e) {
             fail(e);
-            return;
         }
 
         // 构造下载链接
-        String url;
+        String url = "";
         try {
             url = new DownloadUrl(domain, false, key).buildURL();
             url = TestConfig.testAuth.privateDownloadUrl(url, 3600);
         } catch (QiniuException e) {
             fail(e);
-            return;
         }
 
         // 下载测试文件

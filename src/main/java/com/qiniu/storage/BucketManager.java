@@ -1080,12 +1080,12 @@ public final class BucketManager {
     }
 
     /**
-     * 获取 Bucket 的源站域名
+     * 获取 Bucket 的默认源站域名
      * @param bucket 空间名
      * @return 源站域名
      * @throws QiniuException 异常
      */
-    public String getBucketSrcDownloadDomain(String bucket) throws QiniuException {
+    public String getDefaultIoSrcDomain(String bucket) throws QiniuException {
         return configHelper.ioSrcDomain(auth.accessKey, bucket);
     }
 
