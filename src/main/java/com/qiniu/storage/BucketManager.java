@@ -1085,8 +1085,8 @@ public final class BucketManager {
      * @return 源站域名
      * @throws QiniuException 异常
      */
-    public String getDefaultIoSrcDomain(String bucket) throws QiniuException {
-        return configHelper.ioSrcDomain(auth.accessKey, bucket);
+    public String getDefaultIoSrcHost(String bucket) throws QiniuException {
+        return configHelper.ioSrcHost(auth.accessKey, bucket);
     }
 
     /*

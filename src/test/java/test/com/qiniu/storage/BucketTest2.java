@@ -541,7 +541,7 @@ public class BucketTest2 {
         // 获取默认源站域名
         String domain = "";
         try {
-            domain = bucketManager.getDefaultIoSrcDomain(bucket);
+            domain = bucketManager.getDefaultIoSrcHost(bucket);
             assertNotNull(domain, "domain is not null.");
         } catch (QiniuException e) {
             fail(e);
