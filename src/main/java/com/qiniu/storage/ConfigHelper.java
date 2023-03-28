@@ -45,6 +45,11 @@ class ConfigHelper {
         return getScheme() + config.region.getIovipHost(regionReqInfo);
     }
 
+    public String ioSrcHost(String ak, String bucket) throws QiniuException {
+        RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
+        return config.region.getIoSrcHost(regionReqInfo);
+    }
+
     public String apiHost(String ak, String bucket) throws QiniuException {
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
         return getScheme() + config.region.getApiHost(regionReqInfo);

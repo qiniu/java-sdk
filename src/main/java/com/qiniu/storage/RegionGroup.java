@@ -78,6 +78,15 @@ public class RegionGroup extends Region implements Cloneable {
     }
 
     @Override
+    String getIoSrcHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (currentRegion == null) {
+            return null;
+        } else {
+            return currentRegion.getIoSrcHost(regionReqInfo);
+        }
+    }
+
+    @Override
     String getRsHost(RegionReqInfo regionReqInfo) throws QiniuException {
         if (currentRegion == null) {
             return null;

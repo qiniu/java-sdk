@@ -20,6 +20,7 @@ public class Region implements Cloneable {
     private List<String> srcUpHosts;
     private List<String> accUpHosts;
     private String iovipHost;
+    private String ioSrcHost;
 
     /*
      * 资源管理，资源列表，资源处理类域名
@@ -35,12 +36,13 @@ public class Region implements Cloneable {
     }
 
     Region(long timestamp, String region, List<String> srcUpHosts, List<String> accUpHosts, String iovipHost,
-           String rsHost, String rsfHost, String apiHost, String ucHost) {
+           String ioSrcHost, String rsHost, String rsfHost, String apiHost, String ucHost) {
         this.timestamp = timestamp;
         this.region = region;
         this.srcUpHosts = srcUpHosts;
         this.accUpHosts = accUpHosts;
         this.iovipHost = iovipHost;
+        this.ioSrcHost = ioSrcHost;
         this.rsHost = rsHost;
         this.rsfHost = rsfHost;
         this.apiHost = apiHost;
@@ -314,6 +316,10 @@ public class Region implements Cloneable {
         return iovipHost;
     }
 
+    String getIoSrcHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        return ioSrcHost;
+    }
+
     String getRsHost(RegionReqInfo regionReqInfo) throws QiniuException {
         return rsHost;
     }
@@ -345,6 +351,7 @@ public class Region implements Cloneable {
         newRegion.srcUpHosts = srcUpHosts;
         newRegion.accUpHosts = accUpHosts;
         newRegion.iovipHost = iovipHost;
+        newRegion.ioSrcHost = ioSrcHost;
         newRegion.rsHost = rsHost;
         newRegion.rsfHost = rsfHost;
         newRegion.apiHost = apiHost;
@@ -368,6 +375,7 @@ public class Region implements Cloneable {
             region.srcUpHosts = originRegion.srcUpHosts;
             region.accUpHosts = originRegion.accUpHosts;
             region.iovipHost = originRegion.iovipHost;
+            region.ioSrcHost = originRegion.ioSrcHost;
             region.rsHost = originRegion.rsHost;
             region.rsfHost = originRegion.rsfHost;
             region.apiHost = originRegion.apiHost;
@@ -394,6 +402,11 @@ public class Region implements Cloneable {
 
         public Builder iovipHost(String iovipHost) {
             this.region.iovipHost = iovipHost;
+            return this;
+        }
+
+        public Builder ioSrcHost(String ioSrcHost) {
+            this.region.ioSrcHost = ioSrcHost;
             return this;
         }
 

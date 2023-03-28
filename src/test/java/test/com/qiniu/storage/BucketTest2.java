@@ -1,12 +1,12 @@
 package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.common.Zone;
+import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.storage.BucketManager;
-import com.qiniu.storage.Configuration;
+import com.qiniu.storage.*;
 import com.qiniu.storage.model.*;
 import com.qiniu.util.Json;
+import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -26,17 +26,17 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class BucketTest2 {
 
     List<Integer> batchStatusCode = Arrays.asList(200, 298);
     private BucketManager bucketManager;
     private BucketManager dummyBucketManager;
+    private UploadManager uploadManager;
 
     /**
      * 初始化
@@ -45,9 +45,11 @@ public class BucketTest2 {
      */
     @BeforeEach
     public void setUp() throws Exception {
-        Configuration cfg = new Configuration(Zone.zone0());
+        Configuration cfg = new Configuration();
+        cfg.region = Region.autoRegion();
         // cfg.useHttpsDomains = false;
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
+        this.uploadManager = new UploadManager(cfg);
         this.dummyBucketManager = new BucketManager(TestConfig.dummyAuth, new Configuration());
     }
 
@@ -524,6 +526,74 @@ public class BucketTest2 {
             } catch (QiniuException e) {
                 assertEquals(612, e.response.statusCode);
             }
+        }
+    }
+
+    /**
+     * 测试能够获取bucket源站域名并能用于下载
+     */
+    @Test
+    @Tag("IntegrationTest")
+    public void testDefaultIoSrcDomainDownload() {
+        String bucket = TestConfig.testBucket_z0;
+        String key = "test_bucket_domain_file_key";
+
+        // 获取默认源站域名
+        String domain = "";
+        try {
+            domain = bucketManager.getDefaultIoSrcHost(bucket);
+            assertNotNull(domain, "domain is not null.");
+        } catch (QiniuException e) {
+            fail(e);
+        }
+
+        // 构造测试数据
+        byte[] uploadData = new byte[1024];
+        new Random().nextBytes(uploadData);
+
+        // 将测试数据上传到测试文件
+        try {
+            StringMap map = new StringMap();
+            map.put("insertOnly", "1");
+            uploadManager.put(
+                    new ByteArrayInputStream(uploadData),
+                    key, TestConfig.testAuth.uploadToken(bucket), map, null);
+        } catch (QiniuException e) {
+            fail(e);
+        }
+
+        // 测试文件是否存在
+        try {
+            FileInfo info = bucketManager.stat(bucket, key);
+            assertNotNull(info, "info is not null.");
+        } catch (QiniuException e) {
+            fail(e);
+        }
+
+        // 构造下载链接
+        String url = "";
+        try {
+            url = new DownloadUrl(domain, false, key).buildURL();
+            url = TestConfig.testAuth.privateDownloadUrl(url, 3600);
+        } catch (QiniuException e) {
+            fail(e);
+        }
+
+        // 下载测试文件
+        byte[] downloadData;
+        Client client = new Client();
+        try {
+            downloadData = client.get(url).body();
+        } catch (QiniuException e) {
+            throw new RuntimeException(e);
+        }
+        assertArrayEquals(uploadData, downloadData);
+
+        // 删除测试文件
+        try {
+            bucketManager.delete(bucket, key);
+        } catch (QiniuException e) {
+            fail(e);
         }
     }
 

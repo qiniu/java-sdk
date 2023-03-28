@@ -1079,6 +1079,16 @@ public final class BucketManager {
         return res;
     }
 
+    /**
+     * 获取 Bucket 的默认源站域名
+     * @param bucket 空间名
+     * @return 源站域名
+     * @throws QiniuException 异常
+     */
+    public String getDefaultIoSrcHost(String bucket) throws QiniuException {
+        return configHelper.ioSrcHost(auth.accessKey, bucket);
+    }
+
     /*
      * 相关请求的方法列表
      * */
