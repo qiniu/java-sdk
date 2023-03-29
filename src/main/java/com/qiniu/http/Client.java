@@ -394,6 +394,10 @@ public final class Client {
         return send(requestBuilder, headers);
     }
 
+    public Response head(String url, StringMap headers) throws QiniuException {
+        Request.Builder requestBuilder = new Request.Builder().url(url).head();
+        return send(requestBuilder, headers);
+    }
 
     public Response send(final Request.Builder requestBuilder, StringMap headers) throws QiniuException {
         if (headers != null) {
