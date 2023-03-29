@@ -1,6 +1,6 @@
 # Changelog
 ## 7.13.0（2023-03-30)
-* Client 开方 head 请求方法
+* Client 开放 head 请求方法
 * BatchOperations 增加 size() 方法
 * BucketManager 支持获取源站域名
 
