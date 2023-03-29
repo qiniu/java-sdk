@@ -61,7 +61,7 @@ public final class CdnManager {
 
     public static String createTimestampAntiLeechUrl(URL oUrl, String encryptKey, long deadline) throws QiniuException {
         try {
-            String urlencodedPath = URLEncoder.encode(oUrl.getPath(), "UTF-8").replaceAll("%2F", "/");
+            String urlencodedPath = URLEncoder.encode(oUrl.getPath(), "UTF-8").replaceAll("%2F", "/").replaceAll("\\+", "%20");
             String query = oUrl.getQuery();
             String file = (query == null) ? urlencodedPath : (urlencodedPath + "?" + query);
             URL url = new URL(oUrl.getProtocol(), oUrl.getHost(), oUrl.getPort(), file);
