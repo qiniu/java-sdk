@@ -1,4 +1,9 @@
 # Changelog
+## 7.13.0（2023-03-30)
+* Client 开放 head 请求方法
+* BatchOperations 增加 size() 方法
+* BucketManager 支持获取源站域名
+
 ## 7.12.1（2022-12-07）
 * uc query 增加全局缓存
 * 处理分片 v2 块大小设置无效问题
