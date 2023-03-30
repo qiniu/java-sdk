@@ -146,7 +146,7 @@ public final class Configuration implements Cloneable {
         try {
             Configuration configuration = (Configuration) super.clone();
             if (region != null) {
-                configuration.region = (Region)region.clone();
+                configuration.region = (Region) region.clone();
             }
             return configuration;
         } catch (CloneNotSupportedException e) {

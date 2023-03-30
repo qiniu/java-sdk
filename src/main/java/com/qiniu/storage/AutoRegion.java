@@ -294,7 +294,7 @@ class AutoRegion extends Region {
             deadline = System.currentTimeMillis() / 1000 + ttl;
         }
     }
-
+    // CHECKSTYLE:OFF
     private class ServerRets {
         long ttl;
 
@@ -305,6 +305,7 @@ class AutoRegion extends Region {
         ServerRet uc;
         ServerRet api;
         ServerRet io;
+        @SuppressWarnings({"MemberName"})
         ServerRet io_src;
 
         Region createRegion() {
@@ -356,7 +357,7 @@ class AutoRegion extends Region {
                     ioSrcHost, rsHost, rsfHost, apiHost, ucHost);
         }
     }
-
+    // CHECKSTYLE:ON
     private class ServerRet {
         HostInfoRet src;
         HostInfoRet acc;
