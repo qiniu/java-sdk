@@ -574,7 +574,7 @@ public class BucketTest2 {
         String url = "";
         try {
             url = new DownloadUrl(domain, false, key).buildURL();
-            url = TestConfig.testAuth.privateDownloadUrl(url, 3600);
+            url = TestConfig.testAuth.privateDownloadUrl(url, 300);
         } catch (QiniuException e) {
             fail(e);
         }

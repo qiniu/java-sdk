@@ -260,14 +260,14 @@ public final class Auth {
 
 
     /**
-     * 下载签名
+     * 构造下载签名，默认有效期为300s
      *
      * @param baseUrl 待签名文件url，如 http://img.domain.com/u/3.jpg 、
      *                http://img.domain.com/u/3.jpg?imageView2/1/w/120
      * @return 签名
      */
     public String privateDownloadUrl(String baseUrl) {
-        return privateDownloadUrl(baseUrl, 3600);
+        return privateDownloadUrl(baseUrl, 300);
     }
 
     /**
@@ -275,7 +275,7 @@ public final class Auth {
      *
      * @param baseUrl 待签名文件url，如 http://img.domain.com/u/3.jpg 、
      *                http://img.domain.com/u/3.jpg?imageView2/1/w/120
-     * @param expires 有效时长，单位秒。默认3600s
+     * @param expires 有效时长，单位秒。公有云服务器上有效时长最大为 300s
      * @return 签名
      */
     public String privateDownloadUrl(String baseUrl, long expires) {
