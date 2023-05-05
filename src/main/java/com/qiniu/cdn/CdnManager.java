@@ -59,9 +59,17 @@ public final class CdnManager {
         this.client = client;
     }
 
+    public static String encodePath(String path) throws Exception {
+        try {
+            return URLEncoder.encode(path, "UTF-8").replaceAll("%2F", "/").replaceAll("\\+", "%20");
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
     public static String createTimestampAntiLeechUrl(URL oUrl, String encryptKey, long deadline) throws QiniuException {
         try {
-            String urlencodedPath = URLEncoder.encode(oUrl.getPath(), "UTF-8").replaceAll("%2F", "/");
+            String urlencodedPath = encodePath(oUrl.getPath());
             String query = oUrl.getQuery();
             String file = (query == null) ? urlencodedPath : (urlencodedPath + "?" + query);
             URL url = new URL(oUrl.getProtocol(), oUrl.getHost(), oUrl.getPort(), file);
