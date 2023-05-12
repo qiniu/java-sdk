@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 def isReleaseBuild() {
@@ -39,76 +39,63 @@ def getRepositoryPassword() {
     return hasProperty('NEXUS_PASSWORD') ? NEXUS_PASSWORD : ""
 }
 
-afterEvaluate { project ->
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+task srcJar(type: Jar) {
+    from sourceSets.main.allJava
+}
 
-                pom.groupId = GROUP
-                pom.artifactId = POM_ARTIFACT_ID
-                pom.version = VERSION_NAME
+publishing {
+    publications{
+        mavenJava(MavenPublication){
 
-                repository(url: getReleaseRepositoryUrl()) {
-                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+            groupId = GROUP
+            artifactId = POM_ARTIFACT_ID
+            version = VERSION_NAME
+            from components.java
+
+            artifact srcJar {
+                classifier "sources"
+            }
+
+            pom {
+                name = POM_NAME
+                description = POM_DESCRIPTION
+                url = POM_URL
+                inceptionYear = POM_INCEPTION_YEAR
+
+                licenses {
+                    license {
+                        name = POM_LICENCE_NAME
+                        url = POM_LICENCE_URL
+                    }
                 }
-                snapshotRepository(url: getSnapshotRepositoryUrl()) {
-                    authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+                developers {
+                    developer {
+                        id = POM_DEVELOPER_ID
+                        name = POM_DEVELOPER_NAME
+                        email = POM_EMAIL
+                    }
                 }
-
-                pom.project {
-                    name POM_NAME
-                    packaging POM_PACKAGING
-                    description POM_DESCRIPTION
-                    url POM_URL
-
-                    scm {
-                        url POM_SCM_URL
-                        connection POM_SCM_CONNECTION
-                        developerConnection POM_SCM_DEV_CONNECTION
-                    }
-
-                    licenses {
-                        license {
-                            name POM_LICENCE_NAME
-                            url POM_LICENCE_URL
-                            distribution POM_LICENCE_DIST
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id POM_DEVELOPER_ID
-                            name POM_DEVELOPER_NAME
-                        }
-                    }
+                scm {
+                    connection= POM_SCM_CONNECTION
+                    developerConnection=POM_SCM_DEV_CONNECTION
+                    url=POM_SCM_URL
                 }
             }
         }
     }
 
-    signing {
-        required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
-        sign configurations.archives
+    repositories {
+        maven {
+            name = POM_NAME
+            url = getReleaseRepositoryUrl()
+            credentials {
+                username = getRepositoryUsername()
+                password = getRepositoryPassword()
+            }
+        }
     }
+}
 
-    task javadocs(type: Javadoc) {
-        failOnError = false
-        source = sourceSets.main.java.srcDirs
-    }
-
-    task javadocsJar(type: Jar, dependsOn: javadocs) {
-        classifier = 'javadoc'
-        from javadocs.destinationDir
-    }
-
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    artifacts {
-        archives javadocsJar
-        archives sourcesJar
-    }
+signing {
+    sign publishing.publications.mavenJava
 }
