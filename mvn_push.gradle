@@ -43,6 +43,16 @@ task srcJar(type: Jar) {
     from sourceSets.main.allJava
 }
 
+task javadocs(type: Javadoc) {
+    failOnError = false
+    source = sourceSets.main.java.srcDirs
+}
+
+task docJar(type: Jar, dependsOn: javadocs) {
+    classifier = 'javadoc'
+    from javadocs.destinationDir
+}
+
 publishing {
     publications{
         mavenJava(MavenPublication){
@@ -54,6 +64,10 @@ publishing {
 
             artifact srcJar {
                 classifier "sources"
+            }
+
+            artifact docJar {
+                classifier "javadoc"
             }
 
             pom {
