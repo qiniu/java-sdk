@@ -201,6 +201,17 @@ public final class BucketManager {
         return get(url);
     }
 
+    /**
+     * 列举空间文件 v1 接口
+     *
+     * @param bucket    空间名
+     * @param prefix    文件名前缀
+     * @param marker    上一次获取文件列表时返回的 marker
+     * @param limit     每次迭代的长度限制，推荐值 1000
+     * @param delimiter 指定目录分隔符，列出所有公共前缀（模拟列出目录效果）。缺省值为空字符串
+     * @return FileListing
+     * @throws QiniuException 异常
+     */
     public FileListing listFiles(String bucket, String prefix, String marker, int limit, String delimiter)
             throws QiniuException {
         Response response = listV1(bucket, prefix, marker, limit, delimiter);
@@ -215,6 +226,7 @@ public final class BucketManager {
     /**
      * 列举空间文件 v2 接口，返回一个 response 对象。v2 接口可以避免由于大量删除导致的列举超时问题，返回的 response 对象中的 body 可以转换为
      * string stream 来处理。
+     * Deprecated，使用 {@link BucketManager#listV1(String, String, String, int, String)} } 替换
      *
      * @param bucket    空间名
      * @param prefix    文件名前缀
@@ -224,6 +236,7 @@ public final class BucketManager {
      * @return Response 返回一个 okhttp response 对象
      * @throws QiniuException 异常
      */
+    @Deprecated
     public Response listV2(String bucket, String prefix, String marker, int limit, String delimiter)
             throws QiniuException {
         String url = String.format("%s/v2/list?%s", configHelper.rsfHost(auth.accessKey, bucket),
@@ -231,6 +244,19 @@ public final class BucketManager {
         return post(url, null);
     }
 
+    /**
+     * 列举空间文件 v2 接口
+     * Deprecated，使用 {@link BucketManager#listFiles(String, String, String, int, String)} 替换
+     *
+     * @param bucket    空间名
+     * @param prefix    文件名前缀
+     * @param marker    上一次获取文件列表时返回的 marker
+     * @param limit     每次迭代的长度限制，推荐值 1000
+     * @param delimiter 指定目录分隔符，列出所有公共前缀（模拟列出目录效果）。缺省值为空字符串
+     * @return FileListing
+     * @throws QiniuException 异常
+     */
+    @Deprecated
     public FileListing listFilesV2(String bucket, String prefix, String marker, int limit, String delimiter)
             throws QiniuException {
         Response response = listV2(bucket, prefix, marker, limit, delimiter);
@@ -1081,6 +1107,7 @@ public final class BucketManager {
 
     /**
      * 获取 Bucket 的默认源站域名
+     *
      * @param bucket 空间名
      * @return 源站域名
      * @throws QiniuException 异常
