@@ -9,6 +9,7 @@ public class StaticLiveRoute {
     private String domain; // 域名
     private String domainType;   // 域名类型  publishRtmp | liveRtmp | liveHls | liveHdl
     private int urlExpireSec; // 地址过期时间,urlExpireSec:100代表100秒后过期;  默认urlExpireSec:0,永不过期.
+    private int playExpireSec; // 播放过期时间(单位为秒)
 
     public StaticLiveRoute(String domain, String domainType) {
         this.domain = domain;
@@ -19,6 +20,13 @@ public class StaticLiveRoute {
         this.domain = domain;
         this.domainType = domainType;
         this.urlExpireSec = urlExpireSec;
+    }
+
+    public StaticLiveRoute(String domain, String domainType, int urlExpireSec, int playExpireSec) {
+        this.domain = domain;
+        this.domainType = domainType;
+        this.urlExpireSec = urlExpireSec;
+        this.playExpireSec = playExpireSec;
     }
 
     public String getDomain() {
@@ -43,6 +51,14 @@ public class StaticLiveRoute {
 
     public void setUrlExpireSec(int urlExpireSec) {
         this.urlExpireSec = urlExpireSec;
+    }
+
+    public int getPlayExpireSec() {
+        return playExpireSec;
+    }
+
+    public void setPlayExpireSec(int playExpireSec) {
+        this.playExpireSec = playExpireSec;
     }
 
     public String genStaticHLSFLVDomain(String nsId, String streamId, String key, boolean useHttps) {

@@ -91,8 +91,8 @@ public class StreamManager {
         静态模式获取流地址
      */
     public Response staticPublishPlayURL(String namespaceId, String streamId, StaticLiveRoute staticLiveRoute) throws QiniuException {
-        StringMap params = new StringMap().put("Domain", staticLiveRoute.getDomain()).
-                put("DomainType", staticLiveRoute.getDomainType()).putNotNull("UrlExpireSec", staticLiveRoute.getUrlExpireSec());
+        StringMap params = new StringMap().put("domain", staticLiveRoute.getDomain()).
+                put("domainType", staticLiveRoute.getDomainType()).putNotNull("urlExpireSec", staticLiveRoute.getUrlExpireSec()).putNotNull("playExpireSec", staticLiveRoute.getPlayExpireSec());
         String url = String.format("%s/v1/namespaces/%s/streams/%s/domain", apiServer, namespaceId, streamId);
         return QvsResponse.post(url, params, client, auth);
     }
@@ -102,9 +102,10 @@ public class StreamManager {
      */
     public Response dynamicPublishPlayURL(String namespaceId, String streamId, DynamicLiveRoute dynamicLiveRoute) throws QiniuException {
         StringMap params = new StringMap();
-        params.put("PublishIP", dynamicLiveRoute.getPublishIP());
-        params.put("PlayIP", dynamicLiveRoute.getPlayIP());
-        params.putNotNull("UrlExpireSec", dynamicLiveRoute.getUrlExpireSec());
+        params.put("publishIp", dynamicLiveRoute.getPublishIP());
+        params.put("playIp", dynamicLiveRoute.getPlayIP());
+        params.putNotNull("urlExpireSec", dynamicLiveRoute.getUrlExpireSec());
+        params.putNotNull("playExpireSec", dynamicLiveRoute.getPlayExpireSec());
 
         String url = String.format("%s/v1/namespaces/%s/streams/%s/urls", apiServer, namespaceId, streamId);
         return QvsResponse.post(url, params, client, auth);
