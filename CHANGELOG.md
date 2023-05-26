@@ -1,4 +1,9 @@
 # Changelog
+## 7.13.1（2023-05-25)
+* GetBucketQuota
+* ChangeApiHost
+* PlayExpire
+
 ## 7.13.0（2023-03-30)
 * Client 开放 head 请求方法
 * BatchOperations 增加 size() 方法
