@@ -60,7 +60,7 @@ public class SmsManager {
      *
      * @param templateId 模板Id，必填
      * @param mobiles    手机号码数组，必填
-     * @param parameters 参数,必填
+     * @param parameters 参数,选填
      * @return Response
      * @throws QiniuException 异常
      */
@@ -70,7 +70,28 @@ public class SmsManager {
         StringMap bodyMap = new StringMap();
         bodyMap.put("template_id", templateId);
         bodyMap.put("mobiles", mobiles);
-        bodyMap.put("parameters", parameters);
+        bodyMap.putNotNull("parameters", parameters);
+        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+    }
+
+    /**
+     * 发送短信
+     *
+     * @param signatureId 签名Id，选填
+     * @param templateId  模板Id，必填
+     * @param mobiles     手机号码数组，必填
+     * @param parameters  参数,选填
+     * @return Response
+     * @throws QiniuException 异常
+     */
+    public Response sendMessage(String signatureId, String templateId, String[] mobiles, Map<String, String> parameters)
+            throws QiniuException {
+        String requestUrl = String.format("%s/v1/message", configuration.smsHost());
+        StringMap bodyMap = new StringMap();
+        bodyMap.putNotEmpty("signature_id", signatureId);
+        bodyMap.put("template_id", templateId);
+        bodyMap.put("mobiles", mobiles);
+        bodyMap.putNotNull("parameters", parameters);
         return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
@@ -79,7 +100,7 @@ public class SmsManager {
      *
      * @param templateId 模板Id，必填
      * @param mobile     手机号码，必填
-     * @param parameters 参数,必填
+     * @param parameters 参数,选填
      * @return Response
      * @throws QiniuException 异常
      */
@@ -89,7 +110,30 @@ public class SmsManager {
         StringMap bodyMap = new StringMap();
         bodyMap.put("template_id", templateId);
         bodyMap.put("mobile", mobile);
-        bodyMap.put("parameters", parameters);
+        bodyMap.putNotNull("parameters", parameters);
+        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+    }
+
+    /**
+     * 发送单条短信
+     *
+     * @param signatureId 签名Id，选填
+     * @param templateId  模板Id，必填
+     * @param mobile      手机号码，必填
+     * @param parameters  参数,选填
+     * @param seq         序列号,选填
+     * @return Response
+     * @throws QiniuException 异常
+     */
+    public Response sendSingleMessage(String signatureId, String templateId, String mobile, Map<String, String> parameters, String seq)
+            throws QiniuException {
+        String requestUrl = String.format("%s/v1/message/single", configuration.smsHost());
+        StringMap bodyMap = new StringMap();
+        bodyMap.putNotEmpty("signature_id", signatureId);
+        bodyMap.put("template_id", templateId);
+        bodyMap.put("mobile", mobile);
+        bodyMap.putNotNull("parameters", parameters);
+        bodyMap.putNotEmpty("seq", seq);
         return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
@@ -98,7 +142,7 @@ public class SmsManager {
      *
      * @param templateId 模板Id，必填
      * @param mobile     手机号码，必填
-     * @param parameters 参数,必填
+     * @param parameters 参数,选填
      * @return Response
      * @throws QiniuException 异常
      */
@@ -106,6 +150,27 @@ public class SmsManager {
             throws QiniuException {
         String requestUrl = String.format("%s/v1/message/oversea", configuration.smsHost());
         StringMap bodyMap = new StringMap();
+        bodyMap.put("template_id", templateId);
+        bodyMap.put("mobile", mobile);
+        bodyMap.putNotNull("parameters", parameters);
+        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+    }
+
+    /**
+     * 发送国际短信
+     *
+     * @param signatureId 签名Id，选填
+     * @param templateId  模板Id，必填
+     * @param mobile      手机号码，必填
+     * @param parameters  参数,选填
+     * @return Response
+     * @throws QiniuException 异常
+     */
+    public Response sendOverseaMessage(String signatureId, String templateId, String mobile, Map<String, String> parameters)
+            throws QiniuException {
+        String requestUrl = String.format("%s/v1/message/oversea", configuration.smsHost());
+        StringMap bodyMap = new StringMap();
+        bodyMap.putNotEmpty("signature_id", signatureId);
         bodyMap.put("template_id", templateId);
         bodyMap.put("mobile", mobile);
         bodyMap.put("parameters", parameters);
@@ -126,6 +191,24 @@ public class SmsManager {
         StringMap bodyMap = new StringMap();
         bodyMap.put("mobiles", mobiles);
         bodyMap.put("content", content);
+        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+    }
+
+    /**
+     * 发送全文本短信(不需要传模版 ID)
+     *
+     * @param mobiles      手机号码数组，必填
+     * @param content      短信内容，必须是已经审核通过的签名和模版，必填。例如：【七牛云】您的验证码是 287712，5分钟内有效
+     * @param templateType 短信类型，支持的值：notification(通知类)、verification(验证码类)、marketing(营销推广类)、voice(语音类)，必填
+     * @return Response
+     * @throws QiniuException 异常
+     */
+    public Response sendFulltextMessage(String[] mobiles, String content, String templateType) throws QiniuException {
+        String requestUrl = String.format("%s/v1/message/fulltext", configuration.smsHost());
+        StringMap bodyMap = new StringMap();
+        bodyMap.put("mobiles", mobiles);
+        bodyMap.put("content", content);
+        bodyMap.put("template_type", templateType);
         return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
