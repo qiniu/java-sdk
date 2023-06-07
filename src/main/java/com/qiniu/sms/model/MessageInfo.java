@@ -3,24 +3,44 @@ package com.qiniu.sms.model;
 import java.util.Map;
 
 public class MessageInfo {
-    private final String signatureId;
-    private final String templateId;
-    private final String mobile;
-    private final Map<String, String> parameters;
-    private final String seq;
+    private String signatureId;
+    private String templateId;
+    private String mobile;
+    private Map<String, String> parameters;
+    private String seq;
 
     /**
-     * @param signatureId Ç©ÃûId£¬Ñ¡Ìî
-     * @param templateId  Ä£°åId£¬±ØÌî
-     * @param mobile      ÊÖ»úºÅÂë£¬±ØÌî
-     * @param parameters  ²ÎÊı,Ñ¡Ìî
-     * @param seq         ĞòÁĞºÅ,Ñ¡Ìî
+     * @param signatureId ç­¾åIdï¼Œé€‰å¡«
+     * @param templateId  æ¨¡æ¿Idï¼Œå¿…å¡«
+     * @param mobile      æ‰‹æœºå·ç ï¼Œå¿…å¡«
+     * @param parameters  å‚æ•°,é€‰å¡«
+     * @param seq         åºåˆ—å·,é€‰å¡«
      */
     public MessageInfo(String signatureId, String templateId, String mobile, Map<String, String> parameters, String seq) {
         this.signatureId = signatureId;
         this.templateId = templateId;
         this.mobile = mobile;
         this.parameters = parameters;
+        this.seq = seq;
+    }
+
+    public void setSignatureId(String signatureId) {
+        this.signatureId = signatureId;
+    }
+
+    public void setTemplateId(String templateId) {
+        this.templateId = templateId;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public void setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
+    }
+
+    public void setSeq(String seq) {
         this.seq = seq;
     }
 
