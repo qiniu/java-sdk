@@ -118,20 +118,23 @@ public class SmsManager {
     /**
      * 发送单条短信
      *
-     *
      * @param messageInfo@return Response
      * @throws QiniuException 异常
      */
-    public Response sendSingleMessage(MessageInfo messageInfo)
-            throws QiniuException {
+    public Response sendSingleMessage(MessageInfo messageInfo) throws QiniuException {
         String requestUrl = String.format("%s/v1/message/single", configuration.smsHost());
+        StringMap bodyMap = createBodyMap(messageInfo);
+        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+    }
+
+    private StringMap createBodyMap(MessageInfo messageInfo) {
         StringMap bodyMap = new StringMap();
         bodyMap.putNotEmpty("signature_id", messageInfo.getSignatureId());
         bodyMap.put("template_id", messageInfo.getTemplateId());
         bodyMap.put("mobile", messageInfo.getMobile());
         bodyMap.putNotNull("parameters", messageInfo.getParameters());
         bodyMap.putNotEmpty("seq", messageInfo.getSeq());
-        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+        return bodyMap;
     }
 
     /**
