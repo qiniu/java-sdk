@@ -3,25 +3,16 @@ package com.qiniu.sms.model;
 import java.util.Map;
 
 public class MessageInfo {
-    private String signatureId;
-    private String templateId;
-    private String mobile;
-    private Map<String, String> parameters;
-    private String seq;
+    private String signatureId; // 签名Id，选填
+    private String templateId; // 模板Id，必填
+    private String mobile; // 手机号码，必填
+    private Map<String, String> parameters; // 参数，选填
+    private String seq; // 序列号，选填
 
-    /**
-     * @param signatureId 签名Id，选填
-     * @param templateId  模板Id，必填
-     * @param mobile      手机号码，必填
-     * @param parameters  参数,选填
-     * @param seq         序列号,选填
-     */
-    public MessageInfo(String signatureId, String templateId, String mobile, Map<String, String> parameters, String seq) {
-        this.signatureId = signatureId;
+    public MessageInfo(String templateId, String mobile, Map<String, String> parameters) {
         this.templateId = templateId;
         this.mobile = mobile;
         this.parameters = parameters;
-        this.seq = seq;
     }
 
     public void setSignatureId(String signatureId) {
