@@ -1,12 +1,9 @@
 package com.qiniu.qvs;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.qvs.model.Device;
-import com.qiniu.qvs.model.PatchOperation;
+import com.qiniu.qvs.model.*;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.qvs.model.PlayContral;
-import com.qiniu.qvs.model.VoiceChat;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlUtils;
@@ -98,9 +95,9 @@ public class DeviceManager {
     /*
      * 启动设备拉流
      */
-    public Response startDevice(String namespaceId, String gbId, String[] channels, String channelId, int start, int end) throws QiniuException {
+    public Response startDevice(String namespaceId, String gbId, ChannelInfo channelInfo) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/devices/%s/start", apiServer, namespaceId, gbId);
-        StringMap params = new StringMap().put("channels", channels).putNotNull("channelId", channelId).putNotNull("start", start).putNotNull("end", end);
+        StringMap params = new StringMap().put("channels", channelInfo.getChannels()).putNotNull("channelId", channelInfo.getChannelId()).putNotNull("start", channelInfo.getStart()).putNotNull("end", channelInfo.getEnd());
         return QvsResponse.post(url, params, client, auth);
     }
 
@@ -116,9 +113,9 @@ public class DeviceManager {
     /*
      * 停止设备拉流
      */
-    public Response stopDevice(String namespaceId, String gbId, String[] channels, String channelId, int start, int end) throws QiniuException {
+    public Response stopDevice(String namespaceId, String gbId, ChannelInfo channelInfo) throws QiniuException {
         String url = String.format("%s/v1/namespaces/%s/devices/%s/stop", apiServer, namespaceId, gbId);
-        StringMap params = new StringMap().put("channels", channels).putNotNull("channelId", channelId).putNotNull("start", start).putNotNull("end", end);
+        StringMap params = new StringMap().put("channels", channelInfo.getChannels()).putNotNull("channelId", channelInfo.getChannelId()).putNotNull("start", channelInfo.getStart()).putNotNull("end", channelInfo.getEnd());
         return QvsResponse.post(url, params, client, auth);
     }
 
