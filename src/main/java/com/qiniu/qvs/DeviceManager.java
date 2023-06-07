@@ -86,27 +86,13 @@ public class DeviceManager {
     /*
      * 启动设备拉流
      */
-    public Response startDevice(String namespaceId, String gbId, String[] channels) throws QiniuException {
-        String url = String.format("%s/v1/namespaces/%s/devices/%s/start", apiServer, namespaceId, gbId);
-        StringMap params = new StringMap().put("channels", channels);
-        return QvsResponse.post(url, params, client, auth);
-    }
-
-    /*
-     * 启动设备拉流
-     */
     public Response startDevice(String namespaceId, String gbId, ChannelInfo channelInfo) throws QiniuException {
-        String url = String.format("%s/v1/namespaces/%s/devices/%s/start", apiServer, namespaceId, gbId);
-        StringMap params = new StringMap().put("channels", channelInfo.getChannels()).putNotNull("channelId", channelInfo.getChannelId()).putNotNull("start", channelInfo.getStart()).putNotNull("end", channelInfo.getEnd());
-        return QvsResponse.post(url, params, client, auth);
+        return controlDevice(namespaceId, gbId, channelInfo, "start");
     }
 
-    /*
-     * 停止设备拉流
-     */
-    public Response stopDevice(String namespaceId, String gbId, String[] channels) throws QiniuException {
-        String url = String.format("%s/v1/namespaces/%s/devices/%s/stop", apiServer, namespaceId, gbId);
-        StringMap params = new StringMap().put("channels", channels);
+    private Response controlDevice(String namespaceId, String gbId, ChannelInfo channelInfo, String apiEndpoint) throws QiniuException {
+        String url = String.format("%s/v1/namespaces/%s/devices/%s/%s", apiServer, namespaceId, gbId, apiEndpoint);
+        StringMap params = new StringMap().put("channels", channelInfo.getChannels()).putNotNull("start", channelInfo.getStart()).putNotNull("end", channelInfo.getEnd());
         return QvsResponse.post(url, params, client, auth);
     }
 
@@ -114,9 +100,7 @@ public class DeviceManager {
      * 停止设备拉流
      */
     public Response stopDevice(String namespaceId, String gbId, ChannelInfo channelInfo) throws QiniuException {
-        String url = String.format("%s/v1/namespaces/%s/devices/%s/stop", apiServer, namespaceId, gbId);
-        StringMap params = new StringMap().put("channels", channelInfo.getChannels()).putNotNull("channelId", channelInfo.getChannelId()).putNotNull("start", channelInfo.getStart()).putNotNull("end", channelInfo.getEnd());
-        return QvsResponse.post(url, params, client, auth);
+        return controlDevice(namespaceId, gbId, channelInfo, "stop");
     }
 
     /*
