@@ -194,6 +194,19 @@ public class SmsManager {
         return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
+
+    public String createRequestUrl(String endpoint) {
+        return String.format("%s/v1/message/%s", configuration.smsHost(), endpoint);
+    }
+
+    public StringMap createFulltextMessageMap(String[] mobiles, String content, String templateType) {
+        StringMap bodyMap = new StringMap();
+        bodyMap.put("mobiles", mobiles);
+        bodyMap.put("content", content);
+        bodyMap.put("template_type", templateType);
+        return bodyMap;
+    }
+
     /**
      * 发送全文本短信(不需要传模版 ID)
      *
@@ -204,12 +217,19 @@ public class SmsManager {
      * @throws QiniuException 异常
      */
     public Response sendFulltextMessage(String[] mobiles, String content, String templateType) throws QiniuException {
-        String requestUrl = String.format("%s/v1/message/fulltext", configuration.smsHost());
-        StringMap bodyMap = new StringMap();
-        bodyMap.put("mobiles", mobiles);
-        bodyMap.put("content", content);
-        bodyMap.put("template_type", templateType);
+        String requestUrl = createRequestUrl("fulltext");
+        StringMap bodyMap = createFulltextMessageMap(mobiles, content, templateType);
         return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+    }
+
+    public Response describeResource(String resourceType, String auditStatus, int page, int pageSize) throws QiniuException {
+        String requestUrl = String.format("%s/v1/%s", configuration.smsHost(), resourceType);
+        StringMap queryMap = new StringMap();
+        queryMap.putNotEmpty("audit_status", auditStatus);
+        queryMap.putWhen("page", page, page > 0);
+        queryMap.putWhen("page_size", pageSize, pageSize > 0);
+        requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, queryMap);
+        return get(requestUrl);
     }
 
     /**
@@ -223,13 +243,7 @@ public class SmsManager {
      * @throws QiniuException 异常
      */
     public Response describeSignature(String auditStatus, int page, int pageSize) throws QiniuException {
-        String requestUrl = String.format("%s/v1/signature", configuration.smsHost());
-        StringMap queryMap = new StringMap();
-        queryMap.putNotEmpty("audit_status", auditStatus);
-        queryMap.putWhen("page", page, page > 0);
-        queryMap.putWhen("page_size", pageSize, pageSize > 0);
-        requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, queryMap);
-        return get(requestUrl);
+        return describeResource("signature", auditStatus, page, pageSize);
     }
 
     public SignatureInfo describeSignatureItems(String auditStatus, int page, int pageSize) throws QiniuException {
@@ -301,13 +315,7 @@ public class SmsManager {
      * @throws QiniuException 异常
      */
     public Response describeTemplate(String auditStatus, int page, int pageSize) throws QiniuException {
-        String requestUrl = String.format("%s/v1/template", configuration.smsHost());
-        StringMap queryMap = new StringMap();
-        queryMap.putNotEmpty("audit_status", auditStatus);
-        queryMap.putWhen("page", page, page > 0);
-        queryMap.putWhen("page_size", pageSize, pageSize > 0);
-        requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, queryMap);
-        return get(requestUrl);
+        return describeResource("template", auditStatus, page, pageSize);
     }
 
     public TemplateInfo describeTemplateItems(String auditStatus, int page, int pageSize) throws QiniuException {
