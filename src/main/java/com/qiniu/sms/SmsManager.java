@@ -5,6 +5,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
 import com.qiniu.http.Response;
+import com.qiniu.sms.model.MessageInfo;
 import com.qiniu.sms.model.SignatureInfo;
 import com.qiniu.sms.model.TemplateInfo;
 import com.qiniu.util.Auth;
@@ -117,23 +118,19 @@ public class SmsManager {
     /**
      * 发送单条短信
      *
-     * @param signatureId 签名Id，选填
-     * @param templateId  模板Id，必填
-     * @param mobile      手机号码，必填
-     * @param parameters  参数,选填
-     * @param seq         序列号,选填
-     * @return Response
+     *
+     * @param messageInfo@return Response
      * @throws QiniuException 异常
      */
-    public Response sendSingleMessage(String signatureId, String templateId, String mobile, Map<String, String> parameters, String seq)
+    public Response sendSingleMessage(MessageInfo messageInfo)
             throws QiniuException {
         String requestUrl = String.format("%s/v1/message/single", configuration.smsHost());
         StringMap bodyMap = new StringMap();
-        bodyMap.putNotEmpty("signature_id", signatureId);
-        bodyMap.put("template_id", templateId);
-        bodyMap.put("mobile", mobile);
-        bodyMap.putNotNull("parameters", parameters);
-        bodyMap.putNotEmpty("seq", seq);
+        bodyMap.putNotEmpty("signature_id", messageInfo.getSignatureId());
+        bodyMap.put("template_id", messageInfo.getTemplateId());
+        bodyMap.put("mobile", messageInfo.getMobile());
+        bodyMap.putNotNull("parameters", messageInfo.getParameters());
+        bodyMap.putNotEmpty("seq", messageInfo.getSeq());
         return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
