@@ -10,6 +10,10 @@ public class ApiUpload extends Api {
         super(client);
     }
 
+    public ApiUpload(Client client, Interceptor... interceptors) {
+        super(client, interceptors);
+    }
+
     /**
      * upload api 请求基类
      */
@@ -27,6 +31,16 @@ public class ApiUpload extends Api {
          */
         public Request(String urlPrefix) {
             super(urlPrefix);
+        }
+
+        /**
+         * 构造请求对象
+         *
+         * @param scheme 请求的 scheme
+         * @param host   请求的 host
+         */
+        protected Request(String scheme, String host) {
+            super(scheme, host);
         }
 
         /**

@@ -10,13 +10,23 @@ import java.util.Map;
 
 public class ApiQueryRegion extends ApiUpload {
 
+    private static final String[] DEFAULT_UC_BACKUP_HOSTS = Configuration.defaultUcHosts;
+
     /**
      * api 构建函数
      *
      * @param client 请求client 【必须】
      */
     public ApiQueryRegion(Client client) {
-        super(client);
+        this(client,
+                new ApiInterceptorRetryHosts.Builder()
+                        .setRetryMax(DEFAULT_UC_BACKUP_HOSTS.length)
+                        .setHostProvider(HostProvider.ArrayProvider(DEFAULT_UC_BACKUP_HOSTS))
+                        .build());
+    }
+
+    public ApiQueryRegion(Client client, Interceptor... interceptors) {
+        super(client, interceptors);
     }
 
     /**
@@ -27,14 +37,14 @@ public class ApiQueryRegion extends ApiUpload {
      * @throws QiniuException 请求异常
      */
     public Response request(Request request) throws QiniuException {
-        return new Response(requestByClient(request));
+        return new Response(requestWithInterceptor(request));
     }
 
     /**
      * 请求信息
      */
     public static class Request extends ApiUpload.Request {
-        private static final String DEFAULT_URL_PREFIX = "https://uc.qbox.me";
+        private static final String DEFAULT_URL_PREFIX = "https://" + DEFAULT_UC_BACKUP_HOSTS[0];
 
         /**
          * 请求构造函数
@@ -106,7 +116,7 @@ public class ApiQueryRegion extends ApiUpload {
                 return null;
             }
 
-            Object regionId = ApiUtils.getValueFromMap(region, new String[]{"region"});
+            Object regionId = ApiUtils.getValueFromMap(region, "region");
             return regionId.toString();
         }
 
@@ -130,7 +140,7 @@ public class ApiQueryRegion extends ApiUpload {
                 return null;
             }
 
-            Object ttl = ApiUtils.getValueFromMap(region, new String[]{"ttl"});
+            Object ttl = ApiUtils.getValueFromMap(region, "ttl");
             return ApiUtils.objectToLong(ttl);
         }
 
@@ -154,7 +164,7 @@ public class ApiQueryRegion extends ApiUpload {
                 return null;
             }
 
-            Object domains = ApiUtils.getValueFromMap(region, new String[]{"up", "domains"});
+            Object domains = ApiUtils.getValueFromMap(region, "up", "domains");
             if (!(domains instanceof List)) {
                 return null;
             }

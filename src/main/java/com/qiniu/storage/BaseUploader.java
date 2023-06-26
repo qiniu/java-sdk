@@ -44,7 +44,7 @@ public abstract class BaseUploader {
                 exception = e;
             }
 
-            if (!Retry.shouldUploadAgain(response, exception)
+            if (!Retry.canSwitchRegionAndRetry(response, exception)
                     || !couldReloadSource() || !reloadSource()) {
                 break;
             }

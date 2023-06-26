@@ -131,7 +131,7 @@ public final class FormUploader extends BaseUploader {
         asyncRetryUploadBetweenHosts(0, new UpCompletionHandler() {
             @Override
             public void complete(String key, Response r) {
-                if (!Retry.shouldUploadAgain(r, null)
+                if (!Retry.canSwitchRegionAndRetry(r, null)
                         || !couldReloadSource() || !reloadSource()
                         || config.region == null || !config.region.switchRegion(finalToken)) {
                     handler.complete(key, r);
@@ -163,7 +163,7 @@ public final class FormUploader extends BaseUploader {
                     changeHost(upToken, finalHost);
                 }
 
-                if (Retry.requestShouldRetry(r, null) && retryIndex < config.retryMax) {
+                if (Retry.canRequestRetryAgain(r, null) && retryIndex < config.retryMax) {
                     asyncRetryUploadBetweenHosts((retryIndex + 1), handler);
                 } else {
                     handler.complete(key, r);

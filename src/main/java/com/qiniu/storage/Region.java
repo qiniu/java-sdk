@@ -288,8 +288,8 @@ public class Region implements Cloneable {
      * 自动根据AccessKey和Bucket来判断所在机房，并获取相关的域名
      * 空间所在的对应机房可以在空间创建的时候选择，或者创建完毕之后，从后台查看
      */
-    public static Region autoRegion(String ucServer) {
-        return new Builder().autoRegion(ucServer);
+    public static Region autoRegion(String... ucServers) {
+        return new Builder().autoRegion(ucServers);
     }
 
     boolean switchRegion(RegionReqInfo regionReqInfo) {
@@ -428,11 +428,11 @@ public class Region implements Cloneable {
         /**
          * 自动选择,其它参数设置无效
          *
-         * @param ucServer uc host
+         * @param ucServers uc host
          * @return 区域信息
          */
-        public Region autoRegion(String ucServer) {
-            return new AutoRegion(ucServer);
+        public Region autoRegion(String... ucServers) {
+            return new AutoRegion(ucServers);
         }
 
         /**

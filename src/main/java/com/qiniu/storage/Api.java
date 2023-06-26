@@ -4,6 +4,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
 import com.qiniu.http.RequestStreamBody;
+import com.qiniu.http.Response;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.MediaType;
@@ -11,6 +12,7 @@ import okhttp3.RequestBody;
 import okio.BufferedSink;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
@@ -22,8 +24,37 @@ public class Api {
 
     private final Client client;
 
+    private final List<Interceptor> interceptors;
+
     protected Api(Client client) {
         this.client = client;
+        this.interceptors = null;
+    }
+
+    Api(Client client, Interceptor... interceptors) {
+        if (client == null) {
+            client = new Client();
+        }
+        this.client = client;
+
+        List<Interceptor> is = new ArrayList<>();
+        is.add(new ApiInterceptorDefaultHeader.Builder().build());
+
+        if (interceptors != null) {
+            is.addAll(Arrays.asList(interceptors));
+        }
+
+        Collections.sort(is, new Comparator<Interceptor>() {
+            @Override
+            public int compare(Interceptor o1, Interceptor o2) {
+                return o2.priority() - o1.priority();
+            }
+        });
+
+        // 反转
+        Collections.reverse(is);
+
+        this.interceptors = is;
     }
 
     protected com.qiniu.http.Response requestByClient(Request request) throws QiniuException {
@@ -50,16 +81,53 @@ public class Api {
         }
     }
 
+    protected com.qiniu.http.Response requestWithInterceptor(Request request) throws QiniuException {
+        Handler handler = new Handler() {
+            @Override
+            public Api.Response handle(Request req) throws QiniuException {
+                return new Response(requestByClient(req));
+            }
+        };
+
+        for (Interceptor interceptor : interceptors) {
+            final Handler h = handler;
+            final Interceptor i = interceptor;
+            handler = new Handler() {
+                @Override
+                public Api.Response handle(Request req) throws QiniuException {
+                    return i.intercept(req, h);
+                }
+            };
+        }
+
+        Response response = handler.handle(request);
+        return response != null ? response.getResponse() : null;
+    }
+
+    protected Response request(Request request) throws QiniuException {
+        return new Response(requestWithInterceptor(request));
+    }
+
     /**
      * api 请求基类
      */
-    public static class Request {
+    public static class Request implements Cloneable {
 
         /**
-         * 请求的 urlPrefix， scheme + host
-         * eg: https://upload.qiniu.com
+         * 请求的 scheme
+         * eg: https
          */
-        private final String urlPrefix;
+        private String scheme;
+
+        /**
+         * 请求的域名
+         */
+        private String host;
+
+        /**
+         * 请求服务的端口号
+         */
+        private int port;
 
         /**
          * 请求 url 的 path
@@ -69,7 +137,7 @@ public class Api {
         /**
          * 请求 url 的 信息，最终会被按顺序拼接作为 path /Segment0/Segment1
          */
-        private final List<String> pathSegments = new ArrayList<>();
+        private List<String> pathSegments = new ArrayList<>();
 
         /**
          * 请求 url 的 query
@@ -80,7 +148,7 @@ public class Api {
         /**
          * 请求 url 的 query 信息，最终会被拼接作为 query key0=value0&key1=value1
          */
-        private final List<Pair<String, String>> queryPairs = new ArrayList<>();
+        private List<Pair<String, String>> queryPairs = new ArrayList<>();
 
         /**
          * Http 请求方式
@@ -90,12 +158,23 @@ public class Api {
         /**
          * 请求头
          */
-        private final Map<String, String> header = new HashMap<>();
+        private Map<String, String> header = new HashMap<>();
+
+        /**
+         * body 的字节流，可能为空
+         **/
+        private byte[] bytesBody;
 
         /**
          * 请求 body
-         */
+         **/
         private RequestBody body;
+
+        /**
+         * 请求 body 类型
+         **/
+        private MediaType contentType;
+
         /**
          * 请求时，每次从流中读取的数据大小
          * 注： body 使用 InputStream 时才有效
@@ -107,8 +186,20 @@ public class Api {
          *
          * @param urlPrefix 请求的 urlPrefix， scheme + host
          */
-        protected Request(String urlPrefix) {
-            this.urlPrefix = urlPrefix;
+        public Request(String urlPrefix) {
+            try {
+                URL url = new URL(urlPrefix);
+                this.scheme = url.getProtocol();
+                this.host = url.getHost();
+                this.port = url.getPort();
+                this.addPathSegment(url.getPath());
+            } catch (MalformedURLException ignore) {
+            }
+        }
+
+        protected Request(String scheme, String host) {
+            this.scheme = scheme;
+            this.host = host;
         }
 
         /**
@@ -118,7 +209,7 @@ public class Api {
          * @return urlPrefix
          */
         public String getUrlPrefix() {
-            return urlPrefix;
+            return scheme + "://" + host;
         }
 
         /**
@@ -128,12 +219,11 @@ public class Api {
          * @throws QiniuException 解析 urlPrefix 时的异常
          */
         public String getHost() throws QiniuException {
-            try {
-                URL url = new URL(urlPrefix);
-                return url.getHost();
-            } catch (Exception e) {
-                throw new QiniuException(e);
-            }
+            return host;
+        }
+
+        void setHost(String host) {
+            this.host = host;
         }
 
         /**
@@ -149,6 +239,27 @@ public class Api {
             }
             pathSegments.add(segment);
             path = null;
+        }
+
+        String getMethod() {
+            String m;
+            switch (method) {
+                case PUT:
+                    m = "PUT";
+                    break;
+                case POST:
+                    m = "POST";
+                    break;
+                case HEAD:
+                    m = "HEAD";
+                    break;
+                case DELETE:
+                    m = "DELETE";
+                    break;
+                default:
+                    m = "GET";
+            }
+            return m;
         }
 
         /**
@@ -273,9 +384,16 @@ public class Api {
          * @throws QiniuException 异常
          */
         public URL getUrl() throws QiniuException {
+            if (StringUtils.isNullOrEmpty(scheme)) {
+                throw QiniuException.unrecoverable("scheme is empty, check if scheme is set or your url format is correct.");
+            }
+
+            if (StringUtils.isNullOrEmpty(host)) {
+                throw QiniuException.unrecoverable("host is empty, check if host is set or your url format is correct.");
+            }
+
             try {
-                URL url = new URL(urlPrefix);
-                String file = url.getFile();
+                String file = "";
                 String path = getPath();
                 if (!StringUtils.isNullOrEmpty(path)) {
                     file += path;
@@ -285,7 +403,7 @@ public class Api {
                 if (!StringUtils.isNullOrEmpty(query)) {
                     file += '?' + query;
                 }
-                return new URL(url.getProtocol(), url.getHost(), url.getPort(), file);
+                return new URL(scheme, host, port, file);
             } catch (Exception e) {
                 throw new QiniuException(e);
             }
@@ -304,8 +422,8 @@ public class Api {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
-            MediaType type = MediaType.parse(contentType);
-            this.body = RequestBody.create(type, body, offset, size);
+            this.contentType = MediaType.parse(contentType);
+            this.body = RequestBody.create(this.contentType, body, offset, size);
         }
 
         /**
@@ -320,8 +438,8 @@ public class Api {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
-            MediaType type = MediaType.parse(contentType);
-            this.body = new RequestStreamBody(body, type, limitSize);
+            this.contentType = MediaType.parse(contentType);
+            this.body = new RequestStreamBody(body, this.contentType, limitSize);
         }
 
         /**
@@ -343,18 +461,34 @@ public class Api {
          * @return 是否有请求体
          */
         public boolean hasBody() {
-            return body != null;
+            return body != null || bytesBody != null;
         }
 
         private RequestBody getRequestBody() {
-            if (hasBody()) {
-                if (body instanceof RequestStreamBody) {
-                    ((RequestStreamBody) body).setSinkSize(streamBodySinkSize);
-                }
-                return body;
-            } else {
+            if (!hasBody()) {
                 return RequestBody.create(null, new byte[0]);
             }
+
+            if (bytesBody != null) {
+                return RequestBody.create(getContentType(), bytesBody);
+            }
+
+            if (body instanceof RequestStreamBody) {
+                ((RequestStreamBody) body).setSinkSize(streamBodySinkSize);
+            }
+
+            return body;
+        }
+
+        byte[] getBytesBody() {
+            return bytesBody;
+        }
+
+        protected MediaType getContentType() {
+            if (contentType != null) {
+                return contentType;
+            }
+            return MediaType.parse(Client.DefaultMime);
         }
 
         /**
@@ -366,6 +500,14 @@ public class Api {
 
         }
 
+        boolean canRetry() {
+            if (!hasBody()) {
+                return true;
+            }
+
+            return bytesBody != null;
+        }
+
         /**
          * 准备上传 做一些参数检查 以及 参数构造
          *
@@ -375,6 +517,19 @@ public class Api {
             buildPath();
             buildQuery();
             buildBodyInfo();
+        }
+
+        public Request clone() {
+            try {
+                Request clone = (Request) super.clone();
+                clone.pathSegments = new ArrayList<>(pathSegments);
+                clone.queryPairs = new ArrayList<>(queryPairs);
+                clone.header = new HashMap<>(header);
+                return clone;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
         }
 
         protected static class Pair<K, V> {
@@ -597,5 +752,34 @@ public class Api {
             }
             return ApiUtils.getValueFromMap(dataMap.map(), keyPath);
         }
+    }
+
+
+    interface Handler {
+        Response handle(Request request) throws QiniuException;
+    }
+
+    public abstract static class Interceptor {
+
+        static final int PriorityDefault = 100;
+        static final int PriorityRetryHosts = 200;
+        static final int PriorityRetrySimple = 300;
+        static final int PrioritySetHeader = 400;
+        static final int PriorityNormal = 500;
+        static final int PriorityAuth = 600;
+
+        /**
+         * 拦截器，优先级，越小优先级越高
+         * <p>
+         * 默认：{@link Interceptor#PriorityNormal}
+         **/
+        int priority() {
+            return PriorityNormal;
+        }
+
+        /**
+         * 拦截方法
+         **/
+        abstract Api.Response intercept(Api.Request request, Handler handler) throws QiniuException;
     }
 }

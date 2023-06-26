@@ -5,6 +5,7 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,7 +15,7 @@ class AutoRegion extends Region {
     /**
      * uc接口域名
      */
-    private String ucServer;
+    private List<String> ucServers = new ArrayList<>();
 
     /**
      * 空间机房，域名信息缓存，此缓存绑定了 token、bucket，且仅 AutoRegion 对象内部有效。
@@ -34,8 +35,10 @@ class AutoRegion extends Region {
     private AutoRegion() {
     }
 
-    AutoRegion(String ucServer) {
-        this.ucServer = ucServer;
+    AutoRegion(String... ucServers) {
+        if (ucServers != null) {
+            this.ucServers = new ArrayList<>(Arrays.asList(ucServers));
+        }
         this.client = new Client();
         this.regions = new ConcurrentHashMap<>();
     }
@@ -50,7 +53,7 @@ class AutoRegion extends Region {
             return ret;
         }
 
-        String address = ucServer + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
+        String address = getUcHost(null) + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
         Response r = client.get(address);
         ret = r.jsonToObject(UCRet.class);
         if (ret != null) {
@@ -240,14 +243,34 @@ class AutoRegion extends Region {
 
     @Override
     String getUcHost(RegionReqInfo regionReqInfo) throws QiniuException {
-        String host = ucServer.replace("http://", "");
+        if (ucServers.size() == 0) {
+            throw QiniuException.unrecoverable("AutoRegion not set uc host");
+        }
+
+        String host = ucServers.get(0);
+        host = host.replace("http://", "");
         host = host.replace("https://", "");
         return host;
     }
 
+    List<String> getUcHosts(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (ucServers.size() == 0) {
+            throw QiniuException.unrecoverable("AutoRegion not set uc host");
+        }
+
+        List<String> newList = new ArrayList<>();
+        for (String host : ucServers) {
+            String newHost = host.replace("http://", "");
+            newHost = newHost.replace("https://", "");
+            newList.add(newHost);
+        }
+        return newList;
+    }
+
+
     public Object clone() {
         AutoRegion newRegion = new AutoRegion();
-        newRegion.ucServer = ucServer;
+        newRegion.ucServers = new ArrayList<>(ucServers);
         newRegion.regions = regions;
         newRegion.client = client;
         return newRegion;
@@ -294,6 +317,7 @@ class AutoRegion extends Region {
             deadline = System.currentTimeMillis() / 1000 + ttl;
         }
     }
+
     // CHECKSTYLE:OFF
     private class ServerRets {
         long ttl;
@@ -357,6 +381,7 @@ class AutoRegion extends Region {
                     ioSrcHost, rsHost, rsfHost, apiHost, ucHost);
         }
     }
+
     // CHECKSTYLE:ON
     private class ServerRet {
         HostInfoRet src;

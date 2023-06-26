@@ -8,7 +8,7 @@ class Retry {
     private Retry() {
     }
 
-    static boolean shouldUploadAgain(Response response, QiniuException exception) {
+    static boolean canSwitchRegionAndRetry(Response response, QiniuException exception) {
         Response checkResponse = response;
         if (checkResponse == null && exception != null) {
             checkResponse = exception.response;
@@ -24,7 +24,7 @@ class Retry {
         return exception == null || !exception.isUnrecoverable();
     }
 
-    static Boolean requestShouldRetry(Response response, QiniuException exception) {
+    static Boolean canRequestRetryAgain(Response response, QiniuException exception) {
         if (response != null) {
             return response.needRetry();
         }
@@ -83,13 +83,13 @@ class Retry {
             try {
                 response = action.doRequest(host);
                 // 判断是否需要重试
-                shouldRetry = requestShouldRetry(response, null);
+                shouldRetry = canRequestRetryAgain(response, null);
                 // 判断是否需要切换 host
                 shouldSwitchHost = requestShouldSwitchHost(response, null);
             } catch (QiniuException e) {
                 exception = e;
                 // 判断是否需要重试
-                shouldRetry = requestShouldRetry(null, e);
+                shouldRetry = canRequestRetryAgain(null, e);
                 // 判断是否需要切换 host
                 shouldSwitchHost = requestShouldSwitchHost(null, e);
             }
@@ -149,5 +149,43 @@ class Retry {
         void tryChangeRequestHost(String oldHost) throws QiniuException;
 
         Response doRequest(String host) throws QiniuException;
+    }
+
+    interface Interval {
+
+        /**
+         * 重试时间间隔，单位：毫秒
+         **/
+        int interval();
+    }
+
+    static Interval defaultInterval() {
+        return staticInterval(200 * 1000);
+    }
+
+    static Interval staticInterval(final int interval) {
+        return new Retry.Interval() {
+            @Override
+            public int interval() {
+                return interval;
+            }
+        };
+    }
+
+    interface Condition {
+
+        /**
+         * 重试时间间隔，单位：毫秒
+         **/
+        boolean shouldRetry(Api.Request request, Api.Response response, QiniuException exception);
+    }
+
+    static Condition defaultCondition() {
+        return new Condition() {
+            @Override
+            public boolean shouldRetry(Api.Request request, Api.Response response, QiniuException exception) {
+                return request.canRetry() && canRequestRetryAgain(response != null ? response.getResponse() : null, exception);
+            }
+        };
     }
 }
