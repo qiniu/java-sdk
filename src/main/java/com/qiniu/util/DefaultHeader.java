@@ -1,5 +1,6 @@
 package com.qiniu.util;
 
+import com.qiniu.http.Client;
 import com.qiniu.http.Headers;
 
 import java.text.DateFormat;
@@ -18,6 +19,8 @@ public class DefaultHeader {
         if (!isDisableQiniuTimestampSignature()) {
             adder.addHeader("X-Qiniu-Date", xQiniuDate());
         }
+
+        adder.addHeader("User-Agent", Client.userAgent());
     }
 
     private static boolean isDisableQiniuTimestampSignature() {

@@ -7,7 +7,7 @@ import com.qiniu.util.Auth;
 /**
  * 仅是 Qiniu 签名，Body 必须是 bytes[]
  **/
-class ApiInterceptorAuth extends Api.Interceptor {
+final class ApiInterceptorAuth extends Api.Interceptor {
 
     private final Auth auth;
 
@@ -22,6 +22,10 @@ class ApiInterceptorAuth extends Api.Interceptor {
 
     @Override
     Api.Response intercept(Api.Request request, Api.Handler handler) throws QiniuException {
+        if (auth == null) {
+            return handler.handle(request);
+        }
+
         String url = request.getUrl().toString();
         String method = request.getMethod();
         Headers headers = Headers.of(request.getHeader());

@@ -1,14 +1,16 @@
-package test.com.qiniu.storage;
+package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.storage.*;
+import com.qiniu.util.Timestamp;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ApiQueryRegionTest {
 
@@ -53,6 +55,7 @@ public class ApiQueryRegionTest {
                 assertTrue(upHosts.size() > 0, response.getDataMap() + "");
             } catch (QiniuException e) {
                 e.printStackTrace();
+                fail(e.getMessage());
             }
         }
     }
@@ -61,24 +64,38 @@ public class ApiQueryRegionTest {
     @Tag("IntegrationTest")
     public void testQueryWithRetry() {
 
+        int retryMax = 2;
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile testFile : files) {
             String bucket = testFile.getBucketName();
-            String key = testFile.getKey();
-            String token = TestConfig.testAuth.uploadToken(bucket, key, 3600, null);
+            String accessKey = TestConfig.testAuth.accessKey;
 
             Configuration configuration = new Configuration();
-            configuration.region = Region.autoRegion("mock.uc.com", Configuration.defaultUcHost);
             Client client = new Client(configuration);
-            ApiQueryRegion api = new ApiQueryRegion(client, new ApiInterceptorRetryHosts.Builder()
-                    .setRetryMax(2)
-                    .setHostProvider(HostProvider.ArrayProvider("mock.uc.com", Configuration.defaultUcHost))
-                    .build());
-            ApiQueryRegion.Request request = new ApiQueryRegion.Request(null, token);
+            ApiQueryRegion api = new ApiQueryRegion(client,
+                    new ApiInterceptorRetryHosts.Builder()
+                            .setRetryMax(retryMax)
+                            .setRetryInterval(Retry.staticInterval(1000))
+                            .setHostProvider(HostProvider.ArrayProvider("mock.uc.com", Configuration.defaultUcHost))
+                            .build(),
+                    new ApiInterceptorRetrySimple.Builder()
+                            .setRetryMax(retryMax)
+                            .setRetryInterval(Retry.staticInterval(1000))
+                            .build(),
+                    new ApiInterceptorDebug.Builder()
+                            .setRequestLevel(ApiInterceptorDebug.LevelPrintDetail)
+                            .setResponseLevel(ApiInterceptorDebug.LevelPrintDetail)
+                            .build());
+            ApiQueryRegion.Request request = new ApiQueryRegion.Request("https://mock.uc.com", accessKey, bucket);
+
             try {
+                long st = Timestamp.second();
                 ApiQueryRegion.Response response = api.request(request);
                 System.out.println("query region:" + response.getResponse());
                 System.out.println("query region data:" + response.getDataMap());
+                long en = Timestamp.second();
+
+                assertTrue((en - st) >= (retryMax + 2), "retry interval or retry max error");
 
                 assertTrue(response.isOK(), response.getResponse() + "");
 
@@ -95,6 +112,7 @@ public class ApiQueryRegionTest {
                 assertTrue(upHosts.size() > 0, response.getDataMap() + "");
             } catch (QiniuException e) {
                 e.printStackTrace();
+                fail(e.getMessage());
             }
         }
     }

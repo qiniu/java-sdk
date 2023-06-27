@@ -3,7 +3,7 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.util.DefaultHeader;
 
-class ApiInterceptorDefaultHeader extends Api.Interceptor {
+final class ApiInterceptorDefaultHeader extends Api.Interceptor {
 
     private ApiInterceptorDefaultHeader() {
     }
@@ -21,10 +21,11 @@ class ApiInterceptorDefaultHeader extends Api.Interceptor {
                 request.addHeaderField(key, value);
             }
         });
+        request.addHeaderField("Host", request.getHost());
         return handler.handle(request);
     }
 
-    static class Builder {
+    static final class Builder {
 
         Api.Interceptor build() {
             return new ApiInterceptorDefaultHeader();

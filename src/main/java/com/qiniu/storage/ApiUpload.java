@@ -10,8 +10,12 @@ public class ApiUpload extends Api {
         super(client);
     }
 
-    public ApiUpload(Client client, Interceptor... interceptors) {
+    ApiUpload(Client client, Interceptor... interceptors) {
         super(client, interceptors);
+    }
+
+    ApiUpload(Client client, Api.Config config) {
+        super(client, config);
     }
 
     /**

@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.MethodType;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.*;
 import com.qiniu.util.*;
@@ -1161,6 +1162,7 @@ public final class BucketManager {
 
     private Response post(String url, byte[] body, Api.Interceptor[] interceptors) throws QiniuException {
         Api.Request request = new Api.Request(url);
+        request.setMethod(MethodType.POST);
         request.setBody(body, 0, body.length, Client.FormMime);
         return new Api(client, interceptors).requestWithInterceptor(request);
     }
@@ -1171,17 +1173,26 @@ public final class BucketManager {
         }
     }
 
-    private Api.Interceptor[] ucInterceptors() {
+    private Api.Interceptor[] ucInterceptors() throws QiniuException {
+        String[] ucHosts = null;
+        List<String> ucHostList = config.region.getUcHosts(null);
+        if (ucHostList != null) {
+            ucHosts = ucHostList.toArray(new String[0]);
+        }
         Api.Interceptor authInterceptor = new ApiInterceptorAuth.Builder()
                 .setAuth(auth)
                 .build();
         Api.Interceptor hostRetryInterceptor = new ApiInterceptorRetryHosts.Builder()
                 .setRetryMax(config.retryMax)
                 .setRetryInterval(Retry.staticInterval(config.retryInterval))
-                .setHostProvider(HostProvider.ArrayProvider(Configuration.defaultUcHosts))
+                .setHostProvider(HostProvider.ArrayProvider(ucHosts))
                 .setHostFreezeDuration(config.hostFreezeDuration)
                 .build();
-        return new Api.Interceptor[]{authInterceptor, hostRetryInterceptor};
+        Api.Interceptor debugInterceptor = new ApiInterceptorDebug.Builder()
+                .setRequestLevel(ApiInterceptorDebug.LevelPrintDetail)
+                .setResponseLevel(ApiInterceptorDebug.LevelPrintDetail)
+                .build();
+        return new Api.Interceptor[]{authInterceptor, hostRetryInterceptor, debugInterceptor};
     }
 
     /**

@@ -1,13 +1,14 @@
 package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
+import com.qiniu.util.StringUtils;
 
-public class ApiInterceptorRetryHosts extends Api.Interceptor {
+class ApiInterceptorRetryHosts extends Api.Interceptor {
     private final int retryMax;
     private final Retry.Interval retryInterval;
-    private final Retry.Condition retryCondition;
+    private final Retry.RetryCondition retryCondition;
     private final int hostFreezeDuration;
-    private final HostFreezeCondition hostFreezeCondition;
+    private final Retry.HostFreezeCondition hostFreezeCondition;
     private final HostProvider hostProvider;
 
     @Override
@@ -17,9 +18,9 @@ public class ApiInterceptorRetryHosts extends Api.Interceptor {
 
     private ApiInterceptorRetryHosts(int retryMax,
                                      Retry.Interval retryInterval,
-                                     Retry.Condition retryCondition,
+                                     Retry.RetryCondition retryCondition,
                                      int hostFreezeDuration,
-                                     HostFreezeCondition hostFreezeCondition,
+                                     Retry.HostFreezeCondition hostFreezeCondition,
                                      HostProvider hostProvider) {
         this.retryMax = retryMax;
         this.retryInterval = retryInterval;
@@ -66,14 +67,17 @@ public class ApiInterceptorRetryHosts extends Api.Interceptor {
             }
             request = cloneRequest;
 
+            String newHost = hostProvider.provider();
+            if (StringUtils.isNullOrEmpty(newHost)) {
+                break;
+            }
+            if (!newHost.equals(host)) {
+                request.setHost(newHost);
+            }
+
             int interval = retryInterval.interval();
             if (interval <= 0) {
                 continue;
-            }
-
-            String newHost = hostProvider.provider();
-            if (!newHost.equals(host)) {
-                request.setHost(host);
             }
 
             try {
@@ -89,58 +93,50 @@ public class ApiInterceptorRetryHosts extends Api.Interceptor {
         return response;
     }
 
-    interface HostFreezeCondition {
-        boolean shouldFreezeHost(Api.Request request, Api.Response response, QiniuException exception);
-    }
-
-    static HostFreezeCondition defaultHostFreezeCondition() {
-        return new HostFreezeCondition() {
-            @Override
-            public boolean shouldFreezeHost(Api.Request request, Api.Response response, QiniuException exception) {
-                return true;
-            }
-        };
-    }
-
-    public static class Builder {
+    static final class Builder {
         private int retryMax;
         private Retry.Interval retryInterval;
-        private Retry.Condition retryCondition;
+        private Retry.RetryCondition retryCondition;
         private int hostFreezeDuration;
-        private HostFreezeCondition hostFreezeCondition;
+        private Retry.HostFreezeCondition hostFreezeCondition;
         private HostProvider hostProvider;
 
-        public Builder setRetryMax(int retryMax) {
+        Builder setRetryMax(int retryMax) {
             this.retryMax = retryMax;
             return this;
         }
 
-        public Builder setRetryInterval(Retry.Interval retryInterval) {
+        Builder setRetryInterval(Retry.Interval retryInterval) {
             this.retryInterval = retryInterval;
             return this;
         }
 
-        public Builder setRetryCondition(Retry.Condition retryCondition) {
+        Builder setRetryCondition(Retry.RetryCondition retryCondition) {
             this.retryCondition = retryCondition;
             return this;
         }
 
-        public Builder setHostFreezeDuration(int hostFreezeDuration) {
+        Builder setHostFreezeDuration(int hostFreezeDuration) {
             this.hostFreezeDuration = hostFreezeDuration;
             return this;
         }
 
-        public Builder setHostFreezeCondition(HostFreezeCondition hostFreezeCondition) {
+        Builder setHostFreezeCondition(Retry.HostFreezeCondition hostFreezeCondition) {
             this.hostFreezeCondition = hostFreezeCondition;
             return this;
         }
 
-        public Builder setHostProvider(HostProvider hostProvider) {
+        Builder setHostProvider(HostProvider hostProvider) {
             this.hostProvider = hostProvider;
             return this;
         }
 
-        public Api.Interceptor build() {
+        /**
+         * 构建拦截器
+         * <p>
+         * 注：hostProvider 必须配置，否则不会重试：{@link ApiInterceptorRetryHosts.Builder#setHostProvider}
+         **/
+        Api.Interceptor build() {
             if (retryMax < 0) {
                 retryMax = 0;
             }
@@ -158,7 +154,7 @@ public class ApiInterceptorRetryHosts extends Api.Interceptor {
             }
 
             if (hostFreezeCondition == null) {
-                hostFreezeCondition = defaultHostFreezeCondition();
+                hostFreezeCondition = Retry.defaultHostFreezeCondition();
             }
 
             return new ApiInterceptorRetryHosts(retryMax, retryInterval, retryCondition,

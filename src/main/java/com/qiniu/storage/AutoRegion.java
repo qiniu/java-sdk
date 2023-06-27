@@ -36,8 +36,10 @@ class AutoRegion extends Region {
     }
 
     AutoRegion(String... ucServers) {
-        if (ucServers != null) {
-            this.ucServers = new ArrayList<>(Arrays.asList(ucServers));
+        if (ucServers != null && ucServers.length > 0) {
+            this.ucServers = Arrays.asList(ucServers);
+        } else {
+            this.ucServers = Arrays.asList(Configuration.defaultUcHosts);
         }
         this.client = new Client();
         this.regions = new ConcurrentHashMap<>();
@@ -54,7 +56,11 @@ class AutoRegion extends Region {
         }
 
         String address = getUcHost(null) + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
-        Response r = client.get(address);
+        Api api = new Api(client, new Api.Config.Builder()
+                .setHostRetryMax(ucServers.size())
+                .setHostProvider(HostProvider.ArrayProvider(ucServers.toArray(new String[0])))
+                .build());
+        Response r = api.requestWithInterceptor(new Api.Request(address));
         ret = r.jsonToObject(UCRet.class);
         if (ret != null) {
             ret.setupDeadline();
@@ -258,6 +264,7 @@ class AutoRegion extends Region {
             throw QiniuException.unrecoverable("AutoRegion not set uc host");
         }
 
+        String[] hosts = new String[ucServers.size()];
         List<String> newList = new ArrayList<>();
         for (String host : ucServers) {
             String newHost = host.replace("http://", "");

@@ -25,7 +25,11 @@ public class ApiQueryRegion extends ApiUpload {
                         .build());
     }
 
-    public ApiQueryRegion(Client client, Interceptor... interceptors) {
+    public ApiQueryRegion(Client client, Api.Config config) {
+        super(client, config);
+    }
+
+    ApiQueryRegion(Client client, Interceptor... interceptors) {
         super(client, interceptors);
     }
 
@@ -43,27 +47,46 @@ public class ApiQueryRegion extends ApiUpload {
     /**
      * 请求信息
      */
-    public static class Request extends ApiUpload.Request {
+    public static class Request extends Api.Request {
         private static final String DEFAULT_URL_PREFIX = "https://" + DEFAULT_UC_BACKUP_HOSTS[0];
+
+        private String ak;
+        private String bucket;
 
         /**
          * 请求构造函数
          *
          * @param urlPrefix 请求 scheme + host 【可选】
          *                  若为空则使用默认，默认：Request.DEFAULT_URL_PREFIX
-         * @param token     请求凭证 【必须】
+         * @param token     上传请求凭证 【必须】
          */
         public Request(String urlPrefix, String token) {
             super(StringUtils.isNullOrEmpty(urlPrefix) ? DEFAULT_URL_PREFIX : urlPrefix);
-            setToken(token);
             setMethod(MethodType.GET);
+            try {
+                UploadToken upToken = new UploadToken(token);
+                this.ak = upToken.getAccessKey();
+                this.bucket = upToken.getBucket();
+            } catch (QiniuException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public Request(String urlPrefix, String ak, String bucket) {
+            super(StringUtils.isNullOrEmpty(urlPrefix) ? DEFAULT_URL_PREFIX : urlPrefix);
+            setMethod(MethodType.GET);
+            this.ak = ak;
+            this.bucket = bucket;
         }
 
         @Override
         protected void buildQuery() throws QiniuException {
-            UploadToken token = getUploadToken();
-            addQueryPair("ak", token.getAccessKey());
-            addQueryPair("bucket", token.getBucket());
+            if (StringUtils.isNullOrEmpty(ak) || StringUtils.isNullOrEmpty(bucket)) {
+                throw QiniuException.unrecoverable("query region error: ak and bucket can't empty");
+            }
+
+            addQueryPair("ak", this.ak);
+            addQueryPair("bucket", this.bucket);
             super.buildQuery();
         }
 
@@ -90,7 +113,7 @@ public class ApiQueryRegion extends ApiUpload {
      * "s3": { "domains": [ "s3-cn-north-1.qiniucs.com" ], "region_alias": "cn-north-1" } }
      * ] }
      */
-    public static class Response extends ApiUpload.Response {
+    public static class Response extends Api.Response {
 
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);

@@ -152,7 +152,7 @@ public final class Client {
         Client.userApp = userApp;
     }
 
-    private static String userAgent() {
+    public static String userAgent() {
         final String javaVersion = "Java/" + System.getProperty("java.version");
         final String os = System.getProperty("os.name") + " "
                 + System.getProperty("os.arch") + " " + System.getProperty("os.version");
@@ -409,7 +409,10 @@ public final class Client {
             });
         }
 
-        requestBuilder.header("User-Agent", userAgent());
+        if (headers == null || headers.get("User-Agent") == null || headers.get("User-Agent").equals("")) {
+            requestBuilder.header("User-Agent", userAgent());
+        }
+
         long start = System.currentTimeMillis();
         okhttp3.Response res = null;
         Response r;
@@ -439,7 +442,10 @@ public final class Client {
             });
         }
 
-        requestBuilder.header("User-Agent", userAgent());
+        if (headers == null || headers.get("User-Agent") == null || headers.get("User-Agent").equals("")) {
+            requestBuilder.header("User-Agent", userAgent());
+        }
+
         final long start = System.currentTimeMillis();
         IpTag tag = new IpTag();
         httpClient.newCall(requestBuilder.tag(tag).build()).enqueue(new Callback() {

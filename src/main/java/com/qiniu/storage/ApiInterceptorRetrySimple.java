@@ -1,15 +1,14 @@
 package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.http.Response;
 
-class ApiInterceptorRetrySimple extends Api.Interceptor {
+final class ApiInterceptorRetrySimple extends Api.Interceptor {
 
     private final int retryMax;
     private final Retry.Interval retryInterval;
-    private final Retry.Condition retryCondition;
+    private final Retry.RetryCondition retryCondition;
 
-    private ApiInterceptorRetrySimple(int retryMax, Retry.Interval retryInterval, Retry.Condition retryCondition) {
+    private ApiInterceptorRetrySimple(int retryMax, Retry.Interval retryInterval, Retry.RetryCondition retryCondition) {
         this.retryMax = retryMax;
         this.retryInterval = retryInterval;
         this.retryCondition = retryCondition;
@@ -69,10 +68,10 @@ class ApiInterceptorRetrySimple extends Api.Interceptor {
         return response;
     }
 
-    static class Builder {
+    static final class Builder {
         private int retryMax;
         private Retry.Interval retryInterval;
-        private Retry.Condition retryCondition;
+        private Retry.RetryCondition retryCondition;
 
         Builder setRetryMax(int retryMax) {
             this.retryMax = retryMax;
@@ -84,7 +83,7 @@ class ApiInterceptorRetrySimple extends Api.Interceptor {
             return this;
         }
 
-        Builder setRetryCondition(Retry.Condition retryCondition) {
+        Builder setRetryCondition(Retry.RetryCondition retryCondition) {
             this.retryCondition = retryCondition;
             return this;
         }

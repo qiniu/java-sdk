@@ -160,7 +160,7 @@ class Retry {
     }
 
     static Interval defaultInterval() {
-        return staticInterval(200 * 1000);
+        return staticInterval(200);
     }
 
     static Interval staticInterval(final int interval) {
@@ -172,19 +172,32 @@ class Retry {
         };
     }
 
-    interface Condition {
+    interface RetryCondition {
 
         /**
-         * 重试时间间隔，单位：毫秒
+         * 是否需要重试
          **/
         boolean shouldRetry(Api.Request request, Api.Response response, QiniuException exception);
     }
 
-    static Condition defaultCondition() {
-        return new Condition() {
+    static RetryCondition defaultCondition() {
+        return new RetryCondition() {
             @Override
             public boolean shouldRetry(Api.Request request, Api.Response response, QiniuException exception) {
                 return request.canRetry() && canRequestRetryAgain(response != null ? response.getResponse() : null, exception);
+            }
+        };
+    }
+
+    interface HostFreezeCondition {
+        boolean shouldFreezeHost(Api.Request request, Api.Response response, QiniuException exception);
+    }
+
+    static HostFreezeCondition defaultHostFreezeCondition() {
+        return new HostFreezeCondition() {
+            @Override
+            public boolean shouldFreezeHost(Api.Request request, Api.Response response, QiniuException exception) {
+                return true;
             }
         };
     }

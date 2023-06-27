@@ -46,7 +46,7 @@ public class BucketTest2 {
     @BeforeEach
     public void setUp() throws Exception {
         Configuration cfg = new Configuration();
-        cfg.region = Region.autoRegion();
+        cfg.region = Region.autoRegion("https://mock.uc.com", "https://uc.qbox.me");
         // cfg.useHttpsDomains = false;
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
         this.uploadManager = new UploadManager(cfg);
@@ -919,7 +919,7 @@ public class BucketTest2 {
                     assertEquals(bodyString, bodyString2);
                 }
             } catch (QiniuException e) {
-                fail(e.response.toString());
+                fail(e.toString());
             }
         }
     }

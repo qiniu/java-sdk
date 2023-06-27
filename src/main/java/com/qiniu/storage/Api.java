@@ -4,7 +4,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
 import com.qiniu.http.RequestStreamBody;
-import com.qiniu.http.Response;
+import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.MediaType;
@@ -31,6 +31,30 @@ public class Api {
         this.interceptors = null;
     }
 
+    Api(Client client, Config config) {
+        this(client,
+                new ApiInterceptorAuth.Builder()
+                        .setAuth(config.auth)
+                        .build(),
+                new ApiInterceptorDebug.Builder()
+                        .setRequestLevel(config.requestDebugLevel)
+                        .setResponseLevel(config.responseDebugLevel)
+                        .build(),
+                new ApiInterceptorRetryHosts.Builder()
+                        .setHostProvider(config.hostProvider)
+                        .setRetryInterval(config.retryInterval)
+                        .setRetryMax(config.hostRetryMax)
+                        .setRetryCondition(config.retryCondition)
+                        .setHostFreezeCondition(config.hostFreezeCondition)
+                        .setHostFreezeDuration(config.hostFreezeDuration)
+                        .build(),
+                new ApiInterceptorRetrySimple.Builder()
+                        .setRetryMax(config.singleHostRetryMax)
+                        .setRetryInterval(config.retryInterval)
+                        .setRetryCondition(config.retryCondition)
+                        .build());
+    }
+
     Api(Client client, Interceptor... interceptors) {
         if (client == null) {
             client = new Client();
@@ -47,7 +71,7 @@ public class Api {
         Collections.sort(is, new Comparator<Interceptor>() {
             @Override
             public int compare(Interceptor o1, Interceptor o2) {
-                return o2.priority() - o1.priority();
+                return o1.priority() - o2.priority();
             }
         });
 
@@ -57,16 +81,10 @@ public class Api {
         this.interceptors = is;
     }
 
-    protected com.qiniu.http.Response requestByClient(Request request) throws QiniuException {
+    protected com.qiniu.http.Response innerRequest(Request request) throws QiniuException {
         if (client == null) {
             ApiUtils.throwInvalidRequestParamException("client");
         }
-
-        if (request == null) {
-            ApiUtils.throwInvalidRequestParamException("request");
-        }
-
-        request.prepareToRequest();
 
         if (request.method == MethodType.GET) {
             return client.get(request.getUrl().toString(), request.getHeader());
@@ -76,16 +94,34 @@ public class Api {
             return client.put(request.getUrl().toString(), request.getRequestBody(), request.getHeader());
         } else if (request.method == MethodType.DELETE) {
             return client.delete(request.getUrl().toString(), request.getRequestBody(), request.getHeader());
+        } else if (request.method == MethodType.HEAD) {
+            return client.head(request.getUrl().toString(), request.getHeader());
         } else {
             throw QiniuException.unrecoverable("暂不支持这种请求方式");
         }
     }
 
+    protected com.qiniu.http.Response requestByClient(Request request) throws QiniuException {
+        if (request == null) {
+            ApiUtils.throwInvalidRequestParamException("request");
+        }
+
+        request.prepareToRequest();
+
+        return innerRequest(request);
+    }
+
     protected com.qiniu.http.Response requestWithInterceptor(Request request) throws QiniuException {
+        if (request == null) {
+            ApiUtils.throwInvalidRequestParamException("request");
+        }
+
+        request.prepareToRequest();
+
         Handler handler = new Handler() {
             @Override
             public Api.Response handle(Request req) throws QiniuException {
-                return new Response(requestByClient(req));
+                return new Response(innerRequest(req));
             }
         };
 
@@ -106,6 +142,110 @@ public class Api {
 
     protected Response request(Request request) throws QiniuException {
         return new Response(requestWithInterceptor(request));
+    }
+
+    public static final class Config {
+        private final Auth auth;
+        private final int hostRetryMax;
+        private final int singleHostRetryMax;
+        private final Retry.Interval retryInterval;
+        private final Retry.RetryCondition retryCondition;
+        private final Retry.HostFreezeCondition hostFreezeCondition;
+        private final HostProvider hostProvider;
+        private final int hostFreezeDuration;
+        private final int requestDebugLevel;
+        private final int responseDebugLevel;
+
+
+        private Config(Auth auth,
+                       int hostRetryMax,
+                       int singleHostRetryMax,
+                       Retry.Interval retryInterval,
+                       Retry.RetryCondition retryCondition,
+                       Retry.HostFreezeCondition hostFreezeCondition,
+                       HostProvider hostProvider,
+                       int hostFreezeDuration,
+                       int requestDebugLevel,
+                       int responseDebugLevel) {
+            this.auth = auth;
+            this.hostRetryMax = hostRetryMax;
+            this.singleHostRetryMax = singleHostRetryMax;
+            this.retryInterval = retryInterval;
+            this.retryCondition = retryCondition;
+            this.hostFreezeCondition = hostFreezeCondition;
+            this.hostProvider = hostProvider;
+            this.hostFreezeDuration = hostFreezeDuration;
+            this.requestDebugLevel = requestDebugLevel;
+            this.responseDebugLevel = responseDebugLevel;
+        }
+
+        public static final class Builder {
+            private Auth auth;
+            private int hostRetryMax;
+            private int singleHostRetryMax;
+            private Retry.Interval retryInterval;
+            private Retry.RetryCondition retryCondition;
+            private Retry.HostFreezeCondition hostFreezeCondition;
+            private HostProvider hostProvider;
+            private int hostFreezeDuration;
+            private int requestDebugLevel;
+            private int responseDebugLevel;
+
+            public Builder setAuth(Auth auth) {
+                this.auth = auth;
+                return this;
+            }
+
+            public Builder setHostRetryMax(int hostRetryMax) {
+                this.hostRetryMax = hostRetryMax;
+                return this;
+            }
+
+            public Builder setSingleHostRetryMax(int singleHostRetryMax) {
+                this.singleHostRetryMax = singleHostRetryMax;
+                return this;
+            }
+
+            public Builder setRetryInterval(Retry.Interval retryInterval) {
+                this.retryInterval = retryInterval;
+                return this;
+            }
+
+            public Builder setRetryCondition(Retry.RetryCondition retryCondition) {
+                this.retryCondition = retryCondition;
+                return this;
+            }
+
+            public Builder setHostFreezeDuration(int hostFreezeDuration) {
+                this.hostFreezeDuration = hostFreezeDuration;
+                return this;
+            }
+
+            public Builder setHostProvider(HostProvider hostProvider) {
+                this.hostProvider = hostProvider;
+                return this;
+            }
+
+            public Builder setHostFreezeCondition(Retry.HostFreezeCondition hostFreezeCondition) {
+                this.hostFreezeCondition = hostFreezeCondition;
+                return this;
+            }
+
+            public Builder setRequestDebugLevel(int requestDebugLevel) {
+                this.requestDebugLevel = requestDebugLevel;
+                return this;
+            }
+
+            public Builder setResponseDebugLevel(int responseDebugLevel) {
+                this.responseDebugLevel = responseDebugLevel;
+                return this;
+            }
+
+            public Config build() {
+                return new Config(auth, hostRetryMax, singleHostRetryMax, retryInterval, retryCondition, hostFreezeCondition,
+                        hostProvider, hostFreezeDuration, requestDebugLevel, responseDebugLevel);
+            }
+        }
     }
 
     /**
@@ -153,7 +293,7 @@ public class Api {
         /**
          * Http 请求方式
          */
-        private MethodType method;
+        private MethodType method = MethodType.GET;
 
         /**
          * 请求头
@@ -164,6 +304,9 @@ public class Api {
          * body 的字节流，可能为空
          **/
         private byte[] bytesBody;
+
+        private int bytesBodyOffset;
+        private int bytesBodyLength;
 
         /**
          * 请求 body
@@ -234,7 +377,7 @@ public class Api {
          * @param segment 被添加 path segment
          */
         protected void addPathSegment(String segment) {
-            if (segment == null) {
+            if (StringUtils.isNullOrEmpty(segment)) {
                 return;
             }
             pathSegments.add(segment);
@@ -281,7 +424,10 @@ public class Api {
          * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
          */
         protected void buildPath() throws QiniuException {
-            path = "/" + StringUtils.join(pathSegments, "/");
+            path = StringUtils.join(pathSegments, "/");
+            if (!path.startsWith("/")) {
+                path += "/";
+            }
         }
 
 
@@ -346,6 +492,10 @@ public class Api {
          * @param method Http 请求方式
          */
         protected void setMethod(MethodType method) {
+            if (method == null) {
+                return;
+            }
+
             this.method = method;
         }
 
@@ -423,6 +573,9 @@ public class Api {
                 contentType = Client.DefaultMime;
             }
             this.contentType = MediaType.parse(contentType);
+            this.bytesBody = body;
+            this.bytesBodyOffset = offset;
+            this.bytesBodyLength = size;
             this.body = RequestBody.create(this.contentType, body, offset, size);
         }
 
@@ -470,7 +623,7 @@ public class Api {
             }
 
             if (bytesBody != null) {
-                return RequestBody.create(getContentType(), bytesBody);
+                return  RequestBody.create(getContentType(), bytesBody, bytesBodyOffset, bytesBodyLength);
             }
 
             if (body instanceof RequestStreamBody) {
@@ -481,7 +634,13 @@ public class Api {
         }
 
         byte[] getBytesBody() {
-            return bytesBody;
+            if (bytesBody == null || bytesBody.length == 0) {
+                return new byte[]{};
+            }
+            if (bytesBodyOffset == 0 && bytesBodyLength == bytesBody.length) {
+                return bytesBody;
+            }
+            return Arrays.copyOfRange(bytesBody, bytesBodyOffset, bytesBodyOffset + bytesBodyLength);
         }
 
         protected MediaType getContentType() {
@@ -759,7 +918,7 @@ public class Api {
         Response handle(Request request) throws QiniuException;
     }
 
-    public abstract static class Interceptor {
+    abstract static class Interceptor {
 
         static final int PriorityDefault = 100;
         static final int PriorityRetryHosts = 200;
@@ -767,6 +926,7 @@ public class Api {
         static final int PrioritySetHeader = 400;
         static final int PriorityNormal = 500;
         static final int PriorityAuth = 600;
+        static final int PriorityDebug = 700;
 
         /**
          * 拦截器，优先级，越小优先级越高

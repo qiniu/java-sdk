@@ -3,7 +3,9 @@
 package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
+import com.qiniu.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,7 +32,7 @@ public class Region implements Cloneable {
     private String rsHost = "rs.qbox.me";
     private String rsfHost = "rsf.qbox.me";
     private String apiHost = "api.qiniuapi.com";
-    private String ucHost = "uc.qbox.me";
+    private List<String> ucHosts = Arrays.asList(Configuration.defaultUcHosts);
 
     Region() {
     }
@@ -46,7 +48,11 @@ public class Region implements Cloneable {
         this.rsHost = rsHost;
         this.rsfHost = rsfHost;
         this.apiHost = apiHost;
-        this.ucHost = ucHost;
+        if (!StringUtils.isNullOrEmpty(ucHost)) {
+            List<String> hosts = new ArrayList<>();
+            hosts.add(ucHost);
+            this.ucHosts = hosts;
+        }
     }
 
     /**
@@ -333,7 +339,14 @@ public class Region implements Cloneable {
     }
 
     String getUcHost(RegionReqInfo regionReqInfo) throws QiniuException {
-        return ucHost;
+        if (ucHosts == null || ucHosts.size() == 0) {
+            return "";
+        }
+        return ucHosts.get(0);
+    }
+
+    List<String> getUcHosts(RegionReqInfo regionReqInfo) throws QiniuException {
+        return ucHosts;
     }
 
     boolean isValid() {
@@ -355,7 +368,7 @@ public class Region implements Cloneable {
         newRegion.rsHost = rsHost;
         newRegion.rsfHost = rsfHost;
         newRegion.apiHost = apiHost;
-        newRegion.ucHost = ucHost;
+        newRegion.ucHosts = ucHosts;
         return newRegion;
     }
 

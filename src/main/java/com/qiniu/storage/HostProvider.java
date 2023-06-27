@@ -8,6 +8,9 @@ import java.util.Map;
 public abstract class HostProvider {
 
     public static HostProvider ArrayProvider(String... hosts) {
+        if (hosts == null || hosts.length == 0) {
+            return null;
+        }
         return new ArrayProvider(hosts);
     }
 
@@ -46,6 +49,10 @@ public abstract class HostProvider {
 
         @Override
         public String provider() {
+            if (values == null || values.length == 0) {
+                return "";
+            }
+
             int s = nextIndex;
             int l = values.length;
             for (int i = s; i < (s + l); i++) {
@@ -71,18 +78,18 @@ public abstract class HostProvider {
 
         private static class Value {
             private final String value;
-            private long deadline;
+            private long validTime;
 
             private Value(String value) {
                 this.value = value;
             }
 
             private void freeze(int freezeDuration) {
-                deadline = freezeDuration + Timestamp.second();
+                validTime = freezeDuration + Timestamp.second();
             }
 
             private boolean isValid() {
-                return Timestamp.second() < deadline;
+                return Timestamp.second() >= validTime;
             }
         }
     }
