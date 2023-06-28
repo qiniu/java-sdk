@@ -218,6 +218,14 @@ public final class Response {
         return Json.decode(b);
     }
 
+    public StringMap[] jsonToArray() throws QiniuException {
+        if (!isJson()) {
+            return null;
+        }
+        String b = bodyString();
+        return Json.decodeArray(b);
+    }
+
     public synchronized byte[] body() throws QiniuException {
         if (body != null) {
             return body;

@@ -8,6 +8,7 @@ import com.qiniu.sms.SmsManager;
 import com.qiniu.sms.model.SignatureInfo;
 import com.qiniu.sms.model.TemplateInfo;
 import com.qiniu.util.Auth;
+import com.qiniu.util.DefaultHeader;
 import com.qiniu.util.StringMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -243,7 +244,7 @@ public class SmsTest {
     @Test
     @Tag("IntegrationTest")
     public void testComposeHeader() throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        Method isDisableQiniuTimestampSignatureMethod = Auth.class.getDeclaredMethod("isDisableQiniuTimestampSignature");
+        Method isDisableQiniuTimestampSignatureMethod = DefaultHeader.class.getDeclaredMethod("isDisableQiniuTimestampSignature");
         isDisableQiniuTimestampSignatureMethod.setAccessible(true);
         Boolean isDisableQiniuTimestampSignature = (Boolean) isDisableQiniuTimestampSignatureMethod.invoke(null);
         if (!isDisableQiniuTimestampSignature) {

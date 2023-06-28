@@ -139,7 +139,7 @@ public class BucketTest2 {
     public void testListIterator() {
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
-            BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "", 20, null);
+            BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "", 300, null);
 
             assertTrue(it.hasNext());
             FileInfo[] items0 = it.next();

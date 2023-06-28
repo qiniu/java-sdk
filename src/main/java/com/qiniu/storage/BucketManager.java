@@ -1163,6 +1163,9 @@ public final class BucketManager {
     private Response post(String url, byte[] body, Api.Interceptor[] interceptors) throws QiniuException {
         Api.Request request = new Api.Request(url);
         request.setMethod(MethodType.POST);
+        if (body == null) {
+            body = new byte[0];
+        }
         request.setBody(body, 0, body.length, Client.FormMime);
         return new Api(client, interceptors).requestWithInterceptor(request);
     }

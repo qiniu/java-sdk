@@ -86,6 +86,7 @@ public class Api {
             ApiUtils.throwInvalidRequestParamException("client");
         }
 
+        URL url = request.getUrl();
         if (request.method == MethodType.GET) {
             return client.get(request.getUrl().toString(), request.getHeader());
         } else if (request.method == MethodType.POST) {
@@ -316,7 +317,7 @@ public class Api {
         /**
          * 请求 body 类型
          **/
-        private MediaType contentType;
+        private MediaType contentType = MediaType.parse(Client.DefaultMime);
 
         /**
          * 请求时，每次从流中读取的数据大小
@@ -336,6 +337,26 @@ public class Api {
                 this.host = url.getHost();
                 this.port = url.getPort();
                 this.addPathSegment(url.getPath());
+
+                String query = url.getQuery();
+                if (StringUtils.isNullOrEmpty(query)) {
+                    return;
+                }
+                String[] queryKVs = query.split("&");
+                if (queryKVs == null || queryKVs.length == 0) {
+                    return;
+                }
+                for (String kv : queryKVs) {
+                    if (StringUtils.isNullOrEmpty(kv)) {
+                        continue;
+                    }
+                    String[] keyValue = kv.split("=", 2);
+                    if (keyValue == null || keyValue.length != 2) {
+                        continue;
+                    }
+                    this.addQueryPair(keyValue[0], keyValue[1]);
+                }
+
             } catch (MalformedURLException ignore) {
             }
         }
@@ -426,7 +447,7 @@ public class Api {
         protected void buildPath() throws QiniuException {
             path = StringUtils.join(pathSegments, "/");
             if (!path.startsWith("/")) {
-                path += "/";
+                path = "/" + path;
             }
         }
 
@@ -524,6 +545,17 @@ public class Api {
             for (String key : this.header.keySet()) {
                 header.put(key, this.header.get(key));
             }
+
+            if (header.keySet().contains("Content-Type")) {
+                return header;
+            }
+
+            if (contentType != null) {
+                header.put("Content-Type", getContentType().toString());
+            } else {
+                header.put("Content-Type", Client.DefaultMime);
+            }
+
             return header;
         }
 
@@ -572,6 +604,7 @@ public class Api {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
+            this.addHeaderField("Content-Type", contentType);
             this.contentType = MediaType.parse(contentType);
             this.bytesBody = body;
             this.bytesBodyOffset = offset;
@@ -591,6 +624,7 @@ public class Api {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
+            this.addHeaderField("Content-Type", contentType);
             this.contentType = MediaType.parse(contentType);
             this.body = new RequestStreamBody(body, this.contentType, limitSize);
         }
@@ -619,11 +653,11 @@ public class Api {
 
         private RequestBody getRequestBody() {
             if (!hasBody()) {
-                return RequestBody.create(null, new byte[0]);
+                return RequestBody.create(getContentType(), new byte[0]);
             }
 
             if (bytesBody != null) {
-                return  RequestBody.create(getContentType(), bytesBody, bytesBodyOffset, bytesBodyLength);
+                return RequestBody.create(getContentType(), bytesBody, bytesBodyOffset, bytesBodyLength);
             }
 
             if (body instanceof RequestStreamBody) {
@@ -802,7 +836,12 @@ public class Api {
         /**
          * 响应数据
          */
-        private final StringMap dataMap;
+        private StringMap dataMap;
+
+        /**
+         * 响应数据
+         */
+        private StringMap[] dataArray;
 
         /**
          * 原响应结果
@@ -816,7 +855,14 @@ public class Api {
          * @throws QiniuException 解析 data 异常
          */
         protected Response(com.qiniu.http.Response response) throws QiniuException {
-            this.dataMap = response.jsonToMap();
+            try {
+                this.dataMap = response.jsonToMap();
+            } catch (Exception ignore) {
+            }
+            try {
+                this.dataArray = response.jsonToArray();
+            } catch (Exception ignore) {
+            }
             this.response = response;
         }
 

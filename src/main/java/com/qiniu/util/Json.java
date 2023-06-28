@@ -37,4 +37,21 @@ public final class Json {
         Map<String, Object> x = new Gson().fromJson(json, t);
         return new StringMap(x);
     }
+
+    public static StringMap[] decodeArray(String json) {
+        // CHECKSTYLE:OFF
+        Type t = new TypeToken<Map<String, Object>[]>() {
+        }.getType();
+        // CHECKSTYLE:ON
+        Map<String, Object>[] x = new Gson().fromJson(json, t);
+        if (x == null) {
+            return null;
+        }
+
+        StringMap[] arr = new StringMap[x.length];
+        for (int i = 0; i < x.length; i++) {
+            arr[i] = new StringMap(x[i]);
+        }
+        return arr;
+    }
 }

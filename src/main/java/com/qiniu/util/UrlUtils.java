@@ -180,4 +180,14 @@ public class UrlUtils {
 
         return (needToChange ? out.toString() : s);
     }
+
+    public static String removeHostScheme(String host) {
+        if (host == null || StringUtils.isNullOrEmpty(host)) {
+            return null;
+        }
+
+        host = host.replace("http://", "");
+        host = host.replace("https://", "");
+        return host;
+    }
 }

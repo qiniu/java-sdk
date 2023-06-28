@@ -3,6 +3,8 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.util.StringUtils;
+import com.qiniu.util.UrlUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,10 +57,11 @@ class AutoRegion extends Region {
             return ret;
         }
 
-        String address = getUcHost(null) + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
+        String[] ucHosts = getUcHostArray();
+        String address = getUcServer() + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
         Api api = new Api(client, new Api.Config.Builder()
-                .setHostRetryMax(ucServers.size())
-                .setHostProvider(HostProvider.ArrayProvider(ucServers.toArray(new String[0])))
+                .setHostRetryMax(ucHosts.length)
+                .setHostProvider(HostProvider.ArrayProvider(ucHosts))
                 .build());
         Response r = api.requestWithInterceptor(new Api.Request(address));
         ret = r.jsonToObject(UCRet.class);
@@ -249,14 +252,15 @@ class AutoRegion extends Region {
 
     @Override
     String getUcHost(RegionReqInfo regionReqInfo) throws QiniuException {
+        String host = getUcServer();
+        return UrlUtils.removeHostScheme(host);
+    }
+
+    String getUcServer() throws QiniuException {
         if (ucServers.size() == 0) {
             throw QiniuException.unrecoverable("AutoRegion not set uc host");
         }
-
-        String host = ucServers.get(0);
-        host = host.replace("http://", "");
-        host = host.replace("https://", "");
-        return host;
+        return ucServers.get(0);
     }
 
     List<String> getUcHosts(RegionReqInfo regionReqInfo) throws QiniuException {
@@ -264,14 +268,19 @@ class AutoRegion extends Region {
             throw QiniuException.unrecoverable("AutoRegion not set uc host");
         }
 
-        String[] hosts = new String[ucServers.size()];
         List<String> newList = new ArrayList<>();
         for (String host : ucServers) {
-            String newHost = host.replace("http://", "");
-            newHost = newHost.replace("https://", "");
-            newList.add(newHost);
+            String h = UrlUtils.removeHostScheme(host);
+            if (StringUtils.isNullOrEmpty(h)) {
+                continue;
+            }
+            newList.add(h);
         }
         return newList;
+    }
+
+    String[] getUcHostArray() throws QiniuException {
+        return getUcHosts(null).toArray(new String[0]);
     }
 
 
