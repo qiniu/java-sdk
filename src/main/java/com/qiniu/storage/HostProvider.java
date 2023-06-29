@@ -78,18 +78,18 @@ public abstract class HostProvider {
 
         private static class Value {
             private final String value;
-            private long validTime;
+            private long validAfterTime;
 
             private Value(String value) {
                 this.value = value;
             }
 
             private void freeze(int freezeDuration) {
-                validTime = freezeDuration + Timestamp.second();
+                validAfterTime = freezeDuration + Timestamp.second();
             }
 
             private boolean isValid() {
-                return Timestamp.second() >= validTime;
+                return Timestamp.second() >= validAfterTime;
             }
         }
     }

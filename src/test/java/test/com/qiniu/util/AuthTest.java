@@ -3,6 +3,7 @@ package test.com.qiniu.util;
 import com.qiniu.http.Client;
 import com.qiniu.http.Headers;
 import com.qiniu.util.Auth;
+import com.qiniu.util.DefaultHeader;
 import com.qiniu.util.StringMap;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -87,7 +88,7 @@ public class AuthTest {
     @Tag("UnitTest")
     public void testQiniuAuthorization() {
         try {
-            Method isDisableQiniuTimestampSignatureMethod = Auth.class.getDeclaredMethod("isDisableQiniuTimestampSignature");
+            Method isDisableQiniuTimestampSignatureMethod = DefaultHeader.class.getDeclaredMethod("isDisableQiniuTimestampSignature");
             isDisableQiniuTimestampSignatureMethod.setAccessible(true);
             Boolean isDisableQiniuTimestampSignature = (Boolean) isDisableQiniuTimestampSignatureMethod.invoke(null);
             if (!isDisableQiniuTimestampSignature) {
