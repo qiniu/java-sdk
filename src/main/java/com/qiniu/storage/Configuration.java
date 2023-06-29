@@ -22,7 +22,7 @@ public final class Configuration implements Cloneable {
     public static String defaultUcHost = "uc.qbox.me";
 
     static final String ucBackUpHost0 = "kodo-config.qiniuapi.com";
-    static final String[] defaultUcHosts = new String[]{defaultUcHost, ucBackUpHost0};
+    static final String[] defaultUcHosts = new String[]{defaultUcHost, ucBackUpHost0, defaultApiHost};
 
     /**
      * 使用的Region

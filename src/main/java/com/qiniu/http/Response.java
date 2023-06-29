@@ -215,6 +215,9 @@ public final class Response {
             return null;
         }
         String b = bodyString();
+        if (b == null || !b.startsWith("{")) {
+            return null;
+        }
         return Json.decode(b);
     }
 
@@ -223,6 +226,9 @@ public final class Response {
             return null;
         }
         String b = bodyString();
+        if (b == null || !b.startsWith("[")) {
+            return null;
+        }
         return Json.decodeArray(b);
     }
 

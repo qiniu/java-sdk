@@ -357,7 +357,8 @@ public class Api {
                     this.addQueryPair(keyValue[0], keyValue[1]);
                 }
 
-            } catch (MalformedURLException ignore) {
+            } catch (Exception ignore) {
+                ignore.printStackTrace();
             }
         }
 

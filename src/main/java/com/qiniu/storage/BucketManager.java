@@ -1178,8 +1178,9 @@ public final class BucketManager {
 
     private Api.Interceptor[] ucInterceptors() throws QiniuException {
         String[] ucHosts = null;
-        List<String> ucHostList = config.region.getUcHosts(null);
+        List<String> ucHostList = configHelper.ucHostsWithoutScheme();
         if (ucHostList != null) {
+            ucHostList.remove(Configuration.defaultApiHost);
             ucHosts = ucHostList.toArray(new String[0]);
         }
         Api.Interceptor authInterceptor = new ApiInterceptorAuth.Builder()

@@ -263,6 +263,7 @@ class AutoRegion extends Region {
         return ucServers.get(0);
     }
 
+    @Override
     List<String> getUcHosts(RegionReqInfo regionReqInfo) throws QiniuException {
         if (ucServers.size() == 0) {
             throw QiniuException.unrecoverable("AutoRegion not set uc host");

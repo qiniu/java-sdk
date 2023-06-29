@@ -5,6 +5,9 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.List;
+
 class ConfigHelper {
     private Configuration config;
     private UpHostHelper helper;
@@ -102,6 +105,19 @@ class ConfigHelper {
             host = Configuration.defaultUcHost;
         }
         return getScheme() + host;
+    }
+
+    List<String> ucHostsWithoutScheme() {
+        List<String> hosts = null;
+        try {
+            hosts = config.region.getUcHosts(null);
+        } catch (QiniuException exception) {
+            exception.printStackTrace();
+        }
+        if (hosts == null || hosts.size() == 0) {
+            hosts = Arrays.asList(Configuration.defaultUcHosts);
+        }
+        return hosts;
     }
 
     private String getScheme() {
