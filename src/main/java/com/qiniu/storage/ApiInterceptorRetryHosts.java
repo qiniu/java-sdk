@@ -32,7 +32,17 @@ class ApiInterceptorRetryHosts extends Api.Interceptor {
 
     @Override
     Api.Response intercept(Api.Request request, Api.Handler handler) throws QiniuException {
-        if (retryMax == 0 || hostProvider == null) {
+        if (request == null || hostProvider == null) {
+            return handler.handle(request);
+        }
+
+        String reqHost = request.getHost();
+        String firstHost = hostProvider.provider();
+        if (!hostProvider.isHostValid(reqHost) && !StringUtils.isNullOrEmpty(firstHost)) {
+            request.setHost(firstHost);
+        }
+
+        if (retryMax == 0) {
             return handler.handle(request);
         }
 
@@ -41,9 +51,8 @@ class ApiInterceptorRetryHosts extends Api.Interceptor {
         for (int i = 0; ; i++) {
             exception = null;
             response = null;
-            Api.Request cloneRequest = request.clone();
             String host = request.getHost();
-
+            Api.Request cloneRequest = request.clone();
             try {
                 response = handler.handle(request);
             } catch (QiniuException e) {

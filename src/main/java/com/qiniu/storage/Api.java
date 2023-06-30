@@ -12,7 +12,6 @@ import okhttp3.RequestBody;
 import okio.BufferedSink;
 
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
@@ -26,35 +25,32 @@ public class Api {
 
     private final List<Interceptor> interceptors;
 
+    /**
+     * 构造函数
+     *
+     * @param client 请求的 Client【必须】
+     **/
     protected Api(Client client) {
         this.client = client;
         this.interceptors = null;
     }
 
+    /**
+     * 构造函数
+     *
+     * @param client 请求的 Client 【必须】
+     * @param config 请求的流程的配置信息
+     **/
     Api(Client client, Config config) {
-        this(client,
-                new ApiInterceptorAuth.Builder()
-                        .setAuth(config.auth)
-                        .build(),
-                new ApiInterceptorDebug.Builder()
-                        .setRequestLevel(config.requestDebugLevel)
-                        .setResponseLevel(config.responseDebugLevel)
-                        .build(),
-                new ApiInterceptorRetryHosts.Builder()
-                        .setHostProvider(config.hostProvider)
-                        .setRetryInterval(config.retryInterval)
-                        .setRetryMax(config.hostRetryMax)
-                        .setRetryCondition(config.retryCondition)
-                        .setHostFreezeCondition(config.hostFreezeCondition)
-                        .setHostFreezeDuration(config.hostFreezeDuration)
-                        .build(),
-                new ApiInterceptorRetrySimple.Builder()
-                        .setRetryMax(config.singleHostRetryMax)
-                        .setRetryInterval(config.retryInterval)
-                        .setRetryCondition(config.retryCondition)
-                        .build());
+        this(client, Api.createInterceptors(config));
     }
 
+    /**
+     * 构造函数
+     *
+     * @param client       请求的 Client【必须】
+     * @param interceptors 请求的拦截器
+     **/
     Api(Client client, Interceptor... interceptors) {
         if (client == null) {
             client = new Client();
@@ -79,6 +75,33 @@ public class Api {
         Collections.reverse(is);
 
         this.interceptors = is;
+    }
+
+    private static Interceptor[] createInterceptors(Config config) {
+        if (config == null) {
+            config = new Config.Builder().build();
+        }
+        return new Interceptor[]{
+                new ApiInterceptorAuth.Builder()
+                        .setAuth(config.auth)
+                        .build(),
+                new ApiInterceptorDebug.Builder()
+                        .setRequestLevel(config.requestDebugLevel)
+                        .setResponseLevel(config.responseDebugLevel)
+                        .build(),
+                new ApiInterceptorRetryHosts.Builder()
+                        .setHostProvider(config.hostProvider)
+                        .setRetryInterval(config.retryInterval)
+                        .setRetryMax(config.hostRetryMax)
+                        .setRetryCondition(config.retryCondition)
+                        .setHostFreezeCondition(config.hostFreezeCondition)
+                        .setHostFreezeDuration(config.hostFreezeDuration)
+                        .build(),
+                new ApiInterceptorRetrySimple.Builder()
+                        .setRetryMax(config.singleHostRetryMax)
+                        .setRetryInterval(config.retryInterval)
+                        .setRetryCondition(config.retryCondition)
+                        .build()};
     }
 
     protected com.qiniu.http.Response innerRequest(Request request) throws QiniuException {
@@ -119,6 +142,10 @@ public class Api {
 
         request.prepareToRequest();
 
+        if (interceptors == null || interceptors.size() == 0) {
+            return innerRequest(request);
+        }
+
         Handler handler = new Handler() {
             @Override
             public Api.Response handle(Request req) throws QiniuException {
@@ -146,15 +173,76 @@ public class Api {
     }
 
     public static final class Config {
+
+        public static final int DebugLevelNone = ApiInterceptorDebug.LevelPrintNone;
+
+        public static final int DebugLevelNormal = ApiInterceptorDebug.LevelPrintNormal;
+
+        public static final int DebugLevelDetail = ApiInterceptorDebug.LevelPrintDetail;
+
+        /**
+         * 鉴权信息
+         * 注：上传接口不需要，鉴权需要通过 up token 鉴权
+         **/
         private final Auth auth;
+
+        /**
+         * 多个域名切换重试的最大次数
+         * 当一个域名请求失败，如果符合重试条件，会尝试切换其他域名进行重试
+         **/
         private final int hostRetryMax;
+
+        /**
+         * 单个域名重试的最大次数
+         * 某个域名的请求失败，如果符合重试条件，会尝试重试
+         **/
         private final int singleHostRetryMax;
+
+        /**
+         * 重试间隔
+         **/
         private final Retry.Interval retryInterval;
+
+        /**
+         * 重试条件
+         **/
         private final Retry.RetryCondition retryCondition;
+
+        /**
+         * 域名冻结条件，域名冻结后在一定时间内不再使用
+         **/
         private final Retry.HostFreezeCondition hostFreezeCondition;
+
+        /**
+         * 重试域名提供对象
+         **/
         private final HostProvider hostProvider;
+
+        /**
+         * 域名冻结时间，单位：毫秒
+         **/
         private final int hostFreezeDuration;
+
+        /**
+         * 请求信息 Debug 等级
+         * 参考：
+         * {@link Config#DebugLevelNone}
+         * {@link Config#DebugLevelNormal}
+         * {@link Config#DebugLevelDetail}
+         * <p>
+         * 注：不再范围内的均按 {@link Config#DebugLevelNone} 处理
+         **/
         private final int requestDebugLevel;
+
+        /**
+         * 响应信息 Debug 等级
+         * 参考：
+         * {@link Config#DebugLevelNone}
+         * {@link Config#DebugLevelNormal}
+         * {@link Config#DebugLevelDetail}
+         * <p>
+         * 注：不再范围内的均按 {@link Config#DebugLevelNone} 处理
+         **/
         private final int responseDebugLevel;
 
 
@@ -301,23 +389,11 @@ public class Api {
          */
         private Map<String, String> header = new HashMap<>();
 
-        /**
-         * body 的字节流，可能为空
-         **/
-        private byte[] bytesBody;
-
-        private int bytesBodyOffset;
-        private int bytesBodyLength;
 
         /**
          * 请求 body
          **/
-        private RequestBody body;
-
-        /**
-         * 请求 body 类型
-         **/
-        private MediaType contentType = MediaType.parse(Client.DefaultMime);
+        private Request.Body body;
 
         /**
          * 请求时，每次从流中读取的数据大小
@@ -357,8 +433,8 @@ public class Api {
                     this.addQueryPair(keyValue[0], keyValue[1]);
                 }
 
-            } catch (Exception ignore) {
-                ignore.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -517,7 +593,6 @@ public class Api {
             if (method == null) {
                 return;
             }
-
             this.method = method;
         }
 
@@ -534,6 +609,12 @@ public class Api {
             header.put(key, value);
         }
 
+        private void removeHeaderField(String key) {
+            if (StringUtils.isNullOrEmpty(key)) {
+                return;
+            }
+            header.remove(key);
+        }
 
         /**
          * 获取请求头信息
@@ -551,10 +632,8 @@ public class Api {
                 return header;
             }
 
-            if (contentType != null) {
-                header.put("Content-Type", getContentType().toString());
-            } else {
-                header.put("Content-Type", Client.DefaultMime);
+            if (body != null) {
+                header.put("Content-Type", body.contentType.toString());
             }
 
             return header;
@@ -605,12 +684,7 @@ public class Api {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
-            this.addHeaderField("Content-Type", contentType);
-            this.contentType = MediaType.parse(contentType);
-            this.bytesBody = body;
-            this.bytesBodyOffset = offset;
-            this.bytesBodyLength = size;
-            this.body = RequestBody.create(this.contentType, body, offset, size);
+            this.body = new Request.Body.BytesBody(body, offset, size, contentType);
         }
 
         /**
@@ -625,9 +699,7 @@ public class Api {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
-            this.addHeaderField("Content-Type", contentType);
-            this.contentType = MediaType.parse(contentType);
-            this.body = new RequestStreamBody(body, this.contentType, limitSize);
+            this.body = new Request.Body.InputStreamBody(body, contentType, limitSize);
         }
 
         /**
@@ -649,40 +721,24 @@ public class Api {
          * @return 是否有请求体
          */
         public boolean hasBody() {
-            return body != null || bytesBody != null;
+            return body != null;
         }
 
         private RequestBody getRequestBody() {
             if (!hasBody()) {
-                return RequestBody.create(getContentType(), new byte[0]);
+                return Body.BytesBody.empty().get();
             }
-
-            if (bytesBody != null) {
-                return RequestBody.create(getContentType(), bytesBody, bytesBodyOffset, bytesBodyLength);
+            if (body instanceof Body.InputStreamBody) {
+                ((Body.InputStreamBody) body).streamBodySinkSize = streamBodySinkSize;
             }
-
-            if (body instanceof RequestStreamBody) {
-                ((RequestStreamBody) body).setSinkSize(streamBodySinkSize);
-            }
-
-            return body;
+            return body.get();
         }
 
         byte[] getBytesBody() {
-            if (bytesBody == null || bytesBody.length == 0) {
-                return new byte[]{};
+            if (!hasBody()) {
+                return null;
             }
-            if (bytesBodyOffset == 0 && bytesBodyLength == bytesBody.length) {
-                return bytesBody;
-            }
-            return Arrays.copyOfRange(bytesBody, bytesBodyOffset, bytesBodyOffset + bytesBodyLength);
-        }
-
-        protected MediaType getContentType() {
-            if (contentType != null) {
-                return contentType;
-            }
-            return MediaType.parse(Client.DefaultMime);
+            return body.getBytes();
         }
 
         /**
@@ -699,7 +755,7 @@ public class Api {
                 return true;
             }
 
-            return bytesBody != null;
+            return body.canReset();
         }
 
         /**
@@ -826,6 +882,130 @@ public class Api {
                 return false;
             }
         }
+
+        public abstract static class Body {
+
+            protected final MediaType contentType;
+
+            protected Body(String contentType) {
+                this.contentType = MediaType.parse(contentType);
+            }
+
+            protected boolean canReset() {
+                return false;
+            }
+
+            protected void reset() throws QiniuException {
+                throw QiniuException.unrecoverable("not support reset");
+            }
+
+            protected abstract RequestBody get();
+
+            protected byte[] getBytes() {
+                return null;
+            }
+
+            private static final class BytesBody extends Body {
+                private final byte[] bytes;
+                private final int offset;
+                private final int length;
+
+                private static BytesBody empty() {
+                    return new BytesBody(new byte[0], 0, 0, Client.DefaultMime);
+                }
+
+                private BytesBody(byte[] bytes, int offset, int length, String contentType) {
+                    super(contentType);
+                    this.bytes = bytes;
+                    this.offset = offset;
+                    this.length = length;
+                }
+
+                @Override
+                protected boolean canReset() {
+                    return true;
+                }
+
+                @Override
+                protected void reset() throws QiniuException {
+                }
+
+                @Override
+                protected RequestBody get() {
+                    return RequestBody.create(contentType, bytes, offset, length);
+                }
+
+                @Override
+                public byte[] getBytes() {
+                    if (bytes == null || bytes.length == 0) {
+                        return new byte[]{};
+                    }
+                    if (offset == 0 && length == bytes.length) {
+                        return bytes;
+                    }
+                    return Arrays.copyOfRange(bytes, offset, offset + length);
+                }
+            }
+
+            private static final class InputStreamBody extends Body {
+                private final InputStream stream;
+
+                private final long limitSize;
+
+                private long streamBodySinkSize = 1024 * 10;
+
+                private InputStreamBody(InputStream stream, String contentType, long limitSize) {
+                    super(contentType);
+                    this.stream = stream;
+                    this.limitSize = limitSize;
+                }
+
+                @Override
+                protected RequestBody get() {
+                    RequestStreamBody b = new RequestStreamBody(stream, contentType, limitSize);
+                    b.setSinkSize(streamBodySinkSize);
+                    return b;
+                }
+            }
+
+            private static final class FormBody extends Body {
+                private final byte[] bytes;
+                private final int offset;
+                private final int length;
+
+                private FormBody(byte[] bytes, int offset, int length, String contentType) {
+                    super(contentType);
+                    this.bytes = bytes;
+                    this.offset = offset;
+                    this.length = length;
+                }
+
+                @Override
+                protected boolean canReset() {
+                    return true;
+                }
+
+                @Override
+                protected void reset() throws QiniuException {
+                }
+
+                @Override
+                protected RequestBody get() {
+                    return RequestBody.create(contentType, bytes, offset, length);
+                }
+
+                @Override
+                public byte[] getBytes() {
+                    if (bytes == null || bytes.length == 0) {
+                        return new byte[]{};
+                    }
+                    if (offset == 0 && length == bytes.length) {
+                        return bytes;
+                    }
+                    return Arrays.copyOfRange(bytes, offset, offset + length);
+                }
+            }
+        }
     }
 
 
@@ -868,7 +1048,16 @@ public class Api {
         }
 
         /**
-         * 获取 response data map
+         * 获取 response data array，当 response body 为 json，且为数组时有值
+         *
+         * @return data array
+         */
+        public StringMap[] getDataArray() {
+            return dataArray;
+        }
+
+        /**
+         * 获取 response data map，当 response body 为 json，且为键值对时有值
          *
          * @return data map
          */

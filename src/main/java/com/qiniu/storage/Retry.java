@@ -4,7 +4,7 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 
-class Retry {
+final class Retry {
     private Retry() {
     }
 
@@ -122,14 +122,14 @@ class Retry {
         return response;
     }
 
-    static class RequestRetryConfig {
+    static final class RequestRetryConfig {
         final int retryMax;
 
         RequestRetryConfig(int retryMax) {
             this.retryMax = retryMax;
         }
 
-        static class Builder {
+        static final class Builder {
             private int retryMax = 3;
 
             public Builder setRetryMax(int retryMax) {

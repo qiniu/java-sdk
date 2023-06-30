@@ -10,11 +10,7 @@ public class ApiUpload extends Api {
         super(client);
     }
 
-    ApiUpload(Client client, Interceptor... interceptors) {
-        super(client, interceptors);
-    }
-
-    ApiUpload(Client client, Api.Config config) {
+    public ApiUpload(Client client, Config config) {
         super(client, config);
     }
 
@@ -35,16 +31,6 @@ public class ApiUpload extends Api {
          */
         public Request(String urlPrefix) {
             super(urlPrefix);
-        }
-
-        /**
-         * 构造请求对象
-         *
-         * @param scheme 请求的 scheme
-         * @param host   请求的 host
-         */
-        protected Request(String scheme, String host) {
-            super(scheme, host);
         }
 
         /**

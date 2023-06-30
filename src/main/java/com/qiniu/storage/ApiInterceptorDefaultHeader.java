@@ -15,6 +15,10 @@ final class ApiInterceptorDefaultHeader extends Api.Interceptor {
 
     @Override
     Api.Response intercept(final Api.Request request, Api.Handler handler) throws QiniuException {
+        if (request == null) {
+            return handler.handle(request);
+        }
+
         DefaultHeader.setDefaultHeader(new DefaultHeader.HeadAdder() {
             @Override
             public void addHeader(String key, String value) {

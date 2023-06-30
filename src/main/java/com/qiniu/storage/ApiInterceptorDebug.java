@@ -22,9 +22,13 @@ final class ApiInterceptorDebug extends Api.Interceptor {
      **/
     static final int LevelPrintDetail = 2;
 
-    final int requestLevel;
+    private final int requestLevel;
 
-    final int responseLevel;
+    private final int responseLevel;
+
+    private static boolean isNonePrintLevel(int level) {
+        return level != LevelPrintNormal && level != LevelPrintDetail;
+    }
 
     private ApiInterceptorDebug(int requestLevel, int responseLevel) {
         this.requestLevel = requestLevel;
@@ -38,9 +42,7 @@ final class ApiInterceptorDebug extends Api.Interceptor {
 
     @Override
     Api.Response intercept(final Api.Request request, Api.Handler handler) throws QiniuException {
-        if (request == null
-                || (requestLevel != LevelPrintNormal && requestLevel != LevelPrintDetail)
-                || (responseLevel != LevelPrintNormal && responseLevel != LevelPrintDetail)) {
+        if (request == null || (isNonePrintLevel(requestLevel) && isNonePrintLevel(responseLevel))) {
             return handler.handle(request);
         }
 
@@ -64,7 +66,7 @@ final class ApiInterceptorDebug extends Api.Interceptor {
     }
 
     private void printRequest(String label, Api.Request request) throws QiniuException {
-        if (requestLevel != LevelPrintNormal && requestLevel != LevelPrintDetail) {
+        if (isNonePrintLevel(requestLevel)) {
             return;
         }
 
@@ -76,15 +78,18 @@ final class ApiInterceptorDebug extends Api.Interceptor {
             info.append(key).append(": ").append(value).append("\n");
         }
 
-        if (requestLevel == LevelPrintDetail && request.getBytesBody() != null) {
-            info.append(StringUtils.utf8String(request.getBytesBody())).append("\n");
+        if (requestLevel == LevelPrintDetail) {
+            byte[] body = request.getBytesBody();
+            if (body != null) {
+                info.append(StringUtils.utf8String(body)).append("\n");
+            }
         }
 
         System.out.println(info);
     }
 
     private void printResponse(String label, Api.Response response, Exception e) throws QiniuException {
-        if (responseLevel != LevelPrintNormal && responseLevel != LevelPrintDetail) {
+        if (isNonePrintLevel(responseLevel)) {
             return;
         }
 
@@ -108,9 +113,7 @@ final class ApiInterceptorDebug extends Api.Interceptor {
             }
             System.out.println(info);
         } else if (e != null) {
-            StringBuilder info = new StringBuilder(label + " Exception:\n");
-            info.append(e).append("\n");
-            System.out.println(info);
+            System.out.println(label + " Exception:\n" + e + "\n");
         } else {
             String info = label + " Nothing:\n";
             System.out.println(info);

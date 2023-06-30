@@ -25,27 +25,9 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
 
     @Override
     Response uploadBlock(final ResumeUploadSource.Block block) throws QiniuException {
-        return retryUploadAction(new UploadAction() {
-            @Override
-            public Response uploadAction(String host) throws QiniuException {
-                return makeBlock(host, block);
-            }
-        });
-    }
-
-    @Override
-    Response completeUpload() throws QiniuException {
-        return retryUploadAction(new UploadAction() {
-            @Override
-            public Response uploadAction(String host) throws QiniuException {
-                return makeFile(host);
-            }
-        });
-    }
-
-    private Response makeBlock(String host, ResumeUploadSource.Block block) throws QiniuException {
-        ApiUploadV1MakeBlock api = new ApiUploadV1MakeBlock(client);
-        ApiUploadV1MakeBlock.Request request = new ApiUploadV1MakeBlock.Request(host, token.getToken(), block.size)
+        String urlPrefix = configHelper.upHost(token.getToken());
+        ApiUploadV1MakeBlock api = new ApiUploadV1MakeBlock(client, uploadApiConfig);
+        ApiUploadV1MakeBlock.Request request = new ApiUploadV1MakeBlock.Request(urlPrefix, token.getToken(), block.size)
                 .setFirstChunkData(block.data, 0, block.size, null);
         ApiUploadV1MakeBlock.Response response = api.request(request);
 
@@ -80,10 +62,12 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
         return response.getResponse();
     }
 
-    private Response makeFile(String host) throws QiniuException {
+    @Override
+    Response completeUpload() throws QiniuException {
+        String urlPrefix = configHelper.upHost(token.getToken());
         String[] contexts = uploadSource.getAllBlockContextList();
-        ApiUploadV1MakeFile api = new ApiUploadV1MakeFile(client);
-        final ApiUploadV1MakeFile.Request request = new ApiUploadV1MakeFile.Request(host, token.getToken(), uploadSource.getSize(), contexts)
+        ApiUploadV1MakeFile api = new ApiUploadV1MakeFile(client, uploadApiConfig);
+        final ApiUploadV1MakeFile.Request request = new ApiUploadV1MakeFile.Request(urlPrefix, token.getToken(), uploadSource.getSize(), contexts)
                 .setKey(key)
                 .setFileMimeType(options.mimeType)
                 .setFileName(uploadSource.getFileName())

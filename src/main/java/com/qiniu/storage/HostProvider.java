@@ -1,6 +1,7 @@
 package com.qiniu.storage;
 
 import com.qiniu.util.Timestamp;
+import com.qiniu.util.UrlUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,8 +28,16 @@ public abstract class HostProvider {
      **/
     abstract void freezeHost(String host, int freezeDuration);
 
+    /***
+     * 域名是否有效
+     *
+     * @param host 域名
+     * @return boolean
+     **/
+    abstract boolean isHostValid(String host);
 
-    private static class ArrayProvider extends HostProvider {
+
+    private static final class ArrayProvider extends HostProvider {
 
         private int nextIndex = 0;
         private final String[] values;
@@ -38,11 +47,13 @@ public abstract class HostProvider {
             super();
             this.values = values;
 
-            if (values == null) {
+            if (this.values == null) {
                 return;
             }
 
-            for (String value : values) {
+            for (int i = 0; i < this.values.length; i++) {
+                String value = UrlUtils.removeHostScheme(this.values[i]);
+                this.values[i] = value;
                 this.items.put(value, new Value(value));
             }
         }
@@ -53,7 +64,7 @@ public abstract class HostProvider {
                 return "";
             }
 
-            int s = nextIndex;
+            int s = Math.max(nextIndex, 0);
             int l = values.length;
             for (int i = s; i < (s + l); i++) {
                 String key = values[i % l];
@@ -76,7 +87,16 @@ public abstract class HostProvider {
             v.freeze(freezeDuration);
         }
 
-        private static class Value {
+        @Override
+        boolean isHostValid(String host) {
+            Value v = items.get(host);
+            if (v == null) {
+                return true;
+            }
+            return v.isValid();
+        }
+
+        private static final class Value {
             private final String value;
             private long validAfterTime;
 

@@ -5,6 +5,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -116,6 +117,28 @@ class ConfigHelper {
         }
         if (hosts == null || hosts.size() == 0) {
             hosts = Arrays.asList(Configuration.defaultUcHosts);
+        }
+        return hosts;
+    }
+
+    List<String> upHostsWithoutScheme() {
+        List<String> hosts = new ArrayList<>();
+        try {
+            List<String> srcUpHost = config.region.getSrcUpHost(null);
+            if (srcUpHost != null) {
+                hosts.addAll(srcUpHost);
+            }
+        } catch (QiniuException exception) {
+            exception.printStackTrace();
+        }
+
+        try {
+            List<String> accUpHost = config.region.getAccUpHost(null);
+            if (accUpHost != null) {
+                hosts.addAll(accUpHost);
+            }
+        } catch (QiniuException exception) {
+            exception.printStackTrace();
         }
         return hosts;
     }

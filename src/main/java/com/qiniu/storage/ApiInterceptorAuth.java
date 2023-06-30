@@ -22,7 +22,7 @@ final class ApiInterceptorAuth extends Api.Interceptor {
 
     @Override
     Api.Response intercept(Api.Request request, Api.Handler handler) throws QiniuException {
-        if (auth == null) {
+        if (auth == null || request == null) {
             return handler.handle(request);
         }
 

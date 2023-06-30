@@ -8,7 +8,7 @@ import com.qiniu.util.StringUtils;
 import java.util.List;
 import java.util.Map;
 
-public class ApiQueryRegion extends ApiUpload {
+public class ApiQueryRegion extends Api {
 
     private static final String[] DEFAULT_UC_BACKUP_HOSTS = Configuration.defaultUcHosts;
 

@@ -21,7 +21,7 @@ final class ApiInterceptorRetrySimple extends Api.Interceptor {
 
     @Override
     Api.Response intercept(Api.Request request, Api.Handler handler) throws QiniuException {
-        if (retryMax == 0) {
+        if (request == null || retryMax == 0) {
             return handler.handle(request);
         }
 

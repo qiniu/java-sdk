@@ -9,10 +9,7 @@ import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ApiUploadV2Test {
 
@@ -91,14 +90,33 @@ public class ApiUploadV2Test {
             String token = TestConfig.testAuth.uploadToken(bucket, key, 3600,
                     new StringMap().put("returnBody", returnBody));
 
-            String urlPrefix = null;
+            List<String> hosts = null;
             try {
                 Field hostsFiled = Region.class.getDeclaredField("srcUpHosts");
                 hostsFiled.setAccessible(true);
-                List<String> hosts = (List<String>) hostsFiled.get(region);
-                urlPrefix = "http://" + hosts.get(0);
+                hosts = new ArrayList<String>((List<String>)hostsFiled.get(region));
             } catch (Exception e) {
                 e.printStackTrace();
+                fail(e);
+            }
+
+            // 此处为了测试重试功能使用了 mock 域名，正常应该使用 hosts 中的一个
+            String urlPrefix = "https://mock.qiniu.com";
+            hosts.add("mock.qiniu.com");
+
+            Api.Config apiConfig = new Api.Config.Builder()
+                    .setRequestDebugLevel(Api.Config.DebugLevelNormal)
+                    .setResponseDebugLevel(Api.Config.DebugLevelNormal)
+                    .setHostRetryMax(hosts.size())
+                    .setHostProvider(HostProvider.ArrayProvider(hosts.toArray(new String[0])))
+                    .build();
+            if (!isUploadBytes) {
+                // 非 bytes 不支持重试
+                apiConfig = new Api.Config.Builder()
+                        .setRequestDebugLevel(Api.Config.DebugLevelNormal)
+                        .setResponseDebugLevel(Api.Config.DebugLevelNormal)
+                        .build();
+                urlPrefix = "https://" + hosts.get(0);
             }
 
             Configuration configuration = new Configuration();
@@ -106,7 +124,7 @@ public class ApiUploadV2Test {
 
             // 1. init upload
             String uploadId = null;
-            ApiUploadV2InitUpload initUploadApi = new ApiUploadV2InitUpload(client);
+            ApiUploadV2InitUpload initUploadApi = new ApiUploadV2InitUpload(client, apiConfig);
             ApiUploadV2InitUpload.Request initUploadRequest = new ApiUploadV2InitUpload.Request(urlPrefix, token)
                     .setKey(key);
             try {
@@ -135,7 +153,7 @@ public class ApiUploadV2Test {
                 byte[] partData = getUploadData(file, partOffset, (int) partSize);
 
                 // 1.2.2 上传 part 数据
-                ApiUploadV2UploadPart uploadPartApi = new ApiUploadV2UploadPart(client);
+                ApiUploadV2UploadPart uploadPartApi = new ApiUploadV2UploadPart(client, apiConfig);
                 ApiUploadV2UploadPart.Request uploadPartRequest = new ApiUploadV2UploadPart.Request(urlPrefix, token,
                         uploadId, partNumber).setKey(key);
                 if (isUploadBytes) {
@@ -172,7 +190,7 @@ public class ApiUploadV2Test {
             Integer partNumberMarker = null;
             List<Map<String, Object>> listPartInfo = new ArrayList<>();
             while (true) {
-                ApiUploadV2ListParts listPartsApi = new ApiUploadV2ListParts(client);
+                ApiUploadV2ListParts listPartsApi = new ApiUploadV2ListParts(client, apiConfig);
                 ApiUploadV2ListParts.Request listPartsRequest = new ApiUploadV2ListParts.Request(urlPrefix, token,
                         uploadId).setKey(key).setMaxParts(2) // 此处仅为示例分页拉去，实际可不配置使用默认值1000
                                 .setPartNumberMarker(partNumberMarker);
@@ -204,7 +222,7 @@ public class ApiUploadV2Test {
             String fooValue = "foo-Value";
             Map<String, Object> customParam = new HashMap<>();
             customParam.put("x:foo", fooValue);
-            ApiUploadV2CompleteUpload completeUploadApi = new ApiUploadV2CompleteUpload(client);
+            ApiUploadV2CompleteUpload completeUploadApi = new ApiUploadV2CompleteUpload(client, apiConfig);
             ApiUploadV2CompleteUpload.Request completeUploadRequest = new ApiUploadV2CompleteUpload.Request(urlPrefix,
                     token, uploadId, partsInfo).setKey(key).setFileName(fileName).setCustomParam(customParam);
             try {

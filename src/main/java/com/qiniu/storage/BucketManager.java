@@ -1167,6 +1167,7 @@ public final class BucketManager {
             body = new byte[0];
         }
         request.setBody(body, 0, body.length, Client.FormMime);
+
         return new Api(client, interceptors).requestWithInterceptor(request);
     }
 
@@ -1192,11 +1193,7 @@ public final class BucketManager {
                 .setHostProvider(HostProvider.ArrayProvider(ucHosts))
                 .setHostFreezeDuration(config.hostFreezeDuration)
                 .build();
-        Api.Interceptor debugInterceptor = new ApiInterceptorDebug.Builder()
-                .setRequestLevel(ApiInterceptorDebug.LevelPrintDetail)
-                .setResponseLevel(ApiInterceptorDebug.LevelPrintDetail)
-                .build();
-        return new Api.Interceptor[]{authInterceptor, hostRetryInterceptor, debugInterceptor};
+        return new Api.Interceptor[]{authInterceptor, hostRetryInterceptor};
     }
 
     /**
