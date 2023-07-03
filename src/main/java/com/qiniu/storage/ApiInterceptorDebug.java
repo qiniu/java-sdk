@@ -71,7 +71,7 @@ final class ApiInterceptorDebug extends Api.Interceptor {
         }
 
         StringBuilder info = new StringBuilder(label + " Request:\n");
-        info.append(request.getMethod()).append(" ").append(request.getPath()).append("\n");
+        info.append(request.getMethodString()).append(" ").append(request.getPath()).append("\n");
         StringMap header = request.getHeader();
         for (String key : header.keySet()) {
             Object value = header.get(key);

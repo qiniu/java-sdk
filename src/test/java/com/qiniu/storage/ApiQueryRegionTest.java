@@ -72,20 +72,14 @@ public class ApiQueryRegionTest {
 
             Configuration configuration = new Configuration();
             Client client = new Client(configuration);
-            ApiQueryRegion api = new ApiQueryRegion(client,
-                    new ApiInterceptorRetryHosts.Builder()
-                            .setRetryMax(retryMax)
-                            .setRetryInterval(Retry.staticInterval(1000))
-                            .setHostProvider(HostProvider.ArrayProvider("mock.uc.com", Configuration.defaultUcHost))
-                            .build(),
-                    new ApiInterceptorRetrySimple.Builder()
-                            .setRetryMax(retryMax)
-                            .setRetryInterval(Retry.staticInterval(1000))
-                            .build(),
-                    new ApiInterceptorDebug.Builder()
-                            .setRequestLevel(ApiInterceptorDebug.LevelPrintDetail)
-                            .setResponseLevel(ApiInterceptorDebug.LevelPrintDetail)
-                            .build());
+            ApiQueryRegion api = new ApiQueryRegion(client, new Api.Config.Builder()
+                    .setRequestDebugLevel(ApiInterceptorDebug.LevelPrintDetail)
+                    .setResponseDebugLevel(ApiInterceptorDebug.LevelPrintDetail)
+                    .setHostRetryMax(retryMax)
+                    .setRetryInterval(1000)
+                    .setSingleHostRetryMax(retryMax)
+                    .setHostProvider(HostProvider.ArrayProvider("mock.uc.com", Configuration.defaultUcHost))
+                    .build());
             ApiQueryRegion.Request request = new ApiQueryRegion.Request("https://mock.uc.com", accessKey, bucket);
 
             try {

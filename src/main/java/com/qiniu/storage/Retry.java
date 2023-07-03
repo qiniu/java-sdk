@@ -4,7 +4,7 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 
-final class Retry {
+public final class Retry {
     private Retry() {
     }
 
@@ -60,98 +60,7 @@ final class Retry {
         return true;
     }
 
-    static Response retryRequestAction(RequestRetryConfig config, RequestRetryAction action) throws QiniuException {
-        if (config == null) {
-            throw QiniuException.unrecoverable("RequestRetryConfig can't empty");
-        }
-
-        if (action == null) {
-            throw QiniuException.unrecoverable("RequestRetryAction can't empty");
-        }
-
-        Response response = null;
-        QiniuException exception = null;
-
-        int retryCount = 0;
-
-        do {
-            boolean shouldSwitchHost = false;
-            boolean shouldRetry = false;
-
-            exception = null;
-            String host = action.getRequestHost();
-            try {
-                response = action.doRequest(host);
-                // 判断是否需要重试
-                shouldRetry = canRequestRetryAgain(response, null);
-                // 判断是否需要切换 host
-                shouldSwitchHost = requestShouldSwitchHost(response, null);
-            } catch (QiniuException e) {
-                exception = e;
-                // 判断是否需要重试
-                shouldRetry = canRequestRetryAgain(null, e);
-                // 判断是否需要切换 host
-                shouldSwitchHost = requestShouldSwitchHost(null, e);
-            }
-
-            if (!shouldRetry) {
-                break;
-            }
-
-            retryCount++;
-            if (retryCount >= config.retryMax) {
-                QiniuException innerException = null;
-                if (response != null) {
-                    innerException = new QiniuException(response);
-                } else {
-                    innerException = new QiniuException(exception);
-                }
-                throw new QiniuException(innerException, "failed after retry times");
-            }
-
-            if (shouldSwitchHost) {
-                action.tryChangeRequestHost(host);
-            }
-
-        } while (true);
-
-        if (exception != null) {
-            throw exception;
-        }
-
-        return response;
-    }
-
-    static final class RequestRetryConfig {
-        final int retryMax;
-
-        RequestRetryConfig(int retryMax) {
-            this.retryMax = retryMax;
-        }
-
-        static final class Builder {
-            private int retryMax = 3;
-
-            public Builder setRetryMax(int retryMax) {
-                this.retryMax = retryMax;
-                return this;
-            }
-
-            RequestRetryConfig build() {
-                return new RequestRetryConfig(retryMax);
-            }
-        }
-    }
-
-    interface RequestRetryAction {
-        String getRequestHost() throws QiniuException;
-
-        void tryChangeRequestHost(String oldHost) throws QiniuException;
-
-        Response doRequest(String host) throws QiniuException;
-    }
-
-    interface Interval {
+    public interface Interval {
 
         /**
          * 重试时间间隔，单位：毫秒
@@ -159,11 +68,11 @@ final class Retry {
         int interval();
     }
 
-    static Interval defaultInterval() {
+    public static Interval defaultInterval() {
         return staticInterval(200);
     }
 
-    static Interval staticInterval(final int interval) {
+    public static Interval staticInterval(final int interval) {
         return new Retry.Interval() {
             @Override
             public int interval() {
@@ -172,7 +81,7 @@ final class Retry {
         };
     }
 
-    interface RetryCondition {
+    public interface RetryCondition {
 
         /**
          * 是否需要重试
@@ -180,7 +89,7 @@ final class Retry {
         boolean shouldRetry(Api.Request request, Api.Response response, QiniuException exception);
     }
 
-    static RetryCondition defaultCondition() {
+    public static RetryCondition defaultCondition() {
         return new RetryCondition() {
             @Override
             public boolean shouldRetry(Api.Request request, Api.Response response, QiniuException exception) {
@@ -189,11 +98,11 @@ final class Retry {
         };
     }
 
-    interface HostFreezeCondition {
+    public interface HostFreezeCondition {
         boolean shouldFreezeHost(Api.Request request, Api.Response response, QiniuException exception);
     }
 
-    static HostFreezeCondition defaultHostFreezeCondition() {
+    public static HostFreezeCondition defaultHostFreezeCondition() {
         return new HostFreezeCondition() {
             @Override
             public boolean shouldFreezeHost(Api.Request request, Api.Response response, QiniuException exception) {

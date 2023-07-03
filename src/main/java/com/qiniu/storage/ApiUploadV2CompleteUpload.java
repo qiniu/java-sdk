@@ -45,7 +45,7 @@ public class ApiUploadV2CompleteUpload extends ApiUpload {
     /**
      * api 构建函数
      *
-     * @param client 请求client 【必须】
+     * @param client 请求 Client
      */
     public ApiUploadV2CompleteUpload(Client client) {
         super(client);
@@ -54,7 +54,7 @@ public class ApiUploadV2CompleteUpload extends ApiUpload {
     /**
      * api 构建函数
      *
-     * @param client 请求 Client【必须】
+     * @param client 请求 Client
      * @param config 请求流程的配置信息
      **/
     public ApiUploadV2CompleteUpload(Client client, Config config) {

@@ -18,19 +18,14 @@ public class ApiQueryRegion extends Api {
      * @param client 请求client 【必须】
      */
     public ApiQueryRegion(Client client) {
-        this(client,
-                new ApiInterceptorRetryHosts.Builder()
-                        .setRetryMax(DEFAULT_UC_BACKUP_HOSTS.length)
-                        .setHostProvider(HostProvider.ArrayProvider(DEFAULT_UC_BACKUP_HOSTS))
-                        .build());
+        this(client, new Api.Config.Builder()
+                .setHostRetryMax(DEFAULT_UC_BACKUP_HOSTS.length)
+                .setHostProvider(HostProvider.ArrayProvider(DEFAULT_UC_BACKUP_HOSTS))
+                .build());
     }
 
     public ApiQueryRegion(Client client, Api.Config config) {
         super(client, config);
-    }
-
-    ApiQueryRegion(Client client, Interceptor... interceptors) {
-        super(client, interceptors);
     }
 
     /**

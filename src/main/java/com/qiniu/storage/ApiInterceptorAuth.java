@@ -27,7 +27,7 @@ final class ApiInterceptorAuth extends Api.Interceptor {
         }
 
         String url = request.getUrl().toString();
-        String method = request.getMethod();
+        String method = request.getMethodString();
         Headers headers = Headers.of(request.getHeader());
         byte[] body = request.getBytesBody();
         String authorization = "Qiniu " + auth.signQiniuAuthorization(url, method, body, headers);

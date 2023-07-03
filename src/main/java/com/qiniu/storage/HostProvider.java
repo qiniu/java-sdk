@@ -69,7 +69,7 @@ public abstract class HostProvider {
             for (int i = s; i < (s + l); i++) {
                 String key = values[i % l];
                 Value v = items.get(key);
-                if (v.isValid()) {
+                if (v != null && v.isValid()) {
                     nextIndex = (i + 1) % l;
                     return v.value;
                 }

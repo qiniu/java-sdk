@@ -111,8 +111,8 @@ public final class BucketManager {
     }
 
     public Response bucketsResponse() throws QiniuException {
-        String url = String.format("%s/buckets", configHelper.rsHost());
-        Response res = post(url, null);
+        String url = String.format("%s/buckets", configHelper.ucHost());
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -128,9 +128,24 @@ public final class BucketManager {
      * @throws QiniuException 异常
      */
     public Response createBucket(String bucketName, String region) throws QiniuException {
-        String url = String.format("%s/mkbucketv3/%s/region/%s", configHelper.rsHost(auth.accessKey, bucketName),
-                bucketName, region);
-        Response res = post(url, null);
+        String url = String.format("%s/mkbucketv3/%s/region/%s", configHelper.ucHost(), bucketName, region);
+        Response res = post(url, null, ucInterceptors());
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        return res;
+    }
+
+    /**
+     * 删除空间
+     *
+     * @param bucketName 空间名
+     * @return Response
+     * @throws QiniuException 异常
+     */
+    public Response deleteBucket(String bucketName) throws QiniuException {
+        String url = String.format("%s/drop/%s", configHelper.ucHost(), bucketName);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }

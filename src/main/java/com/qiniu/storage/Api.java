@@ -112,17 +112,18 @@ public class Api {
             ApiUtils.throwInvalidRequestParamException("client");
         }
 
+        MethodType method = request.getMethod();
         String url = request.getUrl().toString();
         StringMap header = request.getHeader();
-        if (request.method == MethodType.GET) {
+        if (method == MethodType.GET) {
             return client.get(url, header);
-        } else if (request.method == MethodType.POST) {
+        } else if (method == MethodType.POST) {
             return client.post(url, request.getRequestBody(), header);
-        } else if (request.method == MethodType.PUT) {
+        } else if (method == MethodType.PUT) {
             return client.put(url, request.getRequestBody(), header);
-        } else if (request.method == MethodType.DELETE) {
+        } else if (method == MethodType.DELETE) {
             return client.delete(url, request.getRequestBody(), header);
-        } else if (request.method == MethodType.HEAD) {
+        } else if (method == MethodType.HEAD) {
             return client.head(url, header);
         } else {
             throw QiniuException.unrecoverable("暂不支持这种请求方式");
@@ -179,9 +180,7 @@ public class Api {
     public static final class Config {
 
         public static final int DebugLevelNone = ApiInterceptorDebug.LevelPrintNone;
-
         public static final int DebugLevelNormal = ApiInterceptorDebug.LevelPrintNormal;
-
         public static final int DebugLevelDetail = ApiInterceptorDebug.LevelPrintDetail;
 
         /**
@@ -287,6 +286,11 @@ public class Api {
 
             public Builder setSingleHostRetryMax(int singleHostRetryMax) {
                 this.singleHostRetryMax = singleHostRetryMax;
+                return this;
+            }
+
+            public Builder setRetryInterval(int retryInterval) {
+                this.retryInterval = Retry.staticInterval(retryInterval);
                 return this;
             }
 
@@ -400,7 +404,7 @@ public class Api {
          *
          * @param urlPrefix 请求的 urlPrefix， scheme + host
          */
-        public Request(String urlPrefix) {
+        protected Request(String urlPrefix) {
             try {
                 URL url = new URL(urlPrefix);
                 this.scheme = url.getProtocol();
@@ -476,25 +480,18 @@ public class Api {
             path = null;
         }
 
-        String getMethod() {
-            String m;
-            switch (method) {
-                case PUT:
-                    m = "PUT";
-                    break;
-                case POST:
-                    m = "POST";
-                    break;
-                case HEAD:
-                    m = "HEAD";
-                    break;
-                case DELETE:
-                    m = "DELETE";
-                    break;
-                default:
-                    m = "GET";
+        String getMethodString() {
+            if (method == null) {
+                return "GET";
             }
-            return m;
+            return method.toString();
+        }
+
+        MethodType getMethod() {
+            if (method == null) {
+                return MethodType.GET;
+            }
+            return method;
         }
 
         /**
@@ -1062,11 +1059,6 @@ public class Api {
 
                     return b.build();
                 }
-
-                @Override
-                public byte[] getBytes() {
-                    return null;
-                }
             }
         }
     }
@@ -1101,11 +1093,13 @@ public class Api {
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             try {
                 this.dataMap = response.jsonToMap();
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             try {
                 this.dataArray = response.jsonToArray();
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             this.response = response;
         }

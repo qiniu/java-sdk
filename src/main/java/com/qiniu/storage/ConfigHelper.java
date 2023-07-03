@@ -4,10 +4,10 @@ import com.qiniu.common.AutoZone;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.util.StringUtils;
+import com.qiniu.util.UrlUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 
 class ConfigHelper {
     private Configuration config;
@@ -41,7 +41,7 @@ class ConfigHelper {
     private String upHost(String upToken, String lastUsedHost, boolean changeHost, boolean mustReturnUpHost)
             throws QiniuException {
         return getScheme()
-                + getHelper().upHost(config.region, upToken, toDomain(lastUsedHost), changeHost, mustReturnUpHost);
+                + getHelper().upHost(config.region, upToken, UrlUtils.removeHostScheme(lastUsedHost), changeHost, mustReturnUpHost);
     }
 
     public String ioHost(String ak, String bucket) throws QiniuException {
@@ -109,16 +109,23 @@ class ConfigHelper {
     }
 
     List<String> ucHostsWithoutScheme() {
-        List<String> hosts = null;
+        List<String> hosts = new ArrayList<>();
         try {
-            hosts = config.region.getUcHosts(null);
+            List<String> hostList = config.region.getUcHosts(null);
+            if (hostList != null) {
+                hosts.addAll(hostList);
+            }
         } catch (QiniuException exception) {
             exception.printStackTrace();
         }
-        if (hosts == null || hosts.size() == 0) {
+
+        hosts = Arrays.asList(removeHostsScheme(hosts));
+
+        if (hosts.size() == 0) {
             hosts = Arrays.asList(Configuration.defaultUcHosts);
         }
-        return hosts;
+
+        return new ArrayList<>(hosts);
     }
 
     List<String> upHostsWithoutScheme() {
@@ -140,7 +147,9 @@ class ConfigHelper {
         } catch (QiniuException exception) {
             exception.printStackTrace();
         }
-        return hosts;
+
+
+        return Arrays.asList(removeHostsScheme(hosts));
     }
 
     private String getScheme() {
@@ -163,60 +172,6 @@ class ConfigHelper {
         }
         return helper;
     }
-
-
-
-    /*
-    * public Builder(Zone originZone) {
-            this();
-            zone.region = originZone.region;
-            zone.upHttp = originZone.upHttp;
-            zone.upHttps = originZone.upHttps;
-            zone.upBackupHttp = originZone.upBackupHttp;
-            zone.upBackupHttps = originZone.upBackupHttps;
-            zone.upIpHttp = originZone.upIpHttp;
-            zone.upIpHttps = originZone.upIpHttps;
-            zone.iovipHttp = originZone.iovipHttp;
-            zone.iovipHttps = originZone.iovipHttps;
-            zone.rsHttp = originZone.rsHttp;
-            zone.rsHttps = originZone.rsHttps;
-            zone.rsfHttp = originZone.rsfHttp;
-            zone.rsfHttps = originZone.rsfHttps;
-            zone.apiHttp = originZone.apiHttp;
-            zone.apiHttps = originZone.apiHttps;
-        }
-
-        return new Builder().region("z0")
-                .upHttp("http://upload.qiniup.com").upHttps("https://upload.qiniup.com")
-                .upBackupHttp("http://up.qiniup.com").upBackupHttps("https://up.qiniup.com")
-                .iovipHttp("http://iovip.qbox.me").iovipHttps("https://iovip.qbox.me")
-                .rsHttp("http://rs.qiniu.com").rsHttps("https://rs.qbox.me")
-                .rsfHttp("http://rsf.qiniu.com").rsfHttps("https://rsf.qbox.me")
-                .apiHttp("http://api.qiniu.com").apiHttps("https://api.qiniu.com")
-                .build();
-
-    *
-    * public Builder(Region originRegion) {
-            init();
-            region.region = originRegion.region;
-            region.srcUpHosts = originRegion.srcUpHosts;
-            region.accUpHosts = originRegion.accUpHosts;
-            region.iovipHost = originRegion.iovipHost;
-            region.rsHost = originRegion.rsHost;
-            region.rsfHost = originRegion.rsfHost;
-            region.apiHost = originRegion.apiHost;
-        }
-
-        return new Builder().
-                region("z0").
-                srcUpHost("up.qiniup.com", "up-jjh.qiniup.com", "up-xs.qiniup.com").
-                accUpHost("upload.qiniup.com", "upload-jjh.qiniup.com", "upload-xs.qiniup.com").
-                iovipHost("iovip.qbox.me").
-                rsHost("rs.qbox.me").
-                rsfHost("rsf.qbox.me").
-                apiHost("api.qiniu.com").
-                build();
-    * */
 
     private Region toRegion(Zone zone) {
         if (zone instanceof AutoZone) {
@@ -242,37 +197,36 @@ class ConfigHelper {
 
     private String getHost(String https, String http) {
         if (config.useHttpsDomains) {
-            return toDomain(https);
+            return UrlUtils.removeHostScheme(https);
         } else {
-            return toDomain(http);
+            return UrlUtils.removeHostScheme(http);
         }
     }
 
     private String[] getHosts(String https, String http) {
-        if (config.useHttpsDomains) {
-            // https would not be null
-            return new String[]{toDomain(https)};
-        } else {
-            // http, s1 would not be null
-            String s1 = toDomain(http);
-            String s2 = toDomain(https);
-            if (s2 != null && !s2.equalsIgnoreCase(s1)) {
-                return new String[]{s1, s2};
+        List<String> hosts = new ArrayList<>();
+        if (StringUtils.isNullOrEmpty(https)) {
+            hosts.add(https);
+        }
+        if (!config.useHttpsDomains && StringUtils.isNullOrEmpty(http)) {
+            hosts.add(http);
+        }
+        return removeHostsScheme(hosts);
+    }
+
+    private String[] removeHostsScheme(List<String> hosts) {
+        if (hosts == null || hosts.size() == 0) {
+            return new String[]{};
+        }
+
+        Set<String> newHosts = new HashSet<>();
+        for (int i = 0; i < hosts.size(); i++) {
+            String host = UrlUtils.removeHostScheme(hosts.get(i));
+            if (!StringUtils.isNullOrEmpty(host)) {
+                newHosts.add(host);
             }
-            return new String[]{s1};
         }
+        return newHosts.toArray(new String[0]);
     }
-
-    private String toDomain(String d1) {
-        if (StringUtils.isNullOrEmpty(d1)) {
-            return null;
-        }
-        int s = d1.indexOf("://");
-        if (s > -1) {
-            return d1.substring(s + 3);
-        }
-        return d1;
-    }
-
 }
 
