@@ -8,16 +8,18 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 
 /**
- * api 基类
+ * api 基类，非七牛 Api 请不要使用此接口，此 Api 有业务定制
  */
 public class Api {
 
@@ -101,7 +103,8 @@ public class Api {
                         .setRetryMax(config.singleHostRetryMax)
                         .setRetryInterval(config.retryInterval)
                         .setRetryCondition(config.retryCondition)
-                        .build()};
+                        .build()
+        };
     }
 
     protected com.qiniu.http.Response innerRequest(Request request) throws QiniuException {
@@ -109,17 +112,18 @@ public class Api {
             ApiUtils.throwInvalidRequestParamException("client");
         }
 
-        URL url = request.getUrl();
+        String url = request.getUrl().toString();
+        StringMap header = request.getHeader();
         if (request.method == MethodType.GET) {
-            return client.get(request.getUrl().toString(), request.getHeader());
+            return client.get(url, header);
         } else if (request.method == MethodType.POST) {
-            return client.post(request.getUrl().toString(), request.getRequestBody(), request.getHeader());
+            return client.post(url, request.getRequestBody(), header);
         } else if (request.method == MethodType.PUT) {
-            return client.put(request.getUrl().toString(), request.getRequestBody(), request.getHeader());
+            return client.put(url, request.getRequestBody(), header);
         } else if (request.method == MethodType.DELETE) {
-            return client.delete(request.getUrl().toString(), request.getRequestBody(), request.getHeader());
+            return client.delete(url, request.getRequestBody(), header);
         } else if (request.method == MethodType.HEAD) {
-            return client.head(request.getUrl().toString(), request.getHeader());
+            return client.head(url, header);
         } else {
             throw QiniuException.unrecoverable("暂不支持这种请求方式");
         }
@@ -182,7 +186,7 @@ public class Api {
 
         /**
          * 鉴权信息
-         * 注：上传接口不需要，鉴权需要通过 up token 鉴权
+         * 注：上传接口鉴权通过 up token 鉴权，不需要设置此参数
          **/
         private final Auth auth;
 
@@ -246,16 +250,7 @@ public class Api {
         private final int responseDebugLevel;
 
 
-        private Config(Auth auth,
-                       int hostRetryMax,
-                       int singleHostRetryMax,
-                       Retry.Interval retryInterval,
-                       Retry.RetryCondition retryCondition,
-                       Retry.HostFreezeCondition hostFreezeCondition,
-                       HostProvider hostProvider,
-                       int hostFreezeDuration,
-                       int requestDebugLevel,
-                       int responseDebugLevel) {
+        private Config(Auth auth, int hostRetryMax, int singleHostRetryMax, Retry.Interval retryInterval, Retry.RetryCondition retryCondition, Retry.HostFreezeCondition hostFreezeCondition, HostProvider hostProvider, int hostFreezeDuration, int requestDebugLevel, int responseDebugLevel) {
             this.auth = auth;
             this.hostRetryMax = hostRetryMax;
             this.singleHostRetryMax = singleHostRetryMax;
@@ -331,8 +326,7 @@ public class Api {
             }
 
             public Config build() {
-                return new Config(auth, hostRetryMax, singleHostRetryMax, retryInterval, retryCondition, hostFreezeCondition,
-                        hostProvider, hostFreezeDuration, requestDebugLevel, responseDebugLevel);
+                return new Config(auth, hostRetryMax, singleHostRetryMax, retryInterval, retryCondition, hostFreezeCondition, hostProvider, hostFreezeDuration, requestDebugLevel, responseDebugLevel);
             }
         }
     }
@@ -674,6 +668,7 @@ public class Api {
         /**
          * 设置请求体
          * 请求数据：在 body 中，从 bodyOffset 开始，获取 bodySize 大小的数据作为请求体
+         * 此方式配置的 body 支持重试，支持 auth
          *
          * @param body        请求数据源
          * @param offset      请求数据在 body 中的偏移量
@@ -689,6 +684,7 @@ public class Api {
 
         /**
          * 设置请求体
+         * 此方式配置的 body 不支持重试，不支持 auth
          *
          * @param body        请求数据源
          * @param contentType 请求数据类型
@@ -699,7 +695,43 @@ public class Api {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
-            this.body = new Request.Body.InputStreamBody(body, contentType, limitSize);
+            Request.Body.InputStreamBody b = new Request.Body.InputStreamBody(body, contentType, limitSize);
+            b.streamBodySinkSize = streamBodySinkSize;
+            this.body = b;
+        }
+
+        /**
+         * 设置表单请求体
+         * 此方式配置的 body 支持重试，不支持 auth
+         *
+         * @param name        表单 name 【必须】
+         * @param fileName    表单 fileName
+         * @param fields      表单 fields
+         * @param body        表单 byte[] 类型 body 【必须】
+         * @param contentType 表单 body 的 Mime type
+         **/
+        protected void setFormBody(String name, String fileName, StringMap fields, byte[] body, String contentType) {
+            if (StringUtils.isNullOrEmpty(contentType)) {
+                contentType = Client.DefaultMime;
+            }
+            this.body = new Request.Body.FormBody(name, fileName, fields, body, contentType);
+        }
+
+        /**
+         * 设置表单请求体
+         * 此方式配置的 body 支持重试，不支持 auth
+         *
+         * @param name        表单 name 【必须】
+         * @param fileName    表单 fileName
+         * @param fields      表单 fields
+         * @param body        表单 File 类型 body 【必须】
+         * @param contentType 表单 body 的 Mime type
+         **/
+        protected void setFormBody(String name, String fileName, StringMap fields, File body, String contentType) {
+            if (StringUtils.isNullOrEmpty(contentType)) {
+                contentType = Client.DefaultMime;
+            }
+            this.body = new Request.Body.FormBody(name, fileName, fields, body, contentType);
         }
 
         /**
@@ -712,6 +744,9 @@ public class Api {
          */
         public Request setStreamBodySinkSize(long streamBodySinkSize) {
             this.streamBodySinkSize = streamBodySinkSize;
+            if (body != null && body instanceof Request.Body.InputStreamBody) {
+                ((Body.InputStreamBody) body).streamBodySinkSize = streamBodySinkSize;
+            }
             return this;
         }
 
@@ -969,15 +1004,28 @@ public class Api {
             }
 
             private static final class FormBody extends Body {
+                private final String name;
+                private final String fileName;
+                private final StringMap fields;
                 private final byte[] bytes;
-                private final int offset;
-                private final int length;
+                private final File file;
 
-                private FormBody(byte[] bytes, int offset, int length, String contentType) {
+                private FormBody(String name, String fileName, StringMap fields, byte[] body, String contentType) {
                     super(contentType);
-                    this.bytes = bytes;
-                    this.offset = offset;
-                    this.length = length;
+                    this.name = name;
+                    this.fileName = fileName;
+                    this.fields = fields;
+                    this.bytes = body;
+                    this.file = null;
+                }
+
+                private FormBody(String name, String fileName, StringMap fields, File body, String contentType) {
+                    super(contentType);
+                    this.name = name;
+                    this.fileName = fileName;
+                    this.fields = fields;
+                    this.bytes = null;
+                    this.file = body;
                 }
 
                 @Override
@@ -991,18 +1039,33 @@ public class Api {
 
                 @Override
                 protected RequestBody get() {
-                    return RequestBody.create(contentType, bytes, offset, length);
+                    RequestBody body = null;
+                    if (bytes != null) {
+                        body = RequestBody.create(contentType, bytes);
+                    } else if (file != null) {
+                        body = RequestBody.create(contentType, file);
+                    } else {
+                        body = RequestBody.create(contentType, new byte[0]);
+                    }
+
+                    final MultipartBody.Builder b = new MultipartBody.Builder();
+                    b.addFormDataPart(name, fileName, body);
+
+                    fields.forEach(new StringMap.Consumer() {
+                        @Override
+                        public void accept(String key, Object value) {
+                            b.addFormDataPart(key, value.toString());
+                        }
+                    });
+
+                    b.setType(MediaType.parse("multipart/form-data"));
+
+                    return b.build();
                 }
 
                 @Override
                 public byte[] getBytes() {
-                    if (bytes == null || bytes.length == 0) {
-                        return new byte[]{};
-                    }
-                    if (offset == 0 && length == bytes.length) {
-                        return bytes;
-                    }
-                    return Arrays.copyOfRange(bytes, offset, offset + length);
+                    return null;
                 }
             }
         }

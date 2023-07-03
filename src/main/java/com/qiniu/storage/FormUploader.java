@@ -3,6 +3,7 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.AsyncCallback;
 import com.qiniu.http.Client;
+import com.qiniu.http.MethodType;
 import com.qiniu.http.Response;
 import com.qiniu.util.Crc32;
 import com.qiniu.util.StringMap;
@@ -72,35 +73,21 @@ public final class FormUploader extends BaseUploader {
     Response uploadFlows() throws QiniuException {
         buildParams();
 
-        Retry.RequestRetryConfig retryConfig = new Retry.RequestRetryConfig.Builder().
-                setRetryMax(this.config.retryMax)
-                .build();
-        return Retry.retryRequestAction(retryConfig, new Retry.RequestRetryAction() {
-            @Override
-            public String getRequestHost() throws QiniuException {
-                return configHelper.upHost(upToken);
-            }
-
-            @Override
-            public void tryChangeRequestHost(String oldHost) throws QiniuException {
-                changeHost(upToken, oldHost);
-            }
-
-            @Override
-            public Response doRequest(String host) throws QiniuException {
-                return uploadWithHost(host);
-            }
-        });
-    }
-
-    Response uploadWithHost(String host) throws QiniuException {
+        String urlPrefix = configHelper.upHost(upToken);
+        Api api = new Api(client, new Api.Config.Builder()
+                .setHostRetryMax(config.retryMax)
+                .setRetryInterval(Retry.staticInterval(config.retryInterval))
+                .setHostFreezeDuration(config.hostFreezeDuration)
+                .setHostProvider(HostProvider.ArrayProvider(this.configHelper.upHostsWithoutScheme().toArray(new String[0])))
+                .build());
+        Api.Request request = new Api.Request(urlPrefix);
+        request.setMethod(MethodType.POST);
         if (data != null) {
-            return client.multipartPost(host, params, "file", filename, data,
-                    mime, new StringMap());
+            request.setFormBody("file", filename, params, data, mime);
         } else {
-            return client.multipartPost(host, params, "file", filename, file,
-                    mime, new StringMap());
+            request.setFormBody("file", filename, params, file, mime);
         }
+        return api.requestWithInterceptor(request);
     }
 
     /**
