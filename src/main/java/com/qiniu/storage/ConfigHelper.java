@@ -119,7 +119,7 @@ class ConfigHelper {
             exception.printStackTrace();
         }
 
-        hosts = Arrays.asList(removeHostsScheme(hosts));
+        hosts = Arrays.asList(removeHostsSchemeAndHostsNoDuplication(hosts));
 
         if (hosts.size() == 0) {
             hosts = Arrays.asList(Configuration.defaultUcHosts);
@@ -148,8 +148,8 @@ class ConfigHelper {
             exception.printStackTrace();
         }
 
-
-        return Arrays.asList(removeHostsScheme(hosts));
+        hosts = Arrays.asList(removeHostsSchemeAndHostsNoDuplication(hosts));
+        return new ArrayList<>(hosts);
     }
 
     private String getScheme() {
@@ -205,16 +205,16 @@ class ConfigHelper {
 
     private String[] getHosts(String https, String http) {
         List<String> hosts = new ArrayList<>();
-        if (StringUtils.isNullOrEmpty(https)) {
+        if (!StringUtils.isNullOrEmpty(https)) {
             hosts.add(https);
         }
-        if (!config.useHttpsDomains && StringUtils.isNullOrEmpty(http)) {
+        if (!config.useHttpsDomains && !StringUtils.isNullOrEmpty(http)) {
             hosts.add(http);
         }
-        return removeHostsScheme(hosts);
+        return removeHostsSchemeAndHostsNoDuplication(hosts);
     }
 
-    private String[] removeHostsScheme(List<String> hosts) {
+    private String[] removeHostsSchemeAndHostsNoDuplication(List<String> hosts) {
         if (hosts == null || hosts.size() == 0) {
             return new String[]{};
         }

@@ -221,7 +221,7 @@ public final class Response {
         return Json.decode(b);
     }
 
-    public StringMap[] jsonToArray() throws QiniuException {
+    public Object[] jsonToArray() throws QiniuException {
         if (!isJson()) {
             return null;
         }

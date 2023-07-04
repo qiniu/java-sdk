@@ -1077,7 +1077,7 @@ public class Api {
         /**
          * 响应数据
          */
-        private StringMap[] dataArray;
+        private Object[] dataArray;
 
         /**
          * 原响应结果
@@ -1109,7 +1109,7 @@ public class Api {
          *
          * @return data array
          */
-        public StringMap[] getDataArray() {
+        public Object[] getDataArray() {
             return dataArray;
         }
 
