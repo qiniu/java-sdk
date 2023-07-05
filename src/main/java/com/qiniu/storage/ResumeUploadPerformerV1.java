@@ -26,7 +26,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
     @Override
     Response uploadBlock(final ResumeUploadSource.Block block) throws QiniuException {
         String urlPrefix = configHelper.upHost(token.getToken());
-        ApiUploadV1MakeBlock api = new ApiUploadV1MakeBlock(client, uploadApiConfig);
+        ApiUploadV1MakeBlock api = new ApiUploadV1MakeBlock(client, getUploadApiConfig());
         ApiUploadV1MakeBlock.Request request = new ApiUploadV1MakeBlock.Request(urlPrefix, token.getToken(), block.size)
                 .setFirstChunkData(block.data, 0, block.size, null);
         ApiUploadV1MakeBlock.Response response = api.request(request);
@@ -66,7 +66,7 @@ class ResumeUploadPerformerV1 extends ResumeUploadPerformer {
     Response completeUpload() throws QiniuException {
         String urlPrefix = configHelper.upHost(token.getToken());
         String[] contexts = uploadSource.getAllBlockContextList();
-        ApiUploadV1MakeFile api = new ApiUploadV1MakeFile(client, uploadApiConfig);
+        ApiUploadV1MakeFile api = new ApiUploadV1MakeFile(client, getUploadApiConfig());
         final ApiUploadV1MakeFile.Request request = new ApiUploadV1MakeFile.Request(urlPrefix, token.getToken(), uploadSource.getSize(), contexts)
                 .setKey(key)
                 .setFileMimeType(options.mimeType)

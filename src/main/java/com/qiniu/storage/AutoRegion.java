@@ -34,6 +34,23 @@ class AutoRegion extends Region {
      */
     private Client client;
 
+    /**
+     * 上传失败重试次数
+     */
+    private int retryMax = 1;
+
+    /**
+     * 重试时间间隔，单位：毫秒
+     **/
+    private int retryInterval = 300;
+
+    /**
+     * 域名冻结时间，单位：毫秒
+     * <p>
+     * 当一个请求失败，会根据条件判断是否需要冻结请求的域名，冻结后在指定的冻结时间内不会使用此域名进行重试
+     **/
+    private int hostFreezeDuration = 600 * 1000;
+
     private AutoRegion() {
     }
 
@@ -43,6 +60,19 @@ class AutoRegion extends Region {
         } else {
             this.ucServers = Arrays.asList(Configuration.defaultUcHosts);
         }
+        this.client = new Client();
+        this.regions = new ConcurrentHashMap<>();
+    }
+
+    AutoRegion(int retryMax, int retryInterval, int hostFreezeDuration, String... ucServers) {
+        if (ucServers != null && ucServers.length > 0) {
+            this.ucServers = Arrays.asList(ucServers);
+        } else {
+            this.ucServers = Arrays.asList(Configuration.defaultUcHosts);
+        }
+        this.retryMax = retryMax;
+        this.retryInterval = retryInterval;
+        this.hostFreezeDuration = hostFreezeDuration;
         this.client = new Client();
         this.regions = new ConcurrentHashMap<>();
     }
@@ -60,6 +90,9 @@ class AutoRegion extends Region {
         String[] ucHosts = getUcHostArray();
         String address = getUcServer() + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
         Api api = new Api(client, new Api.Config.Builder()
+                .setSingleHostRetryMax(retryMax)
+                .setRetryInterval(retryInterval)
+                .setHostFreezeDuration(hostFreezeDuration)
                 .setHostRetryMax(ucHosts.length)
                 .setHostProvider(HostProvider.ArrayProvider(ucHosts))
                 .build());

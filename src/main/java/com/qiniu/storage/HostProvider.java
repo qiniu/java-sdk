@@ -105,11 +105,11 @@ public abstract class HostProvider {
             }
 
             private void freeze(int freezeDuration) {
-                validAfterTime = freezeDuration + Timestamp.second();
+                validAfterTime = freezeDuration + Timestamp.milliSecond();
             }
 
             private boolean isValid() {
-                return Timestamp.second() >= validAfterTime;
+                return Timestamp.milliSecond() >= validAfterTime;
             }
         }
     }

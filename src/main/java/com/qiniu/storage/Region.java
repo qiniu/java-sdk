@@ -449,6 +449,19 @@ public class Region implements Cloneable {
         }
 
         /**
+         * 自动选择,其它参数设置无效
+         *
+         * @param retryMax 单个域名最大重试次数
+         * @param retryInterval 重试间隔，单位：毫秒
+         * @param hostFreezeDuration 冻结时间，单位：毫秒；域名请求失败会被冻结，冻结后域名在冻结时间内不会被使用
+         * @param ucServers uc host
+         * @return 区域信息
+         **/
+        public Region autoRegion(int retryMax, int retryInterval, int hostFreezeDuration, String... ucServers) {
+            return new AutoRegion(retryMax, retryInterval, hostFreezeDuration, ucServers);
+        }
+
+        /**
          * 返回构建好的Region对象
          *
          * @return 区域信息

@@ -126,9 +126,9 @@ public final class Configuration implements Cloneable {
     public int connectionPoolMaxIdleMinutes = Constants.CONNECTION_POOL_MAX_IDLE_MINUTES;
 
     /**
-     * 上传失败重试次数
+     * 上传过程中，如果上传失败，单个域名最大重试次数
      */
-    public int retryMax = 5;
+    public int retryMax = 1;
 
     /**
      * 重试时间间隔，单位：毫秒

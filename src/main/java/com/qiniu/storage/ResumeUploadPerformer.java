@@ -5,6 +5,7 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 
 import java.io.IOException;
+import java.util.List;
 
 abstract class ResumeUploadPerformer {
 
@@ -17,7 +18,7 @@ abstract class ResumeUploadPerformer {
     final UploadToken token;
     final ResumeUploadSource uploadSource;
     final UploadOptions options;
-    final Api.Config uploadApiConfig;
+    private Api.Config uploadApiConfig;
 
     ResumeUploadPerformer(Client client, String key, UploadToken token, ResumeUploadSource source,
                           Recorder recorder, UploadOptions options, Configuration config) {
@@ -29,12 +30,18 @@ abstract class ResumeUploadPerformer {
         this.recorder = recorder;
         this.config = config;
         this.configHelper = new ConfigHelper(config);
+        List<String> ipHosts = this.configHelper.upHostsWithoutScheme();
         this.uploadApiConfig = new Api.Config.Builder()
-                .setHostRetryMax(config.retryMax)
+                .setSingleHostRetryMax(config.retryMax)
+                .setHostRetryMax(ipHosts.size())
                 .setRetryInterval(Retry.staticInterval(config.retryInterval))
                 .setHostFreezeDuration(config.hostFreezeDuration)
-                .setHostProvider(HostProvider.ArrayProvider(this.configHelper.upHostsWithoutScheme().toArray(new String[0])))
+                .setHostProvider(HostProvider.ArrayProvider(ipHosts.toArray(new String[0])))
                 .build();
+    }
+
+    protected Api.Config getUploadApiConfig() {
+        return uploadApiConfig;
     }
 
     boolean isAllBlocksUploadingOrUploaded() {
