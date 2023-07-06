@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class DefaultHeader {
+public final class DefaultHeader {
     public static final String DISABLE_TIMESTAMP_SIGNATURE_ENV_KEY = "DISABLE_QINIU_TIMESTAMP_SIGNATURE";
 
     public static void setDefaultHeader(HeadAdder adder) {

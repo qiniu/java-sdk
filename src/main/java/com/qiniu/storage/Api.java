@@ -5,10 +5,12 @@ import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
 import com.qiniu.http.RequestStreamBody;
 import com.qiniu.util.Auth;
+import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.Request;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
 
@@ -115,19 +117,14 @@ public class Api {
         MethodType method = request.getMethod();
         String url = request.getUrl().toString();
         StringMap header = request.getHeader();
-        if (method == MethodType.GET) {
-            return client.get(url, header);
-        } else if (method == MethodType.POST) {
-            return client.post(url, request.getRequestBody(), header);
-        } else if (method == MethodType.PUT) {
-            return client.put(url, request.getRequestBody(), header);
-        } else if (method == MethodType.DELETE) {
-            return client.delete(url, request.getRequestBody(), header);
-        } else if (method == MethodType.HEAD) {
-            return client.head(url, header);
-        } else {
-            throw QiniuException.unrecoverable("暂不支持这种请求方式");
+        RequestBody body = null; 
+        if (method.hasContent()) {
+            body = request.getRequestBody();
         }
+        okhttp3.Request.Builder requestBuilder = new okhttp3.Request.Builder()
+                .url(url)
+                .method(method.toString(), body);
+        return client.send(requestBuilder, header);
     }
 
     protected com.qiniu.http.Response requestByClient(Request request) throws QiniuException {
@@ -760,9 +757,11 @@ public class Api {
             if (!hasBody()) {
                 return Body.BytesBody.empty().get();
             }
+
             if (body instanceof Body.InputStreamBody) {
                 ((Body.InputStreamBody) body).streamBodySinkSize = streamBodySinkSize;
             }
+
             return body.get();
         }
 
@@ -915,7 +914,7 @@ public class Api {
             }
         }
 
-        public abstract static class Body {
+        private abstract static class Body {
 
             protected final MediaType contentType;
 
@@ -1091,17 +1090,21 @@ public class Api {
          * @throws QiniuException 解析 data 异常
          */
         protected Response(com.qiniu.http.Response response) throws QiniuException {
-            try {
-                this.dataMap = response.jsonToMap();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try {
-                this.dataArray = response.jsonToArray();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
             this.response = response;
+            if (response == null) {
+                return;
+            }
+
+            String bodyString = response.bodyString();
+            try {
+                if (bodyString.startsWith("[")) {
+                    this.dataArray = Json.decodeArray(bodyString);
+                } else {
+                    this.dataMap = Json.decode(bodyString);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         /**

@@ -55,13 +55,7 @@ class AutoRegion extends Region {
     }
 
     AutoRegion(String... ucServers) {
-        if (ucServers != null && ucServers.length > 0) {
-            this.ucServers = Arrays.asList(ucServers);
-        } else {
-            this.ucServers = Arrays.asList(Configuration.defaultUcHosts);
-        }
-        this.client = new Client();
-        this.regions = new ConcurrentHashMap<>();
+        this(1, 300, 600 * 1000, ucServers);
     }
 
     AutoRegion(int retryMax, int retryInterval, int hostFreezeDuration, String... ucServers) {

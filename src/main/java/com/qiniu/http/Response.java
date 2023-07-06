@@ -214,22 +214,14 @@ public final class Response {
         if (!isJson()) {
             return null;
         }
-        String b = bodyString();
-        if (b == null || !b.startsWith("{")) {
-            return null;
-        }
-        return Json.decode(b);
+        return Json.decode(bodyString());
     }
 
     public Object[] jsonToArray() throws QiniuException {
         if (!isJson()) {
             return null;
         }
-        String b = bodyString();
-        if (b == null || !b.startsWith("[")) {
-            return null;
-        }
-        return Json.decodeArray(b);
+        return Json.decodeArray(bodyString());
     }
 
     public synchronized byte[] body() throws QiniuException {
