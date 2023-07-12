@@ -24,37 +24,9 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
 
     @Override
     Response uploadInit() throws QiniuException {
-        return retryUploadAction(new UploadAction() {
-            @Override
-            public Response uploadAction(String host) throws QiniuException {
-                return initPart(host);
-            }
-        });
-    }
-
-    @Override
-    Response uploadBlock(final ResumeUploadSource.Block block) throws QiniuException {
-        return retryUploadAction(new UploadAction() {
-            @Override
-            public Response uploadAction(String host) throws QiniuException {
-                return uploadPart(host, block);
-            }
-        });
-    }
-
-    @Override
-    Response completeUpload() throws QiniuException {
-        return retryUploadAction(new UploadAction() {
-            @Override
-            public Response uploadAction(String host) throws QiniuException {
-                return completeParts(host);
-            }
-        });
-    }
-
-    private Response initPart(String host) throws QiniuException {
-        ApiUploadV2InitUpload api = new ApiUploadV2InitUpload(client);
-        ApiUploadV2InitUpload.Request request = new ApiUploadV2InitUpload.Request(host, this.token.getToken()).setKey(key);
+        String urlPrefix = configHelper.upHost(token.getToken());
+        ApiUploadV2InitUpload api = new ApiUploadV2InitUpload(client, getUploadApiConfig());
+        ApiUploadV2InitUpload.Request request = new ApiUploadV2InitUpload.Request(urlPrefix, this.token.getToken()).setKey(key);
         ApiUploadV2InitUpload.Response response = api.request(request);
 
         if (response.isOK()) {
@@ -75,9 +47,11 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
         return response.getResponse();
     }
 
-    private Response uploadPart(String host, ResumeUploadSource.Block block) throws QiniuException {
-        ApiUploadV2UploadPart api = new ApiUploadV2UploadPart(client);
-        ApiUploadV2UploadPart.Request request = new ApiUploadV2UploadPart.Request(host, this.token.getToken(),
+    @Override
+    Response uploadBlock(final ResumeUploadSource.Block block) throws QiniuException {
+        String urlPrefix = configHelper.upHost(token.getToken());
+        ApiUploadV2UploadPart api = new ApiUploadV2UploadPart(client, getUploadApiConfig());
+        ApiUploadV2UploadPart.Request request = new ApiUploadV2UploadPart.Request(urlPrefix, this.token.getToken(),
                 uploadSource.uploadId, block.index + 1)
                 .setKey(key)
                 .setUploadData(block.data, 0, block.size, null);
@@ -108,9 +82,11 @@ class ResumeUploadPerformerV2 extends ResumeUploadPerformer {
         return response.getResponse();
     }
 
-    private Response completeParts(String host) throws QiniuException {
-        ApiUploadV2CompleteUpload api = new ApiUploadV2CompleteUpload(client);
-        ApiUploadV2CompleteUpload.Request request = new ApiUploadV2CompleteUpload.Request(host, this.token.getToken(),
+    @Override
+    Response completeUpload() throws QiniuException {
+        String urlPrefix = configHelper.upHost(token.getToken());
+        ApiUploadV2CompleteUpload api = new ApiUploadV2CompleteUpload(client, getUploadApiConfig());
+        ApiUploadV2CompleteUpload.Request request = new ApiUploadV2CompleteUpload.Request(urlPrefix, this.token.getToken(),
                 uploadSource.uploadId, uploadSource.getPartInfo())
                 .setKey(key)
                 .setFileMimeType(options.mimeType)

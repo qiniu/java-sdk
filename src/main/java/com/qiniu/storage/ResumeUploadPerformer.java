@@ -5,18 +5,20 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 
 import java.io.IOException;
+import java.util.List;
 
 abstract class ResumeUploadPerformer {
 
     final Client client;
     private final Recorder recorder;
     private final Configuration config;
-    private final ConfigHelper configHelper;
+    final ConfigHelper configHelper;
 
     final String key;
     final UploadToken token;
     final ResumeUploadSource uploadSource;
     final UploadOptions options;
+    private Api.Config uploadApiConfig;
 
     ResumeUploadPerformer(Client client, String key, UploadToken token, ResumeUploadSource source,
                           Recorder recorder, UploadOptions options, Configuration config) {
@@ -28,6 +30,18 @@ abstract class ResumeUploadPerformer {
         this.recorder = recorder;
         this.config = config;
         this.configHelper = new ConfigHelper(config);
+        List<String> ipHosts = this.configHelper.upHostsWithoutScheme();
+        this.uploadApiConfig = new Api.Config.Builder()
+                .setSingleHostRetryMax(config.retryMax)
+                .setHostRetryMax(ipHosts.size())
+                .setRetryInterval(Retry.staticInterval(config.retryInterval))
+                .setHostFreezeDuration(config.hostFreezeDuration)
+                .setHostProvider(HostProvider.ArrayProvider(ipHosts.toArray(new String[0])))
+                .build();
+    }
+
+    protected Api.Config getUploadApiConfig() {
+        return uploadApiConfig;
     }
 
     boolean isAllBlocksUploadingOrUploaded() {
@@ -76,42 +90,4 @@ abstract class ResumeUploadPerformer {
         }
         return block;
     }
-
-    private String getUploadHost() throws QiniuException {
-        return configHelper.upHost(token.getToken());
-    }
-
-    private void changeHost(String host) {
-        try {
-            configHelper.tryChangeUpHost(token.getToken(), host);
-        } catch (Exception ignored) {
-        }
-    }
-
-    Response retryUploadAction(final UploadAction action) throws QiniuException {
-        Retry.RequestRetryConfig retryConfig = new Retry.RequestRetryConfig.Builder().
-                setRetryMax(this.config.retryMax)
-                .build();
-        return Retry.retryRequestAction(retryConfig, new Retry.RequestRetryAction() {
-            @Override
-            public String getRequestHost() throws QiniuException {
-                return getUploadHost();
-            }
-
-            @Override
-            public void tryChangeRequestHost(String oldHost) throws QiniuException {
-                changeHost(oldHost);
-            }
-
-            @Override
-            public Response doRequest(String host) throws QiniuException {
-                return action.uploadAction(host);
-            }
-        });
-    }
-
-    interface UploadAction {
-        Response uploadAction(String host) throws QiniuException;
-    }
-
 }

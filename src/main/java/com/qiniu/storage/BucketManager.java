@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
+import com.qiniu.http.MethodType;
 import com.qiniu.http.Response;
 import com.qiniu.storage.model.*;
 import com.qiniu.util.*;
@@ -29,11 +30,14 @@ public final class BucketManager {
      * 该类需要通过该对象来发送HTTP请求
      */
     private final Client client;
+
     /**
      * ConfigHelper 对象
      * 该类相关的域名配置，解析配置，HTTP请求超时时间设置等
      */
     private ConfigHelper configHelper;
+
+    private Configuration config;
 
     /**
      * 构建一个新的 BucketManager 对象
@@ -44,6 +48,7 @@ public final class BucketManager {
     public BucketManager(Auth auth, Configuration cfg) {
         this.auth = auth;
         Configuration c2 = cfg == null ? new Configuration() : cfg.clone();
+        this.config = c2;
         this.configHelper = new ConfigHelper(c2);
         client = new Client(c2);
     }
@@ -51,13 +56,15 @@ public final class BucketManager {
     public BucketManager(Auth auth, Client client) {
         this.auth = auth;
         this.client = client;
-        this.configHelper = new ConfigHelper(new Configuration());
+        this.config = new Configuration();
+        this.configHelper = new ConfigHelper(this.config);
     }
 
     public BucketManager(Auth auth, Configuration cfg, Client client) {
         this.auth = auth;
         this.client = client;
         Configuration c2 = cfg == null ? new Configuration() : cfg.clone();
+        this.config = c2;
         this.configHelper = new ConfigHelper(c2);
     }
 
@@ -104,8 +111,8 @@ public final class BucketManager {
     }
 
     public Response bucketsResponse() throws QiniuException {
-        String url = String.format("%s/buckets", configHelper.rsHost());
-        Response res = post(url, null);
+        String url = String.format("%s/buckets", configHelper.ucHost());
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -121,9 +128,24 @@ public final class BucketManager {
      * @throws QiniuException 异常
      */
     public Response createBucket(String bucketName, String region) throws QiniuException {
-        String url = String.format("%s/mkbucketv3/%s/region/%s", configHelper.rsHost(auth.accessKey, bucketName),
-                bucketName, region);
-        Response res = post(url, null);
+        String url = String.format("%s/mkbucketv3/%s/region/%s", configHelper.ucHost(), bucketName, region);
+        Response res = post(url, null, ucInterceptors());
+        if (!res.isOK()) {
+            throw new QiniuException(res);
+        }
+        return res;
+    }
+
+    /**
+     * 删除空间
+     *
+     * @param bucketName 空间名
+     * @return Response
+     * @throws QiniuException 异常
+     */
+    public Response deleteBucket(String bucketName) throws QiniuException {
+        String url = String.format("%s/drop/%s", configHelper.ucHost(), bucketName);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -146,7 +168,7 @@ public final class BucketManager {
 
     public Response domainListResponse(String bucket) throws QiniuException {
         String url = String.format("%s/v2/domains?tbl=%s", configHelper.ucHost(), bucket);
-        Response res = get(url);
+        Response res = get(url, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -691,7 +713,7 @@ public final class BucketManager {
             path += String.format("/host/%s", encodedHost);
         }
         path = String.format("%s%s", configHelper.ucHost(), path);
-        return post(path, null);
+        return post(path, null, ucInterceptors());
     }
 
     /**
@@ -704,7 +726,7 @@ public final class BucketManager {
     @Deprecated
     public Response unsetImage(String bucket) throws QiniuException {
         String path = String.format("%s/unimage/%s", configHelper.ucHost(), bucket);
-        return post(path, null);
+        return post(path, null, ucInterceptors());
     }
 
     /**
@@ -731,7 +753,7 @@ public final class BucketManager {
     public Response setIndexPage(String bucket, IndexPageType type) throws QiniuException {
         String url = String.format("%s/noIndexPage?bucket=%s&noIndexPage=%s",
                 configHelper.ucHost(), bucket, type.getType());
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -754,7 +776,7 @@ public final class BucketManager {
 
     public Response getBucketInfoResponse(String bucket) throws QiniuException {
         String url = String.format("%s/v2/bucketInfo?bucket=%s", configHelper.ucHost(), bucket);
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -773,7 +795,7 @@ public final class BucketManager {
     public Response putReferAntiLeech(String bucket, BucketReferAntiLeech antiLeech) throws QiniuException {
         String url = String.format("%s/referAntiLeech?bucket=%s&%s",
                 configHelper.ucHost(), bucket, antiLeech.asQueryString());
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -790,7 +812,7 @@ public final class BucketManager {
      */
     public Response putBucketLifecycleRule(String bucket, BucketLifeCycleRule rule) throws QiniuException {
         String url = String.format("%s/rules/add?bucket=%s&%s", configHelper.ucHost(), bucket, rule.asQueryString());
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -807,7 +829,7 @@ public final class BucketManager {
      */
     public Response deleteBucketLifecycleRule(String bucket, String ruleName) throws QiniuException {
         String url = String.format("%s/rules/delete?bucket=%s&name=%s", configHelper.ucHost(), bucket, ruleName);
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -825,7 +847,7 @@ public final class BucketManager {
     public Response updateBucketLifeCycleRule(String bucket, BucketLifeCycleRule rule) throws QiniuException {
         String url = String.format("%s/rules/update?bucket=%s&%s",
                 configHelper.ucHost(), bucket, rule.asQueryString());
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -858,7 +880,7 @@ public final class BucketManager {
 
     public Response getBucketLifeCycleRuleResponse(String bucket) throws QiniuException {
         String url = String.format("%s/rules/get?bucket=%s", configHelper.ucHost(), bucket);
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -875,7 +897,7 @@ public final class BucketManager {
      */
     public Response putBucketEvent(String bucket, BucketEventRule rule) throws QiniuException {
         String url = String.format("%s/events/add?bucket=%s&%s", configHelper.ucHost(), bucket, rule.asQueryString());
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -892,7 +914,7 @@ public final class BucketManager {
      */
     public Response deleteBucketEvent(String bucket, String ruleName) throws QiniuException {
         String url = String.format("%s/events/delete?bucket=%s&name=%s", configHelper.ucHost(), bucket, ruleName);
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -910,7 +932,7 @@ public final class BucketManager {
     public Response updateBucketEvent(String bucket, BucketEventRule rule) throws QiniuException {
         String url = String.format("%s/events/update?bucket=%s&%s",
                 configHelper.ucHost(), bucket, rule.asQueryString());
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -943,7 +965,7 @@ public final class BucketManager {
 
     public Response getBucketEventsResponse(String bucket) throws QiniuException {
         String url = String.format("%s/events/get?bucket=%s", configHelper.ucHost(), bucket);
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -960,7 +982,7 @@ public final class BucketManager {
      */
     public Response putCorsRules(String bucket, CorsRule[] rules) throws QiniuException {
         String url = String.format("%s/corsRules/set/%s", configHelper.ucHost(), bucket);
-        Response res = post(url, Json.encode(rules).getBytes(Constants.UTF_8));
+        Response res = post(url, Json.encode(rules).getBytes(Constants.UTF_8), ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -993,7 +1015,7 @@ public final class BucketManager {
 
     public Response getCorsRulesResponse(String bucket) throws QiniuException {
         String url = String.format("%s/corsRules/get/%s", configHelper.ucHost(), bucket);
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -1010,7 +1032,7 @@ public final class BucketManager {
      */
     public Response putBucketAccessStyleMode(String bucket, AccessStyleMode mode) throws QiniuException {
         String url = String.format("%s/accessMode/%s/mode/%d", configHelper.ucHost(), bucket, mode.getType());
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -1027,7 +1049,7 @@ public final class BucketManager {
      */
     public Response putBucketMaxAge(String bucket, long maxAge) throws QiniuException {
         String url = String.format("%s/maxAge?bucket=%s&maxAge=%d", configHelper.ucHost(), bucket, maxAge);
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -1044,7 +1066,7 @@ public final class BucketManager {
      */
     public Response putBucketAccessMode(String bucket, AclType acl) throws QiniuException {
         String url = String.format("%s/private?bucket=%s&private=%s", configHelper.ucHost(), bucket, acl.getType());
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -1076,7 +1098,7 @@ public final class BucketManager {
     public Response putBucketQuota(String bucket, BucketQuota bucketQuota) throws QiniuException {
         String url = String.format("%s/setbucketquota/%s/size/%d/count/%d",
                 configHelper.ucHost(), bucket, bucketQuota.getSize(), bucketQuota.getCount());
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -1099,7 +1121,7 @@ public final class BucketManager {
 
     public Response getBucketQuotaResponse(String bucket) throws QiniuException {
         String url = String.format("%s/getbucketquota/%s", configHelper.ucHost(), bucket);
-        Response res = post(url, null);
+        Response res = post(url, null, ucInterceptors());
         if (!res.isOK()) {
             throw new QiniuException(res);
         }
@@ -1143,15 +1165,50 @@ public final class BucketManager {
         return client.get(url, headers);
     }
 
+    private Response get(String url, Api.Interceptor[] interceptors) throws QiniuException {
+        Api.Request request = new Api.Request(url);
+        return new Api(client, interceptors).requestWithInterceptor(request);
+    }
+
     private Response post(String url, byte[] body) throws QiniuException {
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.FormMime);
         return client.post(url, body, headers, Client.FormMime);
+    }
+
+    private Response post(String url, byte[] body, Api.Interceptor[] interceptors) throws QiniuException {
+        Api.Request request = new Api.Request(url);
+        request.setMethod(MethodType.POST);
+        if (body == null) {
+            body = new byte[0];
+        }
+        request.setBody(body, 0, body.length, Client.FormMime);
+
+        return new Api(client, interceptors).requestWithInterceptor(request);
     }
 
     private void check(String bucket) throws QiniuException {
         if (StringUtils.isNullOrEmpty(bucket)) {
             throw new QiniuException(Response.createError(null, null, 0, "未指定操作的空间或操作体为空"));
         }
+    }
+
+    private Api.Interceptor[] ucInterceptors() throws QiniuException {
+        String[] ucHosts = null;
+        List<String> ucHostList = configHelper.ucHostsWithoutScheme();
+        if (ucHostList != null) {
+            ucHostList.remove(Configuration.defaultApiHost);
+            ucHosts = ucHostList.toArray(new String[0]);
+        }
+        Api.Interceptor authInterceptor = new ApiInterceptorAuth.Builder()
+                .setAuth(auth)
+                .build();
+        Api.Interceptor hostRetryInterceptor = new ApiInterceptorRetryHosts.Builder()
+                .setRetryMax(config.retryMax)
+                .setRetryInterval(Retry.staticInterval(config.retryInterval))
+                .setHostProvider(HostProvider.ArrayProvider(ucHosts))
+                .setHostFreezeDuration(config.hostFreezeDuration)
+                .build();
+        return new Api.Interceptor[]{authInterceptor, hostRetryInterceptor};
     }
 
     /**

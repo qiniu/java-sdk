@@ -10,12 +10,10 @@ import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public final class Auth {
-    public static final String DISABLE_QINIU_TIMESTAMP_SIGNATURE_ENV_KEY = "DISABLE_QINIU_TIMESTAMP_SIGNATURE";
+    public static final String DISABLE_QINIU_TIMESTAMP_SIGNATURE_ENV_KEY = DefaultHeader.DISABLE_TIMESTAMP_SIGNATURE_ENV_KEY;
     public static final String DTOKEN_ACTION_VOD = "linking:vod";
     public static final String DTOKEN_ACTION_STATUS = "linking:status";
     public static final String DTOKEN_ACTION_TUTK = "linking:tutk";
@@ -476,9 +474,15 @@ public final class Auth {
             builder = headers.newBuilder();
         }
 
-        setDefaultHeader(builder);
+        final Headers.Builder finalBuilder = builder;
+        DefaultHeader.setDefaultHeader(new DefaultHeader.HeadAdder() {
+            @Override
+            public void addHeader(String key, String value) {
+                finalBuilder.set(key, value);
+            }
+        });
 
-        String authorization = "Qiniu " + signQiniuAuthorization(url, method, body, builder.build());
+        String authorization = "Qiniu " + signQiniuAuthorization(url, method, body, finalBuilder.build());
         builder.set("Authorization", authorization).build();
         return builder.build();
     }
@@ -546,28 +550,6 @@ public final class Auth {
 
     public String generateLinkingDeviceStatusTokenWithExpires(String appid, String deviceName, long expires) {
         return generateLinkingDeviceTokenWithExpires(appid, deviceName, expires, new String[]{DTOKEN_ACTION_STATUS});
-    }
-
-
-    private static void setDefaultHeader(Headers.Builder builder) {
-        if (!isDisableQiniuTimestampSignature()) {
-            builder.set("X-Qiniu-Date", xQiniuDate());
-        }
-    }
-
-    private static boolean isDisableQiniuTimestampSignature() {
-        String value = System.getenv(DISABLE_QINIU_TIMESTAMP_SIGNATURE_ENV_KEY);
-        if (value == null) {
-            return false;
-        }
-        value = value.toLowerCase();
-        return value.equals("true") || value.equals("yes") || value.equals("y") || value.equals("1");
-    }
-
-    private static String xQiniuDate() {
-        DateFormat format = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return format.format(new Date());
     }
 
     class LinkingDtokenStatement {

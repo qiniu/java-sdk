@@ -3,8 +3,11 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.util.StringUtils;
+import com.qiniu.util.UrlUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,7 +17,7 @@ class AutoRegion extends Region {
     /**
      * uc接口域名
      */
-    private String ucServer;
+    private List<String> ucServers = new ArrayList<>();
 
     /**
      * 空间机房，域名信息缓存，此缓存绑定了 token、bucket，且仅 AutoRegion 对象内部有效。
@@ -31,11 +34,39 @@ class AutoRegion extends Region {
      */
     private Client client;
 
+    /**
+     * 上传失败重试次数
+     */
+    private int retryMax = 1;
+
+    /**
+     * 重试时间间隔，单位：毫秒
+     **/
+    private int retryInterval = 300;
+
+    /**
+     * 域名冻结时间，单位：毫秒
+     * <p>
+     * 当一个请求失败，会根据条件判断是否需要冻结请求的域名，冻结后在指定的冻结时间内不会使用此域名进行重试
+     **/
+    private int hostFreezeDuration = 600 * 1000;
+
     private AutoRegion() {
     }
 
-    AutoRegion(String ucServer) {
-        this.ucServer = ucServer;
+    AutoRegion(String... ucServers) {
+        this(1, 300, 600 * 1000, ucServers);
+    }
+
+    AutoRegion(int retryMax, int retryInterval, int hostFreezeDuration, String... ucServers) {
+        if (ucServers != null && ucServers.length > 0) {
+            this.ucServers = Arrays.asList(ucServers);
+        } else {
+            this.ucServers = Arrays.asList(Configuration.defaultUcHosts);
+        }
+        this.retryMax = retryMax;
+        this.retryInterval = retryInterval;
+        this.hostFreezeDuration = hostFreezeDuration;
         this.client = new Client();
         this.regions = new ConcurrentHashMap<>();
     }
@@ -50,8 +81,16 @@ class AutoRegion extends Region {
             return ret;
         }
 
-        String address = ucServer + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
-        Response r = client.get(address);
+        String[] ucHosts = getUcHostArray();
+        String address = getUcServer() + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
+        Api api = new Api(client, new Api.Config.Builder()
+                .setSingleHostRetryMax(retryMax)
+                .setRetryInterval(retryInterval)
+                .setHostFreezeDuration(hostFreezeDuration)
+                .setHostRetryMax(ucHosts.length)
+                .setHostProvider(HostProvider.ArrayProvider(ucHosts))
+                .build());
+        Response r = api.requestWithInterceptor(new Api.Request(address));
         ret = r.jsonToObject(UCRet.class);
         if (ret != null) {
             ret.setupDeadline();
@@ -240,14 +279,42 @@ class AutoRegion extends Region {
 
     @Override
     String getUcHost(RegionReqInfo regionReqInfo) throws QiniuException {
-        String host = ucServer.replace("http://", "");
-        host = host.replace("https://", "");
-        return host;
+        String host = getUcServer();
+        return UrlUtils.removeHostScheme(host);
     }
+
+    String getUcServer() throws QiniuException {
+        if (ucServers.size() == 0) {
+            throw QiniuException.unrecoverable("AutoRegion not set uc host");
+        }
+        return ucServers.get(0);
+    }
+
+    @Override
+    List<String> getUcHosts(RegionReqInfo regionReqInfo) throws QiniuException {
+        if (ucServers.size() == 0) {
+            throw QiniuException.unrecoverable("AutoRegion not set uc host");
+        }
+
+        List<String> newList = new ArrayList<>();
+        for (String host : ucServers) {
+            String h = UrlUtils.removeHostScheme(host);
+            if (StringUtils.isNullOrEmpty(h)) {
+                continue;
+            }
+            newList.add(h);
+        }
+        return newList;
+    }
+
+    String[] getUcHostArray() throws QiniuException {
+        return getUcHosts(null).toArray(new String[0]);
+    }
+
 
     public Object clone() {
         AutoRegion newRegion = new AutoRegion();
-        newRegion.ucServer = ucServer;
+        newRegion.ucServers = new ArrayList<>(ucServers);
         newRegion.regions = regions;
         newRegion.client = client;
         return newRegion;
@@ -294,6 +361,7 @@ class AutoRegion extends Region {
             deadline = System.currentTimeMillis() / 1000 + ttl;
         }
     }
+
     // CHECKSTYLE:OFF
     private class ServerRets {
         long ttl;
@@ -357,6 +425,7 @@ class AutoRegion extends Region {
                     ioSrcHost, rsHost, rsfHost, apiHost, ucHost);
         }
     }
+
     // CHECKSTYLE:ON
     private class ServerRet {
         HostInfoRet src;

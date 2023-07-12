@@ -8,7 +8,9 @@ import com.qiniu.util.StringUtils;
 import java.util.List;
 import java.util.Map;
 
-public class ApiQueryRegion extends ApiUpload {
+public class ApiQueryRegion extends Api {
+
+    private static final String[] DEFAULT_UC_BACKUP_HOSTS = Configuration.defaultUcHosts;
 
     /**
      * api 构建函数
@@ -16,7 +18,14 @@ public class ApiQueryRegion extends ApiUpload {
      * @param client 请求client 【必须】
      */
     public ApiQueryRegion(Client client) {
-        super(client);
+        this(client, new Api.Config.Builder()
+                .setHostRetryMax(DEFAULT_UC_BACKUP_HOSTS.length)
+                .setHostProvider(HostProvider.ArrayProvider(DEFAULT_UC_BACKUP_HOSTS))
+                .build());
+    }
+
+    public ApiQueryRegion(Client client, Api.Config config) {
+        super(client, config);
     }
 
     /**
@@ -27,33 +36,52 @@ public class ApiQueryRegion extends ApiUpload {
      * @throws QiniuException 请求异常
      */
     public Response request(Request request) throws QiniuException {
-        return new Response(requestByClient(request));
+        return new Response(requestWithInterceptor(request));
     }
 
     /**
      * 请求信息
      */
-    public static class Request extends ApiUpload.Request {
-        private static final String DEFAULT_URL_PREFIX = "https://uc.qbox.me";
+    public static class Request extends Api.Request {
+        private static final String DEFAULT_URL_PREFIX = "https://" + DEFAULT_UC_BACKUP_HOSTS[0];
+
+        private String ak;
+        private String bucket;
 
         /**
          * 请求构造函数
          *
          * @param urlPrefix 请求 scheme + host 【可选】
          *                  若为空则使用默认，默认：Request.DEFAULT_URL_PREFIX
-         * @param token     请求凭证 【必须】
+         * @param token     上传请求凭证 【必须】
          */
         public Request(String urlPrefix, String token) {
             super(StringUtils.isNullOrEmpty(urlPrefix) ? DEFAULT_URL_PREFIX : urlPrefix);
-            setToken(token);
             setMethod(MethodType.GET);
+            try {
+                UploadToken upToken = new UploadToken(token);
+                this.ak = upToken.getAccessKey();
+                this.bucket = upToken.getBucket();
+            } catch (QiniuException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public Request(String urlPrefix, String ak, String bucket) {
+            super(StringUtils.isNullOrEmpty(urlPrefix) ? DEFAULT_URL_PREFIX : urlPrefix);
+            setMethod(MethodType.GET);
+            this.ak = ak;
+            this.bucket = bucket;
         }
 
         @Override
         protected void buildQuery() throws QiniuException {
-            UploadToken token = getUploadToken();
-            addQueryPair("ak", token.getAccessKey());
-            addQueryPair("bucket", token.getBucket());
+            if (StringUtils.isNullOrEmpty(ak) || StringUtils.isNullOrEmpty(bucket)) {
+                throw QiniuException.unrecoverable("query region error: ak and bucket can't empty");
+            }
+
+            addQueryPair("ak", this.ak);
+            addQueryPair("bucket", this.bucket);
             super.buildQuery();
         }
 
@@ -80,7 +108,7 @@ public class ApiQueryRegion extends ApiUpload {
      * "s3": { "domains": [ "s3-cn-north-1.qiniucs.com" ], "region_alias": "cn-north-1" } }
      * ] }
      */
-    public static class Response extends ApiUpload.Response {
+    public static class Response extends Api.Response {
 
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
@@ -106,7 +134,7 @@ public class ApiQueryRegion extends ApiUpload {
                 return null;
             }
 
-            Object regionId = ApiUtils.getValueFromMap(region, new String[]{"region"});
+            Object regionId = ApiUtils.getValueFromMap(region, "region");
             return regionId.toString();
         }
 
@@ -130,7 +158,7 @@ public class ApiQueryRegion extends ApiUpload {
                 return null;
             }
 
-            Object ttl = ApiUtils.getValueFromMap(region, new String[]{"ttl"});
+            Object ttl = ApiUtils.getValueFromMap(region, "ttl");
             return ApiUtils.objectToLong(ttl);
         }
 
@@ -154,7 +182,7 @@ public class ApiQueryRegion extends ApiUpload {
                 return null;
             }
 
-            Object domains = ApiUtils.getValueFromMap(region, new String[]{"up", "domains"});
+            Object domains = ApiUtils.getValueFromMap(region, "up", "domains");
             if (!(domains instanceof List)) {
                 return null;
             }

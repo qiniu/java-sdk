@@ -20,35 +20,45 @@ public final class Configuration implements Cloneable {
     public static String defaultRsHost = "rs.qiniu.com";
     public static String defaultApiHost = "api.qiniu.com";
     public static String defaultUcHost = "uc.qbox.me";
+
+    static final String ucBackUpHost0 = "kodo-config.qiniuapi.com";
+    static final String[] defaultUcHosts = new String[]{defaultUcHost, ucBackUpHost0, defaultApiHost};
+
     /**
      * 使用的Region
      */
     public Region region;
+
     /**
      * 使用的Zone
      */
     @Deprecated
     public Zone zone;
+
     /**
      * 空间相关上传管理操作是否使用 https , 默认 是
      */
     public boolean useHttpsDomains = true;
+
     /**
      * 空间相关上传管理操作是否使用代理加速上传，默认 是
      */
     public boolean accUpHostFirst = true;
+
     /**
      * 使用 AutoRegion 时，如果从区域信息得到上传 host 失败，使用默认的上传域名上传，默认 是
      * upload.qiniup.com, upload-z1.qiniup.com, upload-z2.qiniup.com,
      * upload-na0.qiniup.com, upload-as0.qiniup.com
      */
     public boolean useDefaultUpHostIfNone = true;
+
     /**
      * 使用分片 V2 上传时的分片大小
      * 范围为：1M ~ 1GB，
      * 注：每个文件最大分片数量为 10000
      */
     public int resumableUploadAPIV2BlockSize = Constants.BLOCK_SIZE;
+
     /**
      * 分片上传每个文件传时的最大并发任务数，并发数量会影响内存使用，请合理配置
      * 当 resumableUploadMaxConcurrentTaskCount 小于或等于 1 时，使用同步上传，resumableUploadConcurrentTaskExecutorService 不被使用
@@ -61,6 +71,7 @@ public final class Configuration implements Cloneable {
      * 并发任务数量配置方式：Configuration.resumableUploadMaxConcurrentTaskCount
      */
     public int resumableUploadMaxConcurrentTaskCount = 1;
+
     /**
      * 分片上传并发任务的 ExecutorService
      * 当 resumableUploadMaxConcurrentTaskCount 小于或等于 1，此设置无效；
@@ -68,55 +79,80 @@ public final class Configuration implements Cloneable {
      * 当 resumableUploadMaxConcurrentTaskCount 大于 1 且 resumableUploadConcurrentTaskExecutorService 不为空，则直接使用 resumableUploadConcurrentTaskExecutorService
      */
     public ExecutorService resumableUploadConcurrentTaskExecutorService = null;
+
     /**
      * 分片上传的版本
      */
     public ResumableUploadAPIVersion resumableUploadAPIVersion = ResumableUploadAPIVersion.V1;
+
     /**
      * 如果文件大小大于此值则使用断点上传, 否则使用Form上传
      */
     public int putThreshold = Constants.BLOCK_SIZE;
+
     /**
      * 连接超时时间 单位秒(默认10s)
      */
     public int connectTimeout = Constants.CONNECT_TIMEOUT;
+
     /**
      * 写超时时间 单位秒(默认 0 , 不超时)
      */
     public int writeTimeout = Constants.WRITE_TIMEOUT;
+
     /**
      * 回复超时时间 单位秒(默认30s)
      */
     public int readTimeout = Constants.READ_TIMEOUT;
+
     /**
      * 底层HTTP库所有的并发执行的请求数量
      */
     public int dispatcherMaxRequests = Constants.DISPATCHER_MAX_REQUESTS;
+
     /**
      * 底层HTTP库对每个独立的Host进行并发请求的数量
      */
     public int dispatcherMaxRequestsPerHost = Constants.DISPATCHER_MAX_REQUESTS_PER_HOST;
+
     /**
      * 底层HTTP库中复用连接对象的最大空闲数量
      */
     public int connectionPoolMaxIdleCount = Constants.CONNECTION_POOL_MAX_IDLE_COUNT;
+
     /**
      * 底层HTTP库中复用连接对象的回收周期（单位分钟）
      */
     public int connectionPoolMaxIdleMinutes = Constants.CONNECTION_POOL_MAX_IDLE_MINUTES;
+
     /**
-     * 上传失败重试次数
+     * 上传过程中，如果上传失败，单个域名最大重试次数
      */
-    public int retryMax = 5;
+    public int retryMax = 1;
+
+    /**
+     * 重试时间间隔，单位：毫秒
+     **/
+    public int retryInterval = 300;
+
+    /**
+     * 域名冻结时间，单位：毫秒
+     * <p>
+     * 当一个请求失败，会根据条件判断是否需要冻结请求的域名，冻结后在指定的冻结时间内不会使用此域名进行重试
+     **/
+    public int hostFreezeDuration = 600 * 1000;
+
     /**
      * 外部dns
      */
     public Dns dns;
+
     /*
      * 解析域名时,优先使用host配置,主要针对内部局域网配置
      */
     @Deprecated
     public boolean useDnsHostFirst;
+
     /**
      * 代理对象
      */

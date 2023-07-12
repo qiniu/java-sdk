@@ -39,10 +39,20 @@ public class ApiUploadV1PutChunk extends ApiUpload {
     /**
      * api 构建函数
      *
-     * @param client 请求client【必须】
+     * @param client 请求 Client
      */
     public ApiUploadV1PutChunk(Client client) {
         super(client);
+    }
+
+    /**
+     * api 构建函数
+     *
+     * @param client 请求 Client
+     * @param config 请求流程的配置信息
+     **/
+    public ApiUploadV1PutChunk(Client client, Config config) {
+        super(client, config);
     }
 
     /**
@@ -53,7 +63,7 @@ public class ApiUploadV1PutChunk extends ApiUpload {
      * @throws QiniuException 请求异常
      */
     public Response request(Request request) throws QiniuException {
-        return new Response(requestByClient(request));
+        return new Response(requestWithInterceptor(request));
     }
 
     /**

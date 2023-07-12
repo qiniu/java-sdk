@@ -10,6 +10,10 @@ public class ApiUpload extends Api {
         super(client);
     }
 
+    public ApiUpload(Client client, Config config) {
+        super(client, config);
+    }
+
     /**
      * upload api 请求基类
      */

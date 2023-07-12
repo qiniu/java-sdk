@@ -3,7 +3,9 @@
 package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
+import com.qiniu.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,7 +32,7 @@ public class Region implements Cloneable {
     private String rsHost = "rs.qbox.me";
     private String rsfHost = "rsf.qbox.me";
     private String apiHost = "api.qiniuapi.com";
-    private String ucHost = "uc.qbox.me";
+    private List<String> ucHosts = Arrays.asList(Configuration.defaultUcHosts);
 
     Region() {
     }
@@ -46,7 +48,11 @@ public class Region implements Cloneable {
         this.rsHost = rsHost;
         this.rsfHost = rsfHost;
         this.apiHost = apiHost;
-        this.ucHost = ucHost;
+        if (!StringUtils.isNullOrEmpty(ucHost)) {
+            List<String> hosts = new ArrayList<>();
+            hosts.add(ucHost);
+            this.ucHosts = hosts;
+        }
     }
 
     /**
@@ -288,8 +294,8 @@ public class Region implements Cloneable {
      * 自动根据AccessKey和Bucket来判断所在机房，并获取相关的域名
      * 空间所在的对应机房可以在空间创建的时候选择，或者创建完毕之后，从后台查看
      */
-    public static Region autoRegion(String ucServer) {
-        return new Builder().autoRegion(ucServer);
+    public static Region autoRegion(String... ucServers) {
+        return new Builder().autoRegion(ucServers);
     }
 
     boolean switchRegion(RegionReqInfo regionReqInfo) {
@@ -333,7 +339,14 @@ public class Region implements Cloneable {
     }
 
     String getUcHost(RegionReqInfo regionReqInfo) throws QiniuException {
-        return ucHost;
+        if (ucHosts == null || ucHosts.size() == 0) {
+            return "";
+        }
+        return ucHosts.get(0);
+    }
+
+    List<String> getUcHosts(RegionReqInfo regionReqInfo) throws QiniuException {
+        return ucHosts;
     }
 
     boolean isValid() {
@@ -355,7 +368,7 @@ public class Region implements Cloneable {
         newRegion.rsHost = rsHost;
         newRegion.rsfHost = rsfHost;
         newRegion.apiHost = apiHost;
-        newRegion.ucHost = ucHost;
+        newRegion.ucHosts = ucHosts;
         return newRegion;
     }
 
@@ -428,11 +441,24 @@ public class Region implements Cloneable {
         /**
          * 自动选择,其它参数设置无效
          *
-         * @param ucServer uc host
+         * @param ucServers uc host
          * @return 区域信息
          */
-        public Region autoRegion(String ucServer) {
-            return new AutoRegion(ucServer);
+        public Region autoRegion(String... ucServers) {
+            return new AutoRegion(ucServers);
+        }
+
+        /**
+         * 自动选择,其它参数设置无效
+         *
+         * @param retryMax 单个域名最大重试次数
+         * @param retryInterval 重试间隔，单位：毫秒
+         * @param hostFreezeDuration 冻结时间，单位：毫秒；域名请求失败会被冻结，冻结后域名在冻结时间内不会被使用
+         * @param ucServers uc host
+         * @return 区域信息
+         **/
+        public Region autoRegion(int retryMax, int retryInterval, int hostFreezeDuration, String... ucServers) {
+            return new AutoRegion(retryMax, retryInterval, hostFreezeDuration, ucServers);
         }
 
         /**

@@ -46,7 +46,7 @@ public class BucketTest2 {
     @BeforeEach
     public void setUp() throws Exception {
         Configuration cfg = new Configuration();
-        cfg.region = Region.autoRegion();
+        cfg.region = Region.autoRegion("https://mock.uc.com", "https://uc.qbox.me");
         // cfg.useHttpsDomains = false;
         this.bucketManager = new BucketManager(TestConfig.testAuth, cfg);
         this.uploadManager = new UploadManager(cfg);
@@ -139,7 +139,7 @@ public class BucketTest2 {
     public void testListIterator() {
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
-            BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "", 20, null);
+            BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "", 300, null);
 
             assertTrue(it.hasNext());
             FileInfo[] items0 = it.next();
@@ -919,7 +919,7 @@ public class BucketTest2 {
                     assertEquals(bodyString, bodyString2);
                 }
             } catch (QiniuException e) {
-                fail(e.response.toString());
+                fail(e.toString());
             }
         }
     }

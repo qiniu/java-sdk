@@ -9,19 +9,15 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ApiUploadV1Test {
 
@@ -88,14 +84,35 @@ public class ApiUploadV1Test {
             String token = TestConfig.testAuth.uploadToken(bucket, key, 3600,
                     new StringMap().put("returnBody", returnBody));
 
-            String urlPrefix = null;
+
+            List<String> hosts = null;
             try {
                 Field hostsFiled = Region.class.getDeclaredField("srcUpHosts");
                 hostsFiled.setAccessible(true);
-                List<String> hosts = (List<String>) hostsFiled.get(region);
-                urlPrefix = "http://" + hosts.get(0);
+                hosts = new ArrayList<String>((List<String>)hostsFiled.get(region));
             } catch (Exception e) {
                 e.printStackTrace();
+                fail(e);
+            }
+
+            // 此处为了测试重试功能使用了 mock 域名，正常应该使用 hosts 中的一个
+            String urlPrefix = "https://mock.qiniu.com";
+            hosts.add("mock.qiniu.com");
+
+            Api.Config apiConfig = new Api.Config.Builder()
+                    .setRequestDebugLevel(Api.Config.DebugLevelNormal)
+                    .setResponseDebugLevel(Api.Config.DebugLevelNormal)
+                    .setResponseDebugLevel(1)
+                    .setHostRetryMax(hosts.size())
+                    .setHostProvider(HostProvider.ArrayProvider(hosts.toArray(new String[0])))
+                    .build();
+            if (!isUploadBytes) {
+                // 非 bytes 不支持重试
+                apiConfig = new Api.Config.Builder()
+                        .setRequestDebugLevel(Api.Config.DebugLevelNormal)
+                        .setResponseDebugLevel(Api.Config.DebugLevelNormal)
+                        .build();
+                urlPrefix = "https://" + hosts.get(0);
             }
 
             Configuration configuration = new Configuration();
@@ -128,7 +145,7 @@ public class ApiUploadV1Test {
                     // 1.2.2 上传块
                     if (chunkOffset == 0) {
                         // 1.2.2.1 块中第一片，采用 make block 接口
-                        ApiUploadV1MakeBlock makeBlockApi = new ApiUploadV1MakeBlock(client);
+                        ApiUploadV1MakeBlock makeBlockApi = new ApiUploadV1MakeBlock(client, apiConfig);
                         ApiUploadV1MakeBlock.Request makeBlockRequest = new ApiUploadV1MakeBlock.Request(urlPrefix,
                                 token, (int) blockSize);
                         if (isUploadBytes) {
@@ -156,8 +173,8 @@ public class ApiUploadV1Test {
                             e.printStackTrace();
                         }
                     } else {
-                        // 1.2.2.2 非块中第一片，采用 make block 接口
-                        ApiUploadV1PutChunk putChunkApi = new ApiUploadV1PutChunk(client);
+                        // 1.2.2.2 非块中第一片，采用 put chunk 接口
+                        ApiUploadV1PutChunk putChunkApi = new ApiUploadV1PutChunk(client, apiConfig);
                         ApiUploadV1PutChunk.Request putChunkRequest = new ApiUploadV1PutChunk.Request(urlPrefix, token,
                                 blockLastCtx, (int) chunkOffset);
                         if (isUploadBytes) {
@@ -196,7 +213,7 @@ public class ApiUploadV1Test {
             String fooValue = "foo-Value";
             Map<String, Object> customParam = new HashMap<>();
             customParam.put("x:foo", fooValue);
-            ApiUploadV1MakeFile makeFileApi = new ApiUploadV1MakeFile(client);
+            ApiUploadV1MakeFile makeFileApi = new ApiUploadV1MakeFile(client, apiConfig);
             ApiUploadV1MakeFile.Request makeFileRequest = new ApiUploadV1MakeFile.Request(urlPrefix, token, fileSize,
                     allBlockCtx.toArray(new String[0])).setKey(key).setFileName(fileName).setCustomParam(customParam);
             try {

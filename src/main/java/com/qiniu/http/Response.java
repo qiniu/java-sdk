@@ -137,6 +137,10 @@ public final class Response {
                 address, duration, error, body);
     }
 
+    public okhttp3.Response getResponse() {
+        return response;
+    }
+
     public static Response createSuccessResponse() {
         return new Response(null, 200, "inter:reqId", null, "inter:via",
                 null, 0, null, new byte[0]);
@@ -210,8 +214,14 @@ public final class Response {
         if (!isJson()) {
             return null;
         }
-        String b = bodyString();
-        return Json.decode(b);
+        return Json.decode(bodyString());
+    }
+
+    public Object[] jsonToArray() throws QiniuException {
+        if (!isJson()) {
+            return null;
+        }
+        return Json.decodeArray(bodyString());
     }
 
     public synchronized byte[] body() throws QiniuException {

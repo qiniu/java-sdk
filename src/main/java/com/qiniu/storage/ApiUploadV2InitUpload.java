@@ -37,10 +37,20 @@ public class ApiUploadV2InitUpload extends ApiUpload {
     /**
      * api 构建函数
      *
-     * @param client 请求client【必须】
+     * @param client 请求 Client
      */
     public ApiUploadV2InitUpload(Client client) {
         super(client);
+    }
+
+    /**
+     * api 构建函数
+     *
+     * @param client 请求 Client
+     * @param config 请求流程的配置信息
+     **/
+    public ApiUploadV2InitUpload(Client client, Config config) {
+        super(client, config);
     }
 
     /**
@@ -51,7 +61,7 @@ public class ApiUploadV2InitUpload extends ApiUpload {
      * @throws QiniuException 请求异常
      */
     public Response request(Request request) throws QiniuException {
-        return new Response(requestByClient(request));
+        return new Response(requestWithInterceptor(request));
     }
 
     /**
