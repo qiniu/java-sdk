@@ -1,7 +1,12 @@
 # Changelog
+## 7.14.0（2023-07-18)
+* Region 移除亚太首尔区域
+* BucketManager 的部分 Bucket 级别接口支持主备重试
+
 ## 7.13.1（2023-05-25)
-* GetBucketQuota
-* ChangeApiHost
+* 优化 BucketManager 的 getBucketQuota 方法
+* 废弃 pu.qbox.me 域名
+* 废弃 BucketManager 的 listFilesV2 方法
 * PlayExpire
 
 ## 7.13.0（2023-03-30)
