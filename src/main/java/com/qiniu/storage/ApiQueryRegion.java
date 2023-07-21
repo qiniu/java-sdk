@@ -20,7 +20,7 @@ public class ApiQueryRegion extends Api {
     public ApiQueryRegion(Client client) {
         this(client, new Api.Config.Builder()
                 .setHostRetryMax(DEFAULT_UC_BACKUP_HOSTS.length)
-                .setHostProvider(HostProvider.ArrayProvider(DEFAULT_UC_BACKUP_HOSTS))
+                .setHostProvider(HostProvider.arrayProvider(DEFAULT_UC_BACKUP_HOSTS))
                 .build());
     }
 

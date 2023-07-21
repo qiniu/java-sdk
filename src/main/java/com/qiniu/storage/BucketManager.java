@@ -1205,7 +1205,7 @@ public final class BucketManager {
         Api.Interceptor hostRetryInterceptor = new ApiInterceptorRetryHosts.Builder()
                 .setRetryMax(config.retryMax)
                 .setRetryInterval(Retry.staticInterval(config.retryInterval))
-                .setHostProvider(HostProvider.ArrayProvider(ucHosts))
+                .setHostProvider(HostProvider.arrayProvider(ucHosts))
                 .setHostFreezeDuration(config.hostFreezeDuration)
                 .build();
         return new Api.Interceptor[]{authInterceptor, hostRetryInterceptor};

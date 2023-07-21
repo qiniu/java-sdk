@@ -8,7 +8,7 @@ import java.util.Map;
 
 public abstract class HostProvider {
 
-    public static HostProvider ArrayProvider(String... hosts) {
+    public static HostProvider arrayProvider(String... hosts) {
         if (hosts == null || hosts.length == 0) {
             return null;
         }

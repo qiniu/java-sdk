@@ -1,7 +1,6 @@
 package com.qiniu.util;
 
 import com.qiniu.http.Client;
-import com.qiniu.http.Headers;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -10,6 +9,9 @@ import java.util.TimeZone;
 
 public final class DefaultHeader {
     public static final String DISABLE_TIMESTAMP_SIGNATURE_ENV_KEY = "DISABLE_QINIU_TIMESTAMP_SIGNATURE";
+
+    private DefaultHeader() {
+    }
 
     public static void setDefaultHeader(HeadAdder adder) {
         if (adder == null) {

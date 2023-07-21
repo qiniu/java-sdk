@@ -108,7 +108,7 @@ public class ApiUploadV2Test {
                     .setRequestDebugLevel(Api.Config.DebugLevelNormal)
                     .setResponseDebugLevel(Api.Config.DebugLevelNormal)
                     .setHostRetryMax(hosts.size())
-                    .setHostProvider(HostProvider.ArrayProvider(hosts.toArray(new String[0])))
+                    .setHostProvider(HostProvider.arrayProvider(hosts.toArray(new String[0])))
                     .build();
             if (!isUploadBytes) {
                 // 非 bytes 不支持重试
