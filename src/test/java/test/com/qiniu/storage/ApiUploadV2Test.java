@@ -94,7 +94,7 @@ public class ApiUploadV2Test {
             try {
                 Field hostsFiled = Region.class.getDeclaredField("srcUpHosts");
                 hostsFiled.setAccessible(true);
-                hosts = new ArrayList<String>((List<String>)hostsFiled.get(region));
+                hosts = new ArrayList<>((List<String>)hostsFiled.get(region));
             } catch (Exception e) {
                 e.printStackTrace();
                 fail(e);

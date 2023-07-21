@@ -8,7 +8,6 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.model.*;
 import com.qiniu.util.Json;
-import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
