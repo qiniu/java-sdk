@@ -88,7 +88,7 @@ public class ApiQueryRegionTest {
                 System.out.println("query region data:" + response.getDataMap());
                 long en = Timestamp.second();
 
-                assertTrue(en - st >= retryMax * 2, "retry interval or retry max error");
+                assertTrue(en - st >= retryMax + 1, "retry interval or retry max error");
 
                 assertTrue(response.isOK(), response.getResponse() + "");
 

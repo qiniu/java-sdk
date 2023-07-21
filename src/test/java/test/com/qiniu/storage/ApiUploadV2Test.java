@@ -94,7 +94,8 @@ public class ApiUploadV2Test {
             try {
                 Field hostsFiled = Region.class.getDeclaredField("srcUpHosts");
                 hostsFiled.setAccessible(true);
-                hosts = new ArrayList<>((List<String>)hostsFiled.get(region));
+                List<String> srcHosts = (List<String>) hostsFiled.get(region);
+                hosts = new ArrayList<>(srcHosts);
             } catch (Exception e) {
                 e.printStackTrace();
                 fail(e);
@@ -193,7 +194,7 @@ public class ApiUploadV2Test {
                 ApiUploadV2ListParts listPartsApi = new ApiUploadV2ListParts(client, apiConfig);
                 ApiUploadV2ListParts.Request listPartsRequest = new ApiUploadV2ListParts.Request(urlPrefix, token,
                         uploadId).setKey(key).setMaxParts(2) // 此处仅为示例分页拉去，实际可不配置使用默认值1000
-                                .setPartNumberMarker(partNumberMarker);
+                        .setPartNumberMarker(partNumberMarker);
                 try {
                     ApiUploadV2ListParts.Response listPartsResponse = listPartsApi.request(listPartsRequest);
                     partNumberMarker = listPartsResponse.getPartNumberMarker();
