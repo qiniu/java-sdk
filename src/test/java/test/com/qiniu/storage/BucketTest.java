@@ -74,8 +74,13 @@ public class BucketTest {
         testFileWithHandler(new TestFileHandler() {
             @Override
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
+                String bucket = "java-sdk-test-create-bucket";
                 try {
-                    String bucket = "java-sdk-test-create-bucket";
+                    bucketManager.deleteBucket(bucket);
+                } catch (QiniuException e) {
+                }
+
+                try {
                     Response response = bucketManager.createBucket(bucket, file.getRegionId());
                     assertTrue(response.isOK());
 
