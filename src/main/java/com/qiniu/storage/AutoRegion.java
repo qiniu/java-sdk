@@ -88,7 +88,7 @@ class AutoRegion extends Region {
                 .setRetryInterval(retryInterval)
                 .setHostFreezeDuration(hostFreezeDuration)
                 .setHostRetryMax(ucHosts.length)
-                .setHostProvider(HostProvider.ArrayProvider(ucHosts))
+                .setHostProvider(HostProvider.arrayProvider(ucHosts))
                 .build());
         Response r = api.requestWithInterceptor(new Api.Request(address));
         ret = r.jsonToObject(UCRet.class);

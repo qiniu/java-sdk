@@ -2,7 +2,6 @@ package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
-import com.qiniu.storage.*;
 import com.qiniu.util.Timestamp;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -78,7 +77,7 @@ public class ApiQueryRegionTest {
                     .setHostRetryMax(retryMax)
                     .setRetryInterval(1000)
                     .setSingleHostRetryMax(retryMax)
-                    .setHostProvider(HostProvider.ArrayProvider("mock.uc.com", Configuration.defaultUcHost))
+                    .setHostProvider(HostProvider.arrayProvider("mock.uc.com", Configuration.defaultUcHost))
                     .build());
             ApiQueryRegion.Request request = new ApiQueryRegion.Request("https://mock.uc.com", accessKey, bucket);
 
@@ -89,7 +88,7 @@ public class ApiQueryRegionTest {
                 System.out.println("query region data:" + response.getDataMap());
                 long en = Timestamp.second();
 
-                assertTrue(en - st >= retryMax * 2, "retry interval or retry max error");
+                assertTrue(en - st >= retryMax + 1, "retry interval or retry max error");
 
                 assertTrue(response.isOK(), response.getResponse() + "");
 

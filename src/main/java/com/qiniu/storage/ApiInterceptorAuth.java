@@ -35,7 +35,7 @@ final class ApiInterceptorAuth extends Api.Interceptor {
         return handler.handle(request);
     }
 
-    final static class Builder {
+    static final class Builder {
         private Auth auth;
 
         Builder setAuth(Auth auth) {
