@@ -30,6 +30,18 @@ public final class TestConfig {
     public static final String smsAccessKey = "test";
     public static final String smsSecretKey = "test";
 
+     // pili: ak, sk auth
+    public static final String piliAccessKey = "";
+    public static final String piliSecretKey = "";
+    public static final String piliHTTPhost = "";
+    public static final String piliTestHub = "";
+    public static final String piliTestDomain = "";
+    public static final String piliTestVodDomain = "";
+    public static final String piliTestCertName = "";
+    public static final String piliTestStorageBucket = "";
+    public static final String piliTestStream = "";
+
+
     public static final String testDefaultKey = "do_not_delete/1.png";
     public static final String getTestDefaultMp4FileKey = "do_not_delete/1.mp4";
     public static final String testMp4FileKey = "do_not_delete/1.mp4";
