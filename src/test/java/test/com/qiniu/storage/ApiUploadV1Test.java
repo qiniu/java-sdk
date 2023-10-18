@@ -89,7 +89,7 @@ public class ApiUploadV1Test {
             try {
                 Field hostsFiled = Region.class.getDeclaredField("srcUpHosts");
                 hostsFiled.setAccessible(true);
-                hosts = new ArrayList<String>((List<String>)hostsFiled.get(region));
+                hosts = new ArrayList<>((List<String>) hostsFiled.get(region));
             } catch (Exception e) {
                 e.printStackTrace();
                 fail(e);
@@ -104,7 +104,7 @@ public class ApiUploadV1Test {
                     .setResponseDebugLevel(Api.Config.DebugLevelNormal)
                     .setResponseDebugLevel(1)
                     .setHostRetryMax(hosts.size())
-                    .setHostProvider(HostProvider.ArrayProvider(hosts.toArray(new String[0])))
+                    .setHostProvider(HostProvider.arrayProvider(hosts.toArray(new String[0])))
                     .build();
             if (!isUploadBytes) {
                 // 非 bytes 不支持重试

@@ -10,7 +10,6 @@ import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.Request;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
 
@@ -117,10 +116,7 @@ public class Api {
         MethodType method = request.getMethod();
         String url = request.getUrl().toString();
         StringMap header = request.getHeader();
-        RequestBody body = null; 
-        if (method.hasContent()) {
-            body = request.getRequestBody();
-        }
+        RequestBody body = method.hasContent() ? request.getRequestBody() : null;
         okhttp3.Request.Builder requestBuilder = new okhttp3.Request.Builder()
                 .url(url)
                 .method(method.toString(), body);

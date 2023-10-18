@@ -36,7 +36,7 @@ abstract class ResumeUploadPerformer {
                 .setHostRetryMax(ipHosts.size())
                 .setRetryInterval(Retry.staticInterval(config.retryInterval))
                 .setHostFreezeDuration(config.hostFreezeDuration)
-                .setHostProvider(HostProvider.ArrayProvider(ipHosts.toArray(new String[0])))
+                .setHostProvider(HostProvider.arrayProvider(ipHosts.toArray(new String[0])))
                 .build();
     }
 

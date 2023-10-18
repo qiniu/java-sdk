@@ -78,7 +78,7 @@ public final class FormUploader extends BaseUploader {
                 .setHostRetryMax(config.retryMax)
                 .setRetryInterval(Retry.staticInterval(config.retryInterval))
                 .setHostFreezeDuration(config.hostFreezeDuration)
-                .setHostProvider(HostProvider.ArrayProvider(this.configHelper.upHostsWithoutScheme().toArray(new String[0])))
+                .setHostProvider(HostProvider.arrayProvider(this.configHelper.upHostsWithoutScheme().toArray(new String[0])))
                 .build());
         Api.Request request = new Api.Request(urlPrefix);
         request.setMethod(MethodType.POST);

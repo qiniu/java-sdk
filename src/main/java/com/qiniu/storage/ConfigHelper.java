@@ -7,7 +7,6 @@ import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlUtils;
 
 import java.util.*;
-import java.util.function.Function;
 
 class ConfigHelper {
     private Configuration config;
