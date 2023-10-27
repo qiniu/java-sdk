@@ -57,9 +57,11 @@ public class Region implements Cloneable {
 
     /**
      * 华东机房相关域名
+     * 废弃，使用 {@link Region#createWithRegionId} 替换，regionId：z0
      *
      * @return 区域信息
      */
+    @Deprecated
     public static Region region0() {
         return new Builder().
                 region("z0").
@@ -74,9 +76,11 @@ public class Region implements Cloneable {
 
     /**
      * 华东机房相关域名
+     * 废弃，使用 {@link Region#createWithRegionId} 替换，regionId：z0
      *
      * @return 区域信息
      */
+    @Deprecated
     public static Region huadong() {
         return region0();
     }
@@ -84,9 +88,11 @@ public class Region implements Cloneable {
 
     /**
      * 华东浙江 2 机房相关域名
+     * 废弃，使用 {@link Region#createWithRegionId} 替换，regionId：cn-east-2
      *
      * @return 区域信息
      */
+    @Deprecated
     public static Region regionCnEast2() {
         return new Builder().
                 region("cn-east-2").
@@ -101,9 +107,11 @@ public class Region implements Cloneable {
 
     /**
      * 华东浙江 2 机房相关域名
+     * 废弃，使用 {@link Region#createWithRegionId} 替换，regionId：cn-east-2
      *
      * @return 区域信息
      */
+    @Deprecated
     public static Region huadongZheJiang2() {
         return regionCnEast2();
     }
@@ -137,9 +145,11 @@ public class Region implements Cloneable {
 
     /**
      * 华北机房相关域名
+     * 废弃，使用 {@link Region#createWithRegionId} 替换，regionId：z1
      *
      * @return 区域信息
      */
+    @Deprecated
     public static Region region1() {
         return new Builder().
                 region("z1").
@@ -154,9 +164,11 @@ public class Region implements Cloneable {
 
     /**
      * 华北机房相关域名
+     * 废弃，使用 {@link Region#createWithRegionId} 替换，regionId：z1
      *
      * @return 区域信息
      */
+    @Deprecated
     public static Region huabei() {
         return region1();
     }
@@ -189,9 +201,11 @@ public class Region implements Cloneable {
 
     /**
      * 华南机房相关域名
+     * 废弃，使用 {@link Region#createWithRegionId} 替换，regionId：z2
      *
      * @return 区域信息
      */
+    @Deprecated
     public static Region region2() {
         return new Builder().
                 region("z2").
@@ -206,18 +220,22 @@ public class Region implements Cloneable {
 
     /**
      * 华南机房相关域名
+     * 废弃，使用 {@link Region#createWithRegionId} 替换，regionId：z2
      *
      * @return 区域信息
      */
+    @Deprecated
     public static Region huanan() {
         return region2();
     }
 
     /**
      * 北美机房相关域名
+     * 废弃，使用 {@link Region#createWithRegionId} 替换，regionId：na0
      *
      * @return 区域信息
      */
+    @Deprecated
     public static Region regionNa0() {
         return new Builder().
                 region("na0").
@@ -232,21 +250,25 @@ public class Region implements Cloneable {
 
     /**
      * 北美机房相关域名
+     * 废弃，使用 {@link Region#createWithRegionId} 替换，regionId：na0
      *
      * @return 区域信息
      */
+    @Deprecated
     public static Region beimei() {
         return regionNa0();
     }
 
     /**
      * 新加坡相关域名
+     * 废弃，使用 {@link Region#createWithRegionId} 替换，regionId：as0
      *
      * @return 区域信息
      */
+    @Deprecated
     public static Region regionAs0() {
         return new Builder().
-                region("na0").
+                region("as0").
                 srcUpHost("up-as0.qiniup.com").
                 accUpHost("upload-as0.qiniup.com").
                 iovipHost("iovip-as0.qbox.me").
@@ -254,6 +276,25 @@ public class Region implements Cloneable {
                 rsfHost("rsf-as0.qbox.me").
                 apiHost("api-as0.qiniuapi.com").
                 build();
+    }
+
+    /**
+     * Region 构造方法
+     * <a href="https://developer.qiniu.com/kodo/1671/region-endpoint-fq"> regionId 参考链接：</a>
+     *
+     * @param regionId 根据区域 ID 创建 Region
+     * @return Region 实例
+     */
+    public static Region createWithRegionId(String regionId) {
+        return new Builder()
+                .region(regionId)
+                .srcUpHost("up-" + regionId + ".qiniup.com")
+                .accUpHost("upload-" + regionId + ".qiniup.com")
+                .iovipHost("iovip-" + regionId + ".qiniuio.com")
+                .rsHost("rs-" + regionId + ".qiniuapi.com")
+                .rsfHost("rsf-" + regionId + ".qiniuapi.com")
+                .apiHost("api-" + regionId + ".qiniuapi.com")
+                .build();
     }
 
     /**
@@ -434,10 +475,10 @@ public class Region implements Cloneable {
         /**
          * 自动选择,其它参数设置无效
          *
-         * @param retryMax 单个域名最大重试次数
-         * @param retryInterval 重试间隔，单位：毫秒
+         * @param retryMax           单个域名最大重试次数
+         * @param retryInterval      重试间隔，单位：毫秒
          * @param hostFreezeDuration 冻结时间，单位：毫秒；域名请求失败会被冻结，冻结后域名在冻结时间内不会被使用
-         * @param ucServers uc host
+         * @param ucServers          uc host
          * @return 区域信息
          **/
         public Region autoRegion(int retryMax, int retryInterval, int hostFreezeDuration, String... ucServers) {

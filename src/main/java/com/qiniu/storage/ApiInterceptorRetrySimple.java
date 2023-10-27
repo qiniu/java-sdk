@@ -50,6 +50,10 @@ final class ApiInterceptorRetrySimple extends Api.Interceptor {
             }
             request = cloneRequest;
 
+            if (response != null && response.getResponse() != null) {
+                response.getResponse().close();
+            }
+
             int interval = retryInterval.interval();
             if (interval <= 0) {
                 continue;

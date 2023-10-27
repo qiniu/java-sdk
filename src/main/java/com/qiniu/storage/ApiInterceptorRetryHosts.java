@@ -84,6 +84,10 @@ class ApiInterceptorRetryHosts extends Api.Interceptor {
                 request.setHost(newHost);
             }
 
+            if (response != null && response.getResponse() != null) {
+                response.getResponse().close();
+            }
+
             int interval = retryInterval.interval();
             if (interval <= 0) {
                 continue;
