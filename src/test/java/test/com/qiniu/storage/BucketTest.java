@@ -525,7 +525,6 @@ public class BucketTest {
                     fRet = bucketManager.fetch(resUrl, file.getBucketName());
                     assertEquals(resHash, fRet.hash);
                 } catch (QiniuException e) {
-                    e.printStackTrace();
                     // use e.response.toString() may get NullPointException
                     // when java.net.SocketTimeoutException: timeout
                     fail(e.getMessage());

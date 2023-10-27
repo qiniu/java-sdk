@@ -499,7 +499,6 @@ public class BucketTest2 {
                 fRet = bucketManager.fetch(resUrl, bucket);
                 assertEquals(resHash, fRet.hash);
             } catch (QiniuException e) {
-                e.printStackTrace();
                 // use e.response.toString() may get NullPointException
                 // when java.net.SocketTimeoutException: timeout
                 fail(e.getMessage());
