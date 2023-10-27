@@ -146,8 +146,6 @@ public class FormUploadTest {
                 if (e.code() != -1) {
                     assertEquals(401, e.code());
                     assertNotNull(e.response.reqId);
-                } else {
-                    e.printStackTrace();
                 }
             }
         }

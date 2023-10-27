@@ -87,9 +87,8 @@ public class RecordUploadTest {
                             System.out.println("UP: " + i + ",  enter run");
                             response = up.up(region);
                             System.out.println("UP:  " + i + ", left run");
-                        } catch (Exception e) {
+                        } catch (Exception ignore) {
                             System.out.println("UP:  " + i + ", exception run");
-                            e.printStackTrace();
                         }
                         complete.isComplete.set(true);
                     }

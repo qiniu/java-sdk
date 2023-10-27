@@ -220,7 +220,7 @@ public class BucketTest {
         testFileWithHandler(new TestFileHandler() {
             @Override
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
-                BucketManager.FileListIterator it = bucketManager.createFileListIterator(file.getBucketName(), "", 20,
+                BucketManager.FileListIterator it = bucketManager.createFileListIterator(file.getBucketName(), "", 500,
                         null);
                 assertTrue(it.hasNext());
                 FileInfo[] items0 = it.next();

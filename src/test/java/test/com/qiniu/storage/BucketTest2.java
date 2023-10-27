@@ -139,7 +139,7 @@ public class BucketTest2 {
     public void testListIterator() {
         String[] buckets = new String[]{TestConfig.testBucket_z0};
         for (String bucket : buckets) {
-            BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "", 300, null);
+            BucketManager.FileListIterator it = bucketManager.createFileListIterator(bucket, "", 500, null);
 
             assertTrue(it.hasNext());
             FileInfo[] items0 = it.next();
@@ -230,8 +230,7 @@ public class BucketTest2 {
 
         try {
             bucketManager.deleteBucketLifecycleRule(TestConfig.testBucket_z0, ruleName);
-        } catch (QiniuException e) {
-            e.printStackTrace();
+        } catch (QiniuException ignore) {
         }
 
         try {
@@ -265,8 +264,7 @@ public class BucketTest2 {
         } finally {
             try {
                 bucketManager.deleteBucketLifecycleRule(TestConfig.testBucket_z0, ruleName);
-            } catch (QiniuException e) {
-                e.printStackTrace();
+            } catch (QiniuException ignore) {
             }
         }
 
@@ -1470,8 +1468,7 @@ public class BucketTest2 {
 
         try {
             bucketManager.setIndexPage(TestConfig.dummyBucket, IndexPageType.HAS);
-        } catch (QiniuException e) {
-            e.printStackTrace();
+        } catch (QiniuException ignore) {
         }
     }
 

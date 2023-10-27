@@ -238,6 +238,7 @@ public final class BucketManager {
             throws QiniuException {
         Response response = listV1(bucket, prefix, marker, limit, delimiter);
         if (!response.isOK()) {
+            response.close();
             throw new QiniuException(response);
         }
         FileListing fileListing = response.jsonToObject(FileListing.class);
