@@ -186,9 +186,16 @@ public class CdnTest {
             System.out.println(signedUrl1);
             System.out.println(signedUrl2);
             System.out.println(signedUrl3);
-            assertEquals(200, getResponse(signedUrl1).statusCode, msg);
-            assertEquals(200, getResponse(signedUrl2).statusCode, msg);
-            assertEquals(403, getResponse(signedUrl3).statusCode, msg);
+
+            response = getResponse(signedUrl1);
+            response.close();
+            assertEquals(200, response.statusCode, msg);
+            response = getResponse(signedUrl2);
+            response.close();
+            assertEquals(200, response.statusCode, msg);
+            response = getResponse(signedUrl3);
+            response.close();
+            assertEquals(403, response.statusCode, msg);
             assertEquals(testUrl_z0_timeStamp_outdate, signedUrl3);
         } catch (Exception ex) {
             ex.printStackTrace();
