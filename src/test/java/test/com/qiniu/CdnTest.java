@@ -176,7 +176,9 @@ public class CdnTest {
         String testUrl_z0_timeStamp_outdate = "http://javasdk-timestamp.peterpy.cn/do_not_delete/1.png?sign=14f48f829b78d5c9a34eb77e9a13f1b6&t=5890f13a";
         try {
             URL url = new URL(TestConfig.testUrl_z0_timeStamp);
-            assertEquals(403, getResponse(url.toString()).statusCode, msg);
+            Response response = getResponse(url.toString());
+            response.close();
+            assertEquals(403, response.statusCode, msg);
             String signedUrl1 = CdnManager.createTimestampAntiLeechUrl(host, fileName, queryStringMap, encryptKey1,
                     deadline1);
             String signedUrl2 = CdnManager.createTimestampAntiLeechUrl(url, encryptKey2, deadline2);
