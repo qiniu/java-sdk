@@ -43,8 +43,5 @@ public class CacheTest {
     static class Info {
         String foo;
         int bar;
-
-        Info(){
-        }
     }
 }
