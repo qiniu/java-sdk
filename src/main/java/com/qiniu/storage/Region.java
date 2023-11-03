@@ -286,6 +286,14 @@ public class Region implements Cloneable {
      * @return Region 实例
      */
     public static Region createWithRegionId(String regionId) {
+        if (regionId == null || regionId.isEmpty()) {
+            return null;
+        }
+
+        if (regionId.equals("z0")) {
+            return Region.region0();
+        }
+
         return new Builder()
                 .region(regionId)
                 .srcUpHost("up-" + regionId + ".qiniup.com")
