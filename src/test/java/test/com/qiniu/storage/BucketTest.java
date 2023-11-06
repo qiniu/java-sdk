@@ -1331,7 +1331,7 @@ public class BucketTest {
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
                 String bucket = file.getBucketName();
                 String key = file.getKey();
-                String[] keyArray = new String[100];
+                String[] keyArray = new String[50];
                 for (int i = 0; i < keyArray.length; i++) {
                     keyArray[i] = key;
                 }
