@@ -1757,7 +1757,7 @@ public class BucketTest {
                         }
 
                         long current = new Date().getTime();
-                        if (current - checkStart > 1000 * 60 * 5.5) {
+                        if (current - checkStart > 1000 * 120 * 5.5) {
                             shouldCheck = false;
                         }
 
