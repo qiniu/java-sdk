@@ -612,13 +612,12 @@ public class Api {
                 header.put(key, this.header.get(key));
             }
 
-            if (header.keySet().contains("Content-Type")) {
+            if (body == null || body.contentType == null
+                    || header.keySet().contains("Content-Type")) {
                 return header;
             }
 
-            if (body != null) {
-                header.put("Content-Type", body.contentType.toString());
-            }
+            header.put("Content-Type", body.contentType.toString());
 
             return header;
         }
