@@ -14,9 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Cache<T> {
 
-    // 当 cache 修改数量到达这个值时，就会 flush，默认是 1
-    private final int flushCount;
-
     // 缓存被持久化为一个文件，此文件的文件名为 version，version 默认为：v1
     private final String version;
 
@@ -25,14 +22,12 @@ public class Cache<T> {
 
     // 内部
     private boolean isFlushing = false;
-    private int needFlushCount = 0;
 
     private final ConcurrentHashMap<String, T> memCache = new ConcurrentHashMap<>();
     private final FileRecorder diskCache;
 
-    private Cache(Class<T> objectClass, String cacheDir, int flushCount, String version) {
+    private Cache(Class<T> objectClass, String cacheDir, String version) {
         this.objectClass = objectClass;
-        this.flushCount = flushCount;
         this.version = version;
 
         FileRecorder fileRecorder = null;
@@ -87,14 +82,7 @@ public class Cache<T> {
         }
 
         synchronized (this) {
-            this.needFlushCount++;
             this.memCache.put(cacheKey, object);
-
-            if (this.needFlushCount < this.flushCount) {
-                return;
-            }
-
-            this.needFlushCount = 0;
         }
 
         this.flush();
@@ -141,8 +129,6 @@ public class Cache<T> {
     }
 
     public static class Builder<T> {
-        // 当 cache 修改数量到达这个值时，就会 flush，默认是 1
-        private int flushCount = 1;
 
         // 缓存被持久化为一个文件，此文件的文件名为 version，version 默认为：v1
         private String version = "v1";
@@ -157,11 +143,6 @@ public class Cache<T> {
             this.objectClass = objectClass;
         }
 
-        public Builder<T> setFlushCount(int flushCount) {
-            this.flushCount = flushCount;
-            return this;
-        }
-
         public Builder<T> setCacheDir(String cacheDir) {
             this.cacheDir = cacheDir;
             return this;
@@ -173,7 +154,7 @@ public class Cache<T> {
         }
 
         public Cache<T> builder() {
-            return new Cache<>(this.objectClass, cacheDir, this.flushCount, this.version);
+            return new Cache<>(this.objectClass, cacheDir, this.version);
         }
     }
 }
