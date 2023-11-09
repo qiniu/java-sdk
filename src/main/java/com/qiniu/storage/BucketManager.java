@@ -1427,6 +1427,76 @@ public final class BucketManager {
         public int size() {
             return ops.size();
         }
+
+        public final static class Condition {
+            private final String hash;
+            private final String mime;
+            private final Long fSize;
+            private final Long putTime;
+
+            public Condition(String hash, String mime, Long fSize, Long putTime) {
+                this.hash = hash;
+                this.mime = mime;
+                this.fSize = fSize;
+                this.putTime = putTime;
+            }
+
+            private String encodedString() {
+                List<String> values = new ArrayList<>();
+                if (hash != null && !hash.isEmpty()) {
+                    values.add("hash="+hash);
+                }
+                if (mime != null && !mime.isEmpty()) {
+                    values.add("mime="+mime);
+                }
+                if (fSize != null) {
+                    values.add("fsize="+fSize);
+                }
+                if (putTime != null) {
+                    values.add("putTime="+putTime);
+                }
+
+                if (values.isEmpty()) {
+                    return null;
+                }
+
+                return UrlSafeBase64.encodeToString(String.join("&", values));
+            }
+
+            public final static class Builder {
+                private String hash;
+                private String mime;
+                private Long fileSize;
+                private Long putTime;
+
+                public Builder() {
+                }
+
+                public Builder setHash(String hash) {
+                    this.hash = hash;
+                    return this;
+                }
+
+                public Builder setMime(String mime) {
+                    this.mime = mime;
+                    return this;
+                }
+
+                public Builder setFileSize(Long fileSize) {
+                    this.fileSize = fileSize;
+                    return this;
+                }
+
+                public Builder setPutTime(Long putTime) {
+                    this.putTime = putTime;
+                    return this;
+                }
+
+                public Condition build() {
+                    return new Condition(hash, mime, fileSize, putTime);
+                }
+            }
+        }
     }
 
     /**
