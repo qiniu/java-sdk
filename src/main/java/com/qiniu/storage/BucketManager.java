@@ -1259,7 +1259,25 @@ public final class BucketManager {
         }
 
         /**
+         * 添加chgm指令
+         *
+         * @param bucket      空间名
+         * @param key         文件的 key
+         * @param newMimeType 修改后的 MimeType
+         * @param condition   自定义条件信息；只有条件匹配才会执行修改操作
+         * @return BatchOperations
+         */
+        public BatchOperations addChgmOp(String bucket, String key, String newMimeType, Condition condition) {
+            String resource = encodedEntry(bucket, key);
+            String encodedMime = UrlSafeBase64.encodeToString(newMimeType);
+            ops.add(String.format("/chgm/%s/mime/%s/cond/%s", resource, encodedMime, condition.encodedString()));
+            setExecBucket(bucket);
+            return this;
+        }
+
+        /**
          * 添加 copy 指令
+         * 如果目标文件名已被占用，则返回错误码 614，且不做任何覆盖操作；
          *
          * @param fromBucket  源空间名
          * @param fromFileKey 源文件的 key
@@ -1271,6 +1289,26 @@ public final class BucketManager {
             String from = encodedEntry(fromBucket, fromFileKey);
             String to = encodedEntry(toBucket, toFileKey);
             ops.add(String.format("copy/%s/%s", from, to));
+            setExecBucket(fromBucket);
+            return this;
+        }
+
+        /**
+         * 添加 copy 指令
+         *
+         * @param fromBucket  源空间名
+         * @param fromFileKey 源文件的 key
+         * @param toBucket    目标空间名
+         * @param toFileKey   目标文件的 key
+         * @param force       当目标文件已存在时，是否木盖目标文件
+         *                    false: 如果目标文件名已被占用，则返回错误码 614，且不做任何覆盖操作；
+         *                    true: 如果目标文件名已被占用，会强制覆盖目标文件
+         * @return BatchOperations
+         */
+        public BatchOperations addCopyOp(String fromBucket, String fromFileKey, String toBucket, String toFileKey, boolean force) {
+            String from = encodedEntry(fromBucket, fromFileKey);
+            String to = encodedEntry(toBucket, toFileKey);
+            ops.add(String.format("copy/%s/%s/force/%s", from, to, force));
             setExecBucket(fromBucket);
             return this;
         }
@@ -1288,6 +1326,21 @@ public final class BucketManager {
         }
 
         /**
+         * 添加重命名指令
+         *
+         * @param fromBucket  源空间名
+         * @param fromFileKey 源文件的 key
+         * @param toFileKey   目标文件的 key
+         * @param force       当目标文件已存在时，是否木盖目标文件
+         *                    false: 如果目标文件名已被占用，则返回错误码 614，且不做任何覆盖操作；
+         *                    true: 如果目标文件名已被占用，会强制覆盖目标文件
+         * @return BatchOperations
+         */
+        public BatchOperations addRenameOp(String fromBucket, String fromFileKey, String toFileKey, boolean force) {
+            return addMoveOp(fromBucket, fromFileKey, fromBucket, toFileKey, force);
+        }
+
+        /**
          * 添加move指令
          *
          * @param fromBucket 源空间名
@@ -1300,6 +1353,26 @@ public final class BucketManager {
             String from = encodedEntry(fromBucket, fromKey);
             String to = encodedEntry(toBucket, toKey);
             ops.add(String.format("move/%s/%s", from, to));
+            setExecBucket(fromBucket);
+            return this;
+        }
+
+        /**
+         * 添加move指令
+         *
+         * @param fromBucket 源空间名
+         * @param fromKey    源文件的 keys
+         * @param toBucket   目标空间名
+         * @param toKey      目标文件的 keys
+         * @param force      当目标文件已存在时，是否木盖目标文件
+         *                   false: 如果目标文件名已被占用，则返回错误码 614，且不做任何覆盖操作；
+         *                   true: 如果目标文件名已被占用，会强制覆盖目标文件
+         * @return BatchOperations
+         */
+        public BatchOperations addMoveOp(String fromBucket, String fromKey, String toBucket, String toKey, boolean force) {
+            String from = encodedEntry(fromBucket, fromKey);
+            String to = encodedEntry(toBucket, toKey);
+            ops.add(String.format("move/%s/%s/force/%s", from, to, force));
             setExecBucket(fromBucket);
             return this;
         }
@@ -1434,33 +1507,38 @@ public final class BucketManager {
             private final Long fSize;
             private final Long putTime;
 
-            public Condition(String hash, String mime, Long fSize, Long putTime) {
+            private Condition(String hash, String mime, Long fSize, Long putTime) {
                 this.hash = hash;
                 this.mime = mime;
                 this.fSize = fSize;
                 this.putTime = putTime;
             }
 
-            private String encodedString() {
-                List<String> values = new ArrayList<>();
+            String encodedString() {
+                StringBuilder builder = new StringBuilder();
                 if (hash != null && !hash.isEmpty()) {
-                    values.add("hash="+hash);
+                    builder.append("hash=" + hash + "&");
                 }
                 if (mime != null && !mime.isEmpty()) {
-                    values.add("mime="+mime);
+                    builder.append("mime=" + mime + "&");
                 }
                 if (fSize != null) {
-                    values.add("fsize="+fSize);
+                    builder.append("fsize=" + fSize + "&");
                 }
                 if (putTime != null) {
-                    values.add("putTime="+putTime);
+                    builder.append("putTime=" + putTime + "&");
                 }
 
-                if (values.isEmpty()) {
+                String encoded = builder.toString();
+                if (encoded.isEmpty()) {
                     return null;
                 }
 
-                return UrlSafeBase64.encodeToString(String.join("&", values));
+                if (encoded.endsWith("&")) {
+                    encoded = encoded.substring(0, encoded.length() - 1);
+                }
+
+                return UrlSafeBase64.encodeToString(encoded);
             }
 
             public final static class Builder {
