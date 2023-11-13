@@ -10,25 +10,25 @@ public class BatchTest {
     @Tag("UnitTest")
     public void testBatchCondition() {
 
-        BucketManager.BatchOperations.Condition condition = new BucketManager.BatchOperations.Condition.Builder()
+        BucketManager.Condition condition = new BucketManager.Condition.Builder()
                 .build();
         String encodedString = condition.encodedString();
         Assertions.assertNull(encodedString);
 
-        condition = new BucketManager.BatchOperations.Condition.Builder()
+        condition = new BucketManager.Condition.Builder()
                 .setHash("hash")
                 .build();
         encodedString = condition.encodedString();
         Assertions.assertEquals(encodedString, "aGFzaD1oYXNo");
 
-        condition = new BucketManager.BatchOperations.Condition.Builder()
+        condition = new BucketManager.Condition.Builder()
                 .setHash("hash")
                 .setPutTime(1993232L)
                 .build();
         encodedString = condition.encodedString();
         Assertions.assertEquals(encodedString, "aGFzaD1oYXNoJnB1dFRpbWU9MTk5MzIzMg==");
 
-        condition = new BucketManager.BatchOperations.Condition.Builder()
+        condition = new BucketManager.Condition.Builder()
                 .setHash("hash")
                 .setMime("application/txt")
                 .setPutTime(1993232L)
@@ -36,7 +36,7 @@ public class BatchTest {
         encodedString = condition.encodedString();
         Assertions.assertEquals(encodedString, "aGFzaD1oYXNoJm1pbWU9YXBwbGljYXRpb24vdHh0JnB1dFRpbWU9MTk5MzIzMg==");
 
-        condition = new BucketManager.BatchOperations.Condition.Builder()
+        condition = new BucketManager.Condition.Builder()
                 .setHash("hash")
                 .setMime("application/txt")
                 .setFileSize(100L)

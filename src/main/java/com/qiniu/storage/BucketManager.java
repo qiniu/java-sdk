@@ -1251,26 +1251,46 @@ public final class BucketManager {
          * @return BatchOperations
          */
         public BatchOperations addChgmOp(String bucket, String key, String newMimeType) {
-            String resource = encodedEntry(bucket, key);
-            String encodedMime = UrlSafeBase64.encodeToString(newMimeType);
-            ops.add(String.format("/chgm/%s/mime/%s", resource, encodedMime));
-            setExecBucket(bucket);
-            return this;
+            return addChgmOp(bucket, key, newMimeType, null, null);
         }
 
         /**
-         * 添加chgm指令
+         * 添加 chgm 指令
+         * <a href="http://developer.qiniu.com/kodo/api/chgm"> 相关链接 </a>
+         * newMimeType 和 metaData 必须有其一
          *
          * @param bucket      空间名
          * @param key         文件的 key
-         * @param newMimeType 修改后的 MimeType
-         * @param condition   自定义条件信息；只有条件匹配才会执行修改操作
+         * @param newMimeType 修改后的 MimeType [可选]
+         * @param metas       需要修改的 metas，只包含需要更改的 metas，可增加 [可选]
+         *                    服务接口中 key 必须包含 x-qn-meta- 前缀，SDK 会对 metas 中的 key 进行检测
+         *                    - key 如果包含了 x-qn-meta- 前缀，则直接使用 key
+         *                    - key 如果不包含了 x-qn-meta- 前缀，则内部会为 key 拼接 x-qn-meta- 前缀
+         * @param condition   自定义条件信息；只有条件匹配才会执行修改操作 [可选]
          * @return BatchOperations
          */
-        public BatchOperations addChgmOp(String bucket, String key, String newMimeType, Condition condition) {
-            String resource = encodedEntry(bucket, key);
-            String encodedMime = UrlSafeBase64.encodeToString(newMimeType);
-            ops.add(String.format("/chgm/%s/mime/%s/cond/%s", resource, encodedMime, condition.encodedString()));
+        public BatchOperations addChgmOp(String bucket, String key, String newMimeType, Map<String, String> metas, Condition condition) {
+            StringBuilder builder = new StringBuilder()
+                    .append("/chgm/").append(encodedEntry(bucket, key));
+            if (newMimeType != null && !newMimeType.isEmpty()) {
+                builder.append("/mime/").append(UrlSafeBase64.encodeToString(newMimeType));
+            }
+
+            if (metas != null) {
+                for (String k : metas.keySet()) {
+                    if (k.startsWith("x-qn-meta-")) {
+                        builder.append("/").append(k);
+                    } else {
+                        builder.append("/x-qn-meta-").append(k);
+                    }
+                    builder.append("/").append(UrlSafeBase64.encodeToString(metas.get(k)));
+                }
+            }
+
+            if (condition != null && condition.encodedString() != null) {
+                builder.append("/cond/").append(condition.encodedString());
+            }
+            ops.add(builder.toString());
             setExecBucket(bucket);
             return this;
         }
@@ -1500,79 +1520,79 @@ public final class BucketManager {
         public int size() {
             return ops.size();
         }
+    }
 
-        public final static class Condition {
-            private final String hash;
-            private final String mime;
-            private final Long fSize;
-            private final Long putTime;
+    public final static class Condition {
+        private final String hash;
+        private final String mime;
+        private final Long fSize;
+        private final Long putTime;
 
-            private Condition(String hash, String mime, Long fSize, Long putTime) {
+        private Condition(String hash, String mime, Long fSize, Long putTime) {
+            this.hash = hash;
+            this.mime = mime;
+            this.fSize = fSize;
+            this.putTime = putTime;
+        }
+
+        String encodedString() {
+            StringBuilder builder = new StringBuilder();
+            if (hash != null && !hash.isEmpty()) {
+                builder.append("hash=" + hash + "&");
+            }
+            if (mime != null && !mime.isEmpty()) {
+                builder.append("mime=" + mime + "&");
+            }
+            if (fSize != null) {
+                builder.append("fsize=" + fSize + "&");
+            }
+            if (putTime != null) {
+                builder.append("putTime=" + putTime + "&");
+            }
+
+            String encoded = builder.toString();
+            if (encoded.isEmpty()) {
+                return null;
+            }
+
+            if (encoded.endsWith("&")) {
+                encoded = encoded.substring(0, encoded.length() - 1);
+            }
+
+            return UrlSafeBase64.encodeToString(encoded);
+        }
+
+        public final static class Builder {
+            private String hash;
+            private String mime;
+            private Long fileSize;
+            private Long putTime;
+
+            public Builder() {
+            }
+
+            public Builder setHash(String hash) {
                 this.hash = hash;
+                return this;
+            }
+
+            public Builder setMime(String mime) {
                 this.mime = mime;
-                this.fSize = fSize;
+                return this;
+            }
+
+            public Builder setFileSize(Long fileSize) {
+                this.fileSize = fileSize;
+                return this;
+            }
+
+            public Builder setPutTime(Long putTime) {
                 this.putTime = putTime;
+                return this;
             }
 
-            String encodedString() {
-                StringBuilder builder = new StringBuilder();
-                if (hash != null && !hash.isEmpty()) {
-                    builder.append("hash=" + hash + "&");
-                }
-                if (mime != null && !mime.isEmpty()) {
-                    builder.append("mime=" + mime + "&");
-                }
-                if (fSize != null) {
-                    builder.append("fsize=" + fSize + "&");
-                }
-                if (putTime != null) {
-                    builder.append("putTime=" + putTime + "&");
-                }
-
-                String encoded = builder.toString();
-                if (encoded.isEmpty()) {
-                    return null;
-                }
-
-                if (encoded.endsWith("&")) {
-                    encoded = encoded.substring(0, encoded.length() - 1);
-                }
-
-                return UrlSafeBase64.encodeToString(encoded);
-            }
-
-            public final static class Builder {
-                private String hash;
-                private String mime;
-                private Long fileSize;
-                private Long putTime;
-
-                public Builder() {
-                }
-
-                public Builder setHash(String hash) {
-                    this.hash = hash;
-                    return this;
-                }
-
-                public Builder setMime(String mime) {
-                    this.mime = mime;
-                    return this;
-                }
-
-                public Builder setFileSize(Long fileSize) {
-                    this.fileSize = fileSize;
-                    return this;
-                }
-
-                public Builder setPutTime(Long putTime) {
-                    this.putTime = putTime;
-                    return this;
-                }
-
-                public Condition build() {
-                    return new Condition(hash, mime, fileSize, putTime);
-                }
+            public Condition build() {
+                return new Condition(hash, mime, fileSize, putTime);
             }
         }
     }
