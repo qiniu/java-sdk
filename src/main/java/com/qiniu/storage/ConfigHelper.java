@@ -166,10 +166,6 @@ class ConfigHelper {
         return new ArrayList<>(hosts);
     }
 
-    private String getScheme() {
-        return config.useHttpsDomains ? "https://" : "http://";
-    }
-
     private void makeSureRegion() {
         if (config.region == null) {
             if (config.zone != null) {
