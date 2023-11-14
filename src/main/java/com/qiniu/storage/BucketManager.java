@@ -1522,7 +1522,7 @@ public final class BucketManager {
         }
     }
 
-    public final static class Condition {
+    public static final class Condition {
         private final String hash;
         private final String mime;
         private final Long fSize;
@@ -1562,7 +1562,7 @@ public final class BucketManager {
             return UrlSafeBase64.encodeToString(encoded);
         }
 
-        public final static class Builder {
+        public static final class Builder {
             private String hash;
             private String mime;
             private Long fileSize;
