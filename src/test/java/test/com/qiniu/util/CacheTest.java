@@ -16,7 +16,6 @@ public class CacheTest {
         String key = "info_key";
         Cache cache = new Cache.Builder(Info.class)
                 .setVersion("v1")
-                .setFlushCount(1)
                 .builder();
 
         cache.cache(key, info);
@@ -34,7 +33,6 @@ public class CacheTest {
         // 3. 测试 load
         cache = new Cache.Builder(Info.class)
                 .setVersion("v1")
-                .setFlushCount(1)
                 .builder();
         memInfo = (Info) cache.cacheForKey(key);
         assertEquals("foo", memInfo.foo);
