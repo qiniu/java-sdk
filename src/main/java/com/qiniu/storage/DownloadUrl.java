@@ -204,11 +204,7 @@ public class DownloadUrl {
     }
 
     private String getUrlPrefix() throws QiniuException {
-        if (useHttps) {
-            return "https://" + domain;
-        } else {
-            return "http://" + domain;
-        }
+        return UrlUtils.setHostScheme(domain, useHttps);
     }
 
     /**
