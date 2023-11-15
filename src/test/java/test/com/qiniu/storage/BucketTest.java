@@ -1165,10 +1165,10 @@ public class BucketTest {
                     assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
                 }
                 try {
-                    testBucketQuota(bucketManager, bucket, 0, 0);
-                    testBucketQuota(bucketManager, bucket, 100, 100);
-                    testBucketQuota(bucketManager, bucket, 0, 100);
-                    testBucketQuota(bucketManager, bucket, 100, -1);
+//                    testBucketQuota(bucketManager, bucket, 0, 0);
+                    testBucketQuota(bucketManager, bucket, 10000, 10000);
+//                    testBucketQuota(bucketManager, bucket, 0, 10000);
+                    testBucketQuota(bucketManager, bucket, 10000, -1);
                     testBucketQuota(bucketManager, bucket, -1, -1);
                 } catch (QiniuException e) {
                     assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));

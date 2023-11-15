@@ -39,33 +39,44 @@ class ConfigHelper {
 
     private String upHost(String upToken, String lastUsedHost, boolean changeHost, boolean mustReturnUpHost)
             throws QiniuException {
-        return getScheme()
-                + getHelper().upHost(config.region, upToken, UrlUtils.removeHostScheme(lastUsedHost), changeHost, mustReturnUpHost);
+        String host = getHelper().upHost(config.region, upToken, UrlUtils.removeHostScheme(lastUsedHost), changeHost, mustReturnUpHost);
+        host = UrlUtils.setHostScheme(host, config.useHttpsDomains);
+        return host;
     }
 
     public String ioHost(String ak, String bucket) throws QiniuException {
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
-        return getScheme() + config.region.getIovipHost(regionReqInfo);
+        String host = config.region.getIovipHost(regionReqInfo);
+        host = UrlUtils.setHostScheme(host, config.useHttpsDomains);
+        return host;
     }
 
     public String ioSrcHost(String ak, String bucket) throws QiniuException {
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
-        return config.region.getIoSrcHost(regionReqInfo);
+        String host = config.region.getIoSrcHost(regionReqInfo);
+        host = UrlUtils.setHostScheme(host, config.useHttpsDomains);
+        return host;
     }
 
     public String apiHost(String ak, String bucket) throws QiniuException {
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
-        return getScheme() + config.region.getApiHost(regionReqInfo);
+        String host = config.region.getApiHost(regionReqInfo);
+        host = UrlUtils.setHostScheme(host, config.useHttpsDomains);
+        return host;
     }
 
     public String rsHost(String ak, String bucket) throws QiniuException {
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
-        return getScheme() + config.region.getRsHost(regionReqInfo);
+        String host = config.region.getRsHost(regionReqInfo);
+        host = UrlUtils.setHostScheme(host, config.useHttpsDomains);
+        return host;
     }
 
     public String rsfHost(String ak, String bucket) throws QiniuException {
         RegionReqInfo regionReqInfo = new RegionReqInfo(ak, bucket);
-        return getScheme() + config.region.getRsfHost(regionReqInfo);
+        String host = config.region.getRsfHost(regionReqInfo);
+        host = UrlUtils.setHostScheme(host, config.useHttpsDomains);
+        return host;
     }
 
     public String rsHost() {
@@ -78,7 +89,8 @@ class ConfigHelper {
         if (host == null || host.length() == 0) {
             host = Configuration.defaultRsHost;
         }
-        return getScheme() + host;
+        host = UrlUtils.setHostScheme(host, config.useHttpsDomains);
+        return host;
     }
 
     public String apiHost() {
@@ -91,7 +103,8 @@ class ConfigHelper {
         if (host == null || host.length() == 0) {
             host = Configuration.defaultApiHost;
         }
-        return getScheme() + host;
+        host = UrlUtils.setHostScheme(host, config.useHttpsDomains);
+        return host;
     }
 
     public String ucHost() {
@@ -104,7 +117,9 @@ class ConfigHelper {
         if (host == null || host.length() == 0) {
             host = Configuration.defaultUcHost;
         }
-        return getScheme() + host;
+
+        host = UrlUtils.setHostScheme(host, config.useHttpsDomains);
+        return host;
     }
 
     List<String> ucHostsWithoutScheme() {
@@ -149,10 +164,6 @@ class ConfigHelper {
 
         hosts = Arrays.asList(removeHostsSchemeAndHostsNoDuplication(hosts));
         return new ArrayList<>(hosts);
-    }
-
-    private String getScheme() {
-        return config.useHttpsDomains ? "https://" : "http://";
     }
 
     private void makeSureRegion() {
