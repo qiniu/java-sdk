@@ -248,7 +248,7 @@ public final class Response {
     }
 
     public synchronized void close() {
-        if (this.response != null) {
+        if (this.response != null && this.response.body() != null) {
             this.response.close();
         }
     }

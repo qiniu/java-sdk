@@ -323,8 +323,7 @@ public class ApiUploadV2Test {
                 assertTrue(initUploadResponse.isOK(), initUploadResponse.getResponse() + "");
                 assertNotNull(initUploadResponse.getUploadId(), initUploadResponse.getUploadId() + "");
                 assertNotNull(initUploadResponse.getExpireAt(), initUploadResponse.getExpireAt() + "");
-            } catch (QiniuException e) {
-                e.printStackTrace();
+            } catch (QiniuException ignore) {
             }
 
             // 2. 上传文件数据
@@ -393,7 +392,7 @@ public class ApiUploadV2Test {
                 // 列举结束
                 break;
             } catch (QiniuException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 assertTrue(e.response.statusCode == 612, e.response + "");
                 break;
             }

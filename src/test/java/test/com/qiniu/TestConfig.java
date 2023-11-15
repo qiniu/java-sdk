@@ -98,7 +98,7 @@ public final class TestConfig {
         na0.testDomainTimeStamp = testDomain_na0_timeStamp;
         na0.testUrlTimeStamp = "http://" + testDomain_na0_timeStamp + "/" + fileSaveKey;
         na0.regionId = "na0";
-        na0.region = Region.regionNa0();
+        na0.region = Region.createWithRegionId("na0");
 
         TestFile z0 = new TestFile();
         z0.key = fileSaveKey;
@@ -109,7 +109,7 @@ public final class TestConfig {
         z0.testDomainTimeStamp = testDomain_z0_timeStamp;
         z0.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + fileSaveKey;
         z0.regionId = "z0";
-        z0.region = Region.region0();
+        z0.region = Region.createWithRegionId("z0");
 
         TestFile z0_auto = new TestFile();
         z0_auto.key = fileSaveKey;

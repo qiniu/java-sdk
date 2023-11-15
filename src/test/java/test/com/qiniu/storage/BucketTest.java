@@ -220,7 +220,7 @@ public class BucketTest {
         testFileWithHandler(new TestFileHandler() {
             @Override
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
-                BucketManager.FileListIterator it = bucketManager.createFileListIterator(file.getBucketName(), "", 20,
+                BucketManager.FileListIterator it = bucketManager.createFileListIterator(file.getBucketName(), "", 500,
                         null);
                 assertTrue(it.hasNext());
                 FileInfo[] items0 = it.next();
@@ -525,7 +525,6 @@ public class BucketTest {
                     fRet = bucketManager.fetch(resUrl, file.getBucketName());
                     assertEquals(resHash, fRet.hash);
                 } catch (QiniuException e) {
-                    e.printStackTrace();
                     // use e.response.toString() may get NullPointException
                     // when java.net.SocketTimeoutException: timeout
                     fail(e.getMessage());
