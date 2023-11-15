@@ -19,10 +19,11 @@ public final class Configuration implements Cloneable {
      */
     public static String defaultRsHost = "rs.qiniu.com";
     public static String defaultApiHost = "api.qiniu.com";
-    public static String defaultUcHost = "kodo-config.qiniuapi.com";
+    public static String defaultUcHost = "uc.qiniuapi.com";
+    static final String ucBackUpHost0 = "kodo-config.qiniuapi.com";
+    static final String ucBackUpHost1 = "uc.qbox.me";
 
-    static final String ucBackUpHost0 = "uc.qbox.me";
-    static final String[] defaultUcHosts = new String[]{defaultUcHost, ucBackUpHost0, defaultApiHost};
+    static final String[] defaultUcHosts = new String[]{defaultUcHost, ucBackUpHost0, ucBackUpHost1};
 
     /**
      * 使用的Region
