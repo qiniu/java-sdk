@@ -205,6 +205,6 @@ public class UrlUtils {
             return host;
         }
 
-        return useHttps ? "https://" : "http://" + host;
+        return (useHttps ? "https://" : "http://") + host;
     }
 }
