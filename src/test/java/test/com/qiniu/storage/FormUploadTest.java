@@ -60,7 +60,7 @@ public class FormUploadTest {
     public void testHello2() {
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {
-            Configuration config = new Configuration(file.getRegion());
+            Configuration config = new Configuration();
             config.useHttpsDomains = true;
             UploadManager uploadManager = new UploadManager(config);
             hello(uploadManager, file.getBucketName());

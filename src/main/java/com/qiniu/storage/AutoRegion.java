@@ -3,8 +3,7 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.util.StringUtils;
-import com.qiniu.util.UrlUtils;
+import com.qiniu.util.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +26,9 @@ class AutoRegion extends Region {
     /**
      * 全局空间信息缓存，此缓存绑定了 token、bucket，全局有效。
      */
-    private static Map<String, UCRet> globalRegionCache = new ConcurrentHashMap<>();
+    private static final Cache<UCRet> globalRegionCache = new Cache.Builder<>(UCRet.class)
+            .setVersion("v1")
+            .builder();
 
     /**
      * 定义HTTP请求管理相关方法
@@ -75,8 +76,8 @@ class AutoRegion extends Region {
      * 通过 API 接口查询上传域名
      */
     private UCRet queryRegionInfoFromServerIfNeeded(RegionIndex index) throws QiniuException {
-        String cacheKey = index.accessKey + index.bucket;
-        UCRet ret = globalRegionCache.get(cacheKey);
+        String cacheKey = getCacheId(index);
+        UCRet ret = globalRegionCache.cacheForKey(cacheKey);
         if (ret != null && ret.isValid()) {
             return ret;
         }
@@ -94,7 +95,7 @@ class AutoRegion extends Region {
         ret = r.jsonToObject(UCRet.class);
         if (ret != null) {
             ret.setupDeadline();
-            globalRegionCache.put(cacheKey, ret);
+            globalRegionCache.cache(cacheKey, ret);
         }
         return ret;
     }
@@ -122,7 +123,7 @@ class AutoRegion extends Region {
      */
     private Region queryRegionInfo(String accessKey, String bucket) throws QiniuException {
         RegionIndex index = new RegionIndex(accessKey, bucket);
-        String cacheKey = index.accessKey + "::" + index.bucket;
+        String cacheKey = getCacheId(index);
         Region region = regions.get(cacheKey);
 
         Exception ex = null;
@@ -311,6 +312,22 @@ class AutoRegion extends Region {
         return getUcHosts(null).toArray(new String[0]);
     }
 
+    private String getCacheId(RegionIndex index) {
+        StringBuilder builder = new StringBuilder()
+                .append(index.accessKey)
+                .append("-")
+                .append(index.bucket);
+
+        if (ucServers != null && !ucServers.isEmpty()) {
+            for (String host : ucServers) {
+                if (host != null && !host.isEmpty()) {
+                    builder.append(host);
+                }
+            }
+        }
+
+        return UrlSafeBase64.encodeToString(builder.toString());
+    }
 
     public Object clone() {
         AutoRegion newRegion = new AutoRegion();

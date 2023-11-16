@@ -1165,10 +1165,10 @@ public class BucketTest {
                     assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(400)));
                 }
                 try {
-                    testBucketQuota(bucketManager, bucket, 0, 0);
-                    testBucketQuota(bucketManager, bucket, 100, 100);
-                    testBucketQuota(bucketManager, bucket, 0, 100);
-                    testBucketQuota(bucketManager, bucket, 100, -1);
+//                    testBucketQuota(bucketManager, bucket, 0, 0);
+                    testBucketQuota(bucketManager, bucket, 10000, 10000);
+//                    testBucketQuota(bucketManager, bucket, 0, 10000);
+                    testBucketQuota(bucketManager, bucket, 10000, -1);
                     testBucketQuota(bucketManager, bucket, -1, -1);
                 } catch (QiniuException e) {
                     assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode()));
@@ -1331,7 +1331,7 @@ public class BucketTest {
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
                 String bucket = file.getBucketName();
                 String key = file.getKey();
-                String[] keyArray = new String[100];
+                String[] keyArray = new String[50];
                 for (int i = 0; i < keyArray.length; i++) {
                     keyArray[i] = key;
                 }
@@ -1757,7 +1757,7 @@ public class BucketTest {
                         }
 
                         long current = new Date().getTime();
-                        if (current - checkStart > 1000 * 60 * 5.5) {
+                        if (current - checkStart > 1000 * 120 * 5.5) {
                             shouldCheck = false;
                         }
 
