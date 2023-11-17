@@ -142,8 +142,8 @@ public final class TestConfig {
         TestFile file = new TestFile();
         file.key = fileSaveKey;
         file.mimeType = fileMimeType;
-        file.bucketName = (testBucket != null && !testBucket.isEmpty())? testBucket : testBucket_z0;
-        file.testDomain = (testBucketDomain != null && !testBucketDomain.isEmpty())? testBucketDomain : testDomain_z0;
+        file.bucketName = (testBucket != null && !testBucket.isEmpty()) ? testBucket : testBucket_z0;
+        file.testDomain = (testBucketDomain != null && !testBucketDomain.isEmpty()) ? testBucketDomain : testDomain_z0;
         file.testUrl = "http://" + file.testDomain + "/" + fileSaveKey;
         file.testDomainTimeStamp = testDomain_z0_timeStamp;
         file.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + fileSaveKey;
@@ -249,7 +249,7 @@ public final class TestConfig {
         regionGroup.addRegion(region00);
         regionGroup.addRegion(region01);
         na0.region = regionGroup;
-        return new TestFile[] { na0 };
+        return new TestFile[]{na0};
     }
 
     private static Region toRegion(Zone zone) {
