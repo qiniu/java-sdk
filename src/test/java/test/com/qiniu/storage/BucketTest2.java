@@ -1148,12 +1148,17 @@ public class BucketTest2 {
                 fail(e.response.toString());
             }
 
+            try {
+                bucketManager.copy(bucket, key, bucket, moveFromKey, true);
+            } catch (QiniuException ignored) {
+            }
+
             ops = new BucketManager.BatchOperations().addMoveOp(bucket, moveFromKey,
                     bucket, moveToKey, false);
             try {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
-                assertTrue(bs[0].code == 614, "614");
+                assertEquals(bs[0].code, 614);
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }

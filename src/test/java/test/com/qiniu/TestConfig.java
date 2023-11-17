@@ -22,6 +22,9 @@ public final class TestConfig {
     // test: ak, sk, auth
     public static final String testAccessKey = System.getenv("QINIU_ACCESS_KEY");
     public static final String testSecretKey = System.getenv("QINIU_SECRET_KEY");
+    public static final String testBucket = System.getenv("BUCKET");
+    public static final String testBucketDomain = System.getenv("BUCKET_DOMAIN");
+
     // 内部测试环境 AK/SK
     public static final String innerAccessKey = System.getenv("testAK");
     public static final String innerSecretKey = System.getenv("testSK");
@@ -46,7 +49,10 @@ public final class TestConfig {
     public static final String testPipeline = "sdktest";
 
     // z1
-    public static final String testBucket_z1 = "sdk-z1";
+    public static final String testBucket_z1 = "javasdk-z1";
+    public static final String testKey_z1 = "do_not_delete/1.png";
+    public static final String testDomain_z1 = "javasdk-z1.qiniupkg.com";
+    public static final String testDomain_z1_timeStamp = "javasdk-timestamp.peterpy.cn";
 
     // na0
     public static final String testBucket_na0 = "java-sdk-na0";
@@ -111,6 +117,17 @@ public final class TestConfig {
         z0.regionId = "z0";
         z0.region = Region.createWithRegionId("z0");
 
+        TestFile z1 = new TestFile();
+        z1.key = fileSaveKey;
+        z1.mimeType = fileMimeType;
+        z1.bucketName = testBucket_z1;
+        z1.testDomain = testDomain_z1;
+        z1.testUrl = "http://" + z1.testDomain + "/" + fileSaveKey;
+        z1.testDomainTimeStamp = testDomain_z0_timeStamp;
+        z1.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + fileSaveKey;
+        z1.regionId = "z1";
+        z1.region = Region.createWithRegionId("z1");
+
         TestFile z0_auto = new TestFile();
         z0_auto.key = fileSaveKey;
         z0_auto.mimeType = fileMimeType;
@@ -122,7 +139,18 @@ public final class TestConfig {
         z0_auto.regionId = "z0";
         z0_auto.region = Region.region0();
 
-        return new TestFile[]{z0};
+        TestFile file = new TestFile();
+        file.key = fileSaveKey;
+        file.mimeType = fileMimeType;
+        file.bucketName = (testBucket != null && !testBucket.isEmpty())? testBucket : testBucket_z0;
+        file.testDomain = (testBucketDomain != null && !testBucketDomain.isEmpty())? testBucketDomain : testDomain_z0;
+        file.testUrl = "http://" + file.testDomain + "/" + fileSaveKey;
+        file.testDomainTimeStamp = testDomain_z0_timeStamp;
+        file.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + fileSaveKey;
+        file.regionId = "z0";
+        file.region = Region.autoRegion();
+
+        return new TestFile[]{file};
     }
 
     public static TestFile[] getAllRegionTestFileArray() {
