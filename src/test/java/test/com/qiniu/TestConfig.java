@@ -148,7 +148,7 @@ public final class TestConfig {
         file.testDomainTimeStamp = testDomain_z0_timeStamp;
         file.testUrlTimeStamp = "http://" + testDomain_z0_timeStamp + "/" + fileSaveKey;
         file.regionId = "z0";
-        file.region = Region.autoRegion();
+        file.region = testBucket_z1.equals(testBucket) ? Region.region1() : Region.region0();
 
         return new TestFile[]{file};
     }
