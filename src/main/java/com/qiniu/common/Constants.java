@@ -1,5 +1,6 @@
 package com.qiniu.common;
 
+import java.io.File;
 import java.nio.charset.Charset;
 
 /**
@@ -47,7 +48,28 @@ public final class Constants {
      */
     public static final int CONNECTION_POOL_MAX_IDLE_MINUTES = 5;
 
+    public static final String CACHE_DIR = getCacheDir();
+
     private Constants() {
+    }
+
+    private static String getCacheDir() {
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        if (tmpDir == null || tmpDir.isEmpty()) {
+            return null;
+        }
+
+        String qiniuDir = tmpDir + "com.qiniu.java-sdk";
+        File dir = new File(qiniuDir);
+        if (!dir.exists()) {
+            return dir.mkdirs() ? qiniuDir : null;
+        }
+
+        if (dir.isDirectory()) {
+            return qiniuDir;
+        }
+
+        return null;
     }
 }
 

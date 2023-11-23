@@ -56,8 +56,7 @@ public class StreamingTest {
         try {
             // 确保流存在 //
             manager.create(stream);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignore) {
         }
         StreamAttribute attr = manager.attribute(stream);
         assertEquals(0, attr.disabledTill);

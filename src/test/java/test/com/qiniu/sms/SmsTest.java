@@ -102,7 +102,6 @@ public class SmsTest {
             Response response = smsManager.sendFulltextMessage(mobiles, "【七牛云】尊敬的用户你好，您的验证码是 38232");
             assertNotNull(response);
         } catch (QiniuException e) {
-            e.printStackTrace();
             assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(401)));
         }
     }

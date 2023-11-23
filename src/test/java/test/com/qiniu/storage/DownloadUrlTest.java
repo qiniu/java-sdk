@@ -100,6 +100,7 @@ public class DownloadUrlTest {
             System.out.println("create url:" + url);
             Client client = new Client();
             Response response = client.get(url);
+            response.close();
             assertTrue(response.isOK(), response.toString());
 
             try {
@@ -120,6 +121,7 @@ public class DownloadUrlTest {
         try {
             Client client = new Client();
             Response response = client.get(url);
+            response.close();
             assertFalse(response.isOK(), url);
         } catch (QiniuException e) {
             assertNotNull(e.response, "except no authority:" + url + "\n but no response:" + e);
@@ -131,6 +133,7 @@ public class DownloadUrlTest {
         try {
             Client client = new Client();
             Response response = client.get(url);
+            response.close();
             assertTrue(response.isOK(), url);
         } catch (QiniuException e) {
             fail("except has authority:" + url + "\n response:" + e.response);

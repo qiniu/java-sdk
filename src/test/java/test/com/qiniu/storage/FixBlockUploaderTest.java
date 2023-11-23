@@ -232,8 +232,7 @@ public class FixBlockUploaderTest {
         try {
             Response res = up.upload(f, token, null);
             fail("key not match, should failed");
-        } catch (QiniuException e) {
-            e.printStackTrace();
+        } catch (QiniuException ignore) {
             // TODO
         }
     }

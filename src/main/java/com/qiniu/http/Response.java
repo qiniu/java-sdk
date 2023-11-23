@@ -105,7 +105,18 @@ public final class Response {
                     error = e.getMessage();
                 }
             }
+        } else if (response.body() != null) {
+            // 处理其他 body 非预期情况
+            if (response.code() >= 300) {
+                try {
+                    body = response.body().bytes();
+                    error = new String(body, Constants.UTF_8);
+                } catch (Exception e) {
+                    error = e.getMessage();
+                }
+            }
         }
+
         return new Response(response, code, reqId, response.header("X-Log"), via(response),
                 address, duration, error, body);
     }
@@ -248,7 +259,7 @@ public final class Response {
     }
 
     public synchronized void close() {
-        if (this.response != null) {
+        if (this.response != null && this.response.body() != null) {
             this.response.close();
         }
     }

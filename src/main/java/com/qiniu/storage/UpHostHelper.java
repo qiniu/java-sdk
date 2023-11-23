@@ -47,8 +47,7 @@ class UpHostHelper {
             regionHostsLRU.put(regionKey, regionHost);
         }
 
-        String host = regionHost.upHost(accHosts, srcHosts, lastUsedHost, changeHost);
-        return host;
+        return regionHost.upHost(accHosts, srcHosts, lastUsedHost, changeHost);
     }
 
     private String failedUpHost(String regionKey) {
