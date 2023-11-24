@@ -15,6 +15,11 @@ public enum StorageType {
     INFREQUENCY,
 
     /**
+     * 归档直读存储
+     */
+    ArchiveIR,
+
+    /**
      * 归档存储
      */
     Archive,
