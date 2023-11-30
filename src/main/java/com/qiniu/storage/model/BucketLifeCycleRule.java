@@ -151,7 +151,6 @@ public class BucketLifeCycleRule {
      * 在多少天后转低频存储<br>
      *
      * @param toLineAfterDays 0  - 表示不转低频<br>
-     *                        小于 0 表示上传的文件立即使用低频存储<br>
      *                        大于 0 表示转低频的天数
      * @return 规则信息
      */
@@ -173,7 +172,6 @@ public class BucketLifeCycleRule {
      * 在多少天后转归档直读存储<br>
      *
      * @param toArchiveIRAfterDays 0  - 表示不转归档直读存储<br>
-     *                             小于 0 表示上传的文件立即使用归档直读存储<br>
      *                             大于 0 表示多少天后转归档直读存储
      * @return 规则信息
      */
@@ -195,7 +193,6 @@ public class BucketLifeCycleRule {
      * 在多少天后转归档存储<br>
      *
      * @param toArchiveAfterDays 0  - 表示不转归档存储<br>
-     *                           小于 0 表示上传的文件立即使用归档存储<br>
      *                           大于 0 表示多少天后转归档存储
      * @return 规则信息
      */
@@ -217,7 +214,6 @@ public class BucketLifeCycleRule {
      * 在多少天后转深度归档存储<br>
      *
      * @param toDeepArchiveAfterDays 0  - 表示不转深度归档存储<br>
-     *                               小于 0 表示上传的文件立即使用深度归档存储<br>
      *                               大于 0 表示多少天后转深度归档存储
      * @return 规则信息
      */
