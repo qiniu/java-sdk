@@ -38,6 +38,7 @@ public final class Auth {
 
             "endUser",
             "saveKey",
+            "forceSaveKey",
             "insertOnly",
             "isPrefixalScope",
 
@@ -45,6 +46,7 @@ public final class Auth {
             "mimeLimit",
             "fsizeLimit",
             "fsizeMin",
+            "trafficLimit",
 
             "persistentOps",
             "persistentNotifyUrl",
@@ -328,6 +330,7 @@ public final class Auth {
      * @param expires 有效时长，单位秒
      * @param policy  上传策略的其它参数，如 new StringMap().put("endUser", "uid").putNotEmpty("returnBody", "")。
      *                scope通过 bucket、key间接设置，deadline 通过 expires 间接设置
+     *                具体参考： <a href="https://developer.qiniu.com/kodo/manual/put-policy"> 上传策略 </a>
      * @return 生成的上传token
      */
     public String uploadToken(String bucket, String key, long expires, StringMap policy) {
@@ -342,6 +345,7 @@ public final class Auth {
      * @param expires 有效时长，单位秒。默认3600s
      * @param policy  上传策略的其它参数，如 new StringMap().put("endUser", "uid").putNotEmpty("returnBody", "")。
      *                scope通过 bucket、key间接设置，deadline 通过 expires 间接设置
+     *                具体参考： <a href="https://developer.qiniu.com/kodo/manual/put-policy"> 上传策略 </a>
      * @param strict  是否去除非限定的策略字段，默认true
      * @return 生成的上传token
      */
