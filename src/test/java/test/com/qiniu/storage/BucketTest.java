@@ -6,7 +6,9 @@ import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
+import com.qiniu.storage.Region;
 import com.qiniu.storage.model.*;
+import com.qiniu.util.Auth;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringUtils;
 import okhttp3.Call;
@@ -634,10 +636,11 @@ public class BucketTest {
 
                     // 追加规则
                     rule = new BucketLifeCycleRule("aa", "x")
-                            .setToLineAfterDays(1)
-                            .setToArchiveAfterDays(2)
-                            .setToDeepArchiveAfterDays(3)
-                            .setDeleteAfterDays(4);
+                            .setToLineAfterDays(10)
+                            .setToArchiveIRAfterDays(20)
+                            .setToArchiveAfterDays(30)
+                            .setToDeepArchiveAfterDays(40)
+                            .setDeleteAfterDays(50);
                     System.out.println(rule.asQueryString());
                     response = bucketManager.putBucketLifecycleRule(bucket, rule);
                     assertEquals(200, response.statusCode);
@@ -646,10 +649,11 @@ public class BucketTest {
                     for (BucketLifeCycleRule r : rules) {
                         if (r.getName().equals("aa")
                                 && r.getPrefix().equals("x")
-                                && r.getToLineAfterDays() == 1
-                                && r.getToArchiveAfterDays() == 2
-                                && r.getToDeepArchiveAfterDays() == 3
-                                && r.getDeleteAfterDays() == 4) {
+                                && r.getToLineAfterDays() == 10
+                                && r.getToArchiveIRAfterDays() == 20
+                                && r.getToArchiveAfterDays() == 30
+                                && r.getToDeepArchiveAfterDays() == 40
+                                && r.getDeleteAfterDays() == 50) {
                             exist = true;
                         }
                     }
@@ -667,9 +671,10 @@ public class BucketTest {
                     // 更新规则
                     rule = new BucketLifeCycleRule("aa", "x")
                             .setToLineAfterDays(11)
-                            .setToArchiveAfterDays(12)
-                            .setToDeepArchiveAfterDays(13)
-                            .setDeleteAfterDays(14);
+                            .setToArchiveIRAfterDays(12)
+                            .setToArchiveAfterDays(13)
+                            .setToDeepArchiveAfterDays(14)
+                            .setDeleteAfterDays(15);
                     System.out.println(rule.asQueryString());
                     response = bucketManager.updateBucketLifeCycleRule(bucket, rule);
                     assertEquals(200, response.statusCode);
@@ -680,9 +685,10 @@ public class BucketTest {
                         if (r.getName().equals("aa")
                                 && r.getPrefix().equals("x")
                                 && r.getToLineAfterDays() == 11
-                                && r.getToArchiveAfterDays() == 12
-                                && r.getToDeepArchiveAfterDays() == 13
-                                && r.getDeleteAfterDays() == 14) {
+                                && r.getToArchiveIRAfterDays() == 12
+                                && r.getToArchiveAfterDays() == 13
+                                && r.getToDeepArchiveAfterDays() == 14
+                                && r.getDeleteAfterDays() == 15) {
                             exist = true;
                         }
                     }

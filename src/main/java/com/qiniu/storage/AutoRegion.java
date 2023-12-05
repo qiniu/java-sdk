@@ -83,7 +83,7 @@ class AutoRegion extends Region {
         }
 
         String[] ucHosts = getUcHostArray();
-        String address = getUcServer() + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
+        String address = UrlUtils.setHostScheme(getUcServer(), true) + "/v3/query?ak=" + index.accessKey + "&bucket=" + index.bucket;
         Api api = new Api(client, new Api.Config.Builder()
                 .setSingleHostRetryMax(retryMax)
                 .setRetryInterval(retryInterval)

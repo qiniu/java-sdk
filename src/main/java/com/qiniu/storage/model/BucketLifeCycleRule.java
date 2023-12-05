@@ -42,6 +42,15 @@ public class BucketLifeCycleRule {
     int toLineAfterDays;
 
     /**
+     * 指定文件上传多少天后转归档直读存储。
+     * 0 表示不转归档直读存储，
+     * < 0 表示上传的文件立即变归档直读存储
+     * > 0 表示多少天后转归档直读存储
+     */
+    @SerializedName("to_archive_ir_after_days")
+    int toArchiveIRAfterDays;
+
+    /**
      * 指定文件上传多少天后转归档存储。
      * 0 表示不转归档存储，
      * < 0 表示上传的文件立即变归档存储
@@ -141,14 +150,33 @@ public class BucketLifeCycleRule {
     /**
      * 在多少天后转低频存储<br>
      *
-     * @param toLineAfterDays
-     *       0  - 表示不转低频<br>
-     *       小于 0 表示上传的文件立即使用低频存储<br>
-     *       大于 0 表示转低频的天数
+     * @param toLineAfterDays 0  - 表示不转低频<br>
+     *                        大于 0 表示转低频的天数
      * @return 规则信息
      */
     public BucketLifeCycleRule setToLineAfterDays(int toLineAfterDays) {
         this.toLineAfterDays = toLineAfterDays;
+        return this;
+    }
+
+    /**
+     * 获得在多少天后转归档直读存储
+     *
+     * @return 多少天后转归档直读存储
+     */
+    public int getToArchiveIRAfterDays() {
+        return toArchiveIRAfterDays;
+    }
+
+    /**
+     * 在多少天后转归档直读存储<br>
+     *
+     * @param toArchiveIRAfterDays 0  - 表示不转归档直读存储<br>
+     *                             大于 0 表示多少天后转归档直读存储
+     * @return 规则信息
+     */
+    public BucketLifeCycleRule setToArchiveIRAfterDays(int toArchiveIRAfterDays) {
+        this.toArchiveIRAfterDays = toArchiveIRAfterDays;
         return this;
     }
 
@@ -164,10 +192,8 @@ public class BucketLifeCycleRule {
     /**
      * 在多少天后转归档存储<br>
      *
-     * @param toArchiveAfterDays
-     *       0  - 表示不转归档存储<br>
-     *       小于 0 表示上传的文件立即使用归档存储<br>
-     *       大于 0 表示多少天后转归档存储
+     * @param toArchiveAfterDays 0  - 表示不转归档存储<br>
+     *                           大于 0 表示多少天后转归档存储
      * @return 规则信息
      */
     public BucketLifeCycleRule setToArchiveAfterDays(int toArchiveAfterDays) {
@@ -187,10 +213,8 @@ public class BucketLifeCycleRule {
     /**
      * 在多少天后转深度归档存储<br>
      *
-     * @param toDeepArchiveAfterDays
-     *       0  - 表示不转深度归档存储<br>
-     *       小于 0 表示上传的文件立即使用深度归档存储<br>
-     *       大于 0 表示多少天后转深度归档存储
+     * @param toDeepArchiveAfterDays 0  - 表示不转深度归档存储<br>
+     *                               大于 0 表示多少天后转深度归档存储
      * @return 规则信息
      */
     public BucketLifeCycleRule setToDeepArchiveAfterDays(int toDeepArchiveAfterDays) {
@@ -204,11 +228,12 @@ public class BucketLifeCycleRule {
      * @return query
      */
     public String asQueryString() {
-        return String.format("name=%s&prefix=%s&delete_after_days=%d&to_line_after_days=%d&to_archive_after_days=%d&to_deep_archive_after_days=%d",
+        return String.format("name=%s&prefix=%s&delete_after_days=%d&to_line_after_days=%d&to_archive_ir_after_days=%d&to_archive_after_days=%d&to_deep_archive_after_days=%d",
                 null == name ? "" : name,
                 null == prefix ? "" : prefix,
                 deleteAfterDays,
                 toLineAfterDays,
+                toArchiveIRAfterDays,
                 toArchiveAfterDays,
                 toDeepArchiveAfterDays
         );
