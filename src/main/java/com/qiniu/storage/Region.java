@@ -371,7 +371,7 @@ public class Region implements Cloneable {
     }
 
     String getUcHost(RegionReqInfo regionReqInfo) throws QiniuException {
-        if (ucHosts == null || ucHosts.size() == 0) {
+        if (ucHosts == null || ucHosts.isEmpty()) {
             return "";
         }
         return ucHosts.get(0);
@@ -467,6 +467,13 @@ public class Region implements Cloneable {
 
         public Builder apiHost(String apiHost) {
             this.region.apiHost = apiHost;
+            return this;
+        }
+
+        public Builder ucHost(String... ucHosts) {
+            if (ucHosts.length > 0) {
+                this.region.ucHosts = Arrays.asList(ucHosts);
+            }
             return this;
         }
 

@@ -1143,10 +1143,36 @@ public class BucketTest2 {
             try {
                 Response r = bucketManager.batch(ops);
                 BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
+                assertTrue(bs[0].code == 614 || bs[0].code == 200, "200 or 614");
+            } catch (QiniuException e) {
+                fail(e.response.toString());
+            }
+
+            try {
+                bucketManager.copy(bucket, key, bucket, moveFromKey, true);
+            } catch (QiniuException ignored) {
+            }
+
+            ops = new BucketManager.BatchOperations().addMoveOp(bucket, moveFromKey,
+                    bucket, moveToKey, false);
+            try {
+                Response r = bucketManager.batch(ops);
+                BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
+                assertEquals(bs[0].code, 614);
+            } catch (QiniuException e) {
+                fail(e.response.toString());
+            }
+
+            ops = new BucketManager.BatchOperations().addMoveOp(bucket, moveFromKey,
+                    bucket, moveToKey, true);
+            try {
+                Response r = bucketManager.batch(ops);
+                BatchStatus[] bs = r.jsonToObject(BatchStatus[].class);
                 assertTrue(batchStatusCode.contains(bs[0].code), "200 or 298");
             } catch (QiniuException e) {
                 fail(e.response.toString());
             }
+
             try {
                 bucketManager.delete(bucket, moveToKey);
             } catch (QiniuException e) {
@@ -1276,37 +1302,100 @@ public class BucketTest2 {
 
         for (Map.Entry<String, String> entry : bucketKeyMap.entrySet()) {
             String bucket = entry.getKey();
-            String key = entry.getValue();
+            String oKey = entry.getValue();
 
-            // make 100 copies
-            String[] keyArray = new String[100];
-            for (int i = 0; i < keyArray.length; i++) {
-                keyArray[i] = String.format("%s-copy-%d", key, i);
-            }
+            // 待操作的 key
+            String key = String.format("%s-copy-%d", oKey, new Date().getTime());
 
             BucketManager.BatchOperations ops = new BucketManager.BatchOperations();
-            for (int i = 0; i < keyArray.length; i++) {
-                ops.addCopyOp(bucket, key, bucket, keyArray[i]);
-            }
+            ops.addCopyOp(bucket, oKey, bucket, key);
 
             try {
+                // batch copy
                 Response response = bucketManager.batch(ops);
-                assertTrue(batchStatusCode.contains(response.statusCode), "200 or 298");
+                BatchStatus[] bs = response.jsonToObject(BatchStatus[].class);
+                assertTrue(bs[0].code == 200, "200");
+
+
+                // batch copy: 非强制已存在不能成功
+                ops = new BucketManager.BatchOperations();
+                ops.addCopyOp(bucket, oKey, bucket, key, false);
+                response = bucketManager.batch(ops);
+                bs = response.jsonToObject(BatchStatus[].class);
+                assertTrue(bs[0].code == 614, "already exist, can't copy");
+
+
+                // batch copy: 已存在，强制需成功
+                ops = new BucketManager.BatchOperations();
+                ops.addCopyOp(bucket, oKey, bucket, key, true);
+                response = bucketManager.batch(ops);
+                bs = response.jsonToObject(BatchStatus[].class);
+                assertTrue(bs[0].code == 200, "already exist, force should copy");
 
                 // clear ops
                 ops.clearOps();
 
-                // batch chane mimetype
-                for (int i = 0; i < keyArray.length; i++) {
-                    ops.addChgmOp(bucket, keyArray[i], "image/png");
-                }
+                // batch change mimetype
+                ops = new BucketManager.BatchOperations();
+                ops.addChgmOp(bucket, key, "image/png");
                 response = bucketManager.batch(ops);
-                assertTrue(batchStatusCode.contains(response.statusCode), "200 or 298");
+                bs = response.jsonToObject(BatchStatus[].class);
+                assertTrue(bs[0].code == 200, "200");
 
-                // clear ops
-                for (int i = 0; i < keyArray.length; i++) {
-                    ops.addDeleteOp(bucket, keyArray[i]);
-                }
+                // 根据错误条件修改
+                ops = new BucketManager.BatchOperations();
+                ops.addChgmOp(bucket, key, "image/jpg", null, new BucketManager.Condition.Builder()
+                        .setHash("ijdew[qoewqewwe")
+                        .build());
+                response = bucketManager.batch(ops);
+                bs = response.jsonToObject(BatchStatus[].class);
+                assertTrue(bs[0].code == 613, "298");
+
+
+                // 根据正确条件修改
+                ops = new BucketManager.BatchOperations();
+                ops.addChgmOp(bucket, key, "image/jpg", null, new BucketManager.Condition.Builder()
+                        .setMime("image/png")
+                        .build());
+                response = bucketManager.batch(ops);
+                bs = response.jsonToObject(BatchStatus[].class);
+                assertTrue(bs[0].code == 200, "200");
+
+                // 增加 meta data
+                HashMap<String, String> metas = new HashMap<>();
+                metas.put("haha", "value");
+
+                // 根据错误条件增加
+                ops = new BucketManager.BatchOperations();
+                ops.addChgmOp(bucket, key, "", metas, new BucketManager.Condition.Builder()
+                        .setHash("ijdew[qoewqewwe")
+                        .build());
+                response = bucketManager.batch(ops);
+                bs = response.jsonToObject(BatchStatus[].class);
+                assertTrue(bs[0].code == 613, "298");
+
+
+                // 根据正确条件增加
+                FileInfo fileInfo = bucketManager.stat(bucket, key);
+                ops = new BucketManager.BatchOperations();
+                ops.addChgmOp(bucket, key, "", metas, new BucketManager.Condition.Builder()
+                        .setMime(fileInfo.mimeType)
+                        .setHash(fileInfo.hash)
+                        .setFileSize(fileInfo.fsize)
+                        .setPutTime(fileInfo.putTime)
+                        .build());
+                response = bucketManager.batch(ops);
+                bs = response.jsonToObject(BatchStatus[].class);
+                assertTrue(bs[0].code == 200, "298");
+
+
+                fileInfo = bucketManager.stat(bucket, key);
+                Map<String, Object> meta = fileInfo.meta;
+                assertTrue(meta != null && meta.get("haha").equals("value"), "meta value");
+
+                // 删除文件列表
+                ops = new BucketManager.BatchOperations();
+                ops.addDeleteOp(bucket, key);
                 response = bucketManager.batch(ops);
                 assertTrue(batchStatusCode.contains(response.statusCode), "200 or 298");
 
