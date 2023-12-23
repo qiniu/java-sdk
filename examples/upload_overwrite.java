@@ -25,8 +25,13 @@ public class UploadDemo {
     //密钥配置
     Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
 
-    Region region = new Region.Builder().autoRegion(Configuration.defaultUcHost);
-    Configuration c = new Configuration(region);
+    //第一种方式: 指定具体的要上传的region
+    //指定存储空间所在区域，华北region1，华南region2 ，华东 region0等。具体可以Region类里寻找。
+    //Region region = Region.region1();
+
+    //第一种方式: 使用自动方式
+    Region autoRegion = Region.autoRegion();
+    Configuration c = new Configuration(autoRegion);
 
     //创建上传对象
     UploadManager uploadManager = new UploadManager(c);
