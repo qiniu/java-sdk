@@ -2,7 +2,6 @@ package com.qiniu.util;
 
 import com.qiniu.http.Client;
 
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
