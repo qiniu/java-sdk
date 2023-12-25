@@ -1,9 +1,13 @@
 package com.qiniu.storage.model;
 
+import com.qiniu.util.StringMap;
+
 /**
  * 该类封装了上传策略
+ * 废弃，构造上传 Token 使用 StringMap 承载上传 Policy 信息，详细见 {@link com.qiniu.util.Auth#uploadToken(String, String, long, StringMap)}
  * 参考文档：<a href="https://developer.qiniu.com/kodo/manual/put-policy">上传策略</a>
  */
+@Deprecated
 public final class UploadPolicy {
 
     /**
@@ -143,6 +147,7 @@ public final class UploadPolicy {
      * 1 表示低频存储
      * 2 表示归档存储
      * 3 表示深度归档存储
+     * 4 表示归档直读存储
      */
     public int fileType;
 
