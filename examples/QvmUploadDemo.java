@@ -23,8 +23,11 @@ public class QvmUploadDemo {
         String key = "my-java.png";
         //上传文件的路径
         String FilePath = "/.../...";
-        // 构造一个带指定的zone对象的配置类,华东1区域的云主机可以选择Zone.qvmZone0()，华北2区域(北京)的云主机可以选择Zone.qvmZone1()，目前其他存储区域是不支持
-        Configuration configuration = new Configuration(Zone.qvmZone0());
+
+
+        //第一种方式: 指定具体的要上传的region
+        //指定存储空间所在区域，华北region1，华南region2 ，华东 region0等。具体可以Region类里寻找。
+        Configuration configuration = new Configuration(Region.region1());
         //创建上传对象
         UploadManager uploadManager = new UploadManager(configuration);
         //秘钥鉴权
