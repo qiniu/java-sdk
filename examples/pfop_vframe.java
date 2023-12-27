@@ -13,7 +13,8 @@ public class OperateDemo {
         String SECRET_KEY = "Secret_Key";
         Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
         //新建一个OperationManager对象
-        OperationManager operater = new OperationManager(auth);
+        Configuration cfg = new Configuration();
+        OperationManager operater = new OperationManager(auth, cfg);
         //设置要转码的空间和key，并且这个key在你空间中存在
         String bucket = "Bucket_Name";
         String key = "Bucket_key";
