@@ -5,6 +5,7 @@ import com.qiniu.http.Client;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public final class DefaultHeader {
@@ -35,7 +36,7 @@ public final class DefaultHeader {
     }
 
     private static String xQiniuDate() {
-        DateFormat format = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
+        DateFormat format = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", Locale.US);
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
         return format.format(new Date());
     }
