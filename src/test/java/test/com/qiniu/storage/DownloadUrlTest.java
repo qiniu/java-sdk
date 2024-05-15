@@ -16,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +61,7 @@ public class DownloadUrlTest {
             {
                 put("", "");
                 put("abc_def.mp4", "abc_def.mp4");
+                put("/ab/cd", "/ab/cd");
                 put("ab/cd", "ab/cd");
                 put("ab/中文/de", "ab/%E4%B8%AD%E6%96%87/de");
                 put("ab+-*de f", "ab%2B-%2Ade%20f");

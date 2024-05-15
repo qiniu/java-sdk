@@ -506,10 +506,7 @@ public class Api {
          * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
          */
         protected void buildPath() throws QiniuException {
-            path = StringUtils.join(pathSegments, "/");
-            if (!path.startsWith("/")) {
-                path = "/" + path;
-            }
+            path = "/" + StringUtils.join(pathSegments, "/");
         }
 
 
