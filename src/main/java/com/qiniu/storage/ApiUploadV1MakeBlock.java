@@ -135,8 +135,8 @@ public class ApiUploadV1MakeBlock extends ApiUpload {
                 ApiUtils.throwInvalidRequestParamException("block size");
             }
 
-            addPathSegment("mkblk");
-            addPathSegment(blockSize + "");
+            addPathSegment("/mkblk");
+            addPathSegment("/" + blockSize);
             super.buildPath();
         }
 

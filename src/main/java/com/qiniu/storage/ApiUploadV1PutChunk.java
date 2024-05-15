@@ -140,9 +140,9 @@ public class ApiUploadV1PutChunk extends ApiUpload {
                 ApiUtils.throwInvalidRequestParamException("block last context");
             }
 
-            addPathSegment("bput");
-            addPathSegment(blockLastContext);
-            addPathSegment(chunkOffset + "");
+            addPathSegment("/bput");
+            addPathSegment("/" + blockLastContext);
+            addPathSegment("/" + chunkOffset);
             super.buildPath();
         }
 

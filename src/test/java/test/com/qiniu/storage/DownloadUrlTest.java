@@ -10,14 +10,14 @@ import com.qiniu.util.Auth;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,8 +80,11 @@ public class DownloadUrlTest {
             String encodeKey = keys.get(key);
             try {
                 String url = new DownloadUrl(domain, false, key).buildURL();
-                String exceptUrl = "http://" + domain + "/" + encodeKey;
-                assertEquals(exceptUrl, url, "url:" + url + " exceptUrl:" + exceptUrl);
+                String exceptUrl = "http://" + domain;
+                if (!key.isEmpty()) {
+                    exceptUrl += "/" + encodeKey;
+                }
+                assertEquals(exceptUrl, url, "key:" + key);
             } catch (QiniuException e) {
                 fail(e.error());
             }

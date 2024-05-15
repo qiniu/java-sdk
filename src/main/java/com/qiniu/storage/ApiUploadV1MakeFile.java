@@ -171,35 +171,35 @@ public class ApiUploadV1MakeFile extends ApiUpload {
                 ApiUtils.throwInvalidRequestParamException("file size");
             }
 
-            addPathSegment("mkfile");
-            addPathSegment(fileSize + "");
+            addPathSegment("/mkfile");
+            addPathSegment("/" + fileSize);
 
             if (!StringUtils.isNullOrEmpty(fileMimeType)) {
-                addPathSegment("mimeType");
-                addPathSegment(UrlSafeBase64.encodeToString(fileMimeType));
+                addPathSegment("/mimeType");
+                addPathSegment("/" + UrlSafeBase64.encodeToString(fileMimeType));
             }
 
             if (!StringUtils.isNullOrEmpty(fileName)) {
-                addPathSegment("fname");
-                addPathSegment(UrlSafeBase64.encodeToString(fileName));
+                addPathSegment("/fname");
+                addPathSegment("/" + UrlSafeBase64.encodeToString(fileName));
             }
 
             if (key != null) {
-                addPathSegment("key");
-                addPathSegment(UrlSafeBase64.encodeToString(key));
+                addPathSegment("/key");
+                addPathSegment("/" + UrlSafeBase64.encodeToString(key));
             }
 
             if (params != null && !params.isEmpty()) {
                 for (String key : params.keySet()) {
-                    addPathSegment(key);
-                    addPathSegment(UrlSafeBase64.encodeToString("" + params.get(key)));
+                    addPathSegment("/" + key);
+                    addPathSegment("/" + UrlSafeBase64.encodeToString("" + params.get(key)));
                 }
             }
 
             if (metaDataParam != null && !metaDataParam.isEmpty()) {
                 for (String key : metaDataParam.keySet()) {
-                    addPathSegment(key);
-                    addPathSegment(UrlSafeBase64.encodeToString("" + metaDataParam.get(key)));
+                    addPathSegment("/" + key);
+                    addPathSegment("/" + UrlSafeBase64.encodeToString("" + metaDataParam.get(key)));
                 }
             }
 

@@ -87,8 +87,8 @@ public class ApiQueryRegion extends Api {
 
         @Override
         protected void buildPath() throws QiniuException {
-            addPathSegment("v4");
-            addPathSegment("query");
+            addPathSegment("/v4");
+            addPathSegment("/query");
             super.buildPath();
         }
     }
