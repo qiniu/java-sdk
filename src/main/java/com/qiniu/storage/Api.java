@@ -403,7 +403,13 @@ public class Api {
                 this.scheme = url.getProtocol();
                 this.host = url.getHost();
                 this.port = url.getPort();
-                this.addPathSegment(url.getPath());
+
+                // segment 不包含左边的 /, 截掉左边第一个 /
+                String segment = url.getPath();
+                if (segment != null && segment.startsWith("/")) {
+                    segment = segment.substring(1);
+                }
+                this.addPathSegment(segment);
 
                 String query = url.getQuery();
                 if (StringUtils.isNullOrEmpty(query)) {
@@ -506,7 +512,10 @@ public class Api {
          * @throws QiniuException 组装 query 时的异常，一般为缺失必要参数的异常
          */
         protected void buildPath() throws QiniuException {
-            path = StringUtils.join(pathSegments, "");
+            path = StringUtils.join(pathSegments, "/");
+            if (!path.isEmpty()) {
+                path = "/" + path;
+            }
         }
 
 

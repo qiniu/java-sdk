@@ -191,12 +191,12 @@ public class ApiUploadV2CompleteUpload extends ApiUpload {
             }
 
             String bucket = token.getBucket();
-            addPathSegment("/buckets");
-            addPathSegment("/" + bucket);
-            addPathSegment("/objects");
-            addPathSegment("/" + ApiUtils.resumeV2EncodeKey(key));
-            addPathSegment("/uploads");
-            addPathSegment("/" + uploadId);
+            addPathSegment("buckets");
+            addPathSegment(bucket);
+            addPathSegment("objects");
+            addPathSegment(ApiUtils.resumeV2EncodeKey(key));
+            addPathSegment("uploads");
+            addPathSegment(uploadId);
             super.buildPath();
         }
 

@@ -159,7 +159,7 @@ public class DownloadUrl {
             }
         }
         if (!StringUtils.isNullOrEmpty(keyAndStyle)) {
-            request.addPathSegment("/" + keyAndStyle);
+            request.addPathSegment(keyAndStyle);
         }
         didSetKeyForUrl(request);
 

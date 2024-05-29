@@ -60,9 +60,9 @@ public class DownloadPrivateCloudUrl extends DownloadUrl {
 
     @Override
     protected void willSetKeyForUrl(Api.Request request) throws QiniuException {
-        request.addPathSegment("/getfile");
-        request.addPathSegment("/" + accessKey);
-        request.addPathSegment("/" + bucketName);
+        request.addPathSegment("getfile");
+        request.addPathSegment(accessKey);
+        request.addPathSegment(bucketName);
         super.willSetKeyForUrl(request);
     }
 
