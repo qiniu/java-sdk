@@ -403,7 +403,13 @@ public class Api {
                 this.scheme = url.getProtocol();
                 this.host = url.getHost();
                 this.port = url.getPort();
-                this.addPathSegment(url.getPath());
+
+                // segment 不包含左边的 /, 截掉左边第一个 /
+                String segment = url.getPath();
+                if (segment != null && segment.startsWith("/")) {
+                    segment = segment.substring(1);
+                }
+                this.addPathSegment(segment);
 
                 String query = url.getQuery();
                 if (StringUtils.isNullOrEmpty(query)) {
@@ -507,7 +513,7 @@ public class Api {
          */
         protected void buildPath() throws QiniuException {
             path = StringUtils.join(pathSegments, "/");
-            if (!path.startsWith("/")) {
+            if (!path.isEmpty()) {
                 path = "/" + path;
             }
         }

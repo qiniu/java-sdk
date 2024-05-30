@@ -172,7 +172,7 @@ public class ApiUploadV1MakeFile extends ApiUpload {
             }
 
             addPathSegment("mkfile");
-            addPathSegment(fileSize + "");
+            addPathSegment("" + fileSize);
 
             if (!StringUtils.isNullOrEmpty(fileMimeType)) {
                 addPathSegment("mimeType");
@@ -189,14 +189,14 @@ public class ApiUploadV1MakeFile extends ApiUpload {
                 addPathSegment(UrlSafeBase64.encodeToString(key));
             }
 
-            if (params != null && params.size() > 0) {
+            if (params != null && !params.isEmpty()) {
                 for (String key : params.keySet()) {
                     addPathSegment(key);
                     addPathSegment(UrlSafeBase64.encodeToString("" + params.get(key)));
                 }
             }
 
-            if (metaDataParam != null && metaDataParam.size() > 0) {
+            if (metaDataParam != null && !metaDataParam.isEmpty()) {
                 for (String key : metaDataParam.keySet()) {
                     addPathSegment(key);
                     addPathSegment(UrlSafeBase64.encodeToString("" + metaDataParam.get(key)));

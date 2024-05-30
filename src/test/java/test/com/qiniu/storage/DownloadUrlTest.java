@@ -10,11 +10,13 @@ import com.qiniu.util.Auth;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.HashMap;
@@ -59,6 +61,7 @@ public class DownloadUrlTest {
             {
                 put("", "");
                 put("abc_def.mp4", "abc_def.mp4");
+                put("/ab/cd", "/ab/cd");
                 put("ab/cd", "ab/cd");
                 put("ab/中文/de", "ab/%E4%B8%AD%E6%96%87/de");
                 put("ab+-*de f", "ab%2B-%2Ade%20f");
@@ -77,8 +80,11 @@ public class DownloadUrlTest {
             String encodeKey = keys.get(key);
             try {
                 String url = new DownloadUrl(domain, false, key).buildURL();
-                String exceptUrl = "http://" + domain + "/" + encodeKey;
-                assertEquals(exceptUrl, url, "url:" + url + " exceptUrl:" + exceptUrl);
+                String exceptUrl = "http://" + domain;
+                if (!key.isEmpty()) {
+                    exceptUrl += "/" + encodeKey;
+                }
+                assertEquals(exceptUrl, url, "key:" + key);
             } catch (QiniuException e) {
                 fail(e.error());
             }

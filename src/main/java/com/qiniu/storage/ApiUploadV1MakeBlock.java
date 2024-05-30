@@ -136,7 +136,7 @@ public class ApiUploadV1MakeBlock extends ApiUpload {
             }
 
             addPathSegment("mkblk");
-            addPathSegment(blockSize + "");
+            addPathSegment("" + blockSize);
             super.buildPath();
         }
 

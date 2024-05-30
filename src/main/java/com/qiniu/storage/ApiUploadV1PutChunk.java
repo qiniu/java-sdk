@@ -142,7 +142,7 @@ public class ApiUploadV1PutChunk extends ApiUpload {
 
             addPathSegment("bput");
             addPathSegment(blockLastContext);
-            addPathSegment(chunkOffset + "");
+            addPathSegment("" + chunkOffset);
             super.buildPath();
         }
 

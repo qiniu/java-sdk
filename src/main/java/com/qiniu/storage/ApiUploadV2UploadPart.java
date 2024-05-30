@@ -168,7 +168,7 @@ public class ApiUploadV2UploadPart extends ApiUpload {
             addPathSegment(ApiUtils.resumeV2EncodeKey(key));
             addPathSegment("uploads");
             addPathSegment(uploadId);
-            addPathSegment(partNumber + "");
+            addPathSegment("" + partNumber);
             super.buildPath();
         }
 
