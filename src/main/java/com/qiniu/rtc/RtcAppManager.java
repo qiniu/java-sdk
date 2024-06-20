@@ -56,11 +56,10 @@ public class RtcAppManager {
         if (title != null) {
             params.put("title", title);
         }
-        if (hub != null) {
+        if (maxUsers > 0) {
             params.put("maxUsers", maxUsers);
         }
         params.put("noAutoKickUser", noAutoKickUser);
-
         String url = String.format("%s%s", host, "/v3/apps");
         byte[] body = Json.encode(params).getBytes(Constants.UTF_8);
         StringMap headers = auth.authorizationV2(url, "POST", body, Client.JsonMime);
