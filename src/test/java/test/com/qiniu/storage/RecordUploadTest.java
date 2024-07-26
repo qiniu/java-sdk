@@ -52,10 +52,6 @@ public class RecordUploadTest {
 
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {
-            // 雾存储不支持 v1
-            if (file.isFog() && !isResumeV2) {
-                continue;
-            }
             String bucket = file.getBucketName();
             final Region region = file.getRegion();
 
