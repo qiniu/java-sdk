@@ -4,10 +4,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.MethodType;
 import com.qiniu.http.RequestStreamBody;
-import com.qiniu.util.Auth;
-import com.qiniu.util.Json;
-import com.qiniu.util.StringMap;
-import com.qiniu.util.StringUtils;
+import com.qiniu.util.*;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -461,7 +458,16 @@ public class Api {
         }
 
         void setHost(String host) {
-            this.host = host;
+            URL tmpUrl = UrlUtils.parseHost(host);
+            if (tmpUrl == null) {
+                this.host = null;
+                return;
+            }
+
+            this.host = tmpUrl.getHost();
+            if (tmpUrl.getPort() >= 0) {
+                this.port = tmpUrl.getPort();
+            }
         }
 
         /**

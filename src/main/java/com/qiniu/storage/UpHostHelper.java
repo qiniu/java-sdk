@@ -67,7 +67,6 @@ class UpHostHelper {
                     this.add("upload-z2.qiniup.com");
                     this.add("upload-na0.qiniup.com");
                     this.add("upload-as0.qiniup.com");
-                    this.add("upload-fog-cn-east-1.qiniup.com");
                 }
             };
             Collections.shuffle(accHosts); // ?

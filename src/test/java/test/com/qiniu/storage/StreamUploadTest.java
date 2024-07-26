@@ -14,8 +14,10 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -73,9 +75,7 @@ public class StreamUploadTest {
         Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile testFile : files) {
-            if (!testFile.isFog()) {
-                bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
-            }
+            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
         }
 
         for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {

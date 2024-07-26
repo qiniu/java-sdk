@@ -24,7 +24,6 @@ public class UploadDemo {
      * 华南机房(region2): up-z2.qiniup.com 或 upload-z2.qiniup.com
      * 北美机房(regionNa0): up-na0.qiniup.com 或 upload-na0.qiniup.com
      * 新加坡机房(regionAs0): up-as0.qiniup.com 或 upload-as0.qiniup.com
-     * 雾存储华东一区(regionFogCnEast1): up-fog-cn-east-1.qiniup.com 或 upload-fog-cn-east-1.qiniup.com
      */
     String urlPrefix = "urlPrefix" // http://up.qiniup.com";
     // 要上传的空间
