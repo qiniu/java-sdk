@@ -346,10 +346,6 @@ public final class TestConfig {
         public Region getRegion() {
             return region;
         }
-
-        public boolean isFog() {
-            return regionId.equals("fog-cn-east-1");
-        }
     }
 
 }

@@ -14,10 +14,12 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,12 +35,12 @@ public class ResumeUploadTest {
 
     private static boolean[][] testConfigList = {
             // isHttps, isResumeV2, isStream, isConcurrent
-            { false, true, false, false }, { false, false, false, true }, { false, false, true, false },
-            { false, false, true, true }, { false, true, false, false }, { false, true, false, true },
-            { false, true, true, false }, { false, true, true, true }, { true, false, false, false },
-            { true, false, false, true }, { true, false, true, false }, { true, false, true, true },
-            { true, true, false, false }, { true, true, false, true }, { true, true, true, false },
-            { true, true, true, true } };
+            {false, true, false, false}, {false, false, false, true}, {false, false, true, false},
+            {false, false, true, true}, {false, true, false, false}, {false, true, false, true},
+            {false, true, true, false}, {false, true, true, true}, {true, false, false, false},
+            {true, false, false, true}, {true, false, true, false}, {true, false, true, true},
+            {true, true, false, false}, {true, true, false, true}, {true, true, true, false},
+            {true, true, true, true}};
 
     /**
      * 检测自定义变量foo是否生效
@@ -51,10 +53,6 @@ public class ResumeUploadTest {
 
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {
-            // 雾存储不支持 v1
-            if (file.isFog()) {
-                continue;
-            }
             String bucket = file.getBucketName();
             Region region = file.getRegion();
             final String expectKey = "世/界";
@@ -99,10 +97,6 @@ public class ResumeUploadTest {
             throws IOException {
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {
-            // 雾存储不支持 v1
-            if (file.isFog() && !isResumeV2) {
-                continue;
-            }
             String bucket = file.getBucketName();
             Region region = file.getRegion();
             Configuration config = new Configuration(region);
@@ -169,14 +163,12 @@ public class ResumeUploadTest {
                     checkMd5 = true;
                 }
                 if (checkMd5) {
-                    if (!file.isFog()) {
-                        String md5 = Md5.md5(f);
-                        String serverMd5 = getFileMD5(file.getTestDomain(), expectKey);
-                        System.out.println("      md5:" + md5);
-                        System.out.println("serverMd5:" + serverMd5);
-                        assertNotNull(serverMd5);
-                        assertEquals(md5, serverMd5);
-                    }
+                    String md5 = Md5.md5(f);
+                    String serverMd5 = getFileMD5(file.getTestDomain(), expectKey);
+                    System.out.println("      md5:" + md5);
+                    System.out.println("serverMd5:" + serverMd5);
+                    assertNotNull(serverMd5);
+                    assertEquals(md5, serverMd5);
                 } else {
                     final String etag = Etag.file(f);
                     System.out.println("      etag:" + etag);

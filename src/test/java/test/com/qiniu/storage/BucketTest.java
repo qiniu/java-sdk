@@ -509,11 +509,6 @@ public class BucketTest {
         testFileWithHandler(new TestFileHandler() {
             @Override
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
-                // 雾存储不支持 fetch
-                if (file.isFog()) {
-                    return;
-                }
-
                 try {
                     String resUrl = "http://devtools.qiniu.com/qiniu.png";
                     String resKey = "qiniu.png";
@@ -972,11 +967,6 @@ public class BucketTest {
         testFileWithHandler(new TestFileHandler() {
             @Override
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
-                // 雾存储没有域名
-                if (file.isFog()) {
-                    return;
-                }
-
                 String bucket = file.getBucketName();
                 String url = file.getTestUrl();
                 System.out.println(bucket + "  -- " + url);
@@ -1590,11 +1580,6 @@ public class BucketTest {
         testFileWithHandler(new TestFileHandler() {
             @Override
             public void testFile(TestConfig.TestFile file, BucketManager bucketManager) throws IOException {
-                // 雾存储不支持 changeType
-                if (file.isFog()) {
-                    return;
-                }
-
                 String bucket = file.getBucketName();
                 String key = file.getKey();
                 String keyToChangeType = "keyToChangeType" + Math.random();
