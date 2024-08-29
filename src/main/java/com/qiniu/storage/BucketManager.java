@@ -1168,6 +1168,7 @@ public final class BucketManager {
 
     private Response get(String url, Api.Interceptor[] interceptors) throws QiniuException {
         Api.Request request = new Api.Request(url);
+        request.setAuthType(Api.Request.AuthTypeQiniu);
         return new Api(client, interceptors).requestWithInterceptor(request);
     }
 
@@ -1178,6 +1179,7 @@ public final class BucketManager {
 
     private Response post(String url, byte[] body, Api.Interceptor[] interceptors) throws QiniuException {
         Api.Request request = new Api.Request(url);
+        request.setAuthType(Api.Request.AuthTypeQiniu);
         request.setMethod(MethodType.POST);
         if (body == null) {
             body = new byte[0];

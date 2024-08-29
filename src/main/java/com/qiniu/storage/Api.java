@@ -44,7 +44,7 @@ public class Api {
      * @param client 请求的 Client 【必须】
      * @param config 请求的流程的配置信息
      **/
-    Api(Client client, Config config) {
+    protected Api(Client client, Config config) {
         this(client, Api.createInterceptors(config));
     }
 
@@ -54,7 +54,7 @@ public class Api {
      * @param client       请求的 Client【必须】
      * @param interceptors 请求的拦截器
      **/
-    Api(Client client, Interceptor... interceptors) {
+    protected Api(Client client, Interceptor... interceptors) {
         if (client == null) {
             client = new Client();
         }
@@ -333,6 +333,16 @@ public class Api {
      */
     public static class Request implements Cloneable {
 
+        protected static final int AuthTypeNone = 0;
+        protected static final int AuthTypeQiniu = 1;
+
+        /**
+         * 鉴权类型
+         * 0：不鉴权
+         * 1：Qiniu 鉴权
+         */
+        private int authType = AuthTypeNone;
+
         /**
          * 请求的 scheme
          * eg: https
@@ -445,6 +455,19 @@ public class Api {
         }
 
         /**
+         * 设置鉴权类型
+         * 0：不鉴权
+         * 1：Qiniu 鉴权
+         */
+        protected int getAuthType() {
+            return this.authType;
+        }
+
+        protected void setAuthType(int authType) {
+            this.authType = authType;
+        }
+
+        /**
          * 获取请求的 urlPrefix， scheme + host
          * eg: https://upload.qiniu.com
          *
@@ -481,6 +504,18 @@ public class Api {
             }
             pathSegments.add(segment);
             path = null;
+        }
+
+        protected void addPathSegment(Boolean segment) {
+            addPathSegment((Boolean) segment ? "true" : "false");
+        }
+
+        protected void addPathSegment(Integer segment) {
+            addPathSegment(segment + "");
+        }
+
+        protected void addPathSegment(Long segment) {
+            addPathSegment(segment + "");
         }
 
         String getMethodString() {
@@ -1114,15 +1149,17 @@ public class Api {
                 return;
             }
 
-            String bodyString = response.bodyString();
-            try {
-                if (bodyString.startsWith("[")) {
-                    this.dataArray = Json.decodeArray(bodyString);
-                } else {
-                    this.dataMap = Json.decode(bodyString);
+            if (response.isJson()) {
+                String bodyString = response.bodyString();
+                try {
+                    if (bodyString.startsWith("[")) {
+                        this.dataArray = Json.decodeArray(bodyString);
+                    } else {
+                        this.dataMap = Json.decode(bodyString);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
 

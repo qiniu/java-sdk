@@ -26,20 +26,28 @@ final class ApiInterceptorAuth extends Api.Interceptor {
             return handler.handle(request);
         }
 
-        String url = request.getUrl().toString();
-        String method = request.getMethodString();
-        Headers headers = Headers.of(request.getHeader());
-        byte[] body = request.getBytesBody();
-        String authorization = "Qiniu " + auth.signQiniuAuthorization(url, method, body, headers);
-        request.addHeaderField("Authorization", authorization);
+        if (request.getAuthType() == Api.Request.AuthTypeQiniu) {
+            String url = request.getUrl().toString();
+            String method = request.getMethodString();
+            Headers headers = Headers.of(request.getHeader());
+            byte[] body = request.getBytesBody();
+            String authorization = "Qiniu " + auth.signQiniuAuthorization(url, method, body, headers);
+            request.addHeaderField("Authorization", authorization);
+        }
+
         return handler.handle(request);
     }
 
     static final class Builder {
+
         private Auth auth;
 
         Builder setAuth(Auth auth) {
             this.auth = auth;
+            return this;
+        }
+
+        Builder setAuthType(int authType) {
             return this;
         }
 
