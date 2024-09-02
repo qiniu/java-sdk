@@ -4,6 +4,7 @@ public enum MethodType {
     GET(false),
     PUT(true),
     POST(true),
+    PATCH(true),
     DELETE(false),
     HEAD(false),
     OPTIONS(false);
@@ -28,11 +29,17 @@ public enum MethodType {
             case POST:
                 m = "POST";
                 break;
+            case PATCH:
+                m = "PATCH";
+                break;
             case HEAD:
                 m = "HEAD";
                 break;
             case DELETE:
                 m = "DELETE";
+                break;
+            case OPTIONS:
+                m = "OPTIONS";
                 break;
             default:
                 m = "GET";

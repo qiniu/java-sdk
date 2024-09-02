@@ -9,11 +9,12 @@ import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okio.Buffer;
 import okio.BufferedSink;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -657,12 +658,12 @@ public class Api {
                 header.put(key, this.header.get(key));
             }
 
-            if (body == null || body.contentType == null
+            if (body == null || body.getContentType() == null
                     || header.keySet().contains("Content-Type")) {
                 return header;
             }
 
-            header.put("Content-Type", body.contentType.toString());
+            header.put("Content-Type", body.getContentType().toString());
 
             return header;
         }
@@ -673,7 +674,6 @@ public class Api {
          * @throws QiniuException 组装 header 时的异常，一般为缺失必要参数的异常
          */
         protected void buildHeader() throws QiniuException {
-
         }
 
         /**
@@ -739,8 +739,18 @@ public class Api {
                 contentType = Client.DefaultMime;
             }
             Request.Body.InputStreamBody b = new Request.Body.InputStreamBody(body, contentType, limitSize);
-            b.streamBodySinkSize = streamBodySinkSize;
+            b.setSinkSize(streamBodySinkSize);
             this.body = b;
+        }
+
+        /**
+         * 设置表单请求体
+         * 此方式配置的 body 支持重试，不支持 auth
+         *
+         * @param fields 表单 fields
+         **/
+        protected void setFormBody(StringMap fields) {
+            this.body = new Body.FormBody(fields);
         }
 
         /**
@@ -753,11 +763,14 @@ public class Api {
          * @param body        表单 byte[] 类型 body 【必须】
          * @param contentType 表单 body 的 Mime type
          **/
-        protected void setFormBody(String name, String fileName, StringMap fields, byte[] body, String contentType) {
+        protected void setMultipartBody(String name, String fileName, StringMap fields, byte[] body, String contentType) {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
-            this.body = new Request.Body.FormBody(name, fileName, fields, body, contentType);
+            if (body == null) {
+                body = new byte[0];
+            }
+            this.body = new Body.MultipartBody(name, fileName, fields, body, contentType);
         }
 
         /**
@@ -770,11 +783,11 @@ public class Api {
          * @param body        表单 File 类型 body 【必须】
          * @param contentType 表单 body 的 Mime type
          **/
-        protected void setFormBody(String name, String fileName, StringMap fields, File body, String contentType) {
+        protected void setMultipartBody(String name, String fileName, StringMap fields, File body, String contentType) {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
-            this.body = new Request.Body.FormBody(name, fileName, fields, body, contentType);
+            this.body = new Body.MultipartBody(name, fileName, fields, body, contentType);
         }
 
         /**
@@ -785,10 +798,11 @@ public class Api {
          * @param streamBodySinkSize 每次读取 streamBody 的大小
          * @return Request
          */
+        @Deprecated
         public Request setStreamBodySinkSize(long streamBodySinkSize) {
             this.streamBodySinkSize = streamBodySinkSize;
-            if (body != null && body instanceof Request.Body.InputStreamBody) {
-                ((Body.InputStreamBody) body).streamBodySinkSize = streamBodySinkSize;
+            if (this.body instanceof Body.InputStreamBody) {
+                ((Body.InputStreamBody) this.body).setSinkSize(streamBodySinkSize);
             }
             return this;
         }
@@ -802,15 +816,10 @@ public class Api {
             return body != null;
         }
 
-        private RequestBody getRequestBody() {
+        RequestBody getRequestBody() {
             if (!hasBody()) {
                 return Body.BytesBody.empty().get();
             }
-
-            if (body instanceof Body.InputStreamBody) {
-                ((Body.InputStreamBody) body).streamBodySinkSize = streamBodySinkSize;
-            }
-
             return body.get();
         }
 
@@ -827,7 +836,10 @@ public class Api {
          * @throws QiniuException 异常
          */
         protected void buildBodyInfo() throws QiniuException {
-
+            if (!this.method.hasContent() || this.body != null) {
+                return;
+            }
+            this.body = new Request.Body.BytesBody(new byte[]{}, 0, 0, Client.FormMime);
         }
 
         boolean canRetry() {
@@ -966,10 +978,14 @@ public class Api {
 
         private abstract static class Body {
 
-            protected final MediaType contentType;
+            protected RequestBody body;
 
-            protected Body(String contentType) {
-                this.contentType = MediaType.parse(contentType);
+            protected MediaType getContentType() {
+                if (this.body == null) {
+                    return null;
+                }
+
+                return this.body.contentType();
             }
 
             protected boolean canReset() {
@@ -980,7 +996,9 @@ public class Api {
                 throw QiniuException.unrecoverable("not support reset");
             }
 
-            protected abstract RequestBody get();
+            protected RequestBody get() {
+                return body;
+            }
 
             protected byte[] getBytes() {
                 return null;
@@ -990,16 +1008,23 @@ public class Api {
                 private final byte[] bytes;
                 private final int offset;
                 private final int length;
+                private final String contentType;
 
                 private static BytesBody empty() {
                     return new BytesBody(new byte[0], 0, 0, Client.DefaultMime);
                 }
 
+                private static RequestBody createByteRequestBody(BytesBody bytesBody) {
+                    MediaType ct = MediaType.parse(bytesBody.contentType);
+                    return RequestBody.create(ct, bytesBody.bytes, bytesBody.offset, bytesBody.length);
+                }
+
                 private BytesBody(byte[] bytes, int offset, int length, String contentType) {
-                    super(contentType);
                     this.bytes = bytes;
                     this.offset = offset;
                     this.length = length;
+                    this.contentType = contentType;
+                    this.body = createByteRequestBody(this);
                 }
 
                 @Override
@@ -1009,11 +1034,7 @@ public class Api {
 
                 @Override
                 protected void reset() throws QiniuException {
-                }
-
-                @Override
-                protected RequestBody get() {
-                    return RequestBody.create(contentType, bytes, offset, length);
+                    this.body = createByteRequestBody(this);
                 }
 
                 @Override
@@ -1029,49 +1050,58 @@ public class Api {
             }
 
             private static final class InputStreamBody extends Body {
-                private final InputStream stream;
-
-                private final long limitSize;
-
-                private long streamBodySinkSize = 1024 * 10;
 
                 private InputStreamBody(InputStream stream, String contentType, long limitSize) {
-                    super(contentType);
-                    this.stream = stream;
-                    this.limitSize = limitSize;
+                    MediaType ct = MediaType.parse(contentType);
+                    RequestStreamBody b = new RequestStreamBody(stream, ct, limitSize);
+                    b.setSinkSize(1024 * 10);
+                    this.body = b;
                 }
 
-                @Override
-                protected RequestBody get() {
-                    RequestStreamBody b = new RequestStreamBody(stream, contentType, limitSize);
-                    b.setSinkSize(streamBodySinkSize);
-                    return b;
+                private void setSinkSize(long sinkSize) {
+                    if (this.body instanceof RequestStreamBody) {
+                        ((RequestStreamBody) this.body).setSinkSize(sinkSize);
+                    }
                 }
             }
 
             private static final class FormBody extends Body {
-                private final String name;
-                private final String fileName;
-                private final StringMap fields;
-                private final byte[] bytes;
-                private final File file;
 
-                private FormBody(String name, String fileName, StringMap fields, byte[] body, String contentType) {
-                    super(contentType);
-                    this.name = name;
-                    this.fileName = fileName;
-                    this.fields = fields;
-                    this.bytes = body;
-                    this.file = null;
+                private byte[] bytes;
+                private final StringMap fields;
+
+                private static okhttp3.FormBody createFormRequestBody(FormBody formBody) {
+                    final okhttp3.FormBody.Builder builder = new okhttp3.FormBody.Builder();
+                    if (formBody.fields != null) {
+                        formBody.fields.forEach(new StringMap.Consumer() {
+                            @Override
+                            public void accept(String key, Object value) {
+                                builder.add(key, value.toString());
+                            }
+                        });
+                    }
+                    return builder.build();
                 }
 
-                private FormBody(String name, String fileName, StringMap fields, File body, String contentType) {
-                    super(contentType);
-                    this.name = name;
-                    this.fileName = fileName;
+                private FormBody(StringMap fields) {
                     this.fields = fields;
-                    this.bytes = null;
-                    this.file = body;
+                    try {
+                        this.setupBody();
+                    } catch (QiniuException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                private void setupBody() throws QiniuException {
+                    okhttp3.FormBody formBody = createFormRequestBody(this);
+                    Buffer buffer = new Buffer();
+                    try {
+                        formBody.writeTo(buffer);
+                    } catch (IOException e) {
+                        throw QiniuException.unrecoverable(e);
+                    }
+                    this.bytes = buffer.readByteArray();
+                    this.body = formBody;
                 }
 
                 @Override
@@ -1081,26 +1111,44 @@ public class Api {
 
                 @Override
                 protected void reset() throws QiniuException {
+                    this.setupBody();
                 }
 
                 @Override
-                protected RequestBody get() {
+                public byte[] getBytes() {
+                    return bytes;
+                }
+            }
+
+
+            private static final class MultipartBody extends Body {
+
+                private final String name;
+                private final String fileName;
+                private final StringMap fields;
+                private byte[] bytes;
+                private byte[] bytesBody;
+                private final File fileBody;
+                private final String bodyContentType;
+
+                private static okhttp3.MultipartBody createFormRequestBody(MultipartBody formBody) {
+                    MediaType contentType = MediaType.parse(formBody.bodyContentType);
                     RequestBody body = null;
-                    if (bytes != null) {
-                        body = RequestBody.create(contentType, bytes);
-                    } else if (file != null) {
-                        body = RequestBody.create(contentType, file);
+                    if (formBody.bytesBody != null) {
+                        body = RequestBody.create(contentType, formBody.bytesBody);
+                    } else if (formBody.fileBody != null) {
+                        body = RequestBody.create(contentType, formBody.fileBody);
                     } else {
                         body = RequestBody.create(contentType, new byte[0]);
                     }
 
-                    final MultipartBody.Builder b = new MultipartBody.Builder();
-                    if (StringUtils.isNullOrEmpty(name)) {
-                        b.addFormDataPart(name, fileName, body);
+                    final okhttp3.MultipartBody.Builder b = new okhttp3.MultipartBody.Builder();
+                    if (StringUtils.isNullOrEmpty(formBody.name)) {
+                        b.addFormDataPart(formBody.name, formBody.fileName, body);
                     }
 
-                    if (fields != null) {
-                        fields.forEach(new StringMap.Consumer() {
+                    if (formBody.fields != null) {
+                        formBody.fields.forEach(new StringMap.Consumer() {
                             @Override
                             public void accept(String key, Object value) {
                                 b.addFormDataPart(key, value.toString());
@@ -1111,6 +1159,68 @@ public class Api {
                     b.setType(MediaType.parse("multipart/form-data"));
 
                     return b.build();
+                }
+
+                private MultipartBody(String name, String fileName, StringMap fields, byte[] body, String bodyContentType) {
+                    this.bodyContentType = bodyContentType;
+                    this.name = name;
+                    this.fileName = fileName;
+                    this.fields = fields;
+                    this.bytesBody = body;
+                    this.fileBody = null;
+                    try {
+                        this.setupBody();
+                    } catch (QiniuException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                private MultipartBody(String name, String fileName, StringMap fields, File body, String bodyContentType) {
+                    this.name = name;
+                    this.fileName = fileName;
+                    this.fields = fields;
+                    this.bodyContentType = bodyContentType;
+                    this.bytesBody = null;
+                    this.fileBody = body;
+                    try {
+                        this.setupBody();
+                    } catch (QiniuException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                private void setupBody() throws QiniuException {
+                    okhttp3.MultipartBody formBody = createFormRequestBody(this);
+                    Buffer buffer = new Buffer();
+                    try {
+                        formBody.writeTo(buffer);
+                    } catch (IOException e) {
+                        throw QiniuException.unrecoverable(e);
+                    }
+
+                    // 只有使用 bytesBody 和 fileBody 都没有时才会处理，其他不处理
+                    // bytes 用作签名，Multipart 不做签名
+                    // bytes
+                    if (this.bytesBody == null && this.fileBody == null) {
+                        this.bytes = buffer.readByteArray();
+                    }
+
+                    this.body = formBody;
+                }
+
+                @Override
+                protected boolean canReset() {
+                    return true;
+                }
+
+                @Override
+                protected void reset() throws QiniuException {
+                    this.setupBody();
+                }
+
+                @Override
+                public byte[] getBytes() {
+                    return bytes;
                 }
             }
         }

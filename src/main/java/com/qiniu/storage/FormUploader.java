@@ -83,9 +83,9 @@ public final class FormUploader extends BaseUploader {
         Api.Request request = new Api.Request(urlPrefix);
         request.setMethod(MethodType.POST);
         if (data != null) {
-            request.setFormBody("file", filename, params, data, mime);
+            request.setMultipartBody("file", filename, params, data, mime);
         } else {
-            request.setFormBody("file", filename, params, file, mime);
+            request.setMultipartBody("file", filename, params, file, mime);
         }
         return api.requestWithInterceptor(request);
     }
