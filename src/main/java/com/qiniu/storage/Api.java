@@ -35,8 +35,7 @@ public class Api {
      * @param client 请求的 Client【必须】
      **/
     protected Api(Client client) {
-        this.client = client;
-        this.interceptors = null;
+        this(client, (Config) null);
     }
 
     /**
@@ -129,6 +128,11 @@ public class Api {
             ApiUtils.throwInvalidRequestParamException("request");
         }
 
+        request = request.clone();
+        if (request == null) {
+            throw QiniuException.unrecoverable("request clone error, just retry");
+        }
+
         request.prepareToRequest();
 
         return innerRequest(request);
@@ -137,6 +141,11 @@ public class Api {
     protected com.qiniu.http.Response requestWithInterceptor(Request request) throws QiniuException {
         if (request == null) {
             ApiUtils.throwInvalidRequestParamException("request");
+        }
+
+        request = request.clone();
+        if (request == null) {
+            throw QiniuException.unrecoverable("request clone error, just retry");
         }
 
         request.prepareToRequest();
@@ -258,66 +267,142 @@ public class Api {
 
         public static final class Builder {
             private Auth auth;
-            private int hostRetryMax;
-            private int singleHostRetryMax;
-            private Retry.Interval retryInterval;
-            private Retry.RetryCondition retryCondition;
-            private Retry.HostFreezeCondition hostFreezeCondition;
-            private HostProvider hostProvider;
-            private int hostFreezeDuration;
-            private int requestDebugLevel;
+            private int hostRetryMax = 1;
+            private int singleHostRetryMax = 1;
+            private Retry.Interval retryInterval = Retry.defaultInterval();
+            private Retry.RetryCondition retryCondition = Retry.defaultCondition();
+            private Retry.HostFreezeCondition hostFreezeCondition = Retry.defaultHostFreezeCondition();
+            private HostProvider hostProvider = null;
+            private int hostFreezeDuration = 10 * 60 * 1000;
+            private int requestDebugLevel = DebugLevelNone;
             private int responseDebugLevel;
 
+            /**
+             * 设置鉴权信息
+             *
+             * @param auth 鉴权信息
+             * @return Builder
+             **/
             public Builder setAuth(Auth auth) {
                 this.auth = auth;
                 return this;
             }
 
+            /**
+             * 当有多个 Host，在请求失败且请求可以重试时，最多切换 Host 的次数
+             * 已经使用过的 Host 在冻结期内不会被使用
+             *
+             * @param hostRetryMax 切换 Host 的最大次数
+             * @return Builder
+             **/
             public Builder setHostRetryMax(int hostRetryMax) {
                 this.hostRetryMax = hostRetryMax;
                 return this;
             }
 
+            /**
+             * 在请求失败且请求可以重试时，单个域名最大可以重试的次数
+             *
+             * @param singleHostRetryMax 单个域名最大可以重试的次数
+             * @return Builder
+             **/
             public Builder setSingleHostRetryMax(int singleHostRetryMax) {
                 this.singleHostRetryMax = singleHostRetryMax;
                 return this;
             }
 
+            /**
+             * 设置请求重试的时间间隔
+             *
+             * @param retryInterval 固定大小的重试时间间隔，单位：毫秒
+             * @return Builder
+             **/
             public Builder setRetryInterval(int retryInterval) {
                 this.retryInterval = Retry.staticInterval(retryInterval);
                 return this;
             }
 
+            /**
+             * 设置请求重试的时间间隔
+             *
+             * @param retryInterval 可动态调整的重试时间间隔
+             * @return Builder
+             **/
             public Builder setRetryInterval(Retry.Interval retryInterval) {
                 this.retryInterval = retryInterval;
                 return this;
             }
 
+            /**
+             * 设置重试条件
+             *
+             * @param retryCondition 重试条件
+             * @return Builder
+             **/
             public Builder setRetryCondition(Retry.RetryCondition retryCondition) {
                 this.retryCondition = retryCondition;
                 return this;
             }
 
+            /**
+             * 设置域名冻结时间
+             * 当某个域名请求失败，且该域名短时间内不可在使用则会被冻结，切换其他域名进行重试
+             *
+             * @param hostFreezeDuration 域名冻结时间，单位：毫秒
+             * @return Builder
+             **/
             public Builder setHostFreezeDuration(int hostFreezeDuration) {
                 this.hostFreezeDuration = hostFreezeDuration;
                 return this;
             }
 
+            /**
+             * 设置域名提供者
+             * 当请求域名被冻结，且可以请求切换域名进行重试，此时会尝试从域名提供者中获取一个域名进行重试
+             *
+             * @param hostProvider 域名提供者
+             * @return Builder
+             **/
             public Builder setHostProvider(HostProvider hostProvider) {
                 this.hostProvider = hostProvider;
                 return this;
             }
 
+            /**
+             * 设置域名冻结条件
+             * 根据相应情况来判断域名是否可以再次被使用，不过不可则需要冻结（比如：服务内部繁忙需切换域名重试）
+             *
+             * @param hostFreezeCondition 域名冻结条件
+             * @return Builder
+             **/
             public Builder setHostFreezeCondition(Retry.HostFreezeCondition hostFreezeCondition) {
                 this.hostFreezeCondition = hostFreezeCondition;
                 return this;
             }
 
+            /**
+             * 设置请求 Debug 的等级
+             * {@link #DebugLevelNone}
+             * {@link #DebugLevelNormal}
+             * {@link #DebugLevelDetail}
+             *
+             * @param requestDebugLevel 请求 Debug 的等级
+             * @return Builder
+             **/
             public Builder setRequestDebugLevel(int requestDebugLevel) {
                 this.requestDebugLevel = requestDebugLevel;
                 return this;
             }
 
+            /**
+             * 设置响应 Debug 的等级
+             * {@link #DebugLevelNone}
+             * {@link #DebugLevelNormal}
+             * {@link #DebugLevelDetail}
+             *
+             * @param responseDebugLevel 响应 Debug 的等级
+             * @return Builder
+             **/
             public Builder setResponseDebugLevel(int responseDebugLevel) {
                 this.responseDebugLevel = responseDebugLevel;
                 return this;
@@ -414,6 +499,10 @@ public class Api {
             }
 
             try {
+                if (!urlPrefix.startsWith("http")) {
+                    urlPrefix = "http://" + urlPrefix;
+                }
+
                 URL url = new URL(urlPrefix);
                 this.scheme = url.getProtocol();
                 this.host = url.getHost();
@@ -628,6 +717,7 @@ public class Api {
 
         /**
          * 增加请求头
+         * 注：用户不可使用此方法
          *
          * @param key   key
          * @param value value
