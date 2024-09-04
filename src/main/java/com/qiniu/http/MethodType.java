@@ -5,7 +5,7 @@ public enum MethodType {
     PUT(true),
     POST(true),
     PATCH(true),
-    DELETE(false),
+    DELETE(true),
     HEAD(false),
     OPTIONS(false);
 

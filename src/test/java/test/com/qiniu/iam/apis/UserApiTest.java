@@ -12,18 +12,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UserApiTest {
 
+    String userAlias = ApiTestConfig.userAlias;
+    String userPWD = ApiTestConfig.userPWD;
+    String baseUrl = ApiTestConfig.baseUrl;
+    Api.Config config = ApiTestConfig.config;
+
     @Test
     @Tag("IntegrationTest")
     public void testUsers() {
-        String userAlias = "JavaTestUser";
-        String userPWD = "JavaTestUserPWD";
-        String baseUrl = "api.qiniu.com";
-        Api.Config config = new Api.Config.Builder()
-                .setAuth(TestConfig.testAuth)
-                .setRequestDebugLevel(Api.Config.DebugLevelDetail)
-                .setResponseDebugLevel(Api.Config.DebugLevelDetail)
-                .build();
-
         // 先删除，流程开始先清理历史数据
         ApiDeleteUser.Request deleteRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
         ApiDeleteUser deleteApi = new ApiDeleteUser(null, config);
@@ -118,26 +114,143 @@ public class UserApiTest {
 
         } catch (QiniuException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                deleteApi.request(deleteRequest);
-            } catch (QiniuException e) {
-                // 删除失败时预期的
-                e.printStackTrace();
-            }
         }
-
     }
 
     @Test
     @Tag("IntegrationTest")
     public void testUsersKeyPairs() {
 
+        // 先删除，流程开始先清理历史数据
+        ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
+        ApiDeleteUser deleteUserApi = new ApiDeleteUser(null, config);
+        try {
+            deleteUserApi.request(deleteUserRequest);
+        } catch (QiniuException e) {
+            // 删除失败时预期的
+            e.printStackTrace();
+        }
+//
+//        try {
+//            ApiGetUserKeypairs.Request getRequest = new ApiGetUserKeypairs.Request(baseUrl, userAlias);
+//            ApiGetUserKeypairs getApi = new ApiGetUserKeypairs(null, config);
+//            ApiGetUserKeypairs.Response getResponse = getApi.request(getRequest);
+//            if (getResponse.isOK() && getResponse.getData() != null
+//                    && getResponse.getData().getData() != null
+//                    && getResponse.getData().getData().getCount() > 0) {
+//                ApiGetUserKeypairs.Response.GetIamUserKeyPairsData getResponseData = getResponse.getData().getData();
+//                for (ApiGetUserKeypairs.Response.GetIamUserKeyPair keyPair : getResponseData.getList()) {
+//                    ApiDeleteUserKeypair.Request deleteRequest = new ApiDeleteUserKeypair.Request(baseUrl, userAlias, keyPair.getAccessKey());
+//                    ApiDeleteUserKeypair deleteApi = new ApiDeleteUserKeypair(null, config);
+//                    deleteApi.request(deleteRequest);
+//                }
+//            }
+//        } catch (QiniuException e) {
+//            // 删除失败时预期的
+//            e.printStackTrace();
+//        }
 
+        try {
+            // 1. 创建用户
+            // 创建后会自带一组
+            ApiCreateUser.Request.CreateIamUserParam createUserParam = new ApiCreateUser.Request.CreateIamUserParam();
+            createUserParam.setAlias(userAlias);
+            createUserParam.setPassword(userPWD);
+            ApiCreateUser.Request createUserRequest = new ApiCreateUser.Request(baseUrl, createUserParam);
+            ApiCreateUser createUserApi = new ApiCreateUser(null, config);
+            ApiCreateUser.Response createUserResponse = createUserApi.request(createUserRequest);
+            assertNotNull(createUserResponse, "1. 创建 User 失败：" + createUserResponse);
+            assertEquals(createUserResponse.isOK(), true, "1.1 创建 User 失败：" + createUserResponse);
+            ApiCreateUser.Response.CreatedIamUserData createUserResponseData = createUserResponse.getData().getData();
+
+            // 2. 创建秘钥
+            ApiCreateUserKeypairs.Request createRequest = new ApiCreateUserKeypairs.Request(baseUrl, userAlias);
+            ApiCreateUserKeypairs createApi = new ApiCreateUserKeypairs(null, config);
+            ApiCreateUserKeypairs.Response createResponse = createApi.request(createRequest);
+            assertNotNull(createUserResponse, "2. 创建 User 秘钥失败：" + createUserResponse);
+            assertEquals(createUserResponse.isOK(), true, "2.1 创建 User 秘钥失败：" + createUserResponse);
+            ApiCreateUserKeypairs.Response.CreatedIamUserKeyPairData createResponseData = createResponse.getData().getData();
+            assertNotNull(createResponseData.getId(), "2.3 创建 User 秘钥失败：" + createUserResponse);
+            assertNotNull(createResponseData.getAccessKey(), "2.4 创建 User 秘钥失败：" + createUserResponse);
+            assertNotNull(createResponseData.getSecretKey(), "2.5 创建 User 秘钥失败：" + createUserResponse);
+            assertEquals(createResponseData.getUserId(), createUserResponseData.getId(), "2.6 创建 User 秘钥失败：" + createUserResponse);
+            assertNotNull(createResponseData.getCreatedAt(), "2.7 创建 User 秘钥失败：" + createUserResponse);
+            assertEquals(createResponseData.getEnabled(), true, "2.8 创建 User 秘钥失败：" + createUserResponse);
+
+            // 3. 获取秘钥
+            ApiGetUserKeypairs.Request getRequest = new ApiGetUserKeypairs.Request(baseUrl, userAlias);
+            ApiGetUserKeypairs getApi = new ApiGetUserKeypairs(null, config);
+            ApiGetUserKeypairs.Response getResponse = getApi.request(getRequest);
+            assertNotNull(getResponse, "3. 获取 User 秘钥失败：" + createUserResponse);
+            assertEquals(getResponse.isOK(), true, "3.1 创建 User 秘钥失败：" + getResponse);
+            ApiGetUserKeypairs.Response.GetIamUserKeyPairsData getResponseData = getResponse.getData().getData();
+            assertEquals(getResponseData.getCount().intValue(), 2, "3.2 创建 User 秘钥失败：" + getResponse);
+            ApiGetUserKeypairs.Response.GetIamUserKeyPair keyPair = null;
+            for (ApiGetUserKeypairs.Response.GetIamUserKeyPair kp : getResponseData.getList()) {
+                if (kp.getAccessKey().equals(createResponseData.getAccessKey())) {
+                    keyPair = kp;
+                }
+            }
+            assertNotNull(keyPair, "3.3 创建 User 秘钥失败：" + getResponse);
+            assertNotNull(keyPair.getId(), "3.4 创建 User 秘钥失败：" + getResponse);
+            assertEquals(keyPair.getSecretKey(), createResponseData.getSecretKey(), "3.5 创建 User 秘钥失败：" + getResponse);
+            assertEquals(keyPair.getUserId(), createUserResponseData.getId(), "3.6 创建 User 秘钥失败：" + getResponse);
+            assertNotNull(keyPair.getCreatedAt(), "3.7 创建 User 秘钥失败：" + getResponse);
+            assertNotNull(keyPair.getEnabled(), "3.8 创建 User 秘钥失败：" + getResponse);
+
+            // 4. 修改秘钥: Disable
+            ApiDisableUserKeypair.Request diableRequest = new ApiDisableUserKeypair.Request(baseUrl, userAlias, createResponseData.getAccessKey());
+            ApiDisableUserKeypair disableApi = new ApiDisableUserKeypair(null, config);
+            ApiDisableUserKeypair.Response disableResponse = disableApi.request(diableRequest);
+            assertNotNull(disableResponse, "4. Disable User 秘钥失败：" + disableResponse);
+            assertEquals(disableResponse.isOK(), true, "4.1 Disable User 秘钥失败：" + disableResponse);
+
+            // 5. 验证秘钥修改: Disable
+            getResponse = getApi.request(getRequest);
+            assertNotNull(getResponse, "5. 验证 User 秘钥失败：" + createUserResponse);
+            assertEquals(getResponse.isOK(), true, "5.1 验证 User 秘钥失败：" + getResponse);
+            getResponseData = getResponse.getData().getData();
+            assertEquals(getResponseData.getCount().intValue(), 2, "5.2 验证 User 秘钥失败：" + getResponse);
+            for (ApiGetUserKeypairs.Response.GetIamUserKeyPair kp : getResponseData.getList()) {
+                if (kp.getAccessKey().equals(createResponseData.getAccessKey())) {
+                    keyPair = kp;
+                }
+            }
+            assertEquals(keyPair.getEnabled(), false, "5.3 验证 User 秘钥失败：" + getResponse);
+
+            // 6. 修改秘钥: Enable
+            ApiEnableUserKeypair.Request enableRequest = new ApiEnableUserKeypair.Request(baseUrl, userAlias, createResponseData.getAccessKey());
+            ApiEnableUserKeypair enableApi = new ApiEnableUserKeypair(null, config);
+            ApiEnableUserKeypair.Response enableResponse = enableApi.request(enableRequest);
+            assertNotNull(enableResponse, "6. Enable User 秘钥失败：" + enableResponse);
+            assertEquals(enableResponse.isOK(), true, "6.1 Enable User 秘钥失败：" + enableResponse);
+
+            // 7. 验证秘钥修改: Disable
+            getResponse = getApi.request(getRequest);
+            assertNotNull(getResponse, "7. 验证 User 秘钥失败：" + createUserResponse);
+            assertEquals(getResponse.isOK(), true, "7.1 验证 User 秘钥失败：" + getResponse);
+            getResponseData = getResponse.getData().getData();
+            assertEquals(getResponseData.getCount().intValue(), 2, "7.2 验证 User 秘钥失败：" + getResponse);
+            for (ApiGetUserKeypairs.Response.GetIamUserKeyPair kp : getResponseData.getList()) {
+                if (kp.getAccessKey().equals(createResponseData.getAccessKey())) {
+                    keyPair = kp;
+                }
+            }
+            assertEquals(keyPair.getEnabled(), true, "7.3 验证 User 秘钥失败：" + getResponse);
+
+            // 8. 删除秘钥
+            ApiDeleteUserKeypair.Request deleteRequest = new ApiDeleteUserKeypair.Request(baseUrl, userAlias, createResponseData.getAccessKey());
+            ApiDeleteUserKeypair deleteApi = new ApiDeleteUserKeypair(null, config);
+            ApiDeleteUserKeypair.Response deleteResponse = deleteApi.request(deleteRequest);
+            assertNotNull(deleteResponse, "8. Delete User 秘钥失败：" + deleteResponse);
+            assertEquals(deleteResponse.isOK(), true, "8.1 Delete User 秘钥失败：" + deleteResponse);
+
+        } catch (QiniuException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    @Disabled
     @Tag("IntegrationTest")
     public void testUsersGroups() {
 
@@ -145,7 +258,6 @@ public class UserApiTest {
     }
 
     @Test
-    @Disabled
     @Tag("IntegrationTest")
     public void testUsersPolicies() {
 
