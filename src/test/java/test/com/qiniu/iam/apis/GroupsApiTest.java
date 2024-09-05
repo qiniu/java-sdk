@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GroupsApiTest {
 
-    String groupAlias = ApiTestConfig.userAlias + "AAAAAAA";
+    String groupAlias = ApiTestConfig.groupAlias;
     String userAlias = ApiTestConfig.userAlias;
     String userPWD = ApiTestConfig.userPWD;
     String baseUrl = ApiTestConfig.baseUrl;
@@ -23,13 +23,28 @@ public class GroupsApiTest {
     @Tag("IntegrationTest")
     public void testGroups() {
         // 先删除，流程开始先清理历史数据
-        ApiDeleteUser.Request deleteRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
-        ApiDeleteUser deleteApi = new ApiDeleteUser(null, config);
         try {
-            deleteApi.request(deleteRequest);
+            ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
+            ApiDeleteUser deleteUserApi = new ApiDeleteUser(null, config);
+            deleteUserApi.request(deleteUserRequest);
         } catch (QiniuException e) {
             // 删除失败时预期的
-            e.printStackTrace();
+        }
+
+        try {
+            ApiDeleteGroup.Request deleteGroupRequest = new ApiDeleteGroup.Request(baseUrl, groupAlias);
+            ApiDeleteGroup deleteGroupApi = new ApiDeleteGroup(null, config);
+            deleteGroupApi.request(deleteGroupRequest);
+        } catch (QiniuException e) {
+            // 删除失败时预期的
+        }
+
+        try {
+            ApiDeleteGroup.Request deleteGroupRequest = new ApiDeleteGroup.Request(baseUrl, groupAlias + "New");
+            ApiDeleteGroup deleteGroupApi = new ApiDeleteGroup(null, config);
+            deleteGroupApi.request(deleteGroupRequest);
+        } catch (QiniuException e) {
+            // 删除失败时预期的
         }
 
         String groupDescription = "JavaTestGroupDescription";
@@ -139,7 +154,7 @@ public class GroupsApiTest {
             ApiCreateUser.Response.CreatedIamUserData createUser = createUserResponse.getData().getData();
 
             // 6.1 群组添加用户
-            ApiModifyGroupUsers.Request.ModifyGroupIamUsersParam modifyGroupUserParam = new ApiModifyGroupUsers.Request.ModifyGroupIamUsersParam();
+            ApiModifyGroupUsers.Request.ModifiedGroupIamUsersParam modifyGroupUserParam = new ApiModifyGroupUsers.Request.ModifiedGroupIamUsersParam();
             modifyGroupUserParam.setUserAliases(new String[]{userAlias});
             ApiModifyGroupUsers.Request modifyGroupUserRequest = new ApiModifyGroupUsers.Request(baseUrl, groupAlias, modifyGroupUserParam);
             ApiModifyGroupUsers modifyGroupUserApi = new ApiModifyGroupUsers(null, config);

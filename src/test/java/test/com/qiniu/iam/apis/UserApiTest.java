@@ -21,10 +21,10 @@ public class UserApiTest {
     @Tag("IntegrationTest")
     public void testUsers() {
         // 先删除，流程开始先清理历史数据
-        ApiDeleteUser.Request deleteRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
-        ApiDeleteUser deleteApi = new ApiDeleteUser(null, config);
         try {
-            deleteApi.request(deleteRequest);
+            ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
+            ApiDeleteUser deleteUserApi = new ApiDeleteUser(null, config);
+            deleteUserApi.request(deleteUserRequest);
         } catch (QiniuException e) {
             // 删除失败时预期的
             e.printStackTrace();
@@ -39,7 +39,7 @@ public class UserApiTest {
             ApiCreateUser createApi = new ApiCreateUser(null, config);
             ApiCreateUser.Response createResponse = createApi.request(createRequest);
             assertNotNull(createResponse, "1. 创建 User 失败：" + createResponse);
-            assertEquals(createResponse.getResponse().statusCode, 200, "1.1 创建 User 失败：" + createResponse);
+            assertTrue(createResponse.isOK(), "1.1 创建 User 失败：" + createResponse);
             ApiCreateUser.Response.CreatedIamUserData createdUserData = createResponse.getData().getData();
             assertEquals(createdUserData.getAlias(), userAlias, "1.2 创建 User 失败：" + createResponse);
             assertNotNull(createdUserData.getId(), "1.3 创建 User 失败：" + createResponse);
@@ -74,7 +74,7 @@ public class UserApiTest {
             assertEquals(getUserData.getEnabled(), createdUserData.getEnabled(), "2.15 获取 User 失败：" + getResponse);
 
             // 3. 修改
-            ApiModifyUser.Request.ModifyIamUserParam modifyParam = new ApiModifyUser.Request.ModifyIamUserParam();
+            ApiModifyUser.Request.ModifiedIamUserParam modifyParam = new ApiModifyUser.Request.ModifiedIamUserParam();
             modifyParam.setEnabled(false);
             ApiModifyUser.Request modifyRequest = new ApiModifyUser.Request(baseUrl, userAlias, modifyParam);
             ApiModifyUser modifyApi = new ApiModifyUser(null, config);
@@ -109,8 +109,10 @@ public class UserApiTest {
             assertEquals(getUsersData.getEnabled(), modifyUserData.getEnabled(), "4.10 修改 User 失败：" + getResponse);
 
             // 5. 删除
-            ApiDeleteUser.Response deleteResponse = deleteApi.request(deleteRequest);
-            assertTrue(deleteResponse.isOK(), "5.1 删除 User 失败：" + getResponse);
+            ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
+            ApiDeleteUser deleteUserApi = new ApiDeleteUser(null, config);
+            ApiDeleteUser.Response deleteUserResponse = deleteUserApi.request(deleteUserRequest);
+            assertTrue(deleteUserResponse.isOK(), "5.1 删除 User 失败：" + getResponse);
 
         } catch (QiniuException e) {
             throw new RuntimeException(e);
