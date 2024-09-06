@@ -3,6 +3,7 @@ package test.com.qiniu.iam.apis;
 import com.qiniu.common.QiniuException;
 import com.qiniu.iam.apis.*;
 import com.qiniu.storage.Api;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserApiTest {
 
     String userAlias = ApiTestConfig.userAlias;
+    String groupAlias = ApiTestConfig.groupAlias;
+    String policyAlias = ApiTestConfig.policyAlias;
     String userPWD = ApiTestConfig.userPWD;
     String baseUrl = ApiTestConfig.baseUrl;
     Api.Config config = ApiTestConfig.config;
@@ -124,33 +127,14 @@ public class UserApiTest {
     public void testUsersKeyPairs() {
 
         // 先删除，流程开始先清理历史数据
-        ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
-        ApiDeleteUser deleteUserApi = new ApiDeleteUser(null, config);
         try {
+            ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
+            ApiDeleteUser deleteUserApi = new ApiDeleteUser(null, config);
             deleteUserApi.request(deleteUserRequest);
         } catch (QiniuException e) {
             // 删除失败时预期的
             e.printStackTrace();
         }
-//
-//        try {
-//            ApiGetUserKeypairs.Request getRequest = new ApiGetUserKeypairs.Request(baseUrl, userAlias);
-//            ApiGetUserKeypairs getApi = new ApiGetUserKeypairs(null, config);
-//            ApiGetUserKeypairs.Response getResponse = getApi.request(getRequest);
-//            if (getResponse.isOK() && getResponse.getData() != null
-//                    && getResponse.getData().getData() != null
-//                    && getResponse.getData().getData().getCount() > 0) {
-//                ApiGetUserKeypairs.Response.GetIamUserKeyPairsData getResponseData = getResponse.getData().getData();
-//                for (ApiGetUserKeypairs.Response.GetIamUserKeyPair keyPair : getResponseData.getList()) {
-//                    ApiDeleteUserKeypair.Request deleteRequest = new ApiDeleteUserKeypair.Request(baseUrl, userAlias, keyPair.getAccessKey());
-//                    ApiDeleteUserKeypair deleteApi = new ApiDeleteUserKeypair(null, config);
-//                    deleteApi.request(deleteRequest);
-//                }
-//            }
-//        } catch (QiniuException e) {
-//            // 删除失败时预期的
-//            e.printStackTrace();
-//        }
 
         try {
             // 1. 创建用户
@@ -255,14 +239,140 @@ public class UserApiTest {
     @Test
     @Tag("IntegrationTest")
     public void testUsersGroups() {
+        try {
+            ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
+            ApiDeleteUser deleteUserApi = new ApiDeleteUser(null, config);
+            deleteUserApi.request(deleteUserRequest);
+        } catch (QiniuException e) {
+            // 删除失败时预期的
+        }
 
+        try {
+            ApiDeleteGroup.Request deleteGroupRequest = new ApiDeleteGroup.Request(baseUrl, groupAlias);
+            ApiDeleteGroup deleteGroupApi = new ApiDeleteGroup(null, config);
+            deleteGroupApi.request(deleteGroupRequest);
+        } catch (QiniuException e) {
+            // 删除失败时预期的
+        }
 
+        try {
+            // 0 创建用户的
+            ApiCreateUser.Request.CreateIamUserParam createUserParam = new ApiCreateUser.Request.CreateIamUserParam();
+            createUserParam.setAlias(userAlias);
+            createUserParam.setPassword(userPWD);
+            ApiCreateUser.Request createUserRequest = new ApiCreateUser.Request(baseUrl, createUserParam);
+            ApiCreateUser createUserApi = new ApiCreateUser(null, config);
+            ApiCreateUser.Response createUserResponse = createUserApi.request(createUserRequest);
+            assertNotNull(createUserResponse, "0. 创建 User 失败：" + createUserResponse);
+            assertEquals(createUserResponse.isOK(), true, "0.1 创建 User 失败：" + createUserResponse);
+
+            // 1 创建用户的 Group
+            ApiCreateGroup.Request.CreateGroupParam createGroupParam = new ApiCreateGroup.Request.CreateGroupParam();
+            createGroupParam.setAlias(groupAlias);
+            ApiCreateGroup.Request createGroupRequest = new ApiCreateGroup.Request(baseUrl, createGroupParam);
+            ApiCreateGroup createGroupApi = new ApiCreateGroup(null, config);
+            ApiCreateGroup.Response createGroupResponse = createGroupApi.request(createGroupRequest);
+            Assertions.assertNotNull(createGroupResponse, "1. 创建分组失败：" + createGroupResponse);
+            Assertions.assertTrue(createGroupResponse.isOK(), "1.1 创建分组失败：" + createGroupResponse);
+
+            // 2 用户添加至 Group
+            ApiUpdateUserGroups.Request.UpdatedIamUserGroupsParam updateUserGroupsRequestParam = new ApiUpdateUserGroups.Request.UpdatedIamUserGroupsParam();
+            updateUserGroupsRequestParam.setGroupAliases(new String[]{groupAlias});
+            ApiUpdateUserGroups.Request updateUserGroupsRequest = new ApiUpdateUserGroups.Request(baseUrl, userAlias, updateUserGroupsRequestParam);
+            ApiUpdateUserGroups updateUserGroupsApi = new ApiUpdateUserGroups(null, config);
+            ApiUpdateUserGroups.Response updateUserGroupsResponse = updateUserGroupsApi.request(updateUserGroupsRequest);
+            Assertions.assertNotNull(updateUserGroupsResponse, "2 用户添加至 Group 失败：" + updateUserGroupsResponse);
+            Assertions.assertTrue(updateUserGroupsResponse.isOK(), "2.1 用户添加至 Group 失败：" + updateUserGroupsResponse);
+
+            // 3 获取用户的 Group（验证）
+            ApiGetUserGroups.Request getUserGroupsRequest = new ApiGetUserGroups.Request(baseUrl, userAlias);
+            getUserGroupsRequest.setPage(0);
+            ApiGetUserGroups getUserGroupsApi = new ApiGetUserGroups(null, config);
+            ApiGetUserGroups.Response getUserGroupsResponse = getUserGroupsApi.request(getUserGroupsRequest);
+            Assertions.assertNotNull(getUserGroupsResponse, "3 获取用户的 Group 失败：" + getUserGroupsResponse);
+            Assertions.assertTrue(getUserGroupsResponse.isOK(), "3.1 获取用户的 Group 失败：" + getUserGroupsResponse);
+            Assertions.assertTrue(getUserGroupsResponse.getData().getData().getCount() > 0, "3.2 获取用户的 Group 失败：" + getUserGroupsResponse);
+
+            ApiGetUserGroups.Response.IamUserGroup userGroup = getUserGroupsResponse.getData().getData().getList()[0];
+            Assertions.assertNotNull(userGroup.getId(), "3.3 获取用户的 Group 失败：" + getUserGroupsResponse);
+            Assertions.assertNotNull(userGroup.getRootUid(), "3.4 获取用户的 Group 失败：" + getUserGroupsResponse);
+            Assertions.assertEquals(userGroup.getAlias(), groupAlias, "3.5 获取用户的 Group 失败：" + getUserGroupsResponse);
+            Assertions.assertNotNull(userGroup.getDescription(), "3.6 获取用户的 Group 失败：" + getUserGroupsResponse);
+            Assertions.assertEquals(userGroup.getEnabled(), true, "3.7 获取用户的 Group 失败：" + getUserGroupsResponse);
+            Assertions.assertNotNull(userGroup.getCreatedAt(), "3.8 获取用户的 Group 失败：" + getUserGroupsResponse);
+            Assertions.assertNotNull(userGroup.getUpdatedAt(), "3.9 获取用户的 Group 失败：" + getUserGroupsResponse);
+
+        } catch (QiniuException e) {
+            fail(e);
+        }
     }
 
     @Test
     @Tag("IntegrationTest")
     public void testUsersPolicies() {
+        try {
+            ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
+            ApiDeleteUser deleteUserApi = new ApiDeleteUser(null, config);
+            deleteUserApi.request(deleteUserRequest);
+        } catch (QiniuException e) {
+            // 删除失败时预期的
+        }
 
+        try {
+            ApiDeletePolicy.Request deleteRequest = new ApiDeletePolicy.Request(baseUrl, policyAlias);
+            ApiDeletePolicy deleteApi = new ApiDeletePolicy(null, config);
+            deleteApi.request(deleteRequest);
+        } catch (QiniuException e) {
+        }
 
+        try {
+            // 0 创建用户的
+            ApiCreateUser.Request.CreateIamUserParam createUserParam = new ApiCreateUser.Request.CreateIamUserParam();
+            createUserParam.setAlias(userAlias);
+            createUserParam.setPassword(userPWD);
+            ApiCreateUser.Request createUserRequest = new ApiCreateUser.Request(baseUrl, createUserParam);
+            ApiCreateUser createUserApi = new ApiCreateUser(null, config);
+            ApiCreateUser.Response createUserResponse = createUserApi.request(createUserRequest);
+            assertNotNull(createUserResponse, "0. 创建 User 失败：" + createUserResponse);
+            assertEquals(createUserResponse.isOK(), true, "0.1 创建 User 失败：" + createUserResponse);
+
+            // 1 创建用户的 Policy
+            String policyDesc = policyAlias + "Desc";
+            String policyAction = "cdn/DownloadCDNLog";
+            String policyEffect = "Allow";
+            String policyResource = "qrn:product:::/a/b/c.txt";
+            ApiCreatePolicy.Request.CreateStatement createStatement = new ApiCreatePolicy.Request.CreateStatement();
+            createStatement.setActions(new String[]{policyAction});
+            createStatement.setEffect(policyEffect);
+            createStatement.setResources(new String[]{policyResource});
+            ApiCreatePolicy.Request.CreatePolicyParam createPolicyRequestParam = new ApiCreatePolicy.Request.CreatePolicyParam();
+            createPolicyRequestParam.setEditType(1);
+            createPolicyRequestParam.setAlias(policyAlias);
+            createPolicyRequestParam.setDescription(policyDesc);
+            createPolicyRequestParam.setStatement(new ApiCreatePolicy.Request.CreateStatement[]{createStatement});
+            ApiCreatePolicy.Request createPolicyRequest = new ApiCreatePolicy.Request(baseUrl, createPolicyRequestParam);
+            ApiCreatePolicy createPolicyApi = new ApiCreatePolicy(null, config);
+            ApiCreatePolicy.Response createPolicyResponse = createPolicyApi.request(createPolicyRequest);
+            assertNotNull(createPolicyResponse, "1. 创建 Policy 失败：" + createPolicyResponse);
+            assertTrue(createPolicyResponse.isOK(), "1.1 创建 Policy 失败：" + createPolicyResponse);
+
+            // 2 用户添加至 Policy
+
+            // 3 获取用户 Policy
+
+            // 4 更新用户添加至 Policy
+
+            // 5 获取用户的 Policy（验证）
+
+            // 6 删除用户的 Policy
+
+            // 7 获取用户的 Policy（验证）
+
+            // 8 获取用户的 Service
+
+            // 9 列举子用户指定服务操作下的可访问资源
+        } catch (QiniuException e) {
+            fail(e);
+        }
     }
 }
