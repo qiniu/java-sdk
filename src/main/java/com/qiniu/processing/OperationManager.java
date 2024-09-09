@@ -155,7 +155,6 @@ public final class OperationManager {
     public String pfop(String bucket, String key, String fops, String pipeline, String notifyURL, boolean force)
             throws QiniuException {
         StringMap params = new StringMap()
-                .putNotEmpty("type", "1")
                 .putNotEmpty("pipeline", pipeline)
                 .putNotEmpty("notifyURL", notifyURL)
                 .putWhen("force", 1, force);
