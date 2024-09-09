@@ -1066,7 +1066,7 @@ public class Api {
                     }
 
                     final MultipartBody.Builder b = new MultipartBody.Builder();
-                    if (StringUtils.isNullOrEmpty(name)) {
+                    if (!StringUtils.isNullOrEmpty(name)) {
                         b.addFormDataPart(name, fileName, body);
                     }
 
