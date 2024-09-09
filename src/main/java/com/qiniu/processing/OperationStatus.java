@@ -9,30 +9,49 @@ public class OperationStatus {
      * 持久化处理的进程ID，即 persistentId
      */
     public String id;
+
     /**
      * 状态码 0 成功，1 等待处理，2 正在处理，3 处理失败，4 通知提交失败
      */
     public int code;
+
     /**
      * 与状态码相对应的详细描述
      */
     public String desc;
+
     /**
      * 处理源文件的文件名
      */
     public String inputKey;
+
     /**
      * 处理源文件所在的空间名
      */
     public String inputBucket;
+
     /**
      * 云处理操作的处理队列
      */
     public String pipeline;
+
     /**
      * 云处理请求的请求id，主要用于七牛技术人员的问题排查
      */
     public String reqid;
+
+    /**
+     * 是否是闲时任务
+     * 0：非闲时任务
+     * 1：显示任务
+     */
+    public String type;
+
+    /**
+     * 任务创建时间
+     */
+    public String creationDate;
+
     /**
      * 云处理操作列表，包含每个云处理操作的状态信息
      */

@@ -1251,7 +1251,7 @@ public class Api {
                     }
 
                     final okhttp3.MultipartBody.Builder b = new okhttp3.MultipartBody.Builder();
-                    if (StringUtils.isNullOrEmpty(formBody.name)) {
+                    if (!StringUtils.isNullOrEmpty(formBody.name)) {
                         b.addFormDataPart(formBody.name, formBody.fileName, body);
                     }
 
@@ -1299,17 +1299,17 @@ public class Api {
 
                 private void setupBody() throws QiniuException {
                     okhttp3.MultipartBody formBody = createFormRequestBody(this);
-                    Buffer buffer = new Buffer();
-                    try {
-                        formBody.writeTo(buffer);
-                    } catch (IOException e) {
-                        throw QiniuException.unrecoverable(e);
-                    }
 
                     // 只有使用 bytesBody 和 fileBody 都没有时才会处理，其他不处理
                     // bytes 用作签名，Multipart 不做签名
                     // bytes
                     if (this.bytesBody == null && this.fileBody == null) {
+                        Buffer buffer = new Buffer();
+                        try {
+                            formBody.writeTo(buffer);
+                        } catch (IOException e) {
+                            throw QiniuException.unrecoverable(e);
+                        }
                         this.bytes = buffer.readByteArray();
                     }
 

@@ -48,6 +48,7 @@ public final class Auth {
             "fsizeMin",
             "trafficLimit",
 
+            "persistentType",
             "persistentOps",
             "persistentNotifyUrl",
             "persistentPipeline",
