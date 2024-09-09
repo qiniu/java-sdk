@@ -1,6 +1,8 @@
 package com.qiniu.util;
 
 import java.io.CharArrayWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.BitSet;
 
@@ -189,6 +191,19 @@ public class UrlUtils {
         host = host.replace("http://", "");
         host = host.replace("https://", "");
         return host;
+    }
+
+    public static URL parseHost(String host) {
+        if (StringUtils.isNullOrEmpty(host)) {
+            return null;
+        }
+
+        String tmpHost = setHostScheme(host, true);
+        try {
+            return new URL(tmpHost);
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 
 

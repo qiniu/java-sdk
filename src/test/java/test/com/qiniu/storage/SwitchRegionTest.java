@@ -15,10 +15,12 @@ import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -36,13 +38,13 @@ public class SwitchRegionTest {
     private static final int serialType = 1;
     private static final int concurrentType = 2;
 
-    private static int[][] testConfigList = { { httpType, -1, formType }, { httpType, resumableV1Type, serialType },
-            { httpType, resumableV1Type, concurrentType }, { httpType, resumableV2Type, serialType },
-            { httpType, resumableV2Type, concurrentType },
+    private static int[][] testConfigList = {{httpType, -1, formType}, {httpType, resumableV1Type, serialType},
+            {httpType, resumableV1Type, concurrentType}, {httpType, resumableV2Type, serialType},
+            {httpType, resumableV2Type, concurrentType},
 
-            { httpsType, -1, formType }, { httpsType, resumableV1Type, serialType },
-            { httpsType, resumableV1Type, concurrentType }, { httpsType, resumableV2Type, serialType },
-            { httpsType, resumableV2Type, concurrentType }, };
+            {httpsType, -1, formType}, {httpsType, resumableV1Type, serialType},
+            {httpsType, resumableV1Type, concurrentType}, {httpsType, resumableV2Type, serialType},
+            {httpsType, resumableV2Type, concurrentType}};
 
     /**
      * 分片上传 检测key、hash、fszie、fname是否符合预期
@@ -59,10 +61,6 @@ public class SwitchRegionTest {
 
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile file : files) {
-            // 雾存储不支持 v1
-            if (file.isFog() && uploadType == resumableV1Type) {
-                continue;
-            }
             String bucket = file.getBucketName();
 
             Region mockRegion = new Region.Builder().region("custom").srcUpHost("mock.src.host.com")
@@ -139,14 +137,12 @@ public class SwitchRegionTest {
                     checkMd5 = true;
                 }
                 if (checkMd5) {
-                    if (!file.isFog()) {
-                        String md5 = Md5.md5(f);
-                        String serverMd5 = getFileMD5(file.getTestDomain(), expectKey);
-                        System.out.println("      md5:" + md5);
-                        System.out.println("serverMd5:" + serverMd5);
-                        assertNotNull(serverMd5);
-                        assertEquals(md5, serverMd5);
-                    }
+                    String md5 = Md5.md5(f);
+                    String serverMd5 = getFileMD5(file.getTestDomain(), expectKey);
+                    System.out.println("      md5:" + md5);
+                    System.out.println("serverMd5:" + serverMd5);
+                    assertNotNull(serverMd5);
+                    assertEquals(md5, serverMd5);
                 } else {
                     final String etag = Etag.file(f);
                     System.out.println("      etag:" + etag);

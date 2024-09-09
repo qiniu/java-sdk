@@ -13,7 +13,9 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.ResCode;
 import test.com.qiniu.TestConfig;
+
 import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,9 +33,7 @@ public class PfopTest {
         Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
         TestConfig.TestFile[] files = TestConfig.getTestFileArray();
         for (TestConfig.TestFile testFile : files) {
-            if (!testFile.isFog()) {
-                bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
-            }
+            bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
         }
         List<String> ids = new ArrayList<>();
 
@@ -55,7 +55,7 @@ public class PfopTest {
             String fopMp4 = String.format("avthumb/mp4/vcodec/libx264/s/320x240|saveas/%s",
                     UrlSafeBase64.encodeToString(mp4SaveEntry));
 
-            String fops = StringUtils.join(new String[] { fopM3u8, fopMp4 }, ";");
+            String fops = StringUtils.join(new String[]{fopM3u8, fopMp4}, ";");
             System.out.println(fops);
 
             try {
