@@ -395,6 +395,10 @@ public class Api {
          * @param urlPrefix 请求的 urlPrefix， scheme + host
          */
         protected Request(String urlPrefix) {
+            if (StringUtils.isNullOrEmpty(urlPrefix)) {
+                return;
+            }
+
             try {
                 URL url = new URL(urlPrefix);
                 this.scheme = url.getProtocol();
@@ -635,6 +639,15 @@ public class Api {
         }
 
         /**
+         * 构造 header 信息，如果需要设置请求体，子类需要重写
+         *
+         * @throws QiniuException 组装 header 时的异常，一般为缺失必要参数的异常
+         */
+        protected void buildHeader() throws QiniuException {
+
+        }
+
+        /**
          * 获取 URL
          *
          * @return url
@@ -804,6 +817,7 @@ public class Api {
         protected void prepareToRequest() throws QiniuException {
             buildPath();
             buildQuery();
+            buildHeader();
             buildBodyInfo();
         }
 
@@ -1052,14 +1066,18 @@ public class Api {
                     }
 
                     final MultipartBody.Builder b = new MultipartBody.Builder();
-                    b.addFormDataPart(name, fileName, body);
+                    if (StringUtils.isNullOrEmpty(name)) {
+                        b.addFormDataPart(name, fileName, body);
+                    }
 
-                    fields.forEach(new StringMap.Consumer() {
-                        @Override
-                        public void accept(String key, Object value) {
-                            b.addFormDataPart(key, value.toString());
-                        }
-                    });
+                    if (fields != null) {
+                        fields.forEach(new StringMap.Consumer() {
+                            @Override
+                            public void accept(String key, Object value) {
+                                b.addFormDataPart(key, value.toString());
+                            }
+                        });
+                    }
 
                     b.setType(MediaType.parse("multipart/form-data"));
 

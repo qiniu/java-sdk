@@ -7,6 +7,8 @@ import com.qiniu.processing.OperationManager;
 import com.qiniu.processing.OperationStatus;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
+import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.jupiter.api.Tag;
@@ -138,4 +140,33 @@ public class PfopTest {
         assertEquals(0, status.code);
     }
 
+    @Test
+    @Tag("IntegrationTest")
+    public void testPfopA() {
+        try {
+            Auth auth = TestConfig.testAuth;
+            Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
+            TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+            for (TestConfig.TestFile testFile : files) {
+                bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
+            }
+            for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
+                String bucket = entry.getKey();
+                Region region = entry.getValue();
+
+                Configuration cfg = new Configuration(region);
+                OperationManager operationManager = new OperationManager(auth, cfg);
+                String jobID = operationManager.pfop(bucket, TestConfig.testMp4FileKey, "avinfo", "", "", "1", true);
+
+                OperationStatus status = operationManager.prefop(bucket, jobID);
+                assertNotNull(status, "1. prefop type error");
+                assertTrue(status.code == 0 || status.code == 1 || status.code == 3, "2. prefop type error");
+                assertEquals("1", status.type, "3. prefop type error");
+            }
+
+        } catch (QiniuException ex) {
+            ex.printStackTrace();
+            assertTrue(ResCode.find(ex.code(), ResCode.getPossibleResCode(612)));
+        }
+    }
 }
