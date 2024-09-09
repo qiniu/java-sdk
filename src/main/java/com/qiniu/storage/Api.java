@@ -662,6 +662,18 @@ public class Api {
             query = null;
         }
 
+        protected void addQueryPair(String key, Integer value) {
+            addQueryPair(key, value+"");
+        }
+
+        protected void addQueryPair(String key, Long value) {
+            addQueryPair(key, value+"");
+        }
+
+        protected void addQueryPair(String key, Boolean value) {
+            addQueryPair(key, value+"");
+        }
+
         /**
          * 获取 query 字符串
          *

@@ -164,7 +164,7 @@ public class DownloadUrl {
         didSetKeyForUrl(request);
 
         if (!StringUtils.isNullOrEmpty(fop)) {
-            request.addQueryPair(fop, null);
+            request.addQueryPair(fop, (String) null);
         }
 
         for (Api.Request.Pair<String, String> pair : customQuerys) {
