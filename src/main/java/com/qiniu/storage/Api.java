@@ -669,15 +669,15 @@ public class Api {
         }
 
         protected void addQueryPair(String key, Integer value) {
-            addQueryPair(key, value+"");
+            addQueryPair(key, value + "");
         }
 
         protected void addQueryPair(String key, Long value) {
-            addQueryPair(key, value+"");
+            addQueryPair(key, value + "");
         }
 
         protected void addQueryPair(String key, Boolean value) {
-            addQueryPair(key, value+"");
+            addQueryPair(key, value + "");
         }
 
         /**
@@ -1367,6 +1367,8 @@ public class Api {
                 return;
             }
 
+            // 七牛只有 Json 和 流，流外部处理，SDK 不关闭
+            // Json 会自动关闭
             if (response.isJson()) {
                 String bodyString = response.bodyString();
                 try {
@@ -1378,6 +1380,14 @@ public class Api {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                return;
+            }
+
+            // 没有 Body
+            if (response.getResponse() != null
+                    && response.getResponse().body() != null
+                    && response.getResponse().body().contentLength() == 0) {
+                response.close();
             }
         }
 

@@ -4,6 +4,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.media.apis.ApiPfop;
+import com.qiniu.media.apis.ApiPrefop;
 import com.qiniu.storage.Api;
 import com.qiniu.storage.Configuration;
 import com.qiniu.util.Auth;
@@ -128,8 +129,7 @@ public final class OperationManager {
                 .setNotifyUrl(notifyUrl)
                 .setType(type);
         ApiPfop api = new ApiPfop(client, new Api.Config.Builder()
-                .setRequestDebugLevel(Api.Config.DebugLevelDetail)
-                .setResponseDebugLevel(Api.Config.DebugLevelDetail)
+                .setAuth(auth)
                 .build());
         ApiPfop.Response response = api.request(request);
         if (response == null) {
@@ -287,13 +287,24 @@ public final class OperationManager {
      * @throws QiniuException 异常
      */
     public <T> T prefop(String bucket, String persistentId, Class<T> retClass) throws QiniuException {
-        String url = String.format("%s/status/get/prefop?id=%s", configuration.apiHost(auth.accessKey, bucket), persistentId);
-        Response response = this.client.get(url);
-        if (!response.isOK()) {
-            throw new QiniuException(response);
+        String url = configuration.apiHost(auth.accessKey, bucket);
+        ApiPrefop.Request request = new ApiPrefop.Request(url, persistentId);
+        ApiPrefop api = new ApiPrefop(client,  new Api.Config.Builder()
+                .setAuth(auth)
+                .build());
+        ApiPrefop.Response response = api.request(request);
+        if (response == null) {
+            throw QiniuException.unrecoverable("unknown error");
         }
-        T object = response.jsonToObject(retClass);
-        response.close();
-        return object;
+        if (!response.isOK()) {
+            throw new QiniuException(response.getResponse());
+        }
+
+//        String url = String.format("%s/status/get/prefop?id=%s", configuration.apiHost(auth.accessKey, bucket), persistentId);
+//        Response response = this.client.get(url);
+//        if (!response.isOK()) {
+//            throw new QiniuException(response);
+//        }
+        return response.getResponse().jsonToObject(retClass);
     }
 }

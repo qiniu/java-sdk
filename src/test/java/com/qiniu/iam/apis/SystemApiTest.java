@@ -1,9 +1,6 @@
-package com.qiniu.apis;
+package com.qiniu.iam.apis;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.iam.apis.ApiGetActions;
-import com.qiniu.iam.apis.ApiGetAudits;
-import com.qiniu.iam.apis.ApiGetServices;
 import com.qiniu.storage.Api;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
