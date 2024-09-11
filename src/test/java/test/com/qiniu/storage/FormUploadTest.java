@@ -2,6 +2,8 @@ package test.com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
+import com.qiniu.processing.OperationManager;
+import com.qiniu.processing.OperationStatus;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UpCompletionHandler;
 import com.qiniu.storage.UploadManager;
@@ -26,6 +28,56 @@ import java.util.concurrent.TimeUnit;
 public class FormUploadTest {
 
     UploadManager uploadManager = new UploadManager(new Configuration());
+
+    @Test
+    @Tag("IntegrationTest")
+    void testUploadWithFop() {
+        TestConfig.TestFile file = TestConfig.getTestFileArray()[0];
+        final String expectKey = "test-fop";
+        final String bucket = file.getBucketName();
+
+        String persistentOpfs = String.format("%s:vframe_test_target.jpg", bucket);
+        StringMap policy = new StringMap();
+        policy.put("persistentOps", persistentOpfs);
+        policy.put("persistentType", 1);
+
+        Configuration config = new Configuration();
+        config.useHttpsDomains = true;
+
+        Response r = null;
+        try {
+            String token = TestConfig.testAuth.uploadToken(bucket, expectKey, 3600, policy);
+            UploadManager uploadManager = new UploadManager(config);
+            StringMap params = new StringMap().put("x:foo", "foo_val");
+            r = uploadManager.put("hello".getBytes(), expectKey, token, params, null, false);
+        } catch (QiniuException e) {
+            fail(e.toString());
+        }
+        assertEquals(200, r.statusCode);
+
+        StringMap map = null;
+        try {
+            map = r.jsonToMap();
+        } catch (QiniuException e) {
+            fail(e.toString());
+        }
+
+        assertNotNull(map, "1. testUploadWithFop error");
+
+        String persistentId = (String) map.get("persistentId");
+        assertNotNull(persistentId, "2. testUploadWithFop error");
+
+        try {
+            OperationManager operationManager = new OperationManager(TestConfig.testAuth, config);
+            OperationStatus status = operationManager.prefop(bucket, persistentId);
+            assertNotNull(status, "3. prefop type error");
+            assertNotNull(status.creationDate, "4. prefop type error");
+            assertTrue(status.code == 0 || status.code == 1 || status.code == 3, "5. prefop type error");
+            assertEquals(1, (int) status.type, "6. prefop type error");
+        } catch (QiniuException e) {
+            fail(e.toString());
+        }
+    }
 
     /**
      * hello上传测试
