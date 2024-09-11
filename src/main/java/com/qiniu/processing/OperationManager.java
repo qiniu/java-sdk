@@ -3,6 +3,8 @@ package com.qiniu.processing;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.media.apis.ApiPfop;
+import com.qiniu.storage.Api;
 import com.qiniu.storage.Configuration;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
@@ -86,19 +88,59 @@ public final class OperationManager {
      *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 相关链接 </a>
      */
     public String pfop(String bucket, String key, String fops, StringMap params) throws QiniuException {
-        params = params == null ? new StringMap() : params;
-        params.put("bucket", bucket).put("key", key).put("fops", fops);
-        byte[] data = StringUtils.utf8Bytes(params.formString());
-        String url = configuration.apiHost(auth.accessKey, bucket) + "/pfop/";
-        StringMap headers = auth.authorizationV2(url, "POST", data, Client.FormMime);
-        Response response = client.post(url, data, headers, Client.FormMime);
-        if (!response.isOK()) {
-            throw new QiniuException(response);
+        Integer force = null;
+        if (params.get("force") != null) {
+            if (params.get("force") instanceof Integer) {
+                force = (Integer) params.get("force");
+            } else {
+                throw QiniuException.unrecoverable("force type error, should be Integer");
+            }
         }
-        PfopResult status = response.jsonToObject(PfopResult.class);
-        response.close();
+        String pipeline = null;
+        if (params.get("pipeline") != null) {
+            if (params.get("pipeline") instanceof Integer) {
+                pipeline = (String) params.get("pipeline");
+            } else {
+                throw QiniuException.unrecoverable("pipeline type error, String be Integer");
+            }
+        }
+        String notifyUrl = null;
+        if (params.get("notifyURL") != null) {
+            if (params.get("notifyURL") instanceof String) {
+                notifyUrl = (String) params.get("notifyURL");
+            } else {
+                throw QiniuException.unrecoverable("notifyURL type error, should be String");
+            }
+        }
+        Integer type = null;
+        if (params.get("type") != null) {
+            if (params.get("type") instanceof Integer) {
+                type = (Integer) params.get("type");
+            } else {
+                throw QiniuException.unrecoverable("type type error, should be Integer");
+            }
+        }
+
+        String url = configuration.apiHost(auth.accessKey, bucket);
+        ApiPfop.Request request = new ApiPfop.Request(url, bucket, key, fops)
+                .setPipeline(pipeline)
+                .setForce(force)
+                .setNotifyUrl(notifyUrl)
+                .setType(type);
+        ApiPfop api = new ApiPfop(client, new Api.Config.Builder()
+                .setRequestDebugLevel(Api.Config.DebugLevelDetail)
+                .setResponseDebugLevel(Api.Config.DebugLevelDetail)
+                .build());
+        ApiPfop.Response response = api.request(request);
+        if (response == null) {
+            throw QiniuException.unrecoverable("unknown error");
+        }
+        if (!response.isOK()) {
+            throw new QiniuException(response.getResponse());
+        }
+        ApiPfop.Response.PfopId status = response.getData();
         if (status != null) {
-            return status.persistentId;
+            return status.getPersistentId();
         }
         return null;
     }
@@ -253,9 +295,5 @@ public final class OperationManager {
         T object = response.jsonToObject(retClass);
         response.close();
         return object;
-    }
-
-    private class PfopResult {
-        public String persistentId;
     }
 }
