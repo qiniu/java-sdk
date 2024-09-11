@@ -1,4 +1,4 @@
-package test.com.qiniu.iam.apis;
+package com.qiniu.apis;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.iam.apis.*;
@@ -21,7 +21,7 @@ public class GroupsApiTest {
 
     @Test
     @Tag("IntegrationTest")
-    public void testGroups() {
+    void testGroups() {
         // 先删除，流程开始先清理历史数据
         try {
             ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
@@ -222,6 +222,19 @@ public class GroupsApiTest {
             assertNotNull(groupUser.getLastLoginTime(), "11.9 列举群组的用户失败：" + getGroupUsersResponse);
             assertEquals(groupUser.getEnabled(), createUser.getEnabled(), "11.10 列举群组的用户失败：" + getGroupUsersResponse);
 
+            // 12 列举用户组指定服务操作下的可访问资源
+            String service = "cdn";
+            String actionAlias = "DownloadCDNLog";
+            ApiGetGroupServiceActionResources.Request getGroupServiceActionResourcesRequest = new ApiGetGroupServiceActionResources.Request(baseUrl, groupAlias, service, actionAlias);
+            ApiGetGroupServiceActionResources getGroupServiceActionResourcesApi = new ApiGetGroupServiceActionResources(null, config);
+            ApiGetGroupServiceActionResources.Response getGroupServiceActionResourcesResponse = getGroupServiceActionResourcesApi.request(getGroupServiceActionResourcesRequest);
+            assertNotNull(getGroupServiceActionResourcesResponse, "12 列举子用户指定服务操作下的可访问资源失败：" + getGroupServiceActionResourcesResponse);
+            assertTrue(getGroupServiceActionResourcesResponse.isOK(), "12.1 列举子用户指定服务操作下的可访问资源失败：" + getGroupServiceActionResourcesResponse);
+
+            ApiGetGroupServiceActionResources.Response.GetGroupServiceActionResources getGroupServiceActionResources = getGroupServiceActionResourcesResponse.getData().getData();
+            assertNotNull(getGroupServiceActionResources, "12.2 列举子用户指定服务操作下的可访问资源失败：" + getGroupServiceActionResources);
+            assertNotNull(getGroupServiceActionResources.getAllowedResources(), "12.3 列举子用户指定服务操作下的可访问资源失败：" + getGroupServiceActionResources);
+            assertNotNull(getGroupServiceActionResources.getDeniedResources(), "12.4 列举子用户指定服务操作下的可访问资源失败：" + getGroupServiceActionResources);
 
         } catch (QiniuException e) {
             throw new RuntimeException(e);

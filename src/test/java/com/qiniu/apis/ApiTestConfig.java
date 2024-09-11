@@ -1,4 +1,4 @@
-package test.com.qiniu.iam.apis;
+package com.qiniu.apis;
 
 import com.qiniu.storage.Api;
 import test.com.qiniu.TestConfig;

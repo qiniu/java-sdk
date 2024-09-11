@@ -1,4 +1,4 @@
-package test.com.qiniu.iam.apis;
+package com.qiniu.apis;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.iam.apis.*;
@@ -22,7 +22,7 @@ public class PolicyApiTest {
 
     @Test
     @Tag("IntegrationTest")
-    public void testPolicyApi() {
+    void testPolicyApi() {
         // 清理
         try {
             ApiDeletePolicy.Request deleteRequest = new ApiDeletePolicy.Request(baseUrl, policyAlias);

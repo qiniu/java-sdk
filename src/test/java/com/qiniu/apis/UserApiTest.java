@@ -1,13 +1,11 @@
-package test.com.qiniu.iam.apis;
+package com.qiniu.apis;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.iam.apis.*;
 import com.qiniu.storage.Api;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import test.com.qiniu.TestConfig;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,7 +20,7 @@ public class UserApiTest {
 
     @Test
     @Tag("IntegrationTest")
-    public void testUsers() {
+    void testUsers() {
         // 先删除，流程开始先清理历史数据
         try {
             ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
@@ -124,7 +122,7 @@ public class UserApiTest {
 
     @Test
     @Tag("IntegrationTest")
-    public void testUsersKeyPairs() {
+    void testUsersKeyPairs() {
 
         // 先删除，流程开始先清理历史数据
         try {
@@ -238,7 +236,7 @@ public class UserApiTest {
 
     @Test
     @Tag("IntegrationTest")
-    public void testUsersGroups() {
+    void testUsersGroups() {
         try {
             ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
             ApiDeleteUser deleteUserApi = new ApiDeleteUser(null, config);
@@ -309,7 +307,7 @@ public class UserApiTest {
 
     @Test
     @Tag("IntegrationTest")
-    public void testUsersPolicies() {
+    void testUsersPolicies() {
         try {
             ApiDeleteUser.Request deleteUserRequest = new ApiDeleteUser.Request(baseUrl, userAlias);
             ApiDeleteUser deleteUserApi = new ApiDeleteUser(null, config);
@@ -326,7 +324,22 @@ public class UserApiTest {
         }
 
         try {
-            // 0 创建用户的
+            ApiDeletePolicy.Request deleteRequest = new ApiDeletePolicy.Request(baseUrl, policyAlias + "New");
+            ApiDeletePolicy deleteApi = new ApiDeletePolicy(null, config);
+            deleteApi.request(deleteRequest);
+        } catch (QiniuException e) {
+        }
+
+        try {
+            ApiDeleteGroup.Request deleteGroupRequest = new ApiDeleteGroup.Request(baseUrl, groupAlias);
+            ApiDeleteGroup deleteGroupApi = new ApiDeleteGroup(null, config);
+            deleteGroupApi.request(deleteGroupRequest);
+        } catch (QiniuException e) {
+            // 删除失败时预期的
+        }
+
+        try {
+            // 0 创建用户
             ApiCreateUser.Request.CreateIamUserParam createUserParam = new ApiCreateUser.Request.CreateIamUserParam();
             createUserParam.setAlias(userAlias);
             createUserParam.setPassword(userPWD);
@@ -337,7 +350,7 @@ public class UserApiTest {
             assertEquals(createUserResponse.isOK(), true, "0.1 创建 User 失败：" + createUserResponse);
 
             // 1 创建用户的 Policy
-            String policyDesc = policyAlias + "Desc";
+            String policyDesc = policyAlias;
             String policyAction = "cdn/DownloadCDNLog";
             String policyEffect = "Allow";
             String policyResource = "qrn:product:::/a/b/c.txt";
@@ -357,20 +370,133 @@ public class UserApiTest {
             assertTrue(createPolicyResponse.isOK(), "1.1 创建 Policy 失败：" + createPolicyResponse);
 
             // 2 用户添加至 Policy
+            ApiModifyUserPolicies.Request.ModifiedIamUserPoliciesParam modifyUserPoliciesParam = new ApiModifyUserPolicies.Request.ModifiedIamUserPoliciesParam();
+            modifyUserPoliciesParam.setPolicyAliases(new String[]{policyAlias});
+            ApiModifyUserPolicies.Request modifyUserPoliciesRequest = new ApiModifyUserPolicies.Request(baseUrl, userAlias, modifyUserPoliciesParam);
+            ApiModifyUserPolicies modifyUserPoliciesApi = new ApiModifyUserPolicies(null, config);
+            ApiModifyUserPolicies.Response modifyUserPoliciesResponse = modifyUserPoliciesApi.request(modifyUserPoliciesRequest);
+            assertNotNull(modifyUserPoliciesResponse, "4. 更新用户添加的 Policy 失败：" + modifyUserPoliciesResponse);
+            assertTrue(modifyUserPoliciesResponse.isOK(), "4.1 更新用户添加的 Policy 失败：" + modifyUserPoliciesResponse);
+
 
             // 3 获取用户 Policy
+            ApiGetUserPolicies.Request getUserPoliciesRequest = new ApiGetUserPolicies.Request(baseUrl, userAlias);
+            getUserPoliciesRequest.setPage(1);
+            getUserPoliciesRequest.setPageSize(1);
+            ApiGetUserPolicies getUserPoliciesApi = new ApiGetUserPolicies(null, config);
+            ApiGetUserPolicies.Response getUserPoliciesResponse = getUserPoliciesApi.request(getUserPoliciesRequest);
+            assertNotNull(getUserPoliciesResponse, "3 获取用户 Policy 失败：" + getUserPoliciesResponse);
+            assertTrue(getUserPoliciesResponse.isOK(), "3.1 获取用户 Policy 失败：" + getUserPoliciesResponse);
 
-            // 4 更新用户添加至 Policy
+            ApiGetUserPolicies.Response.GetIamUserPolicy getUserPoliciesResponseData = getUserPoliciesResponse.getData().getData().getList()[0];
+            assertNotNull(getUserPoliciesResponseData.getId(), "3.2 获取用户 Policy 失败：" + createPolicyResponse);
+            assertNotNull(getUserPoliciesResponseData.getRootUid(), "3.3 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPoliciesResponseData.getAlias(), policyAlias, "3.4 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPoliciesResponseData.getDescription(), policyDesc, "3.5 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPoliciesResponseData.getEnabled(), true, "3.6 获取用户 Policy 失败：" + createPolicyResponse);
+            assertNotNull(getUserPoliciesResponseData.getUpdatedAt(), "3.7 获取用户 Policy 失败：" + createPolicyResponse);
+            assertNotNull(getUserPoliciesResponseData.getCreatedAt(), "3.8 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPoliciesResponseData.getStatement().length, 1, "3.9 获取用户 Policy 失败：" + createPolicyResponse);
+            ApiGetUserPolicies.Response.Statement getUserPolicyResponseStatement = getUserPoliciesResponseData.getStatement()[0];
+            assertEquals(getUserPolicyResponseStatement.getEffect(), policyEffect, "3.10 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPolicyResponseStatement.getActions()[0], policyAction, "3.11 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPolicyResponseStatement.getResources()[0], policyResource, "3.12 获取用户 Policy 失败：" + createPolicyResponse);
+
+            // 4 创建 Policy
+            policyAlias = policyAlias + "New";
+            policyDesc = policyDesc + "New";
+            policyAction = "cdn/DownloadCDNLog";
+            policyEffect = "Allow";
+            policyResource = "qrn:product:::/a/b/c.txt";
+            createStatement = new ApiCreatePolicy.Request.CreateStatement();
+            createStatement.setActions(new String[]{policyAction});
+            createStatement.setEffect(policyEffect);
+            createStatement.setResources(new String[]{policyResource});
+            createPolicyRequestParam = new ApiCreatePolicy.Request.CreatePolicyParam();
+            createPolicyRequestParam.setEditType(1);
+            createPolicyRequestParam.setAlias(policyAlias);
+            createPolicyRequestParam.setDescription(policyDesc);
+            createPolicyRequestParam.setStatement(new ApiCreatePolicy.Request.CreateStatement[]{createStatement});
+            createPolicyRequest = new ApiCreatePolicy.Request(baseUrl, createPolicyRequestParam);
+            createPolicyApi = new ApiCreatePolicy(null, config);
+            createPolicyResponse = createPolicyApi.request(createPolicyRequest);
+            assertNotNull(createPolicyResponse, "1. 创建 Policy 失败：" + createPolicyResponse);
+            assertTrue(createPolicyResponse.isOK(), "1.1 创建 Policy 失败：" + createPolicyResponse);
+
+            // 4 更新用户添加的 Policy
+            ApiUpdateUserPolicies.Request.UpdatedIamUserPoliciesParam updateUserPoliciesRequestParam = new ApiUpdateUserPolicies.Request.UpdatedIamUserPoliciesParam();
+            updateUserPoliciesRequestParam.setPolicyAliases(new String[]{policyAlias});
+            ApiUpdateUserPolicies.Request updateUserPoliciesRequest = new ApiUpdateUserPolicies.Request(baseUrl, userAlias, updateUserPoliciesRequestParam);
+            ApiUpdateUserPolicies updateUserPoliciesApi = new ApiUpdateUserPolicies(null, config);
+            ApiUpdateUserPolicies.Response updateUserPoliciesResponse = updateUserPoliciesApi.request(updateUserPoliciesRequest);
+            assertNotNull(updateUserPoliciesResponse, "2. 用户添加至 Policy 失败：" + updateUserPoliciesResponse);
+            assertTrue(updateUserPoliciesResponse.isOK(), "2.1 用户添加至 Policy 失败：" + updateUserPoliciesResponse);
 
             // 5 获取用户的 Policy（验证）
+            getUserPoliciesRequest = new ApiGetUserPolicies.Request(baseUrl, userAlias);
+            getUserPoliciesRequest.setPage(1);
+            getUserPoliciesRequest.setPageSize(1);
+            getUserPoliciesApi = new ApiGetUserPolicies(null, config);
+            getUserPoliciesResponse = getUserPoliciesApi.request(getUserPoliciesRequest);
+            assertNotNull(getUserPoliciesResponse, "5 获取用户 Policy 失败：" + getUserPoliciesResponse);
+            assertTrue(getUserPoliciesResponse.isOK(), "5.1 获取用户 Policy 失败：" + getUserPoliciesResponse);
+
+            getUserPoliciesResponseData = getUserPoliciesResponse.getData().getData().getList()[0];
+            assertNotNull(getUserPoliciesResponseData.getId(), "5.2 获取用户 Policy 失败：" + createPolicyResponse);
+            assertNotNull(getUserPoliciesResponseData.getRootUid(), "5.3 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPoliciesResponseData.getAlias(), policyAlias, "5.4 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPoliciesResponseData.getDescription(), policyDesc, "5.5 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPoliciesResponseData.getEnabled(), true, "5.6 获取用户 Policy 失败：" + createPolicyResponse);
+            assertNotNull(getUserPoliciesResponseData.getUpdatedAt(), "5.7 获取用户 Policy 失败：" + createPolicyResponse);
+            assertNotNull(getUserPoliciesResponseData.getCreatedAt(), "5.8 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPoliciesResponseData.getStatement().length, 1, "5.9 获取用户 Policy 失败：" + createPolicyResponse);
+            getUserPolicyResponseStatement = getUserPoliciesResponseData.getStatement()[0];
+            assertEquals(getUserPolicyResponseStatement.getEffect(), policyEffect, "5.10 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPolicyResponseStatement.getActions()[0], policyAction, "5.11 获取用户 Policy 失败：" + createPolicyResponse);
+            assertEquals(getUserPolicyResponseStatement.getResources()[0], policyResource, "5.12 获取用户 Policy 失败：" + createPolicyResponse);
 
             // 6 删除用户的 Policy
+            ApiDeleteUserPolicy.Request.DeletedIamUserPoliciesParam deleteUserPolicyRequestParam = new ApiDeleteUserPolicy.Request.DeletedIamUserPoliciesParam();
+            deleteUserPolicyRequestParam.setPolicyAliases(new String[]{policyAlias});
+            ApiDeleteUserPolicy.Request deleteUserPolicyRequest = new ApiDeleteUserPolicy.Request(baseUrl, userAlias, deleteUserPolicyRequestParam);
+            ApiDeleteUserPolicy deleteUserPolicyApi = new ApiDeleteUserPolicy(null, config);
+            ApiDeleteUserPolicy.Response deleteUserPolicyResponse = deleteUserPolicyApi.request(deleteUserPolicyRequest);
+            assertNotNull(getUserPoliciesResponse, "6 获取用户 Policy 失败：" + getUserPoliciesResponse);
+            assertTrue(getUserPoliciesResponse.isOK(), "6.1 获取用户 Policy 失败：" + getUserPoliciesResponse);
 
             // 7 获取用户的 Policy（验证）
+            getUserPoliciesRequest = new ApiGetUserPolicies.Request(baseUrl, userAlias);
+            getUserPoliciesRequest.setPage(1);
+            getUserPoliciesRequest.setPageSize(1);
+            getUserPoliciesApi = new ApiGetUserPolicies(null, config);
+            getUserPoliciesResponse = getUserPoliciesApi.request(getUserPoliciesRequest);
+            assertNotNull(getUserPoliciesResponse, "7 获取用户 Policy 失败：" + getUserPoliciesResponse);
+            assertTrue(getUserPoliciesResponse.isOK(), "7.1 获取用户 Policy 失败：" + getUserPoliciesResponse);
+            assertEquals(0, (int) getUserPoliciesResponse.getData().getData().getCount(), "7.2 获取用户 Policy 失败：" + getUserPoliciesResponse);
 
             // 8 获取用户的 Service
+            ApiGetUserAvailableServices.Request getUserAvailableServicesRequest = new ApiGetUserAvailableServices.Request(baseUrl, userAlias);
+            ApiGetUserAvailableServices getUserAvailableServicesApi = new ApiGetUserAvailableServices(null, config);
+            ApiGetUserAvailableServices.Response getUserAvailableServicesResponse = getUserAvailableServicesApi.request(getUserAvailableServicesRequest);
+            assertNotNull(getUserAvailableServicesResponse, "8 获取用户的 Service 失败：" + getUserAvailableServicesResponse);
+            assertTrue(getUserAvailableServicesResponse.isOK(), "8.1 获取用户的 Service 失败：" + getUserAvailableServicesResponse);
+            assertNotNull(getUserAvailableServicesResponse.getData().getData(), "8.2 获取用户的 Service 失败：" + getUserPoliciesResponse);
 
             // 9 列举子用户指定服务操作下的可访问资源
+            String service = "cdn";
+            String actionAlias = "DownloadCDNLog";
+            ApiGetUserServiceActionResources.Request getUserServiceActionResourcesRequest = new ApiGetUserServiceActionResources.Request(baseUrl, userAlias, service, actionAlias);
+            ApiGetUserServiceActionResources getUserServiceActionResourcesApi = new ApiGetUserServiceActionResources(null, config);
+            ApiGetUserServiceActionResources.Response getUserServiceActionResourcesResponse = getUserServiceActionResourcesApi.request(getUserServiceActionResourcesRequest);
+            assertNotNull(getUserServiceActionResourcesResponse, "9 列举子用户指定服务操作下的可访问资源失败：" + getUserServiceActionResourcesResponse);
+            assertTrue(getUserServiceActionResourcesResponse.isOK(), "9.1 列举子用户指定服务操作下的可访问资源失败：" + getUserServiceActionResourcesResponse);
+
+            ApiGetUserServiceActionResources.Response.GetIamUserServiceActionResources getUserServiceActionResources = getUserServiceActionResourcesResponse.getData().getData();
+            assertNotNull(getUserServiceActionResources, "9.2 列举子用户指定服务操作下的可访问资源失败：" + getUserServiceActionResourcesResponse);
+            assertNotNull(getUserServiceActionResources.getAllowedResources(), "9.3 列举子用户指定服务操作下的可访问资源失败：" + getUserServiceActionResourcesResponse);
+            assertNotNull(getUserServiceActionResources.getDeniedResources(), "9.4 列举子用户指定服务操作下的可访问资源失败：" + getUserServiceActionResourcesResponse);
+
+
         } catch (QiniuException e) {
             fail(e);
         }

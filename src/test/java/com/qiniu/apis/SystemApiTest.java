@@ -1,4 +1,4 @@
-package test.com.qiniu.iam.apis;
+package com.qiniu.apis;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.iam.apis.ApiGetActions;
@@ -17,7 +17,7 @@ public class SystemApiTest {
 
     @Test
     @Tag("IntegrationTest")
-    public void testAction() {
+    void testAction() {
         try {
             ApiGetActions.Request request = new ApiGetActions.Request(baseUrl);
             ApiGetActions api = new ApiGetActions(null, config);
@@ -43,7 +43,7 @@ public class SystemApiTest {
 
     @Test
     @Tag("IntegrationTest")
-    public void testService() {
+    void testService() {
         try {
             ApiGetServices.Request request = new ApiGetServices.Request(baseUrl);
             ApiGetServices api = new ApiGetServices(null, config);
@@ -60,7 +60,7 @@ public class SystemApiTest {
 
     @Test
     @Tag("IntegrationTest")
-    public void testAudits() {
+    void testAudits() {
         try {
             ApiGetAudits.Request request = new ApiGetAudits.Request(baseUrl);
             ApiGetAudits api = new ApiGetAudits(null, config);
