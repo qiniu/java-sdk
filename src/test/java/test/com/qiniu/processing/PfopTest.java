@@ -141,7 +141,7 @@ public class PfopTest {
 
     @Test
     @Tag("IntegrationTest")
-    void testPfopA() {
+    void testPfopWithType() {
         try {
             Auth auth = TestConfig.testAuth;
             Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
@@ -155,13 +155,13 @@ public class PfopTest {
 
                 Configuration cfg = new Configuration(region);
                 OperationManager operationManager = new OperationManager(auth, cfg);
-                String jobID = operationManager.pfop(bucket, TestConfig.testMp4FileKey, "avinfo", "", "", "1", true);
+                String jobID = operationManager.pfop(bucket, TestConfig.testMp4FileKey, "avinfo", "", "", 1, true);
 
                 OperationStatus status = operationManager.prefop(bucket, jobID);
                 assertNotNull(status, "1. prefop type error");
                 assertNotNull(status.creationDate, "1. prefop type error");
                 assertTrue(status.code == 0 || status.code == 1 || status.code == 3, "2. prefop type error");
-                assertEquals("1", status.type, "3. prefop type error");
+                assertEquals(1, (int) status.type, "3. prefop type error");
             }
 
         } catch (QiniuException ex) {

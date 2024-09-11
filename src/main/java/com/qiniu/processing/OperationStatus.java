@@ -45,7 +45,7 @@ public class OperationStatus {
      * 0：非闲时任务
      * 1：显示任务
      */
-    public String type;
+    public Integer type;
 
     /**
      * 任务创建时间
