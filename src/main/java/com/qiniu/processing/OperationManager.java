@@ -80,7 +80,7 @@ public final class OperationManager {
      * @param bucket 空间名
      * @param key    文件名
      * @param fops   fops指令，如果有多个指令，需要使用分号(;)进行拼接，例如 avthumb/mp4/xxx|saveas/xxx;vframe/jpg/xxx|saveas/xxx
-     * @param params notifyURL、force、pipeline 等参数
+     * @param params notifyURL、force、pipeline、type等参数
      * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
      * @throws QiniuException 触发失败异常，包含错误响应等信息
      *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 相关链接 </a>
@@ -154,8 +154,34 @@ public final class OperationManager {
      */
     public String pfop(String bucket, String key, String fops, String pipeline, String notifyURL, boolean force)
             throws QiniuException {
-        StringMap params = new StringMap().putNotEmpty("pipeline", pipeline).
-                putNotEmpty("notifyURL", notifyURL).putWhen("force", 1, force);
+        StringMap params = new StringMap()
+                .putNotEmpty("pipeline", pipeline)
+                .putNotEmpty("notifyURL", notifyURL)
+                .putWhen("force", 1, force);
+        return pfop(bucket, key, fops, params);
+    }
+
+    /**
+     * 发送请求对空间中的文件进行持久化处理
+     *
+     * @param bucket    空间名
+     * @param key       文件名
+     * @param fops      fop指令
+     * @param pipeline  持久化数据处理队列名称
+     * @param notifyURL 处理结果通知地址，任务完成后自动以POST方式将处理结果提交到指定的地址
+     * @param type      任务类型，0：非闲时任务，1：闲时任务
+     * @param force     用于对同一个指令进行强制处理时指定，一般用于覆盖空间已有文件或者重试失败的指令
+     * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
+     * @throws QiniuException 触发失败异常，包含错误响应等信息
+     *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 相关链接 </a>
+     */
+    public String pfop(String bucket, String key, String fops, String pipeline, String notifyURL, Integer type, boolean force)
+            throws QiniuException {
+        StringMap params = new StringMap()
+                .putNotNull("type", type)
+                .putNotEmpty("pipeline", pipeline)
+                .putNotEmpty("notifyURL", notifyURL)
+                .putWhen("force", 1, force);
         return pfop(bucket, key, fops, params);
     }
 

@@ -37,9 +37,14 @@ class ApiInterceptorRetryHosts extends Api.Interceptor {
         }
 
         String reqHost = request.getHost();
-        String firstHost = hostProvider.provider();
-        if (!hostProvider.isHostValid(reqHost) && !StringUtils.isNullOrEmpty(firstHost)) {
-            request.setHost(firstHost);
+        if (!hostProvider.isHostValid(reqHost)) {
+            // 支持不配置默认的 host，未配置则从 provider 中获取
+            String firstHost = hostProvider.provider();
+            if (!StringUtils.isNullOrEmpty(firstHost)) {
+                request.setHost(firstHost);
+            } else {
+                throw QiniuException.unrecoverable("no host provide");
+            }
         }
 
         if (retryMax == 0) {
