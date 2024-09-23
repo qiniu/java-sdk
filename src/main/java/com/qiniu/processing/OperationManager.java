@@ -253,14 +253,7 @@ public final class OperationManager {
      */
     @Deprecated
     public <T> T prefop(String persistentId, Class<T> retClass) throws QiniuException {
-        String url = String.format("%s/status/get/prefop?id=%s", configuration.apiHost(), persistentId);
-        Response response = this.client.get(url);
-        if (!response.isOK()) {
-            throw new QiniuException(response);
-        }
-        T object = response.jsonToObject(retClass);
-        response.close();
-        return object;
+        return prefop(null, persistentId, retClass);
     }
 
     /**
@@ -287,9 +280,15 @@ public final class OperationManager {
      * @throws QiniuException 异常
      */
     public <T> T prefop(String bucket, String persistentId, Class<T> retClass) throws QiniuException {
-        String url = configuration.apiHost(auth.accessKey, bucket);
+        String url = null;
+        if (!StringUtils.isNullOrEmpty(bucket)) {
+            url = configuration.apiHost(auth.accessKey, bucket);
+        } else {
+            url = configuration.apiHost();
+        }
+
         ApiPrefop.Request request = new ApiPrefop.Request(url, persistentId);
-        ApiPrefop api = new ApiPrefop(client,  new Api.Config.Builder()
+        ApiPrefop api = new ApiPrefop(client, new Api.Config.Builder()
                 .setAuth(auth)
                 .build());
         ApiPrefop.Response response = api.request(request);
@@ -300,11 +299,6 @@ public final class OperationManager {
             throw new QiniuException(response.getResponse());
         }
 
-//        String url = String.format("%s/status/get/prefop?id=%s", configuration.apiHost(auth.accessKey, bucket), persistentId);
-//        Response response = this.client.get(url);
-//        if (!response.isOK()) {
-//            throw new QiniuException(response);
-//        }
         return response.getResponse().jsonToObject(retClass);
     }
 }
