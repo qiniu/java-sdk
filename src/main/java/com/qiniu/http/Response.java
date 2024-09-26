@@ -85,6 +85,20 @@ public final class Response {
         return method;
     }
 
+
+    /***
+     * 构造请求方法，此处可能会尝试读取 body，如果 body 读取失败会保留原始的
+     * 状态码，因此判断请求是否成功使用 Response.isOK()
+     * <p>
+     * SDK 内部处理：
+     * 同步请求，请求失败会抛异常
+     * 异步请求，判断请求是否成功使用 Response.isOK()
+     *
+     * @param response okhttp3 请求 response
+     * @param address 请求 address
+     * @param duration 请求耗时
+     * @return com.qiniu.http.Response 七牛 Response
+     **/
     public static Response create(okhttp3.Response response, String address, double duration) {
         String error = null;
         int code = response.code();
