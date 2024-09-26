@@ -5,6 +5,7 @@ import com.qiniu.http.Response;
 import com.qiniu.processing.OperationManager;
 import com.qiniu.processing.OperationStatus;
 import com.qiniu.storage.Configuration;
+import com.qiniu.storage.Region;
 import com.qiniu.storage.UpCompletionHandler;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.StringMap;
@@ -90,6 +91,54 @@ public class FormUploadTest {
             Configuration config = new Configuration(file.getRegion());
             UploadManager uploadManager = new UploadManager(config);
             hello(uploadManager, file.getBucketName());
+        }
+    }
+
+    @Test
+    @Tag("IntegrationTest")
+    public void testEmptyUploadHosts() {
+        Region region = new Region.Builder()
+                .build();
+        Configuration config = new Configuration(region);
+        UploadManager uploadManager = new UploadManager(config);
+        try {
+            String key = "empty_upload_hosts";
+            String token = TestConfig.testAuth.uploadToken(TestConfig.testBucket_na0, key);
+            Response response = uploadManager.put("".getBytes(), key, token, null, "", true);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        region = new Region.Builder()
+                .srcUpHost("aaa")
+                .build();
+        config = new Configuration(region);
+        uploadManager = new UploadManager(config);
+        try {
+            String key = "empty_upload_hosts";
+            String token = TestConfig.testAuth.uploadToken(TestConfig.testBucket_na0, key);
+            Response response = uploadManager.put("".getBytes(), key, token, null, "", true);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        region = new Region.Builder()
+                .accUpHost("aaa")
+                .build();
+        config = new Configuration(region);
+        uploadManager = new UploadManager(config);
+        try {
+            String key = "empty_upload_hosts";
+            String token = TestConfig.testAuth.uploadToken(TestConfig.testBucket_na0, key);
+            Response response = uploadManager.put("".getBytes(), key, token, null, "", true);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            fail(e);
         }
     }
 

@@ -506,6 +506,13 @@ public class Region implements Cloneable {
          * @return 区域信息
          */
         public Region build() {
+            if (region.srcUpHosts == null) {
+                region.srcUpHosts = new ArrayList<>();
+            }
+            if (region.accUpHosts == null) {
+                region.accUpHosts = new ArrayList<>();
+            }
+
             return region;
         }
     }

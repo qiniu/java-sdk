@@ -1,6 +1,7 @@
 package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
+import com.qiniu.util.StringUtils;
 
 import java.util.*;
 
@@ -32,11 +33,15 @@ class UpHostHelper {
         try {
             accHosts = region.getAccUpHost(regionReqInfo);
             srcHosts = region.getSrcUpHost(regionReqInfo);
-        } catch (QiniuException e) { // it will success soon.
+        } catch (Exception e) { // it will success soon.
             if (mustReturnUpHost && conf.useDefaultUpHostIfNone) {
                 return failedUpHost("failed_get_region");
             } else {
-                throw e;
+                if (e instanceof QiniuException) {
+                    throw e;
+                } else {
+                    throw QiniuException.unrecoverable(e);
+                }
             }
         }
 
@@ -50,7 +55,7 @@ class UpHostHelper {
         return regionHost.upHost(accHosts, srcHosts, lastUsedHost, changeHost);
     }
 
-    private String failedUpHost(String regionKey) {
+    private String failedUpHost(String regionKey) throws QiniuException {
         List<String> srcHosts;
         List<String> accHosts;
 
@@ -75,42 +80,44 @@ class UpHostHelper {
             srcHosts = regionHost.lastSrcHosts;
             accHosts = regionHost.lastAccHosts;
         }
-        String host = regionHost.upHost(accHosts, srcHosts, null, false);
-        return host;
+        return regionHost.upHost(accHosts, srcHosts, null, false);
     }
 
 
     String getRegionKey(List<String> srcHosts, List<String> accHosts) {
         String host = null;
         String lhost = null;
-        for (String a : srcHosts) {
-            if (host == null) {
-                host = a;
-                lhost = a;
+
+        if (srcHosts != null) {
+            for (String a : srcHosts) {
+                if (host == null) {
+                    host = a;
+                    lhost = a;
+                }
+                if (a.length() < host.length()) {
+                    host = a;
+                }
+                if (a.length() > lhost.length()) {
+                    lhost = a;
+                }
             }
-            if (a.length() < host.length()) {
-                host = a;
-            }
-            if (a.length() > lhost.length()) {
-                lhost = a;
-            }
-        }
-        if (host != null) {
-            return host + ";+=-_" + lhost;
         }
 
-        for (String a : accHosts) {
-            if (host == null) {
-                host = a;
-                lhost = a;
-            }
-            if (a.length() < host.length()) {
-                host = a;
-            }
-            if (a.length() > lhost.length()) {
-                lhost = a;
+        if (host == null && accHosts != null) {
+            for (String a : accHosts) {
+                if (host == null) {
+                    host = a;
+                    lhost = a;
+                }
+                if (a.length() < host.length()) {
+                    host = a;
+                }
+                if (a.length() > lhost.length()) {
+                    lhost = a;
+                }
             }
         }
+
         return host + ";+=-_" + lhost;
     }
 
@@ -126,6 +133,14 @@ class UpHostHelper {
         volatile String lastHost;
 
         private void initHostMark(List<String> f, List<String> s) {
+            if (f == null) {
+                f = new ArrayList<>();
+            }
+
+            if (s == null) {
+                s = new ArrayList<>();
+            }
+
             ArrayList<String> _lastHosts = new ArrayList<>();
             int _mainHostCount = 0;
 
@@ -181,7 +196,12 @@ class UpHostHelper {
             }
         }
 
-        String upHost(List<String> accHosts, List<String> srcHosts, String lastUsedHost, boolean changeHost) {
+        String upHost(List<String> accHosts, List<String> srcHosts, String lastUsedHost, boolean changeHost) throws QiniuException {
+            if ((accHosts == null || accHosts.isEmpty()) &&
+                    (srcHosts == null || srcHosts.isEmpty())) {
+                throw QiniuException.unrecoverable("no up host found");
+            }
+
             if (lastAccHosts != accHosts || lastSrcHosts != srcHosts) {
                 lastAccHosts = accHosts;
                 lastSrcHosts = srcHosts;
