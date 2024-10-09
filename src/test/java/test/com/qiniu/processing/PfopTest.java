@@ -8,6 +8,7 @@ import com.qiniu.processing.OperationStatus;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import com.qiniu.util.StringUtils;
 import com.qiniu.util.UrlSafeBase64;
 import org.junit.jupiter.api.Tag;
@@ -162,6 +163,41 @@ public class PfopTest {
                 assertNotNull(status.creationDate, "1. prefop type error");
                 assertTrue(status.code == 0 || status.code == 1 || status.code == 3, "2. prefop type error");
                 assertEquals(1, (int) status.type, "3. prefop type error");
+            }
+
+        } catch (QiniuException ex) {
+            ex.printStackTrace();
+            assertTrue(ResCode.find(ex.code(), ResCode.getPossibleResCode(612)));
+        }
+    }
+
+    @Test
+    @Tag("IntegrationTest")
+    void testPfopWithTemplate() {
+        try {
+            Auth auth = TestConfig.testAuth;
+            Map<String, Region> bucketKeyMap = new HashMap<String, Region>();
+            TestConfig.TestFile[] files = TestConfig.getTestFileArray();
+            for (TestConfig.TestFile testFile : files) {
+                bucketKeyMap.put(testFile.getBucketName(), testFile.getRegion());
+            }
+
+            String templateId = "java-sdk-test-template";
+            for (Map.Entry<String, Region> entry : bucketKeyMap.entrySet()) {
+                String bucket = entry.getKey();
+                Region region = entry.getValue();
+
+                Configuration cfg = new Configuration(region);
+                OperationManager operationManager = new OperationManager(auth, cfg);
+                StringMap params = new StringMap();
+                params.put("persistentWorkflowTemplateID", templateId);
+                String jobID = operationManager.pfop(bucket, TestConfig.testMp4FileKey, params);
+
+                OperationStatus status = operationManager.prefop(bucket, jobID);
+                assertNotNull(status, "1. prefop type error");
+                assertNotNull(status.creationDate, "1. prefop type error");
+                assertTrue(status.code == 0 || status.code == 1 || status.code == 3, "2. prefop type error");
+                assertNotNull(status.taskFrom, "34. prefop type error");
             }
 
         } catch (QiniuException ex) {

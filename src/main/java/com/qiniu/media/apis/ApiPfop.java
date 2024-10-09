@@ -62,7 +62,7 @@ public class ApiPfop extends Api {
         /**
          * 数据处理命令列表，以 `;` 分隔，可以指定多个数据处理命令
          */
-        private String fops;
+        private String fops = null;
     
         /**
          * 处理结果通知接收 URL
@@ -85,21 +85,35 @@ public class ApiPfop extends Api {
         private String pipeline = null;
     
         /**
+         * 工作流模板 ID
+         */
+        private String workflowTemplateId = null;
+    
+        /**
          * 请求构造函数
          *
          * @param urlPrefix 请求 scheme + host 【可选】
          *                  若为空则会直接从 HostProvider 中获取
          * @param bucketName 空间名称 【必须】
          * @param objectName 对象名称 【必须】
-         * @param fops 数据处理命令列表，以 `;` 分隔，可以指定多个数据处理命令 【必须】
          */
-        public Request(String urlPrefix, String bucketName, String objectName, String fops) {
+        public Request(String urlPrefix, String bucketName, String objectName) {
             super(urlPrefix);
             this.setMethod(MethodType.POST);
             this.setAuthType(AuthTypeQiniu);
             this.bucketName = bucketName;
             this.objectName = objectName;
+        }
+    
+        /**
+         * 设置参数【可选】
+         *
+         * @param fops 数据处理命令列表，以 `;` 分隔，可以指定多个数据处理命令
+         * @return Request
+         */
+        public Request setFops(String fops) {
             this.fops = fops;
+            return this;
         }
     
         /**
@@ -146,6 +160,17 @@ public class ApiPfop extends Api {
             return this;
         }
     
+        /**
+         * 设置参数【可选】
+         *
+         * @param workflowTemplateId 工作流模板 ID
+         * @return Request
+         */
+        public Request setWorkflowTemplateId(String workflowTemplateId) {
+            this.workflowTemplateId = workflowTemplateId;
+            return this;
+        }
+    
         @Override
         protected void prepareToRequest() throws QiniuException {
             if (this.bucketName == null) {
@@ -153,9 +178,6 @@ public class ApiPfop extends Api {
             }
             if (this.objectName == null) {
                 throw new QiniuException(new NullPointerException("objectName can't empty"));
-            }
-            if (this.fops == null) {
-                throw new QiniuException(new NullPointerException("fops can't empty"));
             }
     
             super.prepareToRequest();
@@ -184,7 +206,9 @@ public class ApiPfop extends Api {
             StringMap fields = new StringMap();
             fields.put("bucket", this.bucketName);
             fields.put("key", this.objectName);
-            fields.put("fops", this.fops);
+            if (this.fops != null) {
+                fields.put("fops", this.fops);
+            }
             if (this.notifyUrl != null) {
                 fields.put("notifyURL", this.notifyUrl);
             }
@@ -196,6 +220,9 @@ public class ApiPfop extends Api {
             }
             if (this.pipeline != null) {
                 fields.put("pipeline", this.pipeline);
+            }
+            if (this.workflowTemplateId != null) {
+                fields.put("workflowTemplateID", this.workflowTemplateId);
             }
             this.setFormBody(fields);
     

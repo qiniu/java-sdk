@@ -288,6 +288,12 @@ public class ApiPrefop extends Api {
             private String pipeline;
         
             /**
+             * 如果没有，则表示通过 `api+fops` 命令提交的任务，否则遵循规则 `<source>: <source_id>`，其中 `<source>` 当前可选 `workflow` 或 `trigger`
+             */
+            @SerializedName("taskFrom")
+            private String taskFrom;
+        
+            /**
              * 云处理请求的请求 ID
              */
             @SerializedName("reqid")
@@ -369,6 +375,16 @@ public class ApiPrefop extends Api {
              */
             public String getPipeline() {
                 return this.pipeline;
+            }
+        
+            /**
+             * 获取变量值
+             * 如果没有，则表示通过 `api+fops` 命令提交的任务，否则遵循规则 `<source>: <source_id>`，其中 `<source>` 当前可选 `workflow` 或 `trigger`
+             *
+             * @return taskFrom
+             */
+            public String getTaskFrom() {
+                return this.taskFrom;
             }
         
             /**

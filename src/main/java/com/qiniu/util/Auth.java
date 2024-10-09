@@ -52,6 +52,7 @@ public final class Auth {
             "persistentOps",
             "persistentNotifyUrl",
             "persistentPipeline",
+            "persistentWorkflowTemplateID",
 
             "deleteAfterDays",
             "fileType",

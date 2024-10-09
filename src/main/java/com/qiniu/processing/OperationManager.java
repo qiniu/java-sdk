@@ -83,12 +83,30 @@ public final class OperationManager {
      * @param bucket 空间名
      * @param key    文件名
      * @param fops   fops指令，如果有多个指令，需要使用分号(;)进行拼接，例如 avthumb/mp4/xxx|saveas/xxx;vframe/jpg/xxx|saveas/xxx
-     * @param params notifyURL、force、pipeline、type等参数
+     * @param params notifyURL、force、pipeline、type、persistentWorkflowTemplateID等参数
      * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
      * @throws QiniuException 触发失败异常，包含错误响应等信息
      *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 相关链接 </a>
      */
     public String pfop(String bucket, String key, String fops, StringMap params) throws QiniuException {
+        if (params == null) {
+            params = new StringMap();
+        }
+        params.put("fops", fops);
+        return pfop(bucket, key, params);
+    }
+
+    /**
+     * 发送请求对空间中的文件进行持久化处理
+     *
+     * @param bucket 空间名
+     * @param key    文件名
+     * @param params notifyURL、force、pipeline、type、fops、persistentWorkflowTemplateID 等参数
+     * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
+     * @throws QiniuException 触发失败异常，包含错误响应等信息
+     *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 相关链接 </a>
+     */
+    public String pfop(String bucket, String key, StringMap params) throws QiniuException {
         Integer force = null;
         if (params.get("force") != null) {
             if (params.get("force") instanceof Integer) {
@@ -121,9 +139,27 @@ public final class OperationManager {
                 throw QiniuException.unrecoverable("type type error, should be Integer");
             }
         }
+        String fops = null;
+        if (params.get("fops") != null) {
+            if (params.get("fops") instanceof String) {
+                fops = (String) params.get("fops");
+            } else {
+                throw QiniuException.unrecoverable("fops type error, should be String");
+            }
+        }
+        String workflowTemplateID = null;
+        if (params.get("persistentWorkflowTemplateID") != null) {
+            if (params.get("persistentWorkflowTemplateID") instanceof String) {
+                workflowTemplateID = (String) params.get("persistentWorkflowTemplateID");
+            } else {
+                throw QiniuException.unrecoverable("persistentWorkflowTemplateID type error, should be String");
+            }
+        }
 
         String url = configuration.apiHost(auth.accessKey, bucket);
-        ApiPfop.Request request = new ApiPfop.Request(url, bucket, key, fops)
+        ApiPfop.Request request = new ApiPfop.Request(url, bucket, key)
+                .setFops(fops)
+                .setWorkflowTemplateId(workflowTemplateID)
                 .setPipeline(pipeline)
                 .setForce(force)
                 .setNotifyUrl(notifyUrl)
