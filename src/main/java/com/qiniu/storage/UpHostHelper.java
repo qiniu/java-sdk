@@ -196,8 +196,8 @@ class UpHostHelper {
         }
 
         String upHost(List<String> accHosts, List<String> srcHosts, String lastUsedHost, boolean changeHost) throws QiniuException {
-            if ((accHosts == null || accHosts.isEmpty()) &&
-                    (srcHosts == null || srcHosts.isEmpty())) {
+            if ((accHosts == null || accHosts.isEmpty())
+                    && (srcHosts == null || srcHosts.isEmpty())) {
                 throw QiniuException.unrecoverable("no up host found");
             }
 

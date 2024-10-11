@@ -14,4 +14,8 @@ public class ApiTestConfig {
             .setRequestDebugLevel(Api.Config.DebugLevelDetail)
             .setResponseDebugLevel(Api.Config.DebugLevelDetail)
             .build();
+
+    private ApiTestConfig() {
+    }
+
 }
