@@ -49,8 +49,8 @@ public class OperationStatus {
 
     /**
      * 是否是闲时任务
-     * 0：非闲时任务
-     * 1：显示任务
+     * null 或 0：非闲时任务
+     * 1：闲时任务
      */
     public Integer type;
 
