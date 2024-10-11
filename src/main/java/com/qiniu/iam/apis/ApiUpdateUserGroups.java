@@ -10,7 +10,7 @@ import com.qiniu.util.Json;
 
 
 /**
-  * 为用户重新分配分组
+ * 为用户重新分配分组
  */
 public class ApiUpdateUserGroups extends Api {
 
@@ -48,24 +48,24 @@ public class ApiUpdateUserGroups extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 子账号别名
          */
         private String alias;
-    
+
         /**
          * 为用户重新分配分组参数
          */
         private UpdatedIamUserGroupsParam data;
-    
+
         /**
          * 请求构造函数
          *
          * @param urlPrefix 请求 scheme + host 【可选】
          *                  若为空则会直接从 HostProvider 中获取
-         * @param alias 子账号别名 【必须】
-         * @param data 为用户重新分配分组参数 【必须】
+         * @param alias     子账号别名 【必须】
+         * @param data      为用户重新分配分组参数 【必须】
          */
         public Request(String urlPrefix, String alias, UpdatedIamUserGroupsParam data) {
             super(urlPrefix);
@@ -74,7 +74,7 @@ public class ApiUpdateUserGroups extends Api {
             this.alias = alias;
             this.data = data;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
             if (this.alias == null) {
@@ -83,10 +83,10 @@ public class ApiUpdateUserGroups extends Api {
             if (this.data == null) {
                 throw new QiniuException(new NullPointerException("data can't empty"));
             }
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/users");
@@ -94,38 +94,38 @@ public class ApiUpdateUserGroups extends Api {
             addPathSegment("groups");
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
             byte[] body = Json.encode(this.data).getBytes(Constants.UTF_8);
             this.setBody(body, 0, body.length, Client.JsonMime);
-    
+
             super.buildBodyInfo();
         }
-            
+
         /**
-          * 为用户重新分配分组参数
-          */
+         * 为用户重新分配分组参数
+         */
         public static final class UpdatedIamUserGroupsParam {
-        
+
             /**
              * 分组别名集合
              */
             @SerializedName("group_aliases")
             private String[] groupAliases;
-        
+
             /**
              * 设置变量值
              *
@@ -143,10 +143,10 @@ public class ApiUpdateUserGroups extends Api {
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
         }
-        
+
     }
 }

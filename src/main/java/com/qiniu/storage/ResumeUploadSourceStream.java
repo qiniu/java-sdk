@@ -6,10 +6,10 @@ import java.util.LinkedList;
 
 public class ResumeUploadSourceStream extends ResumeUploadSource {
 
-    private long readOffset = 0;
-    private boolean isAllDataRead;
     private final InputStream inputStream;
     private final String fileName;
+    private long readOffset = 0;
+    private boolean isAllDataRead;
 
     ResumeUploadSourceStream(InputStream inputStream, Configuration config, String recordKey, String fileName) {
         super(config, recordKey);

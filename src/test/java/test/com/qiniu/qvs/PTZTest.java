@@ -3,16 +3,16 @@ package test.com.qiniu.qvs;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.PTZManager;
 import com.qiniu.util.Auth;
-import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
+import test.com.qiniu.TestConfig;
 
 public class PTZTest {
-    Auth auth = TestConfig.testAuth;
-    private PTZManager ptzManager;
-    private Response res = null;
     private final String namespaceId = "3nm4x1e0xw855";
     private final String gbId = "31011500991320007536";
     private final String chId = "";
+    Auth auth = TestConfig.testAuth;
+    private PTZManager ptzManager;
+    private Response res = null;
     private String name = "" + System.currentTimeMillis();
 
     @BeforeEach

@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SmsTest {
     private SmsManager smsManager;
     private String mobile = ""; // 一国内手机号
-    private String[] mobiles = new String[] { mobile };
+    private String[] mobiles = new String[]{mobile};
 
     /**
      * 初始化
@@ -133,7 +133,7 @@ public class SmsTest {
     public void testCreateSignature() {
         try {
             Response response = smsManager.createSignature("signature", "app",
-                    new String[] { "data:image/gif;base64,xxxxxxxxxx" });
+                    new String[]{"data:image/gif;base64,xxxxxxxxxx"});
             assertNotNull(response);
         } catch (QiniuException e) {
             assertTrue(ResCode.find(e.code(), ResCode.getPossibleResCode(401)));

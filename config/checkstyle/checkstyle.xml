@@ -28,14 +28,14 @@
 
 
     <module name="TreeWalker">
-        <module name="SuppressionCommentFilter" />
+        <module name="SuppressionCommentFilter"/>
         <!-- Checks for Javadoc comments.                     -->
         <!-- See http://checkstyle.sf.net/config_javadoc.html -->
         <!--module name="JavadocMethod"/-->
         <!--module name="JavadocType"/-->
         <!--module name="JavadocVariable"/-->
         <module name="JavadocStyle">
-            <property name="checkFirstSentence" value="false" />
+            <property name="checkFirstSentence" value="false"/>
         </module>
 
 

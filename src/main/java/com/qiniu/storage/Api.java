@@ -177,6 +177,10 @@ public class Api {
         return new Response(requestWithInterceptor(request));
     }
 
+    interface Handler {
+        Response handle(Request request) throws QiniuException;
+    }
+
     public static final class Config {
 
         public static final int DebugLevelNone = ApiInterceptorDebug.LevelPrintNone;
@@ -629,6 +633,18 @@ public class Api {
         }
 
         /**
+         * 设置 Http 请求方式
+         *
+         * @param method Http 请求方式
+         */
+        protected void setMethod(MethodType method) {
+            if (method == null) {
+                return;
+            }
+            this.method = method;
+        }
+
+        /**
          * 获取 url 的 path 信息
          *
          * @return path 信息
@@ -652,7 +668,6 @@ public class Api {
                 path = "/" + path;
             }
         }
-
 
         /**
          * 增加 query 键值对
@@ -719,18 +734,6 @@ public class Api {
             }
 
             query = builder.toString();
-        }
-
-        /**
-         * 设置 Http 请求方式
-         *
-         * @param method Http 请求方式
-         */
-        protected void setMethod(MethodType method) {
-            if (method == null) {
-                return;
-            }
-            this.method = method;
         }
 
         /**
@@ -989,6 +992,21 @@ public class Api {
              * Key of this <code>Pair</code>.
              */
             private K key;
+            /**
+             * Value of this this <code>Pair</code>.
+             */
+            private V value;
+
+            /**
+             * Creates a new pair
+             *
+             * @param key   The key for this pair
+             * @param value The value to use for this pair
+             */
+            protected Pair(K key, V value) {
+                this.key = key;
+                this.value = value;
+            }
 
             /**
              * Gets the key for this pair.
@@ -1000,28 +1018,12 @@ public class Api {
             }
 
             /**
-             * Value of this this <code>Pair</code>.
-             */
-            private V value;
-
-            /**
              * Gets the value for this pair.
              *
              * @return value for this pair
              */
             V getValue() {
                 return value;
-            }
-
-            /**
-             * Creates a new pair
-             *
-             * @param key   The key for this pair
-             * @param value The value to use for this pair
-             */
-            protected Pair(K key, V value) {
-                this.key = key;
-                this.value = value;
             }
 
             /**
@@ -1118,6 +1120,14 @@ public class Api {
                 private final int length;
                 private final String contentType;
 
+                private BytesBody(byte[] bytes, int offset, int length, String contentType) {
+                    this.bytes = bytes;
+                    this.offset = offset;
+                    this.length = length;
+                    this.contentType = contentType;
+                    this.body = createByteRequestBody(this);
+                }
+
                 private static BytesBody empty() {
                     return new BytesBody(new byte[0], 0, 0, Client.DefaultMime);
                 }
@@ -1125,14 +1135,6 @@ public class Api {
                 private static RequestBody createByteRequestBody(BytesBody bytesBody) {
                     MediaType ct = MediaType.parse(bytesBody.contentType);
                     return RequestBody.create(ct, bytesBody.bytes, bytesBody.offset, bytesBody.length);
-                }
-
-                private BytesBody(byte[] bytes, int offset, int length, String contentType) {
-                    this.bytes = bytes;
-                    this.offset = offset;
-                    this.length = length;
-                    this.contentType = contentType;
-                    this.body = createByteRequestBody(this);
                 }
 
                 @Override
@@ -1175,8 +1177,17 @@ public class Api {
 
             private static final class FormBody extends Body {
 
-                private byte[] bytes;
                 private final StringMap fields;
+                private byte[] bytes;
+
+                private FormBody(StringMap fields) {
+                    this.fields = fields;
+                    try {
+                        this.setupBody();
+                    } catch (QiniuException e) {
+                        e.printStackTrace();
+                    }
+                }
 
                 private static okhttp3.FormBody createFormRequestBody(FormBody formBody) {
                     final okhttp3.FormBody.Builder builder = new okhttp3.FormBody.Builder();
@@ -1189,15 +1200,6 @@ public class Api {
                         });
                     }
                     return builder.build();
-                }
-
-                private FormBody(StringMap fields) {
-                    this.fields = fields;
-                    try {
-                        this.setupBody();
-                    } catch (QiniuException e) {
-                        e.printStackTrace();
-                    }
                 }
 
                 private void setupBody() throws QiniuException {
@@ -1234,10 +1236,38 @@ public class Api {
                 private final String name;
                 private final String fileName;
                 private final StringMap fields;
-                private byte[] bytes;
-                private byte[] bytesBody;
                 private final File fileBody;
                 private final String bodyContentType;
+                private byte[] bytes;
+                private byte[] bytesBody;
+
+                private MultipartBody(String name, String fileName, StringMap fields, byte[] body, String bodyContentType) {
+                    this.bodyContentType = bodyContentType;
+                    this.name = name;
+                    this.fileName = fileName;
+                    this.fields = fields;
+                    this.bytesBody = body;
+                    this.fileBody = null;
+                    try {
+                        this.setupBody();
+                    } catch (QiniuException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                private MultipartBody(String name, String fileName, StringMap fields, File body, String bodyContentType) {
+                    this.name = name;
+                    this.fileName = fileName;
+                    this.fields = fields;
+                    this.bodyContentType = bodyContentType;
+                    this.bytesBody = null;
+                    this.fileBody = body;
+                    try {
+                        this.setupBody();
+                    } catch (QiniuException e) {
+                        e.printStackTrace();
+                    }
+                }
 
                 private static okhttp3.MultipartBody createFormRequestBody(MultipartBody formBody) {
                     MediaType contentType = MediaType.parse(formBody.bodyContentType);
@@ -1267,34 +1297,6 @@ public class Api {
                     b.setType(MediaType.parse("multipart/form-data"));
 
                     return b.build();
-                }
-
-                private MultipartBody(String name, String fileName, StringMap fields, byte[] body, String bodyContentType) {
-                    this.bodyContentType = bodyContentType;
-                    this.name = name;
-                    this.fileName = fileName;
-                    this.fields = fields;
-                    this.bytesBody = body;
-                    this.fileBody = null;
-                    try {
-                        this.setupBody();
-                    } catch (QiniuException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                private MultipartBody(String name, String fileName, StringMap fields, File body, String bodyContentType) {
-                    this.name = name;
-                    this.fileName = fileName;
-                    this.fields = fields;
-                    this.bodyContentType = bodyContentType;
-                    this.bytesBody = null;
-                    this.fileBody = body;
-                    try {
-                        this.setupBody();
-                    } catch (QiniuException e) {
-                        e.printStackTrace();
-                    }
                 }
 
                 private void setupBody() throws QiniuException {
@@ -1334,26 +1336,23 @@ public class Api {
         }
     }
 
-
     /**
      * api 响应基类
      */
     public static class Response {
 
         /**
+         * 原响应结果
+         */
+        private final com.qiniu.http.Response response;
+        /**
          * 响应数据
          */
         private StringMap dataMap;
-
         /**
          * 响应数据
          */
         private Object[] dataArray;
-
-        /**
-         * 原响应结果
-         */
-        private final com.qiniu.http.Response response;
 
         /**
          * 构建 Response
@@ -1491,11 +1490,6 @@ public class Api {
             }
             return ApiUtils.getValueFromMap(dataMap.map(), keyPath);
         }
-    }
-
-
-    interface Handler {
-        Response handle(Request request) throws QiniuException;
     }
 
     abstract static class Interceptor {

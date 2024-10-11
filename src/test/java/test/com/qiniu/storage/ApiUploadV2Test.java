@@ -5,10 +5,10 @@ import com.qiniu.http.Client;
 import com.qiniu.storage.*;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
-import test.com.qiniu.TempFile;
-import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import test.com.qiniu.TempFile;
+import test.com.qiniu.TestConfig;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

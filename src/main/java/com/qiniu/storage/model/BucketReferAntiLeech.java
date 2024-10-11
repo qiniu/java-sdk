@@ -80,7 +80,7 @@ public class BucketReferAntiLeech {
      * 追加pattern<br>
      * pattern
      *
-     * @param pattern  防盗链匹配规则
+     * @param pattern 防盗链匹配规则
      * @return 防盗链信息
      * @throws Exception 异常
      */

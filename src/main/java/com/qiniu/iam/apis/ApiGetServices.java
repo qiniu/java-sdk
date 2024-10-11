@@ -9,7 +9,7 @@ import com.qiniu.util.Json;
 
 
 /**
-  * 查询 IAM 的服务列表
+ * 查询 IAM 的服务列表
  */
 public class ApiGetServices extends Api {
 
@@ -47,17 +47,17 @@ public class ApiGetServices extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 分页页号，从 1 开始，默认 1
          */
         private Integer page = null;
-    
+
         /**
          * 分页大小，默认 20，最大 2000
          */
         private Integer pageSize = null;
-    
+
         /**
          * 请求构造函数
          *
@@ -69,7 +69,7 @@ public class ApiGetServices extends Api {
             this.setMethod(MethodType.GET);
             this.setAuthType(AuthTypeQiniu);
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -80,7 +80,7 @@ public class ApiGetServices extends Api {
             this.page = page;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -91,62 +91,62 @@ public class ApiGetServices extends Api {
             this.pageSize = pageSize;
             return this;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/services");
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-                
+
             if (this.page != null) {
                 addQueryPair("page", this.page);
             }
             if (this.pageSize != null) {
                 addQueryPair("page_size", this.pageSize);
             }
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
-    
+
             super.buildBodyInfo();
         }
-        
+
     }
 
     /**
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         /**
          * 返回的服务列表响应
          */
         private GetServicesResp data;
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
-    
+
             this.data = Json.decode(response.bodyString(), GetServicesResp.class);
         }
-    
+
         /**
          * 响应信息
          *
@@ -155,18 +155,18 @@ public class ApiGetServices extends Api {
         public GetServicesResp getData() {
             return this.data;
         }
-            
+
         /**
-          * 返回的服务列表响应
-          */
+         * 返回的服务列表响应
+         */
         public static final class GetServicesResp {
-        
+
             /**
              * 服务列表信息
              */
             @SerializedName("data")
             private String[] data;
-        
+
             /**
              * 获取变量值
              * 服务列表信息

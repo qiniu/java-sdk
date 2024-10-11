@@ -1,14 +1,13 @@
 package com.qiniu.common;
 
-import test.com.qiniu.TestConfig;
-
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
+import test.com.qiniu.TestConfig;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Simon on 6/22/16.
@@ -20,9 +19,9 @@ public class AutoZoneTest {
     public void testHttp() {
         Map<String, String[]> cases = new HashMap<String, String[]>();
         cases.put(TestConfig.testBucket_z0,
-                new String[] { "http://up.qiniu.com", "http://upload.qiniu.com", "https://up.qbox.me" });
+                new String[]{"http://up.qiniu.com", "http://upload.qiniu.com", "https://up.qbox.me"});
         cases.put(TestConfig.testBucket_na0,
-                new String[] { "http://up-na0.qiniu.com", "http://upload-na0.qiniu.com", "https://up-na0.qbox.me" });
+                new String[]{"http://up-na0.qiniu.com", "http://upload-na0.qiniu.com", "https://up-na0.qbox.me"});
 
         for (Map.Entry<String, String[]> entry : cases.entrySet()) {
             String bucket = entry.getKey();

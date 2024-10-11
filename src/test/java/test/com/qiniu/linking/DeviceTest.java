@@ -7,13 +7,15 @@ import com.qiniu.linking.LinkingDeviceManager;
 import com.qiniu.linking.model.*;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
-import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import test.com.qiniu.TestConfig;
+
+import java.util.Date;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import java.util.Date;
 
 public class DeviceTest {
 
@@ -61,7 +63,7 @@ public class DeviceTest {
 
             {
                 // 修改设备字段
-                PatchOperation[] operations = { new PatchOperation("replace", "segmentExpireDays", 9) };
+                PatchOperation[] operations = {new PatchOperation("replace", "segmentExpireDays", 9)};
                 Device device = deviceManager.updateDevice(testAppid, testDeviceName1, operations);
                 assertEquals(device.getSegmentExpireDays(), 9);
             }

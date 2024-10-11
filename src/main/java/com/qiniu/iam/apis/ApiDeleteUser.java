@@ -7,7 +7,7 @@ import com.qiniu.storage.Api;
 
 
 /**
-  * 删除 IAM 子账号
+ * 删除 IAM 子账号
  */
 public class ApiDeleteUser extends Api {
 
@@ -45,18 +45,18 @@ public class ApiDeleteUser extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 子账号别名
          */
         private String alias;
-    
+
         /**
          * 请求构造函数
          *
          * @param urlPrefix 请求 scheme + host 【可选】
          *                  若为空则会直接从 HostProvider 中获取
-         * @param alias 子账号别名 【必须】
+         * @param alias     子账号别名 【必须】
          */
         public Request(String urlPrefix, String alias) {
             super(urlPrefix);
@@ -64,51 +64,51 @@ public class ApiDeleteUser extends Api {
             this.setAuthType(AuthTypeQiniu);
             this.alias = alias;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
             if (this.alias == null) {
                 throw new QiniuException(new NullPointerException("alias can't empty"));
             }
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/users");
             addPathSegment(this.alias);
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
-    
+
             super.buildBodyInfo();
         }
-        
+
     }
 
     /**
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
         }
-        
+
     }
 }

@@ -8,10 +8,10 @@ import test.com.qiniu.TestConfig;
 
 public class TemplateTest {
 
+    private final String templateId = "2xenzwlwgi7mf";
     Auth auth = TestConfig.testAuth;
     private TemplateManager templateManager;
     private Response res = null;
-    private final String templateId = "2xenzwlwgi7mf";
     private String templateName = "" + System.currentTimeMillis();
 
     @BeforeEach

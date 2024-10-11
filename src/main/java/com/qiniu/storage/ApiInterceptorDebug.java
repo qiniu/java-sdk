@@ -26,13 +26,13 @@ final class ApiInterceptorDebug extends Api.Interceptor {
 
     private final int responseLevel;
 
-    private static boolean isNonePrintLevel(int level) {
-        return level != LevelPrintNormal && level != LevelPrintDetail;
-    }
-
     private ApiInterceptorDebug(int requestLevel, int responseLevel) {
         this.requestLevel = requestLevel;
         this.responseLevel = responseLevel;
+    }
+
+    private static boolean isNonePrintLevel(int level) {
+        return level != LevelPrintNormal && level != LevelPrintDetail;
     }
 
     @Override

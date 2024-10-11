@@ -10,12 +10,11 @@ import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 
 public abstract class AbstractService {
+    public static final String JSON_MIME = "application/json";
+    protected final String host = "https://rtc.qiniuapi.com";
     protected Client httpClient;
     protected Auth auth;
-    protected final String host = "https://rtc.qiniuapi.com";
     protected Gson gson;
-
-    public static final String JSON_MIME = "application/json";
 
     /**
      * 初始化

@@ -9,12 +9,11 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.ResumeUploader;
 import com.qiniu.storage.persistent.FileRecorder;
 import com.qiniu.util.Etag;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -23,22 +22,19 @@ import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Simon on 2015/3/30.
  */
 public class RecordUploadTest {
+    private static boolean[][] testConfigList = {
+            // isResumeV2, isConcurrent
+            {true, false}, {true, true}, {false, false}, {false, true}};
     final Random r = new Random();
-
     final Client client = new Client();
     FileRecorder recorder = null;
     private Response response = null;
-
-    private static boolean[][] testConfigList = {
-            // isResumeV2, isConcurrent
-            { true, false }, { true, true }, { false, false }, { false, true } };
 
     /**
      * 断点续传
@@ -294,6 +290,10 @@ public class RecordUploadTest {
         assertTrue(m4 > m1);
     }
 
+    static class Complete {
+        AtomicBoolean isComplete = new AtomicBoolean(false);
+    }
+
     class Up {
         private final File file;
         private final String key;
@@ -357,9 +357,5 @@ public class RecordUploadTest {
                 throw e;
             }
         }
-    }
-
-    static class Complete {
-        AtomicBoolean isComplete = new AtomicBoolean(false);
     }
 }

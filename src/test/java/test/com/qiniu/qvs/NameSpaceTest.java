@@ -5,18 +5,18 @@ import com.qiniu.http.Response;
 import com.qiniu.qvs.NameSpaceManager;
 import com.qiniu.qvs.model.PatchOperation;
 import com.qiniu.util.Auth;
-import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import test.com.qiniu.TestConfig;
 
 public class NameSpaceTest {
+    private final String namespaceId = "3nm4x1e0xw855";
+    private final String name = "" + System.currentTimeMillis();
     Auth auth = TestConfig.testAuth;
     private NameSpaceManager nameSpaceManager;
     private Response res = null;
     private Response res2 = null;
-    private final String namespaceId = "3nm4x1e0xw855";
-    private final String name = "" + System.currentTimeMillis();
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -62,7 +62,7 @@ public class NameSpaceTest {
     @Test
     @Tag("IntegrationTest")
     public void testUpdateNameSpace() {
-        PatchOperation[] patchOperation = { new PatchOperation("replace", "recordTemplateApplyAll", true) };
+        PatchOperation[] patchOperation = {new PatchOperation("replace", "recordTemplateApplyAll", true)};
         try {
             res = nameSpaceManager.updateNameSpace(namespaceId, patchOperation);
             System.out.println(res.bodyString());

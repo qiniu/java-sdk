@@ -23,6 +23,16 @@ public final class QiniuException extends IOException {
         }
     }
 
+    public QiniuException(Exception e) {
+        this(e, null);
+    }
+
+    public QiniuException(Exception e, String msg) {
+        super(msg != null ? msg : (e != null ? e.getMessage() : null), e);
+        this.response = null;
+        this.error = msg;
+    }
+
     public static QiniuException unrecoverable(Exception e) {
         QiniuException exception = new QiniuException(e);
         exception.isUnrecoverable = true;
@@ -33,16 +43,6 @@ public final class QiniuException extends IOException {
         QiniuException exception = new QiniuException(null, msg);
         exception.isUnrecoverable = true;
         return exception;
-    }
-
-    public QiniuException(Exception e) {
-        this(e, null);
-    }
-
-    public QiniuException(Exception e, String msg) {
-        super(msg != null ? msg : (e != null ? e.getMessage() : null), e);
-        this.response = null;
-        this.error = msg;
     }
 
     public String url() {

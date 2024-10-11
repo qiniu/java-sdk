@@ -2,7 +2,6 @@ package com.qiniu.processing;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
-import com.qiniu.http.Response;
 import com.qiniu.media.apis.ApiPfop;
 import com.qiniu.media.apis.ApiPrefop;
 import com.qiniu.storage.Api;

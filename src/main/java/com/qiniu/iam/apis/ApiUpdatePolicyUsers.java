@@ -10,7 +10,7 @@ import com.qiniu.util.Json;
 
 
 /**
-  * 重新分配用户给指定授权策略
+ * 重新分配用户给指定授权策略
  */
 public class ApiUpdatePolicyUsers extends Api {
 
@@ -48,24 +48,24 @@ public class ApiUpdatePolicyUsers extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 授权策略分组别名
          */
         private String alias;
-    
+
         /**
          * 为授权策略重新分配 IAM 子账号参数
          */
         private UpdatedPolicyIamUsersParam data;
-    
+
         /**
          * 请求构造函数
          *
          * @param urlPrefix 请求 scheme + host 【可选】
          *                  若为空则会直接从 HostProvider 中获取
-         * @param alias 授权策略分组别名 【必须】
-         * @param data 为授权策略重新分配 IAM 子账号参数 【必须】
+         * @param alias     授权策略分组别名 【必须】
+         * @param data      为授权策略重新分配 IAM 子账号参数 【必须】
          */
         public Request(String urlPrefix, String alias, UpdatedPolicyIamUsersParam data) {
             super(urlPrefix);
@@ -74,7 +74,7 @@ public class ApiUpdatePolicyUsers extends Api {
             this.alias = alias;
             this.data = data;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
             if (this.alias == null) {
@@ -83,10 +83,10 @@ public class ApiUpdatePolicyUsers extends Api {
             if (this.data == null) {
                 throw new QiniuException(new NullPointerException("data can't empty"));
             }
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/policies");
@@ -94,38 +94,38 @@ public class ApiUpdatePolicyUsers extends Api {
             addPathSegment("users");
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
             byte[] body = Json.encode(this.data).getBytes(Constants.UTF_8);
             this.setBody(body, 0, body.length, Client.JsonMime);
-    
+
             super.buildBodyInfo();
         }
-            
+
         /**
-          * 为授权策略重新分配 IAM 子账号参数
-          */
+         * 为授权策略重新分配 IAM 子账号参数
+         */
         public static final class UpdatedPolicyIamUsersParam {
-        
+
             /**
              * IAM 子账号别名集合
              */
             @SerializedName("user_aliases")
             private String[] userAliases;
-        
+
             /**
              * 设置变量值
              *
@@ -143,10 +143,10 @@ public class ApiUpdatePolicyUsers extends Api {
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
         }
-        
+
     }
 }

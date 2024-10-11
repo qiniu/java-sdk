@@ -11,18 +11,17 @@ import java.util.Map;
 
 /**
  * 自定义文件元信息demo(x-qn-meta-*)
- * 
+ * <p>
  * 接口
  * POST /setmeta/<EncodedEntryURI>[/<x-qn-meta-MetaKey>/<EncodedMetaValue>][/cond/Encoded(condKey1=condVal1&condKey2=condVal2)]
  * Host: rs-<region>.qiniu.com
  * Content-Type: application/x-www-form-urlencoded
  * Authorization: Qbox 鉴权
- * 
+ * <p>
  * 注意：
  * meta-key，key不能设置为中文,不允许为空;
  * 新的metas会完全替换掉以前的metas，注意, 是完全覆盖;
  * 如果请求url中没有 [<x-qn-meta-MetaKey>/<EncodedMetaValue>]，则表示要删除所有metas;
- *
  */
 public class QNMetaDemo {
     //设置好账号的ACCESS_KEY和SECRET_KEY
@@ -49,7 +48,7 @@ public class QNMetaDemo {
         metaKeyVal.put("eng1", "qiniu");
         metaKeyVal.put("eng2", "七牛");
         boolean result = qnMetaDemo.setMeta(qnMetaDemo.bucketName, key, metaKeyVal);
-        if(result){
+        if (result) {
             System.out.println("done");
         }
     }
@@ -66,9 +65,9 @@ public class QNMetaDemo {
         String path = String.format("/setmeta/%s", resource);
         String k;
         String encodedMetaValue;
-        for(Iterator var6 = headers.keySet().iterator(); var6.hasNext(); path = String.format("%s/x-qn-meta-%s/%s", path, k, encodedMetaValue)) {
-            k = (String)var6.next();
-            encodedMetaValue = UrlSafeBase64.encodeToString((String)headers.get(k));
+        for (Iterator var6 = headers.keySet().iterator(); var6.hasNext(); path = String.format("%s/x-qn-meta-%s/%s", path, k, encodedMetaValue)) {
+            k = (String) var6.next();
+            encodedMetaValue = UrlSafeBase64.encodeToString((String) headers.get(k));
         }
         //接口请求地址
         String url = String.format("https://%s%s", rsHost, path);

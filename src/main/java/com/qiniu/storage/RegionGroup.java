@@ -7,10 +7,9 @@ import java.util.List;
 
 public class RegionGroup extends Region implements Cloneable {
 
+    private final List<Region> regionList = new ArrayList<>();
     private Region currentRegion = null;
     private int currentRegionIndex = 0;
-    private final List<Region> regionList = new ArrayList<>();
-
 
     public synchronized boolean addRegion(Region region) {
         if (region == null) {

@@ -1,12 +1,13 @@
 package test.com.qiniu.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.gson.Gson;
 import com.qiniu.util.Json;
 import com.qiniu.util.StringMap;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JsonTest {
     @Test

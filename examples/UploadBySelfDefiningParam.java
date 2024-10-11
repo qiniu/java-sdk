@@ -8,13 +8,13 @@ import com.qiniu.util.StringMap;
 
 /**
  * 设置自定义变量上传并接收自定义变量 demo
- *
+ * <p>
  * 自定义变量需要以 x: 开头, 携带自定义变量上传参考文档
  * https://developer.qiniu.com/kodo/manual/1235/vars#2
- *
+ * <p>
  * 接收自定义变量参考上传策略文档 -- returnBody
  * https://developer.qiniu.com/kodo/manual/1206/put-policy
- *
+ * <p>
  * 服务端具体用法实例参考 UploadBySelfDefiningParam.upload()
  */
 public class UploadBySelfDefiningParam {
@@ -57,11 +57,11 @@ public class UploadBySelfDefiningParam {
 
         //上传自定义参数，自定义参数名称需要以 x:开头
         StringMap params = new StringMap();
-        params.put("x:fname","123.jpg");
-        params.put("x:age",20);
+        params.put("x:fname", "123.jpg");
+        params.put("x:age", 20);
         String localFilePath = "/Users/mini/Downloads/qiniu_test.jpg";
 
-        Response response = uploadManager.put(localFilePath, key, upToken,params,null,false);
+        Response response = uploadManager.put(localFilePath, key, upToken, params, null, false);
         //输出返回结果
         System.out.println(response.bodyString());
     }

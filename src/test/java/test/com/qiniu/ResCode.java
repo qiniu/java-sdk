@@ -1,8 +1,10 @@
 package test.com.qiniu;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
 import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class ResCode {
     public static boolean find(int code, int... codes) {
@@ -21,7 +23,7 @@ public class ResCode {
 
     @Test
     public void testAddCode() {
-        assertArrayEquals(new int[] { 401 }, ResCode.getPossibleResCode(401));
+        assertArrayEquals(new int[]{401}, ResCode.getPossibleResCode(401));
     }
 
 }

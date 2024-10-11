@@ -9,7 +9,7 @@ import com.qiniu.util.Json;
 
 
 /**
-  * 查询 IAM 的操作
+ * 查询 IAM 的操作
  */
 public class ApiGetActions extends Api {
 
@@ -47,22 +47,22 @@ public class ApiGetActions extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 操作对应的服务别名
          */
         private String service = null;
-    
+
         /**
          * 分页页号，从 1 开始，默认 1
          */
         private Integer page = null;
-    
+
         /**
          * 分页大小，默认 20，最大 2000
          */
         private Integer pageSize = null;
-    
+
         /**
          * 请求构造函数
          *
@@ -74,7 +74,7 @@ public class ApiGetActions extends Api {
             this.setMethod(MethodType.GET);
             this.setAuthType(AuthTypeQiniu);
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -85,7 +85,7 @@ public class ApiGetActions extends Api {
             this.service = service;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -96,7 +96,7 @@ public class ApiGetActions extends Api {
             this.page = page;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -107,22 +107,22 @@ public class ApiGetActions extends Api {
             this.pageSize = pageSize;
             return this;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/actions");
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-                
+
             if (this.service != null) {
                 addQueryPair("service", this.service);
             }
@@ -132,40 +132,40 @@ public class ApiGetActions extends Api {
             if (this.pageSize != null) {
                 addQueryPair("page_size", this.pageSize);
             }
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
-    
+
             super.buildBodyInfo();
         }
-        
+
     }
 
     /**
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         /**
          * 返回的接口操作列表响应
          */
         private GetActionsResp data;
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
-    
+
             this.data = Json.decode(response.bodyString(), GetActionsResp.class);
         }
-    
+
         /**
          * 响应信息
          *
@@ -174,60 +174,60 @@ public class ApiGetActions extends Api {
         public GetActionsResp getData() {
             return this.data;
         }
-            
+
         /**
-          * 返回的接口操作
-          */
+         * 返回的接口操作
+         */
         public static final class GetAction {
-        
+
             /**
              * 记录 ID
              */
             @SerializedName("id")
             private String id;
-        
+
             /**
              * 接口操作名称
              */
             @SerializedName("name")
             private String name;
-        
+
             /**
              * 接口操作别名
              */
             @SerializedName("alias")
             private String alias;
-        
+
             /**
              * 接口操作对应的服务
              */
             @SerializedName("service")
             private String service;
-        
+
             /**
              * 接口操作权限粒度，0: 操作级，不限制资源，1: 资源级，只能访问特定资源
              */
             @SerializedName("scope")
             private Integer scope;
-        
+
             /**
              * 接口操作是否启用
              */
             @SerializedName("enabled")
             private Boolean enabled;
-        
+
             /**
              * 接口操作创建时间
              */
             @SerializedName("created_at")
             private String createdAt;
-        
+
             /**
              * 接口操作上次更新时间
              */
             @SerializedName("updated_at")
             private String updatedAt;
-        
+
             /**
              * 获取变量值
              * 记录 ID
@@ -237,7 +237,7 @@ public class ApiGetActions extends Api {
             public String getId() {
                 return this.id;
             }
-        
+
             /**
              * 获取变量值
              * 接口操作名称
@@ -247,7 +247,7 @@ public class ApiGetActions extends Api {
             public String getName() {
                 return this.name;
             }
-        
+
             /**
              * 获取变量值
              * 接口操作别名
@@ -257,7 +257,7 @@ public class ApiGetActions extends Api {
             public String getAlias() {
                 return this.alias;
             }
-        
+
             /**
              * 获取变量值
              * 接口操作对应的服务
@@ -267,7 +267,7 @@ public class ApiGetActions extends Api {
             public String getService() {
                 return this.service;
             }
-        
+
             /**
              * 获取变量值
              * 接口操作权限粒度，0: 操作级，不限制资源，1: 资源级，只能访问特定资源
@@ -277,7 +277,7 @@ public class ApiGetActions extends Api {
             public Integer getScope() {
                 return this.scope;
             }
-        
+
             /**
              * 获取变量值
              * 接口操作是否启用
@@ -287,7 +287,7 @@ public class ApiGetActions extends Api {
             public Boolean getEnabled() {
                 return this.enabled;
             }
-        
+
             /**
              * 获取变量值
              * 接口操作创建时间
@@ -297,7 +297,7 @@ public class ApiGetActions extends Api {
             public String getCreatedAt() {
                 return this.createdAt;
             }
-        
+
             /**
              * 获取变量值
              * 接口操作上次更新时间
@@ -307,24 +307,25 @@ public class ApiGetActions extends Api {
             public String getUpdatedAt() {
                 return this.updatedAt;
             }
-        }    
+        }
+
         /**
-          * 返回的接口操作列表信息
-          */
+         * 返回的接口操作列表信息
+         */
         public static final class GetActionsData {
-        
+
             /**
              * 接口操作数量
              */
             @SerializedName("count")
             private Integer count;
-        
+
             /**
              * 接口操作列表
              */
             @SerializedName("list")
             private GetAction[] list;
-        
+
             /**
              * 获取变量值
              * 接口操作数量
@@ -334,7 +335,7 @@ public class ApiGetActions extends Api {
             public Integer getCount() {
                 return this.count;
             }
-        
+
             /**
              * 获取变量值
              * 接口操作列表
@@ -344,18 +345,19 @@ public class ApiGetActions extends Api {
             public GetAction[] getList() {
                 return this.list;
             }
-        }    
+        }
+
         /**
-          * 返回的接口操作列表响应
-          */
+         * 返回的接口操作列表响应
+         */
         public static final class GetActionsResp {
-        
+
             /**
              * 接口操作信息
              */
             @SerializedName("data")
             private GetActionsData data;
-        
+
             /**
              * 获取变量值
              * 接口操作信息

@@ -11,11 +11,6 @@ class ApiInterceptorRetryHosts extends Api.Interceptor {
     private final Retry.HostFreezeCondition hostFreezeCondition;
     private final HostProvider hostProvider;
 
-    @Override
-    int priority() {
-        return Api.Interceptor.PriorityRetryHosts;
-    }
-
     private ApiInterceptorRetryHosts(int retryMax,
                                      Retry.Interval retryInterval,
                                      Retry.RetryCondition retryCondition,
@@ -28,6 +23,11 @@ class ApiInterceptorRetryHosts extends Api.Interceptor {
         this.hostFreezeDuration = hostFreezeDuration;
         this.hostFreezeCondition = hostFreezeCondition;
         this.hostProvider = hostProvider;
+    }
+
+    @Override
+    int priority() {
+        return Api.Interceptor.PriorityRetryHosts;
     }
 
     @Override

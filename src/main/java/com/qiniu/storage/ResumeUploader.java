@@ -129,6 +129,13 @@ public class ResumeUploader extends BaseUploader {
         this.options = options == null ? UploadOptions.defaultOptions() : options;
     }
 
+    private static String getRecorderKey(String key, File file, Recorder recorder) {
+        if (recorder == null) {
+            return null;
+        }
+        return recorder.recorderKeyGenerate(key, file);
+    }
+
     /**
      * 上传文件
      */
@@ -237,13 +244,6 @@ public class ResumeUploader extends BaseUploader {
         if (!token.isValid()) {
             throw QiniuException.unrecoverable(new Exception("token is invalid"));
         }
-    }
-
-    private static String getRecorderKey(String key, File file, Recorder recorder) {
-        if (recorder == null) {
-            return null;
-        }
-        return recorder.recorderKeyGenerate(key, file);
     }
 
     // recorder

@@ -12,10 +12,10 @@ import java.io.InputStream;
 
 public class RequestStreamBody extends RequestBody {
 
-    private long limitSize = -1;
-    private long sinkSize = 1024 * 100;
     private final MediaType type;
     private final InputStream stream;
+    private long limitSize = -1;
+    private long sinkSize = 1024 * 100;
 
     /**
      * 构造函数

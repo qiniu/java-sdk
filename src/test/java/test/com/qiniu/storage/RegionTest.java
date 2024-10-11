@@ -20,7 +20,7 @@ public class RegionTest {
         Constructor regionReqInfoConstructor = regionReqInfoClass.getDeclaredConstructor(String.class, String.class);
         regionReqInfoConstructor.setAccessible(true);
 
-        Object info  = regionReqInfoConstructor.newInstance("a", "b");
+        Object info = regionReqInfoConstructor.newInstance("a", "b");
         Region na0 = Region.createWithRegionId("na0");
 
         // region id

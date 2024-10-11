@@ -39,9 +39,9 @@ public abstract class HostProvider {
 
     private static final class ArrayProvider extends HostProvider {
 
-        private int nextIndex = 0;
         private final String[] values;
         private final Map<String, Value> items = new HashMap<>();
+        private int nextIndex = 0;
 
         private ArrayProvider(String... values) {
             super();

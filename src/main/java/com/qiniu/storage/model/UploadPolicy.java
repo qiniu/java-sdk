@@ -17,18 +17,15 @@ public final class UploadPolicy {
      * [bucket]:[keyPrefix]，表示只允许用户上传指定以 keyPrefix 为前缀的文件，当且仅当 isPrefixalScope 字段为 1 时生效，isPrefixalScope 为 1 时无法覆盖上传。
      */
     public final String scope;
-
-    /**
-     * 若为 1，表示允许用户上传以 scope 的 keyPrefix 为前缀的文件。
-     */
-    public int isPrefixalScope;
-
     /**
      * 上传凭证有效截止时间。Unix时间戳，单位为秒。该截止时间为上传完成后，在七牛空间生成文件的校验时间，而非上传的开始时间，
      * 一般建议设置为上传开始时间 + 3600s，用户可根据具体的业务场景对凭证截止时间进行调整。
      */
     public final long deadline;
-
+    /**
+     * 若为 1，表示允许用户上传以 scope 的 keyPrefix 为前缀的文件。
+     */
+    public int isPrefixalScope;
     /**
      * 若非0, 即使Scope为 Bucket:Key 的形式也是 insert only
      */

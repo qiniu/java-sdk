@@ -9,15 +9,10 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.UpCompletionHandler;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.StringMap;
-import test.com.qiniu.TempFile;
-import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import test.com.qiniu.TempFile;
+import test.com.qiniu.TestConfig;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FormUploadTest {
 

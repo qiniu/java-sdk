@@ -19,12 +19,10 @@ public class Cache<T> {
 
     // 存储对象的类型
     private final Class<T> objectClass;
-
-    // 内部
-    private boolean isFlushing = false;
-
     private final ConcurrentHashMap<String, T> memCache = new ConcurrentHashMap<>();
     private final FileRecorder diskCache;
+    // 内部
+    private boolean isFlushing = false;
 
     private Cache(Class<T> objectClass, String cacheDir, String version) {
         this.objectClass = objectClass;
@@ -130,14 +128,12 @@ public class Cache<T> {
 
     public static class Builder<T> {
 
-        // 缓存被持久化为一个文件，此文件的文件名为 version，version 默认为：v1
-        private String version = "v1";
-
-        // 存储路径
-        private String cacheDir = Constants.CACHE_DIR;
-
         // 存储对象的类型
         private final Class<T> objectClass;
+        // 缓存被持久化为一个文件，此文件的文件名为 version，version 默认为：v1
+        private String version = "v1";
+        // 存储路径
+        private String cacheDir = Constants.CACHE_DIR;
 
         public Builder(Class<T> objectClass) {
             this.objectClass = objectClass;

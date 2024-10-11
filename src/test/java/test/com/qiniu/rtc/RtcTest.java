@@ -29,6 +29,18 @@ public class RtcTest {
         client = QRTC.init(TestConfig.testAccessKey, TestConfig.testSecretKey, result.getResult().getAppId());
     }
 
+    /**
+     * 最后清除创建的app数据
+     *
+     * @throws QiniuException
+     */
+    @Disabled
+    @AfterAll
+    public static void deleteApp() throws QiniuException {
+        QRTCResult<AppResult> result = client.deleteApp();
+        assert result.getCode() == 200;
+    }
+
     @Disabled
     @Test
     public void testApp() throws QiniuException {
@@ -159,19 +171,6 @@ public class RtcTest {
         //停止合流
         QRTCResult<MergeResult> stopResult = client.stopMergeJob("1207", result.getResult().getId());
         assert stopResult.getCode() == 200;
-    }
-
-
-    /**
-     * 最后清除创建的app数据
-     *
-     * @throws QiniuException
-     */
-    @Disabled
-    @AfterAll
-    public static void deleteApp() throws QiniuException {
-        QRTCResult<AppResult> result = client.deleteApp();
-        assert result.getCode() == 200;
     }
 
 }

@@ -23,14 +23,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class QRTC {
     //版本号
     public static final String VERSION = "8.0";
+    private static final Map<String, QRTCClient> holder = new ConcurrentHashMap<>(16);
+    private static volatile QRTCClient client = null;
 
     private QRTC() {
 
     }
-
-    private static volatile QRTCClient client = null;
-
-    private static final Map<String, QRTCClient> holder = new ConcurrentHashMap<>(16);
 
     /**
      * 初始化QRTCClient

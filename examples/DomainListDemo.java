@@ -1,4 +1,3 @@
-
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
@@ -22,8 +21,8 @@ public class DomainListDemo {
 
         try {
             String[] domainLists = bucketManager.domainList(bucket);
-            for(String domain : domainLists)
-            System.out.print(domain);
+            for (String domain : domainLists)
+                System.out.print(domain);
 
         } catch (QiniuException e) {
 

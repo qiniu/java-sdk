@@ -10,7 +10,7 @@ import com.qiniu.util.Json;
 
 
 /**
-  * 添加授权策略到用户分组
+ * 添加授权策略到用户分组
  */
 public class ApiModifyGroupPolicies extends Api {
 
@@ -48,24 +48,24 @@ public class ApiModifyGroupPolicies extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 用户分组别名
          */
         private String alias;
-    
+
         /**
          * 为用户分组修改授权策略参数
          */
         private ModifiedGroupIamPoliciesParam data;
-    
+
         /**
          * 请求构造函数
          *
          * @param urlPrefix 请求 scheme + host 【可选】
          *                  若为空则会直接从 HostProvider 中获取
-         * @param alias 用户分组别名 【必须】
-         * @param data 为用户分组修改授权策略参数 【必须】
+         * @param alias     用户分组别名 【必须】
+         * @param data      为用户分组修改授权策略参数 【必须】
          */
         public Request(String urlPrefix, String alias, ModifiedGroupIamPoliciesParam data) {
             super(urlPrefix);
@@ -74,7 +74,7 @@ public class ApiModifyGroupPolicies extends Api {
             this.alias = alias;
             this.data = data;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
             if (this.alias == null) {
@@ -83,10 +83,10 @@ public class ApiModifyGroupPolicies extends Api {
             if (this.data == null) {
                 throw new QiniuException(new NullPointerException("data can't empty"));
             }
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/groups");
@@ -94,38 +94,38 @@ public class ApiModifyGroupPolicies extends Api {
             addPathSegment("policies");
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
             byte[] body = Json.encode(this.data).getBytes(Constants.UTF_8);
             this.setBody(body, 0, body.length, Client.JsonMime);
-    
+
             super.buildBodyInfo();
         }
-            
+
         /**
-          * 为用户分组修改授权策略参数
-          */
+         * 为用户分组修改授权策略参数
+         */
         public static final class ModifiedGroupIamPoliciesParam {
-        
+
             /**
              * 授权策略别名集合
              */
             @SerializedName("policy_aliases")
             private String[] policyAliases;
-        
+
             /**
              * 设置变量值
              *
@@ -143,10 +143,10 @@ public class ApiModifyGroupPolicies extends Api {
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
         }
-        
+
     }
 }

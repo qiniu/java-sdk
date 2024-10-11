@@ -10,7 +10,10 @@ import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 public final class Auth {
     public static final String DISABLE_QINIU_TIMESTAMP_SIGNATURE_ENV_KEY = DefaultHeader.DISABLE_TIMESTAMP_SIGNATURE_ENV_KEY;
@@ -558,6 +561,26 @@ public final class Auth {
         return generateLinkingDeviceTokenWithExpires(appid, deviceName, expires, new String[]{DTOKEN_ACTION_STATUS});
     }
 
+    public static class Request {
+        private final String url;
+        private final String method;
+        private final Headers header;
+        private final byte[] body;
+
+        /**
+         * @param url    回调地址
+         * @param method 回调请求方式
+         * @param header 回调头，注意 Content-Type Key 字段需为：{@link Auth#HTTP_HEADER_KEY_CONTENT_TYPE}，大小写敏感
+         * @param body   回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
+         **/
+        public Request(String url, String method, Headers header, byte[] body) {
+            this.url = url;
+            this.method = method;
+            this.header = header;
+            this.body = body;
+        }
+    }
+
     class LinkingDtokenStatement {
         @SerializedName("action")
         private String action;
@@ -592,26 +615,6 @@ public final class Auth {
             } else {
                 return c;
             }
-        }
-    }
-
-    public static class Request {
-        private final String url;
-        private final String method;
-        private final Headers header;
-        private final byte[] body;
-
-        /**
-         * @param url    回调地址
-         * @param method 回调请求方式
-         * @param header 回调头，注意 Content-Type Key 字段需为：{@link Auth#HTTP_HEADER_KEY_CONTENT_TYPE}，大小写敏感
-         * @param body   回调请求体。原始请求体，不要解析后再封装成新的请求体--可能导致签名不一致。
-         **/
-        public Request(String url, String method, Headers header, byte[] body) {
-            this.url = url;
-            this.method = method;
-            this.header = header;
-            this.body = body;
         }
     }
 }

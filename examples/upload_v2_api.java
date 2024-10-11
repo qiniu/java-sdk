@@ -34,13 +34,13 @@ public class UploadDemo {
     //密钥配置
     Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
 
+    public static void main(String args[]) throws IOException {
+        new UploadDemo().upload();
+    }
+
     //简单上传，使用默认策略，只需要设置上传的空间名就可以了
     public String getUpToken() {
         return auth.uploadToken(bucketName);
-    }
-
-    public static void main(String args[]) throws IOException {
-        new UploadDemo().upload();
     }
 
     public void testUpload() {

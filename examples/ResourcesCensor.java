@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *  内容安全审核 demo
- *  ImageCensor 图片内容安全审核，同步处理，不需要查询处理结果
- *  VideoCensor 视频内容安全审核，异步处理，需要查询处理结果，返回处理任务ID
- *  getVideoCensorResultByJobID 根据视频内容审核任务ID，查询审核结果
+ * 内容安全审核 demo
+ * ImageCensor 图片内容安全审核，同步处理，不需要查询处理结果
+ * VideoCensor 视频内容安全审核，异步处理，需要查询处理结果，返回处理任务ID
+ * getVideoCensorResultByJobID 根据视频内容审核任务ID，查询审核结果
  */
 public class ResourcesCensor {
     //设置好账号的ACCESS_KEY和SECRET_KEY
@@ -105,17 +105,17 @@ public class ResourcesCensor {
      * 查询视频审核内容结果
      * 参考
      * https://developer.qiniu.com/censor/api/5620/video-censor#4
-     * @param ID : 视频审核返回的 job ID
      *
+     * @param ID : 视频审核返回的 job ID
      */
-    public String getVideoCensorResultByJobID(String ID){
+    public String getVideoCensorResultByJobID(String ID) {
         String url = "http://ai.qiniuapi.com/v3/jobs/video/".concat(ID);
         String accessToken = (String) auth.authorizationV2(url).get("Authorization");
         StringMap headers = new StringMap();
         headers.put("Authorization", accessToken);
 
         try {
-            com.qiniu.http.Response resp = client.get(url,headers);
+            com.qiniu.http.Response resp = client.get(url, headers);
             return resp.bodyString();
         } catch (Exception e) {
             e.printStackTrace();

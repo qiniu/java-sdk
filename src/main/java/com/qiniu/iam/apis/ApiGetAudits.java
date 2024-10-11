@@ -9,7 +9,7 @@ import com.qiniu.util.Json;
 
 
 /**
-  * 查询审计日志列表
+ * 查询审计日志列表
  */
 public class ApiGetAudits extends Api {
 
@@ -47,47 +47,47 @@ public class ApiGetAudits extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * IAM 子账号 UID
          */
         private Integer iuid = null;
-    
+
         /**
          * 操作对应的服务别名
          */
         private String service = null;
-    
+
         /**
          * 操作别名
          */
         private String action = null;
-    
+
         /**
          * 操作别名
          */
         private String resource = null;
-    
+
         /**
          * 操作开始时间
          */
         private String startTime = null;
-    
+
         /**
          * 操作截止时间
          */
         private String endTime = null;
-    
+
         /**
          * 下页标记
          */
         private String marker = null;
-    
+
         /**
          * 分页大小，默认 20，最大 2000
          */
         private Integer limit = null;
-    
+
         /**
          * 请求构造函数
          *
@@ -99,7 +99,7 @@ public class ApiGetAudits extends Api {
             this.setMethod(MethodType.GET);
             this.setAuthType(AuthTypeQiniu);
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -110,7 +110,7 @@ public class ApiGetAudits extends Api {
             this.iuid = iuid;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -121,7 +121,7 @@ public class ApiGetAudits extends Api {
             this.service = service;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -132,7 +132,7 @@ public class ApiGetAudits extends Api {
             this.action = action;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -143,7 +143,7 @@ public class ApiGetAudits extends Api {
             this.resource = resource;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -154,7 +154,7 @@ public class ApiGetAudits extends Api {
             this.startTime = startTime;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -165,7 +165,7 @@ public class ApiGetAudits extends Api {
             this.endTime = endTime;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -176,7 +176,7 @@ public class ApiGetAudits extends Api {
             this.marker = marker;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -187,22 +187,22 @@ public class ApiGetAudits extends Api {
             this.limit = limit;
             return this;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/audits");
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-                
+
             if (this.iuid != null) {
                 addQueryPair("iuid", this.iuid);
             }
@@ -227,40 +227,40 @@ public class ApiGetAudits extends Api {
             if (this.limit != null) {
                 addQueryPair("limit", this.limit);
             }
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
-    
+
             super.buildBodyInfo();
         }
-        
+
     }
 
     /**
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         /**
          * 返回的审计日志列表响应
          */
         private GetAuditLogsResp data;
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
-    
+
             this.data = Json.decode(response.bodyString(), GetAuditLogsResp.class);
         }
-    
+
         /**
          * 响应信息
          *
@@ -269,84 +269,84 @@ public class ApiGetAudits extends Api {
         public GetAuditLogsResp getData() {
             return this.data;
         }
-            
+
         /**
-          * 返回的审计日志
-          */
+         * 返回的审计日志
+         */
         public static final class GetAuditLog {
-        
+
             /**
              * 记录 ID
              */
             @SerializedName("id")
             private String id;
-        
+
             /**
              * 根用户 uid
              */
             @SerializedName("root_uid")
             private Integer rootUid;
-        
+
             /**
              * 子账号 uid
              */
             @SerializedName("iuid")
             private Integer iuid;
-        
+
             /**
              * 接口操作对应的服务
              */
             @SerializedName("service")
             private String service;
-        
+
             /**
              * 接口操作别名
              */
             @SerializedName("action")
             private String action;
-        
+
             /**
              * 日志创建时间
              */
             @SerializedName("created_at")
             private String createdAt;
-        
+
             /**
              * 请求发生时间
              */
             @SerializedName("event_time")
             private String eventTime;
-        
+
             /**
              * 请求持续时间，毫秒
              */
             @SerializedName("duration_ms")
             private Integer durationMs;
-        
+
             /**
              * 源 IP
              */
             @SerializedName("source_ip")
             private String sourceIp;
-        
+
             /**
              * 用户代理
              */
             @SerializedName("user_event")
             private String userEvent;
-        
+
             /**
              * 错误码
              */
             @SerializedName("error_code")
             private Integer errorCode;
-        
+
             /**
              * 错误消息
              */
             @SerializedName("error_message")
             private String errorMessage;
-        
+
             /**
              * 获取变量值
              * 记录 ID
@@ -356,7 +356,7 @@ public class ApiGetAudits extends Api {
             public String getId() {
                 return this.id;
             }
-        
+
             /**
              * 获取变量值
              * 根用户 uid
@@ -366,7 +366,7 @@ public class ApiGetAudits extends Api {
             public Integer getRootUid() {
                 return this.rootUid;
             }
-        
+
             /**
              * 获取变量值
              * 子账号 uid
@@ -376,7 +376,7 @@ public class ApiGetAudits extends Api {
             public Integer getIuid() {
                 return this.iuid;
             }
-        
+
             /**
              * 获取变量值
              * 接口操作对应的服务
@@ -386,7 +386,7 @@ public class ApiGetAudits extends Api {
             public String getService() {
                 return this.service;
             }
-        
+
             /**
              * 获取变量值
              * 接口操作别名
@@ -396,7 +396,7 @@ public class ApiGetAudits extends Api {
             public String getAction() {
                 return this.action;
             }
-        
+
             /**
              * 获取变量值
              * 日志创建时间
@@ -406,7 +406,7 @@ public class ApiGetAudits extends Api {
             public String getCreatedAt() {
                 return this.createdAt;
             }
-        
+
             /**
              * 获取变量值
              * 请求发生时间
@@ -416,7 +416,7 @@ public class ApiGetAudits extends Api {
             public String getEventTime() {
                 return this.eventTime;
             }
-        
+
             /**
              * 获取变量值
              * 请求持续时间，毫秒
@@ -426,7 +426,7 @@ public class ApiGetAudits extends Api {
             public Integer getDurationMs() {
                 return this.durationMs;
             }
-        
+
             /**
              * 获取变量值
              * 源 IP
@@ -436,7 +436,7 @@ public class ApiGetAudits extends Api {
             public String getSourceIp() {
                 return this.sourceIp;
             }
-        
+
             /**
              * 获取变量值
              * 用户代理
@@ -446,7 +446,7 @@ public class ApiGetAudits extends Api {
             public String getUserEvent() {
                 return this.userEvent;
             }
-        
+
             /**
              * 获取变量值
              * 错误码
@@ -456,7 +456,7 @@ public class ApiGetAudits extends Api {
             public Integer getErrorCode() {
                 return this.errorCode;
             }
-        
+
             /**
              * 获取变量值
              * 错误消息
@@ -466,24 +466,25 @@ public class ApiGetAudits extends Api {
             public String getErrorMessage() {
                 return this.errorMessage;
             }
-        }    
+        }
+
         /**
-          * 返回的审计日志列表信息
-          */
+         * 返回的审计日志列表信息
+         */
         public static final class GetAuditLogsData {
-        
+
             /**
              * 下页标记
              */
             @SerializedName("marker")
             private String marker;
-        
+
             /**
              * 审计日志列表
              */
             @SerializedName("list")
             private GetAuditLog[] list;
-        
+
             /**
              * 获取变量值
              * 下页标记
@@ -493,7 +494,7 @@ public class ApiGetAudits extends Api {
             public String getMarker() {
                 return this.marker;
             }
-        
+
             /**
              * 获取变量值
              * 审计日志列表
@@ -503,18 +504,19 @@ public class ApiGetAudits extends Api {
             public GetAuditLog[] getList() {
                 return this.list;
             }
-        }    
+        }
+
         /**
-          * 返回的审计日志列表响应
-          */
+         * 返回的审计日志列表响应
+         */
         public static final class GetAuditLogsResp {
-        
+
             /**
              * 审计日志信息
              */
             @SerializedName("data")
             private GetAuditLogsData data;
-        
+
             /**
              * 获取变量值
              * 审计日志信息

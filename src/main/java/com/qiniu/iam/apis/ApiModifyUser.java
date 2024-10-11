@@ -10,7 +10,7 @@ import com.qiniu.util.Json;
 
 
 /**
-  * 修改 IAM 子账号
+ * 修改 IAM 子账号
  */
 public class ApiModifyUser extends Api {
 
@@ -48,24 +48,24 @@ public class ApiModifyUser extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 子账号别名
          */
         private String alias;
-    
+
         /**
          * 修改 IAM 子账号参数
          */
         private ModifiedIamUserParam data;
-    
+
         /**
          * 请求构造函数
          *
          * @param urlPrefix 请求 scheme + host 【可选】
          *                  若为空则会直接从 HostProvider 中获取
-         * @param alias 子账号别名 【必须】
-         * @param data 修改 IAM 子账号参数 【必须】
+         * @param alias     子账号别名 【必须】
+         * @param data      修改 IAM 子账号参数 【必须】
          */
         public Request(String urlPrefix, String alias, ModifiedIamUserParam data) {
             super(urlPrefix);
@@ -74,7 +74,7 @@ public class ApiModifyUser extends Api {
             this.alias = alias;
             this.data = data;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
             if (this.alias == null) {
@@ -83,54 +83,54 @@ public class ApiModifyUser extends Api {
             if (this.data == null) {
                 throw new QiniuException(new NullPointerException("data can't empty"));
             }
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/users");
             addPathSegment(this.alias);
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
             byte[] body = Json.encode(this.data).getBytes(Constants.UTF_8);
             this.setBody(body, 0, body.length, Client.JsonMime);
-    
+
             super.buildBodyInfo();
         }
-            
+
         /**
-          * 修改 IAM 子账号参数
-          */
+         * 修改 IAM 子账号参数
+         */
         public static final class ModifiedIamUserParam {
-        
+
             /**
              * 子账号是否启用
              */
             @SerializedName("enabled")
             private Boolean enabled;
-        
+
             /**
              * 子账号密码
              */
             @SerializedName("password")
             private String password;
-        
+
             /**
              * 设置变量值
              *
@@ -141,7 +141,7 @@ public class ApiModifyUser extends Api {
                 this.enabled = enabled;
                 return this;
             }
-        
+
             /**
              * 设置变量值
              *
@@ -159,18 +159,18 @@ public class ApiModifyUser extends Api {
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         /**
          * 返回的 IAM 子账号响应
          */
         private ModifiedIamUserResp data;
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
-    
+
             this.data = Json.decode(response.bodyString(), ModifiedIamUserResp.class);
         }
-    
+
         /**
          * 响应信息
          *
@@ -179,60 +179,60 @@ public class ApiModifyUser extends Api {
         public ModifiedIamUserResp getData() {
             return this.data;
         }
-            
+
         /**
-          * 返回的 IAM 子账号信息
-          */
+         * 返回的 IAM 子账号信息
+         */
         public static final class ModifiedIamUserData {
-        
+
             /**
              * 记录 ID
              */
             @SerializedName("id")
             private String id;
-        
+
             /**
              * 根用户 uid
              */
             @SerializedName("root_uid")
             private Integer rootUid;
-        
+
             /**
              * 子账号 uid
              */
             @SerializedName("iuid")
             private Integer iuid;
-        
+
             /**
              * 子账号别名
              */
             @SerializedName("alias")
             private String alias;
-        
+
             /**
              * 子账号创建时间
              */
             @SerializedName("created_at")
             private String createdAt;
-        
+
             /**
              * 子账号上次更新时间
              */
             @SerializedName("updated_at")
             private String updatedAt;
-        
+
             /**
              * 子账号上次更新时间
              */
             @SerializedName("last_login_time")
             private String lastLoginTime;
-        
+
             /**
              * 子账号是否启用
              */
             @SerializedName("enabled")
             private Boolean enabled;
-        
+
             /**
              * 获取变量值
              * 记录 ID
@@ -242,7 +242,7 @@ public class ApiModifyUser extends Api {
             public String getId() {
                 return this.id;
             }
-        
+
             /**
              * 获取变量值
              * 根用户 uid
@@ -252,7 +252,7 @@ public class ApiModifyUser extends Api {
             public Integer getRootUid() {
                 return this.rootUid;
             }
-        
+
             /**
              * 获取变量值
              * 子账号 uid
@@ -262,7 +262,7 @@ public class ApiModifyUser extends Api {
             public Integer getIuid() {
                 return this.iuid;
             }
-        
+
             /**
              * 获取变量值
              * 子账号别名
@@ -272,7 +272,7 @@ public class ApiModifyUser extends Api {
             public String getAlias() {
                 return this.alias;
             }
-        
+
             /**
              * 获取变量值
              * 子账号创建时间
@@ -282,7 +282,7 @@ public class ApiModifyUser extends Api {
             public String getCreatedAt() {
                 return this.createdAt;
             }
-        
+
             /**
              * 获取变量值
              * 子账号上次更新时间
@@ -292,7 +292,7 @@ public class ApiModifyUser extends Api {
             public String getUpdatedAt() {
                 return this.updatedAt;
             }
-        
+
             /**
              * 获取变量值
              * 子账号上次更新时间
@@ -302,7 +302,7 @@ public class ApiModifyUser extends Api {
             public String getLastLoginTime() {
                 return this.lastLoginTime;
             }
-        
+
             /**
              * 获取变量值
              * 子账号是否启用
@@ -312,18 +312,19 @@ public class ApiModifyUser extends Api {
             public Boolean getEnabled() {
                 return this.enabled;
             }
-        }    
+        }
+
         /**
-          * 返回的 IAM 子账号响应
-          */
+         * 返回的 IAM 子账号响应
+         */
         public static final class ModifiedIamUserResp {
-        
+
             /**
              * IAM 子账号信息
              */
             @SerializedName("data")
             private ModifiedIamUserData data;
-        
+
             /**
              * 获取变量值
              * IAM 子账号信息

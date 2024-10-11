@@ -19,17 +19,15 @@ public class QRTCClient {
 
     private final String accessKey;
     private final String secretKey;
-
+    // 应用ID
+    private final String appId;
     //rtc 房间服务接口
     private RoomService roomService;
     private ForwardService forwardService;
     private CallbackService callbackService;
     private MergeService mergeService;
     private MergeServiceV4 mergeServiceV4;
-
     private AppService appService;
-    // 应用ID
-    private final String appId;
 
     //初始化的时候就把auth做了
     public QRTCClient(String accessKey, String secretKey, String appId) {
@@ -165,7 +163,7 @@ public class QRTCClient {
      * 指定一个用户踢出房间
      *
      * @param roomName roomName
-     * @param userId userId
+     * @param userId   userId
      * @return QRTCResult
      * @throws QiniuException 异常
      */
@@ -183,8 +181,8 @@ public class QRTCClient {
      * 获取当前所有活跃的房间
      *
      * @param roomNamePrefix roomNamePrefix
-     * @param offset offset
-     * @param limit limit
+     * @param offset         offset
+     * @param limit          limit
      * @return QRTCResult
      * @throws QiniuException 异常
      */
@@ -223,7 +221,7 @@ public class QRTCClient {
      * 创建单路转推任务
      *
      * @param roomId roomId
-     * @param param param
+     * @param param  param
      * @return QRTCResult
      * @throws QiniuException 异常
      */
@@ -241,7 +239,7 @@ public class QRTCClient {
      * 停止单路转推的能力
      *
      * @param roomId roomId
-     * @param param param
+     * @param param  param
      * @return QRTCResult
      * @throws QiniuException 异常
      */
@@ -279,7 +277,7 @@ public class QRTCClient {
     /**
      * 创建合流任务
      *
-     * @param roomName roomName
+     * @param roomName   roomName
      * @param mergeParam mergeParam
      * @return QRTCResult
      * @throws QiniuException 异常
@@ -299,8 +297,8 @@ public class QRTCClient {
      * 更新合流track信息
      *
      * @param mergeTrackParam mergeTrackParam
-     * @param roomName roomName
-     * @param jobId jobId
+     * @param roomName        roomName
+     * @param jobId           jobId
      * @return QRTCResult
      * @throws QiniuException 异常
      */
@@ -321,8 +319,8 @@ public class QRTCClient {
      * 更新合理水印信息
      *
      * @param watermarksParam watermarksParam
-     * @param roomName roomName
-     * @param jobId jobId
+     * @param roomName        roomName
+     * @param jobId           jobId
      * @return QRTCResult
      * @throws QiniuException 异常
      */

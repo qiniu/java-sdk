@@ -51,14 +51,14 @@ task getHomeDir {
 apply plugin: 'checkstyle'
 
 task apiJavadocs(type: Javadoc) {
-  source = sourceSets.main.allJava
-  classpath = sourceSets.main.runtimeClasspath
-  title = "七牛 Java SDK API 文档"
-  options {
-    memberLevel = JavadocMemberLevel.PUBLIC
-    setEncoding 'UTF-8'
-    setWindowTitle "七牛 Java SDK API 文档"
-  }
+    source = sourceSets.main.allJava
+    classpath = sourceSets.main.runtimeClasspath
+    title = "七牛 Java SDK API 文档"
+    options {
+        memberLevel = JavadocMemberLevel.PUBLIC
+        setEncoding 'UTF-8'
+        setWindowTitle "七牛 Java SDK API 文档"
+    }
 }
 
 def versionName() {

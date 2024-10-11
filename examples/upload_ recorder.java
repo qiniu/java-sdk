@@ -41,6 +41,10 @@ public class UploadDemo {
     //创建上传对象
     UploadManager uploadManager = new UploadManager(c);
 
+    public static void main(String args[]) throws IOException {
+        new UploadDemo().upload();
+    }
+
     // 覆盖上传
     public String getUpToken() {
         return auth.uploadToken(bucketname);
@@ -70,10 +74,6 @@ public class UploadDemo {
                 //ignore
             }
         }
-    }
-
-    public static void main(String args[]) throws IOException {
-        new UploadDemo().upload();
     }
 
 }

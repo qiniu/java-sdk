@@ -9,7 +9,7 @@ import com.qiniu.util.Json;
 
 
 /**
-  * 列举 IAM 子账号
+ * 列举 IAM 子账号
  */
 public class ApiGetUsers extends Api {
 
@@ -47,22 +47,22 @@ public class ApiGetUsers extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 子账号别名
          */
         private String alias = null;
-    
+
         /**
          * 分页页号，从 1 开始，默认 1
          */
         private Integer page = null;
-    
+
         /**
          * 分页大小，默认 20，最大 2000
          */
         private Integer pageSize = null;
-    
+
         /**
          * 请求构造函数
          *
@@ -74,7 +74,7 @@ public class ApiGetUsers extends Api {
             this.setMethod(MethodType.GET);
             this.setAuthType(AuthTypeQiniu);
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -85,7 +85,7 @@ public class ApiGetUsers extends Api {
             this.alias = alias;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -96,7 +96,7 @@ public class ApiGetUsers extends Api {
             this.page = page;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -107,22 +107,22 @@ public class ApiGetUsers extends Api {
             this.pageSize = pageSize;
             return this;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/users");
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-                
+
             if (this.alias != null) {
                 addQueryPair("alias", this.alias);
             }
@@ -132,40 +132,40 @@ public class ApiGetUsers extends Api {
             if (this.pageSize != null) {
                 addQueryPair("page_size", this.pageSize);
             }
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
-    
+
             super.buildBodyInfo();
         }
-        
+
     }
 
     /**
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         /**
          * 返回的 IAM 子账号列表响应
          */
         private GetIamUsersResp data;
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
-    
+
             this.data = Json.decode(response.bodyString(), GetIamUsersResp.class);
         }
-    
+
         /**
          * 响应信息
          *
@@ -174,60 +174,60 @@ public class ApiGetUsers extends Api {
         public GetIamUsersResp getData() {
             return this.data;
         }
-            
+
         /**
-          * 返回的 IAM 子账号
-          */
+         * 返回的 IAM 子账号
+         */
         public static final class GetIamUser {
-        
+
             /**
              * 记录 ID
              */
             @SerializedName("id")
             private String id;
-        
+
             /**
              * 根用户 uid
              */
             @SerializedName("root_uid")
             private Integer rootUid;
-        
+
             /**
              * 子账号 uid
              */
             @SerializedName("iuid")
             private Integer iuid;
-        
+
             /**
              * 子账号别名
              */
             @SerializedName("alias")
             private String alias;
-        
+
             /**
              * 子账号创建时间
              */
             @SerializedName("created_at")
             private String createdAt;
-        
+
             /**
              * 子账号上次更新时间
              */
             @SerializedName("updated_at")
             private String updatedAt;
-        
+
             /**
              * 子账号上次更新时间
              */
             @SerializedName("last_login_time")
             private String lastLoginTime;
-        
+
             /**
              * 子账号是否启用
              */
             @SerializedName("enabled")
             private Boolean enabled;
-        
+
             /**
              * 获取变量值
              * 记录 ID
@@ -237,7 +237,7 @@ public class ApiGetUsers extends Api {
             public String getId() {
                 return this.id;
             }
-        
+
             /**
              * 获取变量值
              * 根用户 uid
@@ -247,7 +247,7 @@ public class ApiGetUsers extends Api {
             public Integer getRootUid() {
                 return this.rootUid;
             }
-        
+
             /**
              * 获取变量值
              * 子账号 uid
@@ -257,7 +257,7 @@ public class ApiGetUsers extends Api {
             public Integer getIuid() {
                 return this.iuid;
             }
-        
+
             /**
              * 获取变量值
              * 子账号别名
@@ -267,7 +267,7 @@ public class ApiGetUsers extends Api {
             public String getAlias() {
                 return this.alias;
             }
-        
+
             /**
              * 获取变量值
              * 子账号创建时间
@@ -277,7 +277,7 @@ public class ApiGetUsers extends Api {
             public String getCreatedAt() {
                 return this.createdAt;
             }
-        
+
             /**
              * 获取变量值
              * 子账号上次更新时间
@@ -287,7 +287,7 @@ public class ApiGetUsers extends Api {
             public String getUpdatedAt() {
                 return this.updatedAt;
             }
-        
+
             /**
              * 获取变量值
              * 子账号上次更新时间
@@ -297,7 +297,7 @@ public class ApiGetUsers extends Api {
             public String getLastLoginTime() {
                 return this.lastLoginTime;
             }
-        
+
             /**
              * 获取变量值
              * 子账号是否启用
@@ -307,24 +307,25 @@ public class ApiGetUsers extends Api {
             public Boolean getEnabled() {
                 return this.enabled;
             }
-        }    
+        }
+
         /**
-          * 返回的 IAM 子账号列表信息
-          */
+         * 返回的 IAM 子账号列表信息
+         */
         public static final class GetIamUsersData {
-        
+
             /**
              * IAM 子账号数量
              */
             @SerializedName("count")
             private Integer count;
-        
+
             /**
              * IAM 子账号列表
              */
             @SerializedName("list")
             private GetIamUser[] list;
-        
+
             /**
              * 获取变量值
              * IAM 子账号数量
@@ -334,7 +335,7 @@ public class ApiGetUsers extends Api {
             public Integer getCount() {
                 return this.count;
             }
-        
+
             /**
              * 获取变量值
              * IAM 子账号列表
@@ -344,18 +345,19 @@ public class ApiGetUsers extends Api {
             public GetIamUser[] getList() {
                 return this.list;
             }
-        }    
+        }
+
         /**
-          * 返回的 IAM 子账号列表响应
-          */
+         * 返回的 IAM 子账号列表响应
+         */
         public static final class GetIamUsersResp {
-        
+
             /**
              * IAM 子账号信息
              */
             @SerializedName("data")
             private GetIamUsersData data;
-        
+
             /**
              * 获取变量值
              * IAM 子账号信息

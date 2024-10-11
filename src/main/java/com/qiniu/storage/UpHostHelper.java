@@ -1,7 +1,6 @@
 package com.qiniu.storage;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.util.StringUtils;
 
 import java.util.*;
 

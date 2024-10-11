@@ -1,11 +1,12 @@
 package test.com.qiniu.streaming;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.qiniu.streaming.UrlFactory;
-import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import test.com.qiniu.TestConfig;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by bailong on 16/9/22.

@@ -20,6 +20,9 @@ public class ForwardParam {
         this.playerId = playerId;
     }
 
+    public ForwardParam() {
+    }
+
     @Data
     public static class TrackInfo {
         private String trackId;
@@ -30,8 +33,5 @@ public class ForwardParam {
 
         public TrackInfo() {
         }
-    }
-
-    public ForwardParam() {
     }
 }

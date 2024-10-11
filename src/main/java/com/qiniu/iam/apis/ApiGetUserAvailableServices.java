@@ -9,7 +9,7 @@ import com.qiniu.util.Json;
 
 
 /**
-  * 列举子账号可用服务
+ * 列举子账号可用服务
  */
 public class ApiGetUserAvailableServices extends Api {
 
@@ -47,18 +47,18 @@ public class ApiGetUserAvailableServices extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 子账号别名
          */
         private String alias;
-    
+
         /**
          * 请求构造函数
          *
          * @param urlPrefix 请求 scheme + host 【可选】
          *                  若为空则会直接从 HostProvider 中获取
-         * @param alias 子账号别名 【必须】
+         * @param alias     子账号别名 【必须】
          */
         public Request(String urlPrefix, String alias) {
             super(urlPrefix);
@@ -66,16 +66,16 @@ public class ApiGetUserAvailableServices extends Api {
             this.setAuthType(AuthTypeQiniu);
             this.alias = alias;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
             if (this.alias == null) {
                 throw new QiniuException(new NullPointerException("alias can't empty"));
             }
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/users");
@@ -83,43 +83,43 @@ public class ApiGetUserAvailableServices extends Api {
             addPathSegment("services");
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
-    
+
             super.buildBodyInfo();
         }
-        
+
     }
 
     /**
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         /**
          * 返回的 IAM 子账号可用服务列表响应
          */
         private GetIamUserAvailableServicesResp data;
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
-    
+
             this.data = Json.decode(response.bodyString(), GetIamUserAvailableServicesResp.class);
         }
-    
+
         /**
          * 响应信息
          *
@@ -128,18 +128,18 @@ public class ApiGetUserAvailableServices extends Api {
         public GetIamUserAvailableServicesResp getData() {
             return this.data;
         }
-            
+
         /**
-          * 返回的 IAM 子账号可用服务列表响应
-          */
+         * 返回的 IAM 子账号可用服务列表响应
+         */
         public static final class GetIamUserAvailableServicesResp {
-        
+
             /**
              * IAM 子账号可用服务信息
              */
             @SerializedName("data")
             private String[] data;
-        
+
             /**
              * 获取变量值
              * IAM 子账号可用服务信息

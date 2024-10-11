@@ -7,7 +7,7 @@ import com.qiniu.storage.Api;
 
 
 /**
-  * 删除用户分组
+ * 删除用户分组
  */
 public class ApiDeleteGroup extends Api {
 
@@ -45,18 +45,18 @@ public class ApiDeleteGroup extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 用户分组别名
          */
         private String alias;
-    
+
         /**
          * 请求构造函数
          *
          * @param urlPrefix 请求 scheme + host 【可选】
          *                  若为空则会直接从 HostProvider 中获取
-         * @param alias 用户分组别名 【必须】
+         * @param alias     用户分组别名 【必须】
          */
         public Request(String urlPrefix, String alias) {
             super(urlPrefix);
@@ -64,51 +64,51 @@ public class ApiDeleteGroup extends Api {
             this.setAuthType(AuthTypeQiniu);
             this.alias = alias;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
             if (this.alias == null) {
                 throw new QiniuException(new NullPointerException("alias can't empty"));
             }
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/groups");
             addPathSegment(this.alias);
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
-    
+
             super.buildBodyInfo();
         }
-        
+
     }
 
     /**
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
         }
-        
+
     }
 }

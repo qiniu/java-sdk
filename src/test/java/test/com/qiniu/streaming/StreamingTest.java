@@ -1,14 +1,5 @@
 package test.com.qiniu.streaming;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
 import com.qiniu.common.QiniuException;
 import com.qiniu.streaming.StreamingManager;
 import com.qiniu.streaming.model.ActivityRecords;
@@ -16,8 +7,11 @@ import com.qiniu.streaming.model.StreamAttribute;
 import com.qiniu.streaming.model.StreamListing;
 import com.qiniu.streaming.model.StreamStatus;
 import com.qiniu.util.Auth;
-
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by bailong on 16/9/22 Updated by panyuan on 19/3/12

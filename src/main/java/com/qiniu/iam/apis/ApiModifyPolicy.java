@@ -10,7 +10,7 @@ import com.qiniu.util.Json;
 
 
 /**
-  * 修改授权策略
+ * 修改授权策略
  */
 public class ApiModifyPolicy extends Api {
 
@@ -48,24 +48,24 @@ public class ApiModifyPolicy extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 授权策略别名
          */
         private String alias;
-    
+
         /**
          * 修改授权策略参数
          */
         private ModifyPolicyParam data;
-    
+
         /**
          * 请求构造函数
          *
          * @param urlPrefix 请求 scheme + host 【可选】
          *                  若为空则会直接从 HostProvider 中获取
-         * @param alias 授权策略别名 【必须】
-         * @param data 修改授权策略参数 【必须】
+         * @param alias     授权策略别名 【必须】
+         * @param data      修改授权策略参数 【必须】
          */
         public Request(String urlPrefix, String alias, ModifyPolicyParam data) {
             super(urlPrefix);
@@ -74,7 +74,7 @@ public class ApiModifyPolicy extends Api {
             this.alias = alias;
             this.data = data;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
             if (this.alias == null) {
@@ -83,60 +83,60 @@ public class ApiModifyPolicy extends Api {
             if (this.data == null) {
                 throw new QiniuException(new NullPointerException("data can't empty"));
             }
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("iam/v1/policies");
             addPathSegment(this.alias);
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
             byte[] body = Json.encode(this.data).getBytes(Constants.UTF_8);
             this.setBody(body, 0, body.length, Client.JsonMime);
-    
+
             super.buildBodyInfo();
         }
-            
+
         /**
-          * 授权策略规则
-          */
+         * 授权策略规则
+         */
         public static final class ModifyStatement {
-        
+
             /**
              * 授权策略规则的操作集合，action 查询参考 action 接口，格式为 service/action_alias
              */
             @SerializedName("action")
             private String[] actions;
-        
+
             /**
              * 授权策略规则的资源集合，格式为 qrn:product:region:uid:[resource-type/]resource-id ；可以简写为 qrn:product:::resource-id
              */
             @SerializedName("resource")
             private String[] resources;
-        
+
             /**
              * 授权策略规则的生效类型，允许访问或拒绝访问
              */
             @SerializedName("effect")
             private String effect;
-        
+
             /**
              * 设置变量值
              *
@@ -147,7 +147,7 @@ public class ApiModifyPolicy extends Api {
                 this.actions = actions;
                 return this;
             }
-        
+
             /**
              * 设置变量值
              *
@@ -158,7 +158,7 @@ public class ApiModifyPolicy extends Api {
                 this.resources = resources;
                 return this;
             }
-        
+
             /**
              * 设置变量值
              *
@@ -169,30 +169,31 @@ public class ApiModifyPolicy extends Api {
                 this.effect = effect;
                 return this;
             }
-        }    
+        }
+
         /**
-          * 修改授权策略参数
-          */
+         * 修改授权策略参数
+         */
         public static final class ModifyPolicyParam {
-        
+
             /**
              * 授权策略别名，由 `A-Za-z0-9` 组成
              */
             @SerializedName("alias")
             private String newAlias;
-        
+
             /**
              * 授权策略描述
              */
             @SerializedName("description")
             private String description;
-        
+
             /**
              * 授权策略规则集合
              */
             @SerializedName("statement")
             private ModifyStatement[] statement;
-        
+
             /**
              * 设置变量值
              *
@@ -203,7 +204,7 @@ public class ApiModifyPolicy extends Api {
                 this.newAlias = newAlias;
                 return this;
             }
-        
+
             /**
              * 设置变量值
              *
@@ -214,7 +215,7 @@ public class ApiModifyPolicy extends Api {
                 this.description = description;
                 return this;
             }
-        
+
             /**
              * 设置变量值
              *
@@ -232,18 +233,18 @@ public class ApiModifyPolicy extends Api {
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         /**
          * 返回的授权策略响应
          */
         private ModifiedPolicyResp data;
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
-    
+
             this.data = Json.decode(response.bodyString(), ModifiedPolicyResp.class);
         }
-    
+
         /**
          * 响应信息
          *
@@ -252,30 +253,30 @@ public class ApiModifyPolicy extends Api {
         public ModifiedPolicyResp getData() {
             return this.data;
         }
-            
+
         /**
-          * 授权策略规则
-          */
+         * 授权策略规则
+         */
         public static final class ModifiedStatement {
-        
+
             /**
              * 授权策略规则的操作集合
              */
             @SerializedName("action")
             private String[] actions;
-        
+
             /**
              * 授权策略规则的资源集合
              */
             @SerializedName("resource")
             private String[] resources;
-        
+
             /**
              * 授权策略规则的生效类型，允许访问或拒绝访问
              */
             @SerializedName("effect")
             private String effect;
-        
+
             /**
              * 获取变量值
              * 授权策略规则的操作集合
@@ -285,7 +286,7 @@ public class ApiModifyPolicy extends Api {
             public String[] getActions() {
                 return this.actions;
             }
-        
+
             /**
              * 获取变量值
              * 授权策略规则的资源集合
@@ -295,7 +296,7 @@ public class ApiModifyPolicy extends Api {
             public String[] getResources() {
                 return this.resources;
             }
-        
+
             /**
              * 获取变量值
              * 授权策略规则的生效类型，允许访问或拒绝访问
@@ -305,60 +306,61 @@ public class ApiModifyPolicy extends Api {
             public String getEffect() {
                 return this.effect;
             }
-        }    
+        }
+
         /**
-          * 返回的授权策略信息
-          */
+         * 返回的授权策略信息
+         */
         public static final class ModifiedPolicyData {
-        
+
             /**
              * 记录 ID
              */
             @SerializedName("id")
             private String id;
-        
+
             /**
              * 根用户 uid
              */
             @SerializedName("root_uid")
             private Integer rootUid;
-        
+
             /**
              * 授权策略别名
              */
             @SerializedName("alias")
             private String alias;
-        
+
             /**
              * 授权策略描述
              */
             @SerializedName("description")
             private String description;
-        
+
             /**
              * 授权策略是否启用
              */
             @SerializedName("enabled")
             private Boolean enabled;
-        
+
             /**
              * 授权策略创建时间
              */
             @SerializedName("created_at")
             private String createdAt;
-        
+
             /**
              * 授权策略上次更新时间
              */
             @SerializedName("updated_at")
             private String updatedAt;
-        
+
             /**
              * 授权策略规则集合
              */
             @SerializedName("statement")
             private ModifiedStatement[] statement;
-        
+
             /**
              * 获取变量值
              * 记录 ID
@@ -368,7 +370,7 @@ public class ApiModifyPolicy extends Api {
             public String getId() {
                 return this.id;
             }
-        
+
             /**
              * 获取变量值
              * 根用户 uid
@@ -378,7 +380,7 @@ public class ApiModifyPolicy extends Api {
             public Integer getRootUid() {
                 return this.rootUid;
             }
-        
+
             /**
              * 获取变量值
              * 授权策略别名
@@ -388,7 +390,7 @@ public class ApiModifyPolicy extends Api {
             public String getAlias() {
                 return this.alias;
             }
-        
+
             /**
              * 获取变量值
              * 授权策略描述
@@ -398,7 +400,7 @@ public class ApiModifyPolicy extends Api {
             public String getDescription() {
                 return this.description;
             }
-        
+
             /**
              * 获取变量值
              * 授权策略是否启用
@@ -408,7 +410,7 @@ public class ApiModifyPolicy extends Api {
             public Boolean getEnabled() {
                 return this.enabled;
             }
-        
+
             /**
              * 获取变量值
              * 授权策略创建时间
@@ -418,7 +420,7 @@ public class ApiModifyPolicy extends Api {
             public String getCreatedAt() {
                 return this.createdAt;
             }
-        
+
             /**
              * 获取变量值
              * 授权策略上次更新时间
@@ -428,7 +430,7 @@ public class ApiModifyPolicy extends Api {
             public String getUpdatedAt() {
                 return this.updatedAt;
             }
-        
+
             /**
              * 获取变量值
              * 授权策略规则集合
@@ -438,18 +440,19 @@ public class ApiModifyPolicy extends Api {
             public ModifiedStatement[] getStatement() {
                 return this.statement;
             }
-        }    
+        }
+
         /**
-          * 返回的授权策略响应
-          */
+         * 返回的授权策略响应
+         */
         public static final class ModifiedPolicyResp {
-        
+
             /**
              * 授权策略信息
              */
             @SerializedName("data")
             private ModifiedPolicyData data;
-        
+
             /**
              * 获取变量值
              * 授权策略信息

@@ -4,20 +4,21 @@ import com.qiniu.common.Zone;
 import com.qiniu.http.Dns;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import qiniu.happydns.DnsClient;
 import qiniu.happydns.Domain;
 import qiniu.happydns.IResolver;
 import qiniu.happydns.local.Resolver;
 import qiniu.happydns.local.SystemDnsServer;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 
 // example
 public class DnsTest {

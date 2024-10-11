@@ -10,7 +10,7 @@ import com.qiniu.util.StringMap;
 
 
 /**
-  * 触发持久化数据处理命令
+ * 触发持久化数据处理命令
  */
 public class ApiPfop extends Api {
 
@@ -48,52 +48,52 @@ public class ApiPfop extends Api {
      * 请求信息
      */
     public static class Request extends Api.Request {
-    
+
         /**
          * 空间名称
          */
         private String bucketName;
-    
+
         /**
          * 对象名称
          */
         private String objectName;
-    
+
         /**
          * 数据处理命令列表，以 `;` 分隔，可以指定多个数据处理命令
          */
         private String fops = null;
-    
+
         /**
          * 处理结果通知接收 URL
          */
         private String notifyUrl = null;
-    
+
         /**
          * 强制执行数据处理，设为 `1`，则可强制执行数据处理并覆盖原结果
          */
         private Integer force = null;
-    
+
         /**
          * 任务类型，支持 `0` 表示普通任务，`1` 表示闲时任务
          */
         private Integer type = null;
-    
+
         /**
          * 对列名，仅适用于普通任务
          */
         private String pipeline = null;
-    
+
         /**
          * 工作流模板 ID
          */
         private String workflowTemplateId = null;
-    
+
         /**
          * 请求构造函数
          *
-         * @param urlPrefix 请求 scheme + host 【可选】
-         *                  若为空则会直接从 HostProvider 中获取
+         * @param urlPrefix  请求 scheme + host 【可选】
+         *                   若为空则会直接从 HostProvider 中获取
          * @param bucketName 空间名称 【必须】
          * @param objectName 对象名称 【必须】
          */
@@ -104,7 +104,7 @@ public class ApiPfop extends Api {
             this.bucketName = bucketName;
             this.objectName = objectName;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -115,7 +115,7 @@ public class ApiPfop extends Api {
             this.fops = fops;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -126,7 +126,7 @@ public class ApiPfop extends Api {
             this.notifyUrl = notifyUrl;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -137,7 +137,7 @@ public class ApiPfop extends Api {
             this.force = force;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -148,7 +148,7 @@ public class ApiPfop extends Api {
             this.type = type;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -159,7 +159,7 @@ public class ApiPfop extends Api {
             this.pipeline = pipeline;
             return this;
         }
-    
+
         /**
          * 设置参数【可选】
          *
@@ -170,7 +170,7 @@ public class ApiPfop extends Api {
             this.workflowTemplateId = workflowTemplateId;
             return this;
         }
-    
+
         @Override
         protected void prepareToRequest() throws QiniuException {
             if (this.bucketName == null) {
@@ -179,28 +179,28 @@ public class ApiPfop extends Api {
             if (this.objectName == null) {
                 throw new QiniuException(new NullPointerException("objectName can't empty"));
             }
-    
+
             super.prepareToRequest();
         }
-    
+
         @Override
         protected void buildPath() throws QiniuException {
             addPathSegment("pfop/");
             super.buildPath();
         }
-    
+
         @Override
         protected void buildQuery() throws QiniuException {
-    
+
             super.buildQuery();
         }
-    
+
         @Override
         protected void buildHeader() throws QiniuException {
-    
+
             super.buildHeader();
         }
-    
+
         @Override
         protected void buildBodyInfo() throws QiniuException {
             StringMap fields = new StringMap();
@@ -225,28 +225,28 @@ public class ApiPfop extends Api {
                 fields.put("workflowTemplateID", this.workflowTemplateId);
             }
             this.setFormBody(fields);
-    
+
             super.buildBodyInfo();
         }
-        
+
     }
 
     /**
      * 响应信息
      */
     public static class Response extends Api.Response {
-    
+
         /**
          * 返回的持久化数据处理任务 ID
          */
         private PfopId data;
-    
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
-    
+
             this.data = Json.decode(response.bodyString(), PfopId.class);
         }
-    
+
         /**
          * 响应信息
          *
@@ -255,18 +255,18 @@ public class ApiPfop extends Api {
         public PfopId getData() {
             return this.data;
         }
-            
+
         /**
-          * 返回的持久化数据处理任务 ID
-          */
+         * 返回的持久化数据处理任务 ID
+         */
         public static final class PfopId {
-        
+
             /**
              * 持久化数据处理任务 ID
              */
             @SerializedName("persistentId")
             private String persistentId;
-        
+
             /**
              * 获取变量值
              * 持久化数据处理任务 ID

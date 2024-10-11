@@ -35,6 +35,7 @@ public class Zone {
 
     /**
      * 华东机房相关域名
+     *
      * @return 域名信息
      */
     public static Zone zone0() {
@@ -50,6 +51,7 @@ public class Zone {
 
     /**
      * 华东机房相关域名
+     *
      * @return 域名信息
      */
     public static Zone huadong() {
@@ -58,6 +60,7 @@ public class Zone {
 
     /**
      * 华东机房内网上传相关域名
+     *
      * @return 域名信息
      */
     public static Zone qvmZone0() {
@@ -73,6 +76,7 @@ public class Zone {
 
     /**
      * 华东机房内网上传相关域名
+     *
      * @return 域名信息
      */
     public static Zone qvmHuadong() {
@@ -81,6 +85,7 @@ public class Zone {
 
     /**
      * 华北机房相关域名
+     *
      * @return 域名信息
      */
     public static Zone zone1() {
@@ -96,6 +101,7 @@ public class Zone {
 
     /**
      * 华北机房相关域名
+     *
      * @return 域名信息
      */
     public static Zone huabei() {
@@ -104,6 +110,7 @@ public class Zone {
 
     /**
      * 华北机房内网上传相关域名
+     *
      * @return 域名信息
      */
     public static Zone qvmZone1() {
@@ -119,6 +126,7 @@ public class Zone {
 
     /**
      * 华北机房内网上传相关域名
+     *
      * @return 域名信息
      */
     public static Zone qvmHuabei() {
@@ -127,6 +135,7 @@ public class Zone {
 
     /**
      * 华南机房相关域名
+     *
      * @return 域名信息
      */
     public static Zone zone2() {
@@ -142,6 +151,7 @@ public class Zone {
 
     /**
      * 华南机房相关域名
+     *
      * @return 域名信息
      */
     public static Zone huanan() {
@@ -150,6 +160,7 @@ public class Zone {
 
     /**
      * 北美机房相关域名
+     *
      * @return 域名信息
      */
     public static Zone zoneNa0() {
@@ -165,6 +176,7 @@ public class Zone {
 
     /**
      * 北美机房相关域名
+     *
      * @return 域名信息
      */
     public static Zone beimei() {
@@ -173,6 +185,7 @@ public class Zone {
 
     /**
      * 新加坡相关域名
+     *
      * @return 域名信息
      */
     public static Zone zoneAs0() {
@@ -188,6 +201,7 @@ public class Zone {
 
     /**
      * 新加坡机房相关域名
+     *
      * @return 域名信息
      */
     public static Zone xinjiapo() {
@@ -217,7 +231,7 @@ public class Zone {
     /**
      * 获取上传 HTTP URL
      *
-     * @param zoneReqInfo  token 信息
+     * @param zoneReqInfo token 信息
      * @return URL
      */
     public String getUpHttp(ZoneReqInfo zoneReqInfo) {
@@ -227,7 +241,7 @@ public class Zone {
     /**
      * 获取上传 HTTPS URL
      *
-     * @param zoneReqInfo  token 信息
+     * @param zoneReqInfo token 信息
      * @return URL
      */
     public String getUpHttps(ZoneReqInfo zoneReqInfo) {
@@ -237,7 +251,7 @@ public class Zone {
     /**
      * 获取备用上传 HTTP URL
      *
-     * @param zoneReqInfo  token 信息
+     * @param zoneReqInfo token 信息
      * @return URL
      */
     public String getUpBackupHttp(ZoneReqInfo zoneReqInfo) {
@@ -247,7 +261,7 @@ public class Zone {
     /**
      * 获取备用上传 HTTPS URL
      *
-     * @param zoneReqInfo  token 信息
+     * @param zoneReqInfo token 信息
      * @return URL
      */
     public String getUpBackupHttps(ZoneReqInfo zoneReqInfo) {

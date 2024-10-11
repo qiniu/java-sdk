@@ -54,8 +54,8 @@ task docJar(type: Jar, dependsOn: javadocs) {
 }
 
 publishing {
-    publications{
-        mavenJava(MavenPublication){
+    publications {
+        mavenJava(MavenPublication) {
 
             groupId = GROUP
             artifactId = POM_ARTIFACT_ID
@@ -90,9 +90,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection= POM_SCM_CONNECTION
-                    developerConnection=POM_SCM_DEV_CONNECTION
-                    url=POM_SCM_URL
+                    connection = POM_SCM_CONNECTION
+                    developerConnection = POM_SCM_DEV_CONNECTION
+                    url = POM_SCM_URL
                 }
             }
         }

@@ -9,20 +9,20 @@ import com.qiniu.storage.StreamUploader;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Etag;
 import com.qiniu.util.StringMap;
-import test.com.qiniu.TempFile;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Created by long on 2016/11/4.

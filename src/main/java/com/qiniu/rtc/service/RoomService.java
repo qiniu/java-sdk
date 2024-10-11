@@ -3,9 +3,9 @@ package com.qiniu.rtc.service;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
+import com.qiniu.rtc.model.RoomAccess;
 import com.qiniu.rtc.model.RoomParam;
 import com.qiniu.rtc.model.UrlParam;
-import com.qiniu.rtc.model.RoomAccess;
 import com.qiniu.util.Auth;
 
 /**
