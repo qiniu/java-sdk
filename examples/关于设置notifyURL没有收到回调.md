@@ -19,7 +19,7 @@ eg：curl -vX POST "URL" -d "name=123.jpg"
 用户那边如果能够正常打印出该内容，说明用户的接收程序是没有问题的。
 
 3.如果以上条件都没有问题的情况下，应该是用户持续化处理本身的代码是有问题的，应该是用户设置的persistentNotifyUrl或者notifyurl没有设置成功，这个时候我们可以让用户在程序里面调试打印下这个URL的值，或者提供下返回的persistentID我们可以请求下获得ReqID然后在日志机上查询下是否是正确的，比如，之前查到的一个结果如下：
-url.Values{"notifyURL":[]string{""}, "force":[]string{""}
+url.Values{"notifyURL":[]string{""}, "force":[]string{""}}
 这就明显看出用户设置的notifyURL是没有传进去的。
 
 这时，我们可以让用户提供下代码，检查下用户代码参数设置是否是有问题的，因为，*

@@ -500,7 +500,7 @@ public class Api {
             }
 
             try {
-                if (!urlPrefix.startsWith("http")) {
+                if (!urlPrefix.startsWith("http://") && !urlPrefix.startsWith("https://")) {
                     urlPrefix = "http://" + urlPrefix;
                 }
 

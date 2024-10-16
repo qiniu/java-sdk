@@ -3,8 +3,6 @@ package data
 import (
 	"fmt"
 
-	"github.com/getkin/kin-openapi/openapi3"
-
 	"github.com/YangSen-qn/code-gen/src/apidesc"
 	"github.com/YangSen-qn/code-gen/src/generator/lang"
 )
@@ -439,9 +437,4 @@ func parseOptional(encode *apidesc.EncodeType, optional *apidesc.OptionalType) (
 		valueOptional = len(encodeType) > 0 && len(encodeDefault) > 0 // encode 有默认值，此 value 可以不传
 	}
 	return
-}
-
-func a() {
-	loader := openapi3.NewLoader()
-	_, _ = loader.LoadFromFile("my-openapi-spec.json")
 }
