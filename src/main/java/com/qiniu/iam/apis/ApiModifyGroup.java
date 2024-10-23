@@ -160,9 +160,164 @@ public class ApiModifyGroup extends Api {
      */
     public static class Response extends Api.Response {
 
+        /**
+         * 返回的用户分组响应
+         */
+        private ModifyGroupResp data;
+
         protected Response(com.qiniu.http.Response response) throws QiniuException {
             super(response);
+
+            this.data = Json.decode(response.bodyString(), ModifyGroupResp.class);
         }
 
+        /**
+         * 响应信息
+         *
+         * @return ModifyGroupResp
+         */
+        public ModifyGroupResp getData() {
+            return this.data;
+        }
+
+        /**
+         * 返回的用户分组信息
+         */
+        public static final class ModifyGroupData {
+
+            /**
+             * 记录 ID
+             */
+            @SerializedName("id")
+            private String id;
+
+            /**
+             * 根用户 uid
+             */
+            @SerializedName("root_uid")
+            private Integer rootUid;
+
+            /**
+             * 用户分组别名
+             */
+            @SerializedName("alias")
+            private String alias;
+
+            /**
+             * 用户分组描述
+             */
+            @SerializedName("description")
+            private String description;
+
+            /**
+             * 用户分组是否启用
+             */
+            @SerializedName("enabled")
+            private Boolean enabled;
+
+            /**
+             * 用户分组创建时间
+             */
+            @SerializedName("created_at")
+            private String createdAt;
+
+            /**
+             * 用户分组上次更新时间
+             */
+            @SerializedName("updated_at")
+            private String updatedAt;
+
+            /**
+             * 获取变量值
+             * 记录 ID
+             *
+             * @return id
+             */
+            public String getId() {
+                return this.id;
+            }
+
+            /**
+             * 获取变量值
+             * 根用户 uid
+             *
+             * @return rootUid
+             */
+            public Integer getRootUid() {
+                return this.rootUid;
+            }
+
+            /**
+             * 获取变量值
+             * 用户分组别名
+             *
+             * @return alias
+             */
+            public String getAlias() {
+                return this.alias;
+            }
+
+            /**
+             * 获取变量值
+             * 用户分组描述
+             *
+             * @return description
+             */
+            public String getDescription() {
+                return this.description;
+            }
+
+            /**
+             * 获取变量值
+             * 用户分组是否启用
+             *
+             * @return enabled
+             */
+            public Boolean getEnabled() {
+                return this.enabled;
+            }
+
+            /**
+             * 获取变量值
+             * 用户分组创建时间
+             *
+             * @return createdAt
+             */
+            public String getCreatedAt() {
+                return this.createdAt;
+            }
+
+            /**
+             * 获取变量值
+             * 用户分组上次更新时间
+             *
+             * @return updatedAt
+             */
+            public String getUpdatedAt() {
+                return this.updatedAt;
+            }
+        }
+
+        /**
+         * 返回的用户分组响应
+         */
+        public static final class ModifyGroupResp {
+
+            /**
+             * 用户分组信息
+             */
+            @SerializedName("data")
+            private ModifyGroupData data;
+
+            /**
+             * 获取变量值
+             * 用户分组信息
+             *
+             * @return data
+             */
+            public ModifyGroupData getData() {
+                return this.data;
+            }
+        }
     }
 }

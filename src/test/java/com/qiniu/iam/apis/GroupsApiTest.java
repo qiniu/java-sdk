@@ -118,8 +118,16 @@ public class GroupsApiTest {
             ApiModifyGroup.Request modifyGroupRequest = new ApiModifyGroup.Request(baseUrl, groupAlias, modifyGroupParam);
             ApiModifyGroup modifyGroupApi = new ApiModifyGroup(null, config);
             ApiModifyGroup.Response modifyGroupResponse = modifyGroupApi.request(modifyGroupRequest);
-            Assertions.assertNotNull(modifyGroupResponse, "4. 创建分组失败：" + modifyGroupRequest);
-            Assertions.assertTrue(modifyGroupResponse.isOK(), "4.1 创建分组失败：" + modifyGroupRequest);
+            Assertions.assertNotNull(modifyGroupResponse, "4. 修改分组失败：" + modifyGroupResponse);
+            Assertions.assertTrue(modifyGroupResponse.isOK(), "4.1 修改分组失败：" + modifyGroupResponse);
+            ApiModifyGroup.Response.ModifyGroupData modifyGroupResponseData = modifyGroupResponse.getData().getData();
+            Assertions.assertNotNull(modifyGroupResponseData.getId(), "4.2 修改分组失败：" + modifyGroupResponse);
+            Assertions.assertNotNull(modifyGroupResponseData.getRootUid(), "4.3 修改分组失败：" + modifyGroupResponse);
+            Assertions.assertNotNull(modifyGroupResponseData.getAlias(), "4.4 修改分组失败：" + modifyGroupResponse);
+            Assertions.assertEquals(modifyGroupResponseData.getDescription(), groupDescription, "4.5 修改分组失败：" + modifyGroupResponse);
+            Assertions.assertEquals(modifyGroupResponseData.getEnabled(), true, "4.6 修改分组失败：" + modifyGroupResponse);
+            Assertions.assertNotNull(modifyGroupResponseData.getCreatedAt(), "4.7 修改分组失败：" + modifyGroupResponse);
+            Assertions.assertNotNull(modifyGroupResponseData.getUpdatedAt(), "4.8 修改分组失败：" + modifyGroupResponse);
 
             groupAlias = newGroupAlias;
 
