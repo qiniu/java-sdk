@@ -57,7 +57,7 @@ public class PfopTest {
             System.out.println(fops);
 
             try {
-                String jobid = operationManager.pfop(bucket, TestConfig.testMp4FileKey, fops, null, notifyURL, force);
+                String jobid = operationManager.pfop(bucket, TestConfig.testMp4FileKey, fops, "", notifyURL, force);
                 assertNotNull(jobid);
                 assertNotEquals("", jobid);
                 ids.add(jobid);

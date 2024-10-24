@@ -116,10 +116,10 @@ public final class OperationManager {
         }
         String pipeline = null;
         if (params.get("pipeline") != null) {
-            if (params.get("pipeline") instanceof Integer) {
+            if (params.get("pipeline") instanceof String) {
                 pipeline = (String) params.get("pipeline");
             } else {
-                throw QiniuException.unrecoverable("pipeline type error, String be Integer");
+                throw QiniuException.unrecoverable("pipeline type error, should be String");
             }
         }
         String notifyUrl = null;

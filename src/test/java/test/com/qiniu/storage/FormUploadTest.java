@@ -95,6 +95,8 @@ public class FormUploadTest {
     @Tag("IntegrationTest")
     public void testEmptyUploadHosts() {
         Region region = new Region.Builder()
+                .srcUpHost(null)
+                .accUpHost(null)
                 .build();
         Configuration config = new Configuration(region);
         UploadManager uploadManager = new UploadManager(config);
