@@ -2,7 +2,6 @@ package test.com.qiniu.rtc;
 
 import com.qiniu.rtc.QRTC;
 import com.qiniu.rtc.QRTCClient;
-
 import org.junit.jupiter.api.BeforeAll;
 import test.com.qiniu.TestConfig;
 

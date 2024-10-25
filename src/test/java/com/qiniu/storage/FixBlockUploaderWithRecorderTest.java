@@ -8,18 +8,20 @@ import com.qiniu.storage.persistent.FileRecorder;
 import com.qiniu.util.EtagV2;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
-import test.com.qiniu.TempFile;
-import test.com.qiniu.TestConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import java.io.File;
-import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import test.com.qiniu.TempFile;
+import test.com.qiniu.TestConfig;
+
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FixBlockUploaderWithRecorderTest {
     int blockSize = 1024 * 1024 * 8;
@@ -85,12 +87,12 @@ public class FixBlockUploaderWithRecorderTest {
     }
 
     public void breakThenUpload(ExecutorService pool1, ExecutorService pool2, ExecutorService pool3, int upSecondsTime1,
-            int upSecondsTime2) throws IOException {
+                                int upSecondsTime2) throws IOException {
         breakThenUpload(pool1, pool2, pool3, upSecondsTime1, upSecondsTime2, 8);
     }
 
     public void breakThenUpload(final ExecutorService pool1, final ExecutorService pool2, final ExecutorService pool3,
-            int upSecondsTime1, int upSecondsTime2, final int maxRunningBlock) throws IOException {
+                                int upSecondsTime1, int upSecondsTime2, final int maxRunningBlock) throws IOException {
         final long size = 1024 * 53 + 1039;
         final String expectKey = "\r\n?&r=" + size + "k" + System.currentTimeMillis();
         final File f = TempFile.createFileOld(size);
@@ -124,7 +126,7 @@ public class FixBlockUploaderWithRecorderTest {
         // 显示断点记录文件
         Thread showRecord = new Thread() {
             public void run() {
-                for (;;) {
+                for (; ; ) {
                     doSleep(1000);
                     showRecord("normal: " + size + " :", recorder, recordKey);
                 }
@@ -233,7 +235,7 @@ public class FixBlockUploaderWithRecorderTest {
     }
 
     private void upload(int idx, FixBlockUploader.FileBlockData fbd, String token, String expectKey,
-            final ExecutorService pool, int maxRunningBlock, final AtomicBoolean tFinished, String etag) {
+                        final ExecutorService pool, int maxRunningBlock, final AtomicBoolean tFinished, String etag) {
         try {
             System.out.println("------ start " + idx + ", " + new Date());
             Response r = up.upload(fbd, new FixBlockUploader.StaticToken(token), expectKey, null, pool,
@@ -281,7 +283,7 @@ public class FixBlockUploaderWithRecorderTest {
         String recordFileKey;
 
         UploadRecordHelper(Recorder recorder, String bucket, String base64Key, String contentUUID,
-                String uploaderSUID) {
+                           String uploaderSUID) {
             if (recorder != null) {
                 this.recorder = recorder;
                 recordFileKey = recorder.recorderKeyGenerate(bucket, base64Key, contentUUID, uploaderSUID);

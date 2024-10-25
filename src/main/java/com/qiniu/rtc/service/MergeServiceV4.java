@@ -1,9 +1,9 @@
 package com.qiniu.rtc.service;
 
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
 import com.qiniu.rtc.model.MergeJob;
 import com.qiniu.util.Auth;
-import com.qiniu.http.Response;
-import com.qiniu.common.QiniuException;
 import com.qiniu.util.StringUtils;
 
 import java.util.HashMap;

@@ -1,10 +1,12 @@
 package test.com.qiniu.util;
 
 import com.qiniu.util.UrlSafeBase64;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import java.io.UnsupportedEncodingException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import java.io.UnsupportedEncodingException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Base64Test {
     @Test

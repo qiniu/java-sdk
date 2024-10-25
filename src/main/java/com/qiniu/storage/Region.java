@@ -436,12 +436,20 @@ public class Region implements Cloneable {
         }
 
         public Builder srcUpHost(String... srcUpHosts) {
-            this.region.srcUpHosts = Arrays.asList(srcUpHosts);
+            if (srcUpHosts == null) {
+                this.region.srcUpHosts = null;
+            } else {
+                this.region.srcUpHosts = Arrays.asList(srcUpHosts);
+            }
             return this;
         }
 
         public Builder accUpHost(String... accUpHosts) {
-            this.region.accUpHosts = Arrays.asList(accUpHosts);
+            if (accUpHosts == null) {
+                this.region.accUpHosts = null;
+            } else {
+                this.region.accUpHosts = Arrays.asList(accUpHosts);
+            }
             return this;
         }
 
@@ -506,6 +514,13 @@ public class Region implements Cloneable {
          * @return 区域信息
          */
         public Region build() {
+            if (region.srcUpHosts == null) {
+                region.srcUpHosts = new ArrayList<>();
+            }
+            if (region.accUpHosts == null) {
+                region.accUpHosts = new ArrayList<>();
+            }
+
             return region;
         }
     }

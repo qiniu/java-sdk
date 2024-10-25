@@ -30,6 +30,13 @@ public class OperationStatus {
      */
     public String inputBucket;
 
+    /***
+     * taskFrom
+     * 1. 如果没有 taskFrom, 则表示是通过 api+fops命令 提交的任务, 否则见 2
+     * 2. taskFrom 字段规则: <source>: <source_id>，其中 source 当前可选: workflow|trigger
+     **/
+    public String taskFrom;
+
     /**
      * 云处理操作的处理队列
      */

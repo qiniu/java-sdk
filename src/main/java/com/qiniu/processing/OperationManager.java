@@ -2,7 +2,9 @@ package com.qiniu.processing;
 
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
-import com.qiniu.http.Response;
+import com.qiniu.media.apis.ApiPfop;
+import com.qiniu.media.apis.ApiPrefop;
+import com.qiniu.storage.Api;
 import com.qiniu.storage.Configuration;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
@@ -80,25 +82,100 @@ public final class OperationManager {
      * @param bucket 空间名
      * @param key    文件名
      * @param fops   fops指令，如果有多个指令，需要使用分号(;)进行拼接，例如 avthumb/mp4/xxx|saveas/xxx;vframe/jpg/xxx|saveas/xxx
-     * @param params notifyURL、force、pipeline、type等参数
+     * @param params notifyURL、force、pipeline、type、persistentWorkflowTemplateID等参数
      * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
      * @throws QiniuException 触发失败异常，包含错误响应等信息
      *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 相关链接 </a>
      */
     public String pfop(String bucket, String key, String fops, StringMap params) throws QiniuException {
-        params = params == null ? new StringMap() : params;
-        params.put("bucket", bucket).put("key", key).put("fops", fops);
-        byte[] data = StringUtils.utf8Bytes(params.formString());
-        String url = configuration.apiHost(auth.accessKey, bucket) + "/pfop/";
-        StringMap headers = auth.authorizationV2(url, "POST", data, Client.FormMime);
-        Response response = client.post(url, data, headers, Client.FormMime);
-        if (!response.isOK()) {
-            throw new QiniuException(response);
+        if (params == null) {
+            params = new StringMap();
         }
-        PfopResult status = response.jsonToObject(PfopResult.class);
-        response.close();
+        params.put("fops", fops);
+        return pfop(bucket, key, params);
+    }
+
+    /**
+     * 发送请求对空间中的文件进行持久化处理
+     *
+     * @param bucket 空间名
+     * @param key    文件名
+     * @param params notifyURL、force、pipeline、type、fops、persistentWorkflowTemplateID 等参数
+     * @return persistentId 请求返回的任务ID，可以根据该ID查询任务状态
+     * @throws QiniuException 触发失败异常，包含错误响应等信息
+     *                        <a href="http://developer.qiniu.com/dora/api/persistent-data-processing-pfop"> 相关链接 </a>
+     */
+    public String pfop(String bucket, String key, StringMap params) throws QiniuException {
+        Integer force = null;
+        if (params.get("force") != null) {
+            if (params.get("force") instanceof Integer) {
+                force = (Integer) params.get("force");
+            } else {
+                throw QiniuException.unrecoverable("force type error, should be Integer");
+            }
+        }
+        String pipeline = null;
+        if (params.get("pipeline") != null) {
+            if (params.get("pipeline") instanceof String) {
+                pipeline = (String) params.get("pipeline");
+            } else {
+                throw QiniuException.unrecoverable("pipeline type error, should be String");
+            }
+        }
+        String notifyUrl = null;
+        if (params.get("notifyURL") != null) {
+            if (params.get("notifyURL") instanceof String) {
+                notifyUrl = (String) params.get("notifyURL");
+            } else {
+                throw QiniuException.unrecoverable("notifyURL type error, should be String");
+            }
+        }
+        Integer type = null;
+        if (params.get("type") != null) {
+            if (params.get("type") instanceof Integer) {
+                type = (Integer) params.get("type");
+            } else {
+                throw QiniuException.unrecoverable("type type error, should be Integer");
+            }
+        }
+        String fops = null;
+        if (params.get("fops") != null) {
+            if (params.get("fops") instanceof String) {
+                fops = (String) params.get("fops");
+            } else {
+                throw QiniuException.unrecoverable("fops type error, should be String");
+            }
+        }
+        String workflowTemplateID = null;
+        if (params.get("persistentWorkflowTemplateID") != null) {
+            if (params.get("persistentWorkflowTemplateID") instanceof String) {
+                workflowTemplateID = (String) params.get("persistentWorkflowTemplateID");
+            } else {
+                throw QiniuException.unrecoverable("persistentWorkflowTemplateID type error, should be String");
+            }
+        }
+
+        String url = configuration.apiHost(auth.accessKey, bucket);
+        ApiPfop.Request request = new ApiPfop.Request(url, bucket, key)
+                .setFops(fops)
+                .setWorkflowTemplateId(workflowTemplateID)
+                .setPipeline(pipeline)
+                .setForce(force)
+                .setNotifyUrl(notifyUrl)
+                .setType(type);
+        ApiPfop api = new ApiPfop(client, new Api.Config.Builder()
+                .setAuth(auth)
+                .build());
+        ApiPfop.Response response = api.request(request);
+        if (response == null) {
+            throw QiniuException.unrecoverable("unknown error");
+        }
+        if (!response.isOK()) {
+            throw new QiniuException(response.getResponse());
+        }
+        ApiPfop.Response.PfopId status = response.getData();
         if (status != null) {
-            return status.persistentId;
+            return status.getPersistentId();
         }
         return null;
     }
@@ -211,14 +288,7 @@ public final class OperationManager {
      */
     @Deprecated
     public <T> T prefop(String persistentId, Class<T> retClass) throws QiniuException {
-        String url = String.format("%s/status/get/prefop?id=%s", configuration.apiHost(), persistentId);
-        Response response = this.client.get(url);
-        if (!response.isOK()) {
-            throw new QiniuException(response);
-        }
-        T object = response.jsonToObject(retClass);
-        response.close();
-        return object;
+        return prefop(null, persistentId, retClass);
     }
 
     /**
@@ -245,17 +315,25 @@ public final class OperationManager {
      * @throws QiniuException 异常
      */
     public <T> T prefop(String bucket, String persistentId, Class<T> retClass) throws QiniuException {
-        String url = String.format("%s/status/get/prefop?id=%s", configuration.apiHost(auth.accessKey, bucket), persistentId);
-        Response response = this.client.get(url);
-        if (!response.isOK()) {
-            throw new QiniuException(response);
+        String url = null;
+        if (!StringUtils.isNullOrEmpty(bucket)) {
+            url = configuration.apiHost(auth.accessKey, bucket);
+        } else {
+            url = configuration.apiHost();
         }
-        T object = response.jsonToObject(retClass);
-        response.close();
-        return object;
-    }
 
-    private class PfopResult {
-        public String persistentId;
+        ApiPrefop.Request request = new ApiPrefop.Request(url, persistentId);
+        ApiPrefop api = new ApiPrefop(client, new Api.Config.Builder()
+                .setAuth(auth)
+                .build());
+        ApiPrefop.Response response = api.request(request);
+        if (response == null) {
+            throw QiniuException.unrecoverable("unknown error");
+        }
+        if (!response.isOK()) {
+            throw new QiniuException(response.getResponse());
+        }
+
+        return response.getResponse().jsonToObject(retClass);
     }
 }

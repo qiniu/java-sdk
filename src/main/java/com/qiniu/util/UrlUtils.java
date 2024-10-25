@@ -216,7 +216,7 @@ public class UrlUtils {
             return null;
         }
 
-        if (host.startsWith("http://") || host.startsWith("https://") ) {
+        if (host.startsWith("http://") || host.startsWith("https://")) {
             return host;
         }
 

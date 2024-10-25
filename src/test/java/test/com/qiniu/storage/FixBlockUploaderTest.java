@@ -10,19 +10,18 @@ import com.qiniu.storage.FixBlockUploader;
 import com.qiniu.storage.Region;
 import com.qiniu.util.EtagV2;
 import com.qiniu.util.StringMap;
-import test.com.qiniu.TempFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FixBlockUploaderTest {
     int blockSize = 1024 * 1021 * 7;

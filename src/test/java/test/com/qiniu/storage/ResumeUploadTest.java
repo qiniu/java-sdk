@@ -9,22 +9,18 @@ import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Etag;
 import com.qiniu.util.Md5;
 import com.qiniu.util.StringMap;
-
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TempFile;
 import test.com.qiniu.TestConfig;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ResumeUploadTest {
 

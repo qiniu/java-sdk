@@ -60,7 +60,7 @@ public class ForwardService extends AbstractService {
      * 参数校验
      *
      * @param roomId 房间ID
-     * @param param 转推参数对象
+     * @param param  转推参数对象
      * @throws IllegalArgumentException 参数不合法异常
      */
     private void checkParams(String roomId, ForwardParam param) throws IllegalArgumentException {

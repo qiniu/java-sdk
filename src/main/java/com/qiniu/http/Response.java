@@ -71,20 +71,19 @@ public final class Response {
         this.method = getMethod(response);
     }
 
-    private String getMethod(okhttp3.Response response) {
-        String method = null;
-        if (response != null) {
-            Request req = response.request();
-            if (req != null) {
-                method = req.method();
-            }
-        }
-        if (method == null) {
-            method = "";
-        }
-        return method;
-    }
-
+    /***
+     * 构造请求方法，此处可能会尝试读取 body，如果 body 读取失败会保留原始的
+     * 状态码，因此判断请求是否成功使用 Response.isOK()
+     * <p>
+     * SDK 内部处理：
+     * 同步请求，请求失败会抛异常
+     * 异步请求，判断请求是否成功使用 Response.isOK()
+     *
+     * @param response okhttp3 请求 response
+     * @param address 请求 address
+     * @param duration 请求耗时
+     * @return com.qiniu.http.Response 七牛 Response
+     **/
     public static Response create(okhttp3.Response response, String address, double duration) {
         String error = null;
         int code = response.code();
@@ -148,15 +147,10 @@ public final class Response {
                 address, duration, error, body);
     }
 
-    public okhttp3.Response getResponse() {
-        return response;
-    }
-
     public static Response createSuccessResponse() {
         return new Response(null, 200, "inter:reqId", null, "inter:via",
                 null, 0, null, new byte[0]);
     }
-
 
     private static String via(okhttp3.Response response) {
         String via;
@@ -180,6 +174,24 @@ public final class Response {
             return "";
         }
         return mediaType.type() + "/" + mediaType.subtype();
+    }
+
+    private String getMethod(okhttp3.Response response) {
+        String method = null;
+        if (response != null) {
+            Request req = response.request();
+            if (req != null) {
+                method = req.method();
+            }
+        }
+        if (method == null) {
+            method = "";
+        }
+        return method;
+    }
+
+    public okhttp3.Response getResponse() {
+        return response;
     }
 
     public boolean isOK() {

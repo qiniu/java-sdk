@@ -43,6 +43,10 @@ public class UploadDemo {
     //创建上传对象
     UploadManager uploadManager = new UploadManager(c);
 
+    public static void main(String args[]) throws IOException {
+        new UploadDemo().upload();
+    }
+
     //设置callbackUrl以及callbackBody,七牛将文件名和文件大小回调给业务服务器
     public String getUpToken() {
         return auth.uploadToken(bucketname, null, 3600, new StringMap()
@@ -67,10 +71,6 @@ public class UploadDemo {
                 //ignore
             }
         }
-    }
-
-    public static void main(String args[]) throws IOException {
-        new UploadDemo().upload();
     }
 
 }

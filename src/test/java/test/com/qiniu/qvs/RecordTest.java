@@ -3,19 +3,19 @@ package test.com.qiniu.qvs;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.RecordManager;
 import com.qiniu.util.Auth;
-import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
+import test.com.qiniu.TestConfig;
 
 public class RecordTest {
-    Auth auth = TestConfig.testAuth;
-    private RecordManager recordManager;
-    private Response res = null;
-    private Response res2 = null;
     private final String namespaceId = "3nm4x1e0xw855";
     private final String streamId = "31011500991320007536";
     private final String format = "m3u8";
     private final int start = 1640599830;
     private final int end = 1640600430;
+    Auth auth = TestConfig.testAuth;
+    private RecordManager recordManager;
+    private Response res = null;
+    private Response res2 = null;
 
     @BeforeEach
     public void setUp() throws Exception {

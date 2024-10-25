@@ -5,18 +5,14 @@ import com.qiniu.http.Response;
 import com.qiniu.processing.OperationManager;
 import com.qiniu.processing.OperationStatus;
 import com.qiniu.storage.Configuration;
+import com.qiniu.storage.Region;
 import com.qiniu.storage.UpCompletionHandler;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.StringMap;
-import test.com.qiniu.TempFile;
-import test.com.qiniu.TestConfig;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import test.com.qiniu.TempFile;
+import test.com.qiniu.TestConfig;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FormUploadTest {
 
@@ -90,6 +88,56 @@ public class FormUploadTest {
             Configuration config = new Configuration(file.getRegion());
             UploadManager uploadManager = new UploadManager(config);
             hello(uploadManager, file.getBucketName());
+        }
+    }
+
+    @Test
+    @Tag("IntegrationTest")
+    public void testEmptyUploadHosts() {
+        Region region = new Region.Builder()
+                .srcUpHost(null)
+                .accUpHost(null)
+                .build();
+        Configuration config = new Configuration(region);
+        UploadManager uploadManager = new UploadManager(config);
+        try {
+            String key = "empty_upload_hosts";
+            String token = TestConfig.testAuth.uploadToken(TestConfig.testBucket_na0, key);
+            Response response = uploadManager.put("".getBytes(), key, token, null, "", true);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        region = new Region.Builder()
+                .srcUpHost("aaa")
+                .build();
+        config = new Configuration(region);
+        uploadManager = new UploadManager(config);
+        try {
+            String key = "empty_upload_hosts";
+            String token = TestConfig.testAuth.uploadToken(TestConfig.testBucket_na0, key);
+            Response response = uploadManager.put("".getBytes(), key, token, null, "", true);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        region = new Region.Builder()
+                .accUpHost("aaa")
+                .build();
+        config = new Configuration(region);
+        uploadManager = new UploadManager(config);
+        try {
+            String key = "empty_upload_hosts";
+            String token = TestConfig.testAuth.uploadToken(TestConfig.testBucket_na0, key);
+            Response response = uploadManager.put("".getBytes(), key, token, null, "", true);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            fail(e);
         }
     }
 

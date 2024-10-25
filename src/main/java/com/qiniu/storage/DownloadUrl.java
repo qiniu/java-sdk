@@ -39,21 +39,21 @@ public class DownloadUrl {
     }
 
     /**
-     * 设置下载 domain
-     *
-     * @param domain 下载 domain
-     */
-    protected void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    /**
      * 获取下载 domain
      *
      * @return 下载 domain
      */
     protected String getDomain() {
         return domain;
+    }
+
+    /**
+     * 设置下载 domain
+     *
+     * @param domain 下载 domain
+     */
+    protected void setDomain(String domain) {
+        this.domain = domain;
     }
 
     /**
@@ -164,7 +164,7 @@ public class DownloadUrl {
         didSetKeyForUrl(request);
 
         if (!StringUtils.isNullOrEmpty(fop)) {
-            request.addQueryPair(fop, null);
+            request.addQueryPair(fop, (String) null);
         }
 
         for (Api.Request.Pair<String, String> pair : customQuerys) {

@@ -14,15 +14,14 @@ import java.util.concurrent.ExecutorService;
  */
 public final class Configuration implements Cloneable {
 
+    static final String ucBackUpHost0 = "kodo-config.qiniuapi.com";
+    static final String ucBackUpHost1 = "uc.qbox.me";
     /**
      * 特殊默认域名
      */
     public static String defaultRsHost = "rs.qiniu.com";
     public static String defaultApiHost = "api.qiniu.com";
     public static String defaultUcHost = "uc.qiniuapi.com";
-    static final String ucBackUpHost0 = "kodo-config.qiniuapi.com";
-    static final String ucBackUpHost1 = "uc.qbox.me";
-
     static final String[] defaultUcHosts = new String[]{defaultUcHost, ucBackUpHost0, ucBackUpHost1};
 
     /**

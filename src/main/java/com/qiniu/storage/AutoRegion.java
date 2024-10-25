@@ -3,7 +3,10 @@ package com.qiniu.storage;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
-import com.qiniu.util.*;
+import com.qiniu.util.Cache;
+import com.qiniu.util.StringUtils;
+import com.qiniu.util.UrlSafeBase64;
+import com.qiniu.util.UrlUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,22 +17,19 @@ import java.util.concurrent.ConcurrentHashMap;
 class AutoRegion extends Region {
 
     /**
-     * uc接口域名
-     */
-    private List<String> ucServers = new ArrayList<>();
-
-    /**
-     * 空间机房，域名信息缓存，此缓存绑定了 token、bucket，且仅 AutoRegion 对象内部有效。
-     */
-    private Map<String, Region> regions;
-
-    /**
      * 全局空间信息缓存，此缓存绑定了 token、bucket，全局有效。
      */
     private static final Cache<UCRet> globalRegionCache = new Cache.Builder<>(UCRet.class)
             .setVersion("v1")
             .builder();
-
+    /**
+     * uc接口域名
+     */
+    private List<String> ucServers = new ArrayList<>();
+    /**
+     * 空间机房，域名信息缓存，此缓存绑定了 token、bucket，且仅 AutoRegion 对象内部有效。
+     */
+    private Map<String, Region> regions;
     /**
      * 定义HTTP请求管理相关方法
      */
@@ -72,6 +72,20 @@ class AutoRegion extends Region {
         this.regions = new ConcurrentHashMap<>();
     }
 
+    static Region regionGroup(UCRet ret) {
+        if (ret == null || ret.hosts == null || ret.hosts.length == 0) {
+            return null;
+        }
+
+        RegionGroup group = new RegionGroup();
+        for (ServerRets host : ret.hosts) {
+            Region region = host.createRegion();
+            group.addRegion(region);
+        }
+
+        return group;
+    }
+
     /**
      * 通过 API 接口查询上传域名
      */
@@ -98,20 +112,6 @@ class AutoRegion extends Region {
             globalRegionCache.cache(cacheKey, ret);
         }
         return ret;
-    }
-
-    static Region regionGroup(UCRet ret) {
-        if (ret == null || ret.hosts == null || ret.hosts.length == 0) {
-            return null;
-        }
-
-        RegionGroup group = new RegionGroup();
-        for (ServerRets host : ret.hosts) {
-            Region region = host.createRegion();
-            group.addRegion(region);
-        }
-
-        return group;
     }
 
     /**

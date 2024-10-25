@@ -10,14 +10,13 @@ import java.util.List;
 abstract class ResumeUploadPerformer {
 
     final Client client;
-    private final Recorder recorder;
-    private final Configuration config;
     final ConfigHelper configHelper;
-
     final String key;
     final UploadToken token;
     final ResumeUploadSource uploadSource;
     final UploadOptions options;
+    private final Recorder recorder;
+    private final Configuration config;
     private Api.Config uploadApiConfig;
 
     ResumeUploadPerformer(Client client, String key, UploadToken token, ResumeUploadSource source,

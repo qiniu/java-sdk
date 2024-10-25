@@ -1,8 +1,5 @@
 package test.com.qiniu.qvs;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.qvs.DeviceManager;
@@ -13,14 +10,17 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import test.com.qiniu.TestConfig;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class DeviceManagerTest {
+    private final String namespaceId = "3nm4x1e0xw855";
+    private final String gbId = "31011500991320007536";
+    private final String[] channels = {"31011500991320007536"};
     Auth auth = TestConfig.testAuth;
     private DeviceManager deviceManager;
     private Response res = null;
     private Response res2 = null;
-    private final String namespaceId = "3nm4x1e0xw855";
-    private final String gbId = "31011500991320007536";
-    private final String[] channels = {"31011500991320007536"};
 
     @BeforeEach
     public void setUp() throws Exception {

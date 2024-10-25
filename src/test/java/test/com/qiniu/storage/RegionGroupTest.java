@@ -5,7 +5,7 @@ import com.qiniu.storage.RegionGroup;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class RegionGroupTest {
 

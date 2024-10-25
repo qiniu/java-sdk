@@ -6,11 +6,12 @@ import com.qiniu.http.MethodType;
 import com.qiniu.http.RequestStreamBody;
 import com.qiniu.util.*;
 import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okio.Buffer;
 import okio.BufferedSink;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -31,8 +32,7 @@ public class Api {
      * @param client 请求的 Client【必须】
      **/
     protected Api(Client client) {
-        this.client = client;
-        this.interceptors = null;
+        this(client, (Config) null);
     }
 
     /**
@@ -41,7 +41,7 @@ public class Api {
      * @param client 请求的 Client 【必须】
      * @param config 请求的流程的配置信息
      **/
-    Api(Client client, Config config) {
+    protected Api(Client client, Config config) {
         this(client, Api.createInterceptors(config));
     }
 
@@ -51,7 +51,7 @@ public class Api {
      * @param client       请求的 Client【必须】
      * @param interceptors 请求的拦截器
      **/
-    Api(Client client, Interceptor... interceptors) {
+    protected Api(Client client, Interceptor... interceptors) {
         if (client == null) {
             client = new Client();
         }
@@ -125,6 +125,11 @@ public class Api {
             ApiUtils.throwInvalidRequestParamException("request");
         }
 
+        request = request.clone();
+        if (request == null) {
+            throw QiniuException.unrecoverable("request clone error, just retry");
+        }
+
         request.prepareToRequest();
 
         return innerRequest(request);
@@ -133,6 +138,11 @@ public class Api {
     protected com.qiniu.http.Response requestWithInterceptor(Request request) throws QiniuException {
         if (request == null) {
             ApiUtils.throwInvalidRequestParamException("request");
+        }
+
+        request = request.clone();
+        if (request == null) {
+            throw QiniuException.unrecoverable("request clone error, just retry");
         }
 
         request.prepareToRequest();
@@ -165,6 +175,10 @@ public class Api {
 
     protected Response request(Request request) throws QiniuException {
         return new Response(requestWithInterceptor(request));
+    }
+
+    interface Handler {
+        Response handle(Request request) throws QiniuException;
     }
 
     public static final class Config {
@@ -254,66 +268,142 @@ public class Api {
 
         public static final class Builder {
             private Auth auth;
-            private int hostRetryMax;
-            private int singleHostRetryMax;
-            private Retry.Interval retryInterval;
-            private Retry.RetryCondition retryCondition;
-            private Retry.HostFreezeCondition hostFreezeCondition;
-            private HostProvider hostProvider;
-            private int hostFreezeDuration;
-            private int requestDebugLevel;
+            private int hostRetryMax = 1;
+            private int singleHostRetryMax = 1;
+            private Retry.Interval retryInterval = Retry.defaultInterval();
+            private Retry.RetryCondition retryCondition = Retry.defaultCondition();
+            private Retry.HostFreezeCondition hostFreezeCondition = Retry.defaultHostFreezeCondition();
+            private HostProvider hostProvider = null;
+            private int hostFreezeDuration = 10 * 60 * 1000;
+            private int requestDebugLevel = DebugLevelNone;
             private int responseDebugLevel;
 
+            /**
+             * 设置鉴权信息
+             *
+             * @param auth 鉴权信息
+             * @return Builder
+             **/
             public Builder setAuth(Auth auth) {
                 this.auth = auth;
                 return this;
             }
 
+            /**
+             * 当有多个 Host，在请求失败且请求可以重试时，最多切换 Host 的次数
+             * 已经使用过的 Host 在冻结期内不会被使用
+             *
+             * @param hostRetryMax 切换 Host 的最大次数
+             * @return Builder
+             **/
             public Builder setHostRetryMax(int hostRetryMax) {
                 this.hostRetryMax = hostRetryMax;
                 return this;
             }
 
+            /**
+             * 在请求失败且请求可以重试时，单个域名最大可以重试的次数
+             *
+             * @param singleHostRetryMax 单个域名最大可以重试的次数
+             * @return Builder
+             **/
             public Builder setSingleHostRetryMax(int singleHostRetryMax) {
                 this.singleHostRetryMax = singleHostRetryMax;
                 return this;
             }
 
+            /**
+             * 设置请求重试的时间间隔
+             *
+             * @param retryInterval 固定大小的重试时间间隔，单位：毫秒
+             * @return Builder
+             **/
             public Builder setRetryInterval(int retryInterval) {
                 this.retryInterval = Retry.staticInterval(retryInterval);
                 return this;
             }
 
+            /**
+             * 设置请求重试的时间间隔
+             *
+             * @param retryInterval 可动态调整的重试时间间隔
+             * @return Builder
+             **/
             public Builder setRetryInterval(Retry.Interval retryInterval) {
                 this.retryInterval = retryInterval;
                 return this;
             }
 
+            /**
+             * 设置重试条件
+             *
+             * @param retryCondition 重试条件
+             * @return Builder
+             **/
             public Builder setRetryCondition(Retry.RetryCondition retryCondition) {
                 this.retryCondition = retryCondition;
                 return this;
             }
 
+            /**
+             * 设置域名冻结时间
+             * 当某个域名请求失败，且该域名短时间内不可在使用则会被冻结，切换其他域名进行重试
+             *
+             * @param hostFreezeDuration 域名冻结时间，单位：毫秒
+             * @return Builder
+             **/
             public Builder setHostFreezeDuration(int hostFreezeDuration) {
                 this.hostFreezeDuration = hostFreezeDuration;
                 return this;
             }
 
+            /**
+             * 设置域名提供者
+             * 当请求域名被冻结，且可以请求切换域名进行重试，此时会尝试从域名提供者中获取一个域名进行重试
+             *
+             * @param hostProvider 域名提供者
+             * @return Builder
+             **/
             public Builder setHostProvider(HostProvider hostProvider) {
                 this.hostProvider = hostProvider;
                 return this;
             }
 
+            /**
+             * 设置域名冻结条件
+             * 根据相应情况来判断域名是否可以再次被使用，不过不可则需要冻结（比如：服务内部繁忙需切换域名重试）
+             *
+             * @param hostFreezeCondition 域名冻结条件
+             * @return Builder
+             **/
             public Builder setHostFreezeCondition(Retry.HostFreezeCondition hostFreezeCondition) {
                 this.hostFreezeCondition = hostFreezeCondition;
                 return this;
             }
 
+            /**
+             * 设置请求 Debug 的等级
+             * {@link #DebugLevelNone}
+             * {@link #DebugLevelNormal}
+             * {@link #DebugLevelDetail}
+             *
+             * @param requestDebugLevel 请求 Debug 的等级
+             * @return Builder
+             **/
             public Builder setRequestDebugLevel(int requestDebugLevel) {
                 this.requestDebugLevel = requestDebugLevel;
                 return this;
             }
 
+            /**
+             * 设置响应 Debug 的等级
+             * {@link #DebugLevelNone}
+             * {@link #DebugLevelNormal}
+             * {@link #DebugLevelDetail}
+             *
+             * @param responseDebugLevel 响应 Debug 的等级
+             * @return Builder
+             **/
             public Builder setResponseDebugLevel(int responseDebugLevel) {
                 this.responseDebugLevel = responseDebugLevel;
                 return this;
@@ -329,6 +419,16 @@ public class Api {
      * api 请求基类
      */
     public static class Request implements Cloneable {
+
+        protected static final int AuthTypeNone = 0;
+        protected static final int AuthTypeQiniu = 1;
+
+        /**
+         * 鉴权类型
+         * 0：不鉴权
+         * 1：Qiniu 鉴权
+         */
+        private int authType = AuthTypeNone;
 
         /**
          * 请求的 scheme
@@ -400,6 +500,10 @@ public class Api {
             }
 
             try {
+                if (!urlPrefix.startsWith("http://") && !urlPrefix.startsWith("https://")) {
+                    urlPrefix = "http://" + urlPrefix;
+                }
+
                 URL url = new URL(urlPrefix);
                 this.scheme = url.getProtocol();
                 this.host = url.getHost();
@@ -439,6 +543,19 @@ public class Api {
         protected Request(String scheme, String host) {
             this.scheme = scheme;
             this.host = host;
+        }
+
+        /**
+         * 设置鉴权类型
+         * 0：不鉴权
+         * 1：Qiniu 鉴权
+         */
+        protected int getAuthType() {
+            return this.authType;
+        }
+
+        protected void setAuthType(int authType) {
+            this.authType = authType;
         }
 
         /**
@@ -489,6 +606,18 @@ public class Api {
             path = null;
         }
 
+        protected void addPathSegment(Boolean segment) {
+            addPathSegment((Boolean) segment ? "true" : "false");
+        }
+
+        protected void addPathSegment(Integer segment) {
+            addPathSegment(segment + "");
+        }
+
+        protected void addPathSegment(Long segment) {
+            addPathSegment(segment + "");
+        }
+
         String getMethodString() {
             if (method == null) {
                 return "GET";
@@ -501,6 +630,18 @@ public class Api {
                 return MethodType.GET;
             }
             return method;
+        }
+
+        /**
+         * 设置 Http 请求方式
+         *
+         * @param method Http 请求方式
+         */
+        protected void setMethod(MethodType method) {
+            if (method == null) {
+                return;
+            }
+            this.method = method;
         }
 
         /**
@@ -528,7 +669,6 @@ public class Api {
             }
         }
 
-
         /**
          * 增加 query 键值对
          *
@@ -541,6 +681,18 @@ public class Api {
             }
             queryPairs.add(new Pair<String, String>(key, value));
             query = null;
+        }
+
+        protected void addQueryPair(String key, Integer value) {
+            addQueryPair(key, value + "");
+        }
+
+        protected void addQueryPair(String key, Long value) {
+            addQueryPair(key, value + "");
+        }
+
+        protected void addQueryPair(String key, Boolean value) {
+            addQueryPair(key, value + "");
         }
 
         /**
@@ -585,19 +737,8 @@ public class Api {
         }
 
         /**
-         * 设置 Http 请求方式
-         *
-         * @param method Http 请求方式
-         */
-        protected void setMethod(MethodType method) {
-            if (method == null) {
-                return;
-            }
-            this.method = method;
-        }
-
-        /**
          * 增加请求头
+         * 注：用户不可使用此方法
          *
          * @param key   key
          * @param value value
@@ -628,12 +769,12 @@ public class Api {
                 header.put(key, this.header.get(key));
             }
 
-            if (body == null || body.contentType == null
+            if (body == null || body.getContentType() == null
                     || header.keySet().contains("Content-Type")) {
                 return header;
             }
 
-            header.put("Content-Type", body.contentType.toString());
+            header.put("Content-Type", body.getContentType().toString());
 
             return header;
         }
@@ -644,7 +785,6 @@ public class Api {
          * @throws QiniuException 组装 header 时的异常，一般为缺失必要参数的异常
          */
         protected void buildHeader() throws QiniuException {
-
         }
 
         /**
@@ -710,8 +850,18 @@ public class Api {
                 contentType = Client.DefaultMime;
             }
             Request.Body.InputStreamBody b = new Request.Body.InputStreamBody(body, contentType, limitSize);
-            b.streamBodySinkSize = streamBodySinkSize;
+            b.setSinkSize(streamBodySinkSize);
             this.body = b;
+        }
+
+        /**
+         * 设置表单请求体
+         * 此方式配置的 body 支持重试，不支持 auth
+         *
+         * @param fields 表单 fields
+         **/
+        protected void setFormBody(StringMap fields) {
+            this.body = new Body.FormBody(fields);
         }
 
         /**
@@ -724,11 +874,14 @@ public class Api {
          * @param body        表单 byte[] 类型 body 【必须】
          * @param contentType 表单 body 的 Mime type
          **/
-        protected void setFormBody(String name, String fileName, StringMap fields, byte[] body, String contentType) {
+        protected void setMultipartBody(String name, String fileName, StringMap fields, byte[] body, String contentType) {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
-            this.body = new Request.Body.FormBody(name, fileName, fields, body, contentType);
+            if (body == null) {
+                body = new byte[0];
+            }
+            this.body = new Body.MultipartBody(name, fileName, fields, body, contentType);
         }
 
         /**
@@ -741,11 +894,11 @@ public class Api {
          * @param body        表单 File 类型 body 【必须】
          * @param contentType 表单 body 的 Mime type
          **/
-        protected void setFormBody(String name, String fileName, StringMap fields, File body, String contentType) {
+        protected void setMultipartBody(String name, String fileName, StringMap fields, File body, String contentType) {
             if (StringUtils.isNullOrEmpty(contentType)) {
                 contentType = Client.DefaultMime;
             }
-            this.body = new Request.Body.FormBody(name, fileName, fields, body, contentType);
+            this.body = new Body.MultipartBody(name, fileName, fields, body, contentType);
         }
 
         /**
@@ -756,10 +909,11 @@ public class Api {
          * @param streamBodySinkSize 每次读取 streamBody 的大小
          * @return Request
          */
+        @Deprecated
         public Request setStreamBodySinkSize(long streamBodySinkSize) {
             this.streamBodySinkSize = streamBodySinkSize;
-            if (body != null && body instanceof Request.Body.InputStreamBody) {
-                ((Body.InputStreamBody) body).streamBodySinkSize = streamBodySinkSize;
+            if (this.body instanceof Body.InputStreamBody) {
+                ((Body.InputStreamBody) this.body).setSinkSize(streamBodySinkSize);
             }
             return this;
         }
@@ -773,15 +927,10 @@ public class Api {
             return body != null;
         }
 
-        private RequestBody getRequestBody() {
+        RequestBody getRequestBody() {
             if (!hasBody()) {
                 return Body.BytesBody.empty().get();
             }
-
-            if (body instanceof Body.InputStreamBody) {
-                ((Body.InputStreamBody) body).streamBodySinkSize = streamBodySinkSize;
-            }
-
             return body.get();
         }
 
@@ -798,7 +947,10 @@ public class Api {
          * @throws QiniuException 异常
          */
         protected void buildBodyInfo() throws QiniuException {
-
+            if (!this.method.hasContent() || this.body != null) {
+                return;
+            }
+            this.body = new Request.Body.BytesBody(new byte[]{}, 0, 0, Client.FormMime);
         }
 
         boolean canRetry() {
@@ -840,6 +992,21 @@ public class Api {
              * Key of this <code>Pair</code>.
              */
             private K key;
+            /**
+             * Value of this this <code>Pair</code>.
+             */
+            private V value;
+
+            /**
+             * Creates a new pair
+             *
+             * @param key   The key for this pair
+             * @param value The value to use for this pair
+             */
+            protected Pair(K key, V value) {
+                this.key = key;
+                this.value = value;
+            }
 
             /**
              * Gets the key for this pair.
@@ -851,28 +1018,12 @@ public class Api {
             }
 
             /**
-             * Value of this this <code>Pair</code>.
-             */
-            private V value;
-
-            /**
              * Gets the value for this pair.
              *
              * @return value for this pair
              */
             V getValue() {
                 return value;
-            }
-
-            /**
-             * Creates a new pair
-             *
-             * @param key   The key for this pair
-             * @param value The value to use for this pair
-             */
-            protected Pair(K key, V value) {
-                this.key = key;
-                this.value = value;
             }
 
             /**
@@ -937,10 +1088,14 @@ public class Api {
 
         private abstract static class Body {
 
-            protected final MediaType contentType;
+            protected RequestBody body;
 
-            protected Body(String contentType) {
-                this.contentType = MediaType.parse(contentType);
+            protected MediaType getContentType() {
+                if (this.body == null) {
+                    return null;
+                }
+
+                return this.body.contentType();
             }
 
             protected boolean canReset() {
@@ -951,7 +1106,9 @@ public class Api {
                 throw QiniuException.unrecoverable("not support reset");
             }
 
-            protected abstract RequestBody get();
+            protected RequestBody get() {
+                return body;
+            }
 
             protected byte[] getBytes() {
                 return null;
@@ -961,16 +1118,23 @@ public class Api {
                 private final byte[] bytes;
                 private final int offset;
                 private final int length;
+                private final String contentType;
+
+                private BytesBody(byte[] bytes, int offset, int length, String contentType) {
+                    this.bytes = bytes;
+                    this.offset = offset;
+                    this.length = length;
+                    this.contentType = contentType;
+                    this.body = createByteRequestBody(this);
+                }
 
                 private static BytesBody empty() {
                     return new BytesBody(new byte[0], 0, 0, Client.DefaultMime);
                 }
 
-                private BytesBody(byte[] bytes, int offset, int length, String contentType) {
-                    super(contentType);
-                    this.bytes = bytes;
-                    this.offset = offset;
-                    this.length = length;
+                private static RequestBody createByteRequestBody(BytesBody bytesBody) {
+                    MediaType ct = MediaType.parse(bytesBody.contentType);
+                    return RequestBody.create(ct, bytesBody.bytes, bytesBody.offset, bytesBody.length);
                 }
 
                 @Override
@@ -980,11 +1144,7 @@ public class Api {
 
                 @Override
                 protected void reset() throws QiniuException {
-                }
-
-                @Override
-                protected RequestBody get() {
-                    return RequestBody.create(contentType, bytes, offset, length);
+                    this.body = createByteRequestBody(this);
                 }
 
                 @Override
@@ -1000,49 +1160,58 @@ public class Api {
             }
 
             private static final class InputStreamBody extends Body {
-                private final InputStream stream;
-
-                private final long limitSize;
-
-                private long streamBodySinkSize = 1024 * 10;
 
                 private InputStreamBody(InputStream stream, String contentType, long limitSize) {
-                    super(contentType);
-                    this.stream = stream;
-                    this.limitSize = limitSize;
+                    MediaType ct = MediaType.parse(contentType);
+                    RequestStreamBody b = new RequestStreamBody(stream, ct, limitSize);
+                    b.setSinkSize(1024 * 10);
+                    this.body = b;
                 }
 
-                @Override
-                protected RequestBody get() {
-                    RequestStreamBody b = new RequestStreamBody(stream, contentType, limitSize);
-                    b.setSinkSize(streamBodySinkSize);
-                    return b;
+                private void setSinkSize(long sinkSize) {
+                    if (this.body instanceof RequestStreamBody) {
+                        ((RequestStreamBody) this.body).setSinkSize(sinkSize);
+                    }
                 }
             }
 
             private static final class FormBody extends Body {
-                private final String name;
-                private final String fileName;
-                private final StringMap fields;
-                private final byte[] bytes;
-                private final File file;
 
-                private FormBody(String name, String fileName, StringMap fields, byte[] body, String contentType) {
-                    super(contentType);
-                    this.name = name;
-                    this.fileName = fileName;
+                private final StringMap fields;
+                private byte[] bytes;
+
+                private FormBody(StringMap fields) {
                     this.fields = fields;
-                    this.bytes = body;
-                    this.file = null;
+                    try {
+                        this.setupBody();
+                    } catch (QiniuException e) {
+                        e.printStackTrace();
+                    }
                 }
 
-                private FormBody(String name, String fileName, StringMap fields, File body, String contentType) {
-                    super(contentType);
-                    this.name = name;
-                    this.fileName = fileName;
-                    this.fields = fields;
-                    this.bytes = null;
-                    this.file = body;
+                private static okhttp3.FormBody createFormRequestBody(FormBody formBody) {
+                    final okhttp3.FormBody.Builder builder = new okhttp3.FormBody.Builder();
+                    if (formBody.fields != null) {
+                        formBody.fields.forEach(new StringMap.Consumer() {
+                            @Override
+                            public void accept(String key, Object value) {
+                                builder.add(key, value.toString());
+                            }
+                        });
+                    }
+                    return builder.build();
+                }
+
+                private void setupBody() throws QiniuException {
+                    okhttp3.FormBody formBody = createFormRequestBody(this);
+                    Buffer buffer = new Buffer();
+                    try {
+                        formBody.writeTo(buffer);
+                    } catch (IOException e) {
+                        throw QiniuException.unrecoverable(e);
+                    }
+                    this.bytes = buffer.readByteArray();
+                    this.body = formBody;
                 }
 
                 @Override
@@ -1052,26 +1221,72 @@ public class Api {
 
                 @Override
                 protected void reset() throws QiniuException {
+                    this.setupBody();
                 }
 
                 @Override
-                protected RequestBody get() {
+                public byte[] getBytes() {
+                    return bytes;
+                }
+            }
+
+
+            private static final class MultipartBody extends Body {
+
+                private final String name;
+                private final String fileName;
+                private final StringMap fields;
+                private final File fileBody;
+                private final String bodyContentType;
+                private byte[] bytes;
+                private byte[] bytesBody;
+
+                private MultipartBody(String name, String fileName, StringMap fields, byte[] body, String bodyContentType) {
+                    this.bodyContentType = bodyContentType;
+                    this.name = name;
+                    this.fileName = fileName;
+                    this.fields = fields;
+                    this.bytesBody = body;
+                    this.fileBody = null;
+                    try {
+                        this.setupBody();
+                    } catch (QiniuException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                private MultipartBody(String name, String fileName, StringMap fields, File body, String bodyContentType) {
+                    this.name = name;
+                    this.fileName = fileName;
+                    this.fields = fields;
+                    this.bodyContentType = bodyContentType;
+                    this.bytesBody = null;
+                    this.fileBody = body;
+                    try {
+                        this.setupBody();
+                    } catch (QiniuException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                private static okhttp3.MultipartBody createFormRequestBody(MultipartBody formBody) {
+                    MediaType contentType = MediaType.parse(formBody.bodyContentType);
                     RequestBody body = null;
-                    if (bytes != null) {
-                        body = RequestBody.create(contentType, bytes);
-                    } else if (file != null) {
-                        body = RequestBody.create(contentType, file);
+                    if (formBody.bytesBody != null) {
+                        body = RequestBody.create(contentType, formBody.bytesBody);
+                    } else if (formBody.fileBody != null) {
+                        body = RequestBody.create(contentType, formBody.fileBody);
                     } else {
                         body = RequestBody.create(contentType, new byte[0]);
                     }
 
-                    final MultipartBody.Builder b = new MultipartBody.Builder();
-                    if (!StringUtils.isNullOrEmpty(name)) {
-                        b.addFormDataPart(name, fileName, body);
+                    final okhttp3.MultipartBody.Builder b = new okhttp3.MultipartBody.Builder();
+                    if (!StringUtils.isNullOrEmpty(formBody.name)) {
+                        b.addFormDataPart(formBody.name, formBody.fileName, body);
                     }
 
-                    if (fields != null) {
-                        fields.forEach(new StringMap.Consumer() {
+                    if (formBody.fields != null) {
+                        formBody.fields.forEach(new StringMap.Consumer() {
                             @Override
                             public void accept(String key, Object value) {
                                 b.addFormDataPart(key, value.toString());
@@ -1083,10 +1298,43 @@ public class Api {
 
                     return b.build();
                 }
+
+                private void setupBody() throws QiniuException {
+                    okhttp3.MultipartBody formBody = createFormRequestBody(this);
+
+                    // 只有使用 bytesBody 和 fileBody 都没有时才会处理，其他不处理
+                    // bytes 用作签名，Multipart 不做签名
+                    // bytes
+                    if (this.bytesBody == null && this.fileBody == null) {
+                        Buffer buffer = new Buffer();
+                        try {
+                            formBody.writeTo(buffer);
+                        } catch (IOException e) {
+                            throw QiniuException.unrecoverable(e);
+                        }
+                        this.bytes = buffer.readByteArray();
+                    }
+
+                    this.body = formBody;
+                }
+
+                @Override
+                protected boolean canReset() {
+                    return true;
+                }
+
+                @Override
+                protected void reset() throws QiniuException {
+                    this.setupBody();
+                }
+
+                @Override
+                public byte[] getBytes() {
+                    return bytes;
+                }
             }
         }
     }
-
 
     /**
      * api 响应基类
@@ -1094,19 +1342,17 @@ public class Api {
     public static class Response {
 
         /**
+         * 原响应结果
+         */
+        private final com.qiniu.http.Response response;
+        /**
          * 响应数据
          */
         private StringMap dataMap;
-
         /**
          * 响应数据
          */
         private Object[] dataArray;
-
-        /**
-         * 原响应结果
-         */
-        private final com.qiniu.http.Response response;
 
         /**
          * 构建 Response
@@ -1120,15 +1366,27 @@ public class Api {
                 return;
             }
 
-            String bodyString = response.bodyString();
-            try {
-                if (bodyString.startsWith("[")) {
-                    this.dataArray = Json.decodeArray(bodyString);
-                } else {
-                    this.dataMap = Json.decode(bodyString);
+            // 七牛只有 Json 和 流，流外部处理，SDK 不关闭
+            // Json 会自动关闭
+            if (response.isJson()) {
+                String bodyString = response.bodyString();
+                try {
+                    if (bodyString.startsWith("[")) {
+                        this.dataArray = Json.decodeArray(bodyString);
+                    } else {
+                        this.dataMap = Json.decode(bodyString);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                return;
+            }
+
+            // 没有 Body
+            if (response.getResponse() != null
+                    && response.getResponse().body() != null
+                    && response.getResponse().body().contentLength() == 0) {
+                response.close();
             }
         }
 
@@ -1232,11 +1490,6 @@ public class Api {
             }
             return ApiUtils.getValueFromMap(dataMap.map(), keyPath);
         }
-    }
-
-
-    interface Handler {
-        Response handle(Request request) throws QiniuException;
     }
 
     abstract static class Interceptor {

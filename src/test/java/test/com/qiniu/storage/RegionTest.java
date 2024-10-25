@@ -1,5 +1,6 @@
 package test.com.qiniu.storage;
 
+import com.qiniu.common.QiniuException;
 import com.qiniu.storage.Region;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ public class RegionTest {
         Constructor regionReqInfoConstructor = regionReqInfoClass.getDeclaredConstructor(String.class, String.class);
         regionReqInfoConstructor.setAccessible(true);
 
-        Object info  = regionReqInfoConstructor.newInstance("a", "b");
+        Object info = regionReqInfoConstructor.newInstance("a", "b");
         Region na0 = Region.createWithRegionId("na0");
 
         // region id

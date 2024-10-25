@@ -1,4 +1,5 @@
 # Qiniu Resource Storage SDK for Java
+
 [![@qiniu on weibo](http://img.shields.io/badge/weibo-%40qiniutek-blue.svg)](http://weibo.com/qiniutek)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 [![Build Status](https://travis-ci.org/qiniu/java-sdk.svg)](https://travis-ci.org/qiniu/java-sdk)
@@ -6,9 +7,11 @@
 [![Docs](https://img.shields.io/github/v/tag/qiniu/java-sdk.svg?label=docs&color=yellow)](https://qiniu.github.io/java-sdk/)
 [![Coverage Status](https://codecov.io/gh/qiniu/java-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/qiniu/java-sdk)
 [![Latest Stable Version](https://img.shields.io/maven-central/v/com.qiniu/qiniu-java-sdk.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.qiniu%22%20AND%20a%3A%22qiniu-java-sdk%22)
+
 ## 安装
 
 下载 [the latest JAR][1] 或者 通过 Maven:
+
 ```xml
 <dependency>
   <groupId>com.qiniu</groupId>
@@ -16,7 +19,9 @@
   <version>[7.16.0, 7.16.99]</version>
 </dependency>
 ```
+
 或者 Gradle:
+
 ```groovy
 implementation 'com.qiniu:qiniu-java-sdk:7.16.+'
 ```
@@ -28,6 +33,7 @@ JDK 7 及以上
 ## 使用方法
 
 ### 上传
+
 ```Java
 // 分片上传 v1
 import com.qiniu.storage.UploadManager;
@@ -73,6 +79,7 @@ $ ./gradlew build
 ```
 
 ## 生成Eclipse工程文件
+
 ``` bash
 $ ./gradlew gen_eclipse
 ```
@@ -105,6 +112,9 @@ $ ./gradlew gen_eclipse
 The MIT License (MIT).详情见 [License文件](https://github.com/qiniu/java-sdk/blob/master/LICENSE).
 
 [1]: https://search.maven.org/remote_content?g=com.qiniu&a=qiniu-java-sdk&v=LATEST
+
 [2]: https://github.com/Nextpeer/okhttp
+
 [3]: https://raw.githubusercontent.com/qiniu/java-sdk/master/libs/okhttp-2.3.0-SNAPSHOT.jar
+
 [4]: https://raw.githubusercontent.com/qiniu/java-sdk/master/libs/okio-1.3.0-SNAPSHOT.jar

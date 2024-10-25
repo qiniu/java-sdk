@@ -4,19 +4,12 @@ import com.qiniu.http.Response;
 import com.qiniu.qvs.StreamManager;
 import com.qiniu.qvs.model.Stream;
 import com.qiniu.util.Auth;
-
 import org.junit.jupiter.api.BeforeEach;
 import test.com.qiniu.TestConfig;
 
 public class StreamTest {
 
-    Auth auth = TestConfig.testAuth;
     private final String streamid = "" + System.currentTimeMillis();
-    Stream stream = new Stream("31011500991320007536");
-    Stream createstream = new Stream(streamid);
-    private StreamManager streamManager;
-    private Response res = null;
-    private Response res2 = null;
     private final String namespaceId = "3nm4x1e0xw855";
     private final int start = 1639379380;
     private final int end = 1639379981;
@@ -25,6 +18,12 @@ public class StreamTest {
     private final int qtype = 0;
     private final String maker = "";
     private final String format = "";
+    Auth auth = TestConfig.testAuth;
+    Stream stream = new Stream("31011500991320007536");
+    Stream createstream = new Stream(streamid);
+    private StreamManager streamManager;
+    private Response res = null;
+    private Response res2 = null;
 
     @BeforeEach
     public void setUp() throws Exception {

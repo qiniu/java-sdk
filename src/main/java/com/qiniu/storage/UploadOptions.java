@@ -24,10 +24,6 @@ public final class UploadOptions {
      */
     public final boolean checkCrc;
 
-    public static UploadOptions defaultOptions() {
-        return new UploadOptions.Builder().build();
-    }
-
     private UploadOptions(StringMap params,
                           StringMap metaDataParam,
                           String mimeType,
@@ -38,6 +34,9 @@ public final class UploadOptions {
         this.checkCrc = checkCrc;
     }
 
+    public static UploadOptions defaultOptions() {
+        return new UploadOptions.Builder().build();
+    }
 
     public static class Builder {
 

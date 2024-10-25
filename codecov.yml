@@ -3,7 +3,7 @@ codecov:
     - prow.qiniu.io       # prow 里面运行需添加，其他 CI 不要
   require_ci_to_pass: no  # 改为 no，否则 codecov 会等待其他 GitHub 上所有 CI 通过才会留言。
 
-github_checks:              #关闭github checks
+github_checks: #关闭github checks
   annotations: false
 
 comment:
@@ -12,13 +12,13 @@ comment:
   require_changes: false  # if true: only post the comment if coverage changes
   require_base: no        # [yes :: must have a base report to post]
   require_head: yes       # [yes :: must have a head report to post]
-  branches:               # branch names that can post comment
+  branches: # branch names that can post comment
     - "master"
 
 coverage:
-  status:                                 # 评判 pr 通过的标准
+  status: # 评判 pr 通过的标准
     patch: off
-    project:                            # project 统计所有代码x
+    project: # project 统计所有代码x
       default:
         # basic
         target: 60%                  # 总体通过标准

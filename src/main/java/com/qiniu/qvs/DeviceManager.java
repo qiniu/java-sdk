@@ -1,9 +1,9 @@
 package com.qiniu.qvs;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.qvs.model.*;
 import com.qiniu.http.Client;
 import com.qiniu.http.Response;
+import com.qiniu.qvs.model.*;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlUtils;

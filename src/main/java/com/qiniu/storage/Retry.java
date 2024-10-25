@@ -60,14 +60,6 @@ public final class Retry {
         return true;
     }
 
-    public interface Interval {
-
-        /**
-         * 重试时间间隔，单位：毫秒
-         **/
-        int interval();
-    }
-
     public static Interval defaultInterval() {
         return staticInterval(200);
     }
@@ -81,14 +73,6 @@ public final class Retry {
         };
     }
 
-    public interface RetryCondition {
-
-        /**
-         * 是否需要重试
-         **/
-        boolean shouldRetry(Api.Request request, Api.Response response, QiniuException exception);
-    }
-
     public static RetryCondition defaultCondition() {
         return new RetryCondition() {
             @Override
@@ -98,10 +82,6 @@ public final class Retry {
         };
     }
 
-    public interface HostFreezeCondition {
-        boolean shouldFreezeHost(Api.Request request, Api.Response response, QiniuException exception);
-    }
-
     public static HostFreezeCondition defaultHostFreezeCondition() {
         return new HostFreezeCondition() {
             @Override
@@ -109,5 +89,25 @@ public final class Retry {
                 return true;
             }
         };
+    }
+
+    public interface Interval {
+
+        /**
+         * 重试时间间隔，单位：毫秒
+         **/
+        int interval();
+    }
+
+    public interface RetryCondition {
+
+        /**
+         * 是否需要重试
+         **/
+        boolean shouldRetry(Api.Request request, Api.Response response, QiniuException exception);
+    }
+
+    public interface HostFreezeCondition {
+        boolean shouldFreezeHost(Api.Request request, Api.Response response, QiniuException exception);
     }
 }

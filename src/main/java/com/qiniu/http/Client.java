@@ -425,7 +425,8 @@ public final class Client {
 
         double duration = (System.currentTimeMillis() - start) / 1000.0;
         r = Response.create(res, tag.ip, duration);
-        if (r.statusCode >= 300) {
+        // 如果读取 body 失败也抛出异常
+        if (r.statusCode >= 300 || !StringUtils.isNullOrEmpty(r.error)) {
             throw new QiniuException(r);
         }
 

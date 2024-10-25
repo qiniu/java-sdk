@@ -8,11 +8,11 @@ import com.qiniu.http.Response;
 import com.qiniu.util.StringMap;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+
 import java.net.URL;
 import java.util.Calendar;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by bailong on 16/09/21. Updated by panyuan on 19/03/07
@@ -61,7 +61,7 @@ public class CdnTest {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.RefreshResult r;
         try {
-            r = c.refreshUrls(new String[] { TestConfig.testUrl_z0 });
+            r = c.refreshUrls(new String[]{TestConfig.testUrl_z0});
             assertEquals(200, r.code, msg);
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -78,7 +78,7 @@ public class CdnTest {
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.PrefetchResult r;
         try {
-            r = c.prefetchUrls(new String[] { TestConfig.testUrl_na0 });
+            r = c.prefetchUrls(new String[]{TestConfig.testUrl_na0});
             assertEquals(200, r.code);
         } catch (QiniuException e) {
             e.printStackTrace();
@@ -96,7 +96,7 @@ public class CdnTest {
 
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.BandwidthResult r = null;
-        String[] domains = { TestConfig.testDomain_z0 };
+        String[] domains = {TestConfig.testDomain_z0};
         String startDate = getDate(3);
         String endDate = getDate(1);
         String granularity = "day";
@@ -119,7 +119,7 @@ public class CdnTest {
 
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.FluxResult r = null;
-        String[] domains = { TestConfig.testDomain_z0 };
+        String[] domains = {TestConfig.testDomain_z0};
         String startDate = getDate(3);
         String endDate = getDate(1);
         String granularity = "day";
@@ -142,7 +142,7 @@ public class CdnTest {
 
         CdnManager c = new CdnManager(TestConfig.testAuth);
         CdnResult.LogListResult r = null;
-        String[] domains = { TestConfig.testDomain_z0 };
+        String[] domains = {TestConfig.testDomain_z0};
         String logDate = getDate(2);
 
         try {
