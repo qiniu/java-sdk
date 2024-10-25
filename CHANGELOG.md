@@ -1,5 +1,12 @@
 # Changelog
 
+## 7.17.0 (2024-10-25)
+
+* 支持代码生成器
+* 支持任务模版
+* 处理 Response 成功但读取 Body 失败的场景
+* 支持 IAM 账户接口（示例：src/test/java/com/qiniu/iam/apis）
+
 ## 7.16.0 (2024-09-12)
 
 * 支持闲时任务
