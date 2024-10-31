@@ -95,6 +95,8 @@ public final class Retry {
 
         /**
          * 重试时间间隔，单位：毫秒
+         *
+         * @return 重试时间间隔
          **/
         int interval();
     }
@@ -103,6 +105,11 @@ public final class Retry {
 
         /**
          * 是否需要重试
+         *
+         * @param request   请求
+         * @param response  响应
+         * @param exception 异常
+         * @return 是否需要重试
          **/
         boolean shouldRetry(Api.Request request, Api.Response response, QiniuException exception);
     }
