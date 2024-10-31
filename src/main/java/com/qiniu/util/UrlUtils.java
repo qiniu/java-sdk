@@ -210,6 +210,10 @@ public class UrlUtils {
     /**
      * 如果 host 包含 scheme 则优先使用 host 中包含的 scheme
      * 如果 host 不包含 scheme 则按照 useHttps 增加 scheme
+     *
+     * @param host 域名
+     * @param useHttps 是否使用 https
+     * @return 合成后的 url
      */
     public static String setHostScheme(String host, boolean useHttps) {
         if (host == null || StringUtils.isNullOrEmpty(host)) {

@@ -380,7 +380,7 @@ public class ApiPrefop extends Api {
 
             /**
              * 获取变量值
-             * 如果没有，则表示通过 `api+fops` 命令提交的任务，否则遵循规则 `<source>: <source_id>`，其中 `<source>` 当前可选 `workflow` 或 `trigger`
+             * 如果没有，则表示通过 `api+fops` 命令提交的任务，否则遵循规则 `{source}:{source_id}`，其中 `{source}` 当前可选 `workflow` 或 `trigger`
              *
              * @return taskFrom
              */
