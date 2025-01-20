@@ -69,7 +69,7 @@ public class ApiDeleteGroupPolicies extends Api {
          */
         public Request(String urlPrefix, String alias, DeletedGroupIamPoliciesParam data) {
             super(urlPrefix);
-            this.setMethod(MethodType.PATCH);
+            this.setMethod(MethodType.DELETE);
             this.setAuthType(AuthTypeQiniu);
             this.alias = alias;
             this.data = data;

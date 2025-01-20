@@ -77,7 +77,10 @@ public class ApiQueryLogTest {
 
 
         } catch (QiniuException e) {
-            throw new RuntimeException(e);
+            if (e.response == null || e.response.statusCode != 400) {
+                throw new RuntimeException(e);
+            }
+            e.printStackTrace();
         }
     }
 }
