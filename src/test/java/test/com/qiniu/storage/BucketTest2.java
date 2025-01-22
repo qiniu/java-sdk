@@ -68,6 +68,52 @@ public class BucketTest2 {
         }
     }
 
+    @Test
+    @Tag("IntegrationTest")
+    public void testStorageTypeIntelligentTiering() {
+        String key = "storage_type_intelligent_tiering";
+        String bucket = TestConfig.testBucket_z0;
+
+        // 清理文件
+        try {
+            Response response = bucketManager.delete(bucket, key);
+            assertTrue(response.isOK(), "response is not OK");
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            fail();
+        }
+
+        // 上传文件
+        try {
+            StringMap map = new StringMap();
+            map.put("insertOnly", "1");
+            uploadManager.put("aaa".getBytes(), key, TestConfig.testAuth.uploadToken(bucket), map, null, false);
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            fail();
+        }
+
+        // 修改文件修类型
+        try {
+            Response resp = bucketManager.changeType(bucket, key, StorageType.IntelligentTiering);
+            assertTrue(resp.isOK(), "change type failed");
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            fail();
+        }
+
+        // 验证文件类型
+        try {
+            FileInfo fi = bucketManager.stat(bucket, key);
+            assertNotNull(fi, "stat failed");
+            assertEquals(5, fi.type, "stat failed");
+            assertEquals(fi.type, StorageType.IntelligentTiering.ordinal(), "stat failed");
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
     /**
      * 测试列举空间域名
      */

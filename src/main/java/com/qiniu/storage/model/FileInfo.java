@@ -54,6 +54,7 @@ public final class FileInfo {
      * 2 表示归档存储
      * 3 表示深度归档存储
      * 4 表示归档直读存储
+     * 5 表示智能分层
      */
     public int type;
 
