@@ -28,4 +28,9 @@ public enum StorageType {
      * 归档直读存储
      */
     ArchiveIR,
+
+    /**
+     * 智能分层
+     */
+    IntelligentTiering,
 }
