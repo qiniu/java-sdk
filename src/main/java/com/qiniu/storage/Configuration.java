@@ -242,9 +242,8 @@ public final class Configuration implements Cloneable {
             }
             return configuration;
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Unexpected clone failure", e);
         }
-        return null;
     }
 
 

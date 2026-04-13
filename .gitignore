@@ -31,3 +31,11 @@ out/
 
 # For vim:
 *.swp
+
+# AI tool settings
+.claude/settings.local.json
+!.claude/skills
+!.trae/skills
+!.trae/rules
+!.kiro/skills
+!.kiro/steering
