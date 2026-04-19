@@ -3,8 +3,8 @@ package com.qiniu.sms;
 import com.qiniu.common.Constants;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Client;
-import com.qiniu.http.MethodType;
 import com.qiniu.http.Response;
+import com.qiniu.sms.model.MessageInfo;
 import com.qiniu.sms.model.SignatureInfo;
 import com.qiniu.sms.model.TemplateInfo;
 import com.qiniu.util.Auth;
@@ -31,6 +31,7 @@ public class SmsManager {
      * 该类相关的域名配置，解析配置，HTTP请求超时时间设置等
      */
     private Configuration configuration;
+    private SmsRequestHelper smsRequestHelper;
 
     /**
      * 构建一个新的 SmsManager 对象
@@ -41,6 +42,7 @@ public class SmsManager {
         this.auth = auth;
         this.configuration = new Configuration();
         client = new Client(this.configuration);
+        smsRequestHelper = new SmsRequestHelper(configuration, client, auth);
     }
 
     /**
@@ -53,6 +55,7 @@ public class SmsManager {
         this.auth = auth;
         this.configuration = cfg.clone();
         client = new Client(this.configuration);
+        smsRequestHelper = new SmsRequestHelper(configuration, client, auth);
     }
 
     /**
@@ -60,7 +63,7 @@ public class SmsManager {
      *
      * @param templateId 模板Id，必填
      * @param mobiles    手机号码数组，必填
-     * @param parameters 参数,必填
+     * @param parameters 参数,选填
      * @return Response
      * @throws QiniuException 异常
      */
@@ -70,8 +73,29 @@ public class SmsManager {
         StringMap bodyMap = new StringMap();
         bodyMap.put("template_id", templateId);
         bodyMap.put("mobiles", mobiles);
-        bodyMap.put("parameters", parameters);
-        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+        bodyMap.putNotNull("parameters", parameters);
+        return smsRequestHelper.post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+    }
+
+    /**
+     * 发送短信
+     *
+     * @param signatureId 签名Id，选填
+     * @param templateId  模板Id，必填
+     * @param mobiles     手机号码数组，必填
+     * @param parameters  参数,选填
+     * @return Response
+     * @throws QiniuException 异常
+     */
+    public Response sendMessage(String signatureId, String templateId, String[] mobiles, Map<String, String> parameters)
+            throws QiniuException {
+        String requestUrl = String.format("%s/v1/message", configuration.smsHost());
+        StringMap bodyMap = new StringMap();
+        bodyMap.putNotEmpty("signature_id", signatureId);
+        bodyMap.put("template_id", templateId);
+        bodyMap.put("mobiles", mobiles);
+        bodyMap.putNotNull("parameters", parameters);
+        return smsRequestHelper.post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -79,7 +103,7 @@ public class SmsManager {
      *
      * @param templateId 模板Id，必填
      * @param mobile     手机号码，必填
-     * @param parameters 参数,必填
+     * @param parameters 参数,选填
      * @return Response
      * @throws QiniuException 异常
      */
@@ -89,8 +113,20 @@ public class SmsManager {
         StringMap bodyMap = new StringMap();
         bodyMap.put("template_id", templateId);
         bodyMap.put("mobile", mobile);
-        bodyMap.put("parameters", parameters);
-        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+        bodyMap.putNotNull("parameters", parameters);
+        return smsRequestHelper.post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+    }
+
+    /**
+     * 发送单条短信
+     *
+     * @param messageInfo@return Response
+     * @throws QiniuException 异常
+     */
+    public Response sendSingleMessage(MessageInfo messageInfo) throws QiniuException {
+        String requestUrl = String.format("%s/v1/message/single", configuration.smsHost());
+        StringMap bodyMap = SmsMap.createSingleMessageMap(messageInfo);
+        return smsRequestHelper.post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -98,7 +134,7 @@ public class SmsManager {
      *
      * @param templateId 模板Id，必填
      * @param mobile     手机号码，必填
-     * @param parameters 参数,必填
+     * @param parameters 参数,选填
      * @return Response
      * @throws QiniuException 异常
      */
@@ -108,8 +144,29 @@ public class SmsManager {
         StringMap bodyMap = new StringMap();
         bodyMap.put("template_id", templateId);
         bodyMap.put("mobile", mobile);
+        bodyMap.putNotNull("parameters", parameters);
+        return smsRequestHelper.post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+    }
+
+    /**
+     * 发送国际短信
+     *
+     * @param signatureId 签名Id，选填
+     * @param templateId  模板Id，必填
+     * @param mobile      手机号码，必填
+     * @param parameters  参数,选填
+     * @return Response
+     * @throws QiniuException 异常
+     */
+    public Response sendOverseaMessage(String signatureId, String templateId, String mobile, Map<String, String> parameters)
+            throws QiniuException {
+        String requestUrl = String.format("%s/v1/message/oversea", configuration.smsHost());
+        StringMap bodyMap = new StringMap();
+        bodyMap.putNotEmpty("signature_id", signatureId);
+        bodyMap.put("template_id", templateId);
+        bodyMap.put("mobile", mobile);
         bodyMap.put("parameters", parameters);
-        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+        return smsRequestHelper.post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -123,10 +180,33 @@ public class SmsManager {
      */
     public Response sendFulltextMessage(String[] mobiles, String content) throws QiniuException {
         String requestUrl = String.format("%s/v1/message/fulltext", configuration.smsHost());
-        StringMap bodyMap = new StringMap();
-        bodyMap.put("mobiles", mobiles);
-        bodyMap.put("content", content);
-        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+        StringMap bodyMap = SmsMap.createFulltextMessageMap(mobiles, content);
+        return smsRequestHelper.post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+    }
+
+    /**
+     * 发送全文本短信(不需要传模版 ID)
+     *
+     * @param mobiles      手机号码数组，必填
+     * @param content      短信内容，必须是已经审核通过的签名和模版，必填。例如：【七牛云】您的验证码是 287712，5分钟内有效
+     * @param templateType 短信类型，支持的值：notification(通知类)、verification(验证码类)、marketing(营销推广类)、voice(语音类)，必填
+     * @return Response
+     * @throws QiniuException 异常
+     */
+    public Response sendFulltextMessage(String[] mobiles, String content, String templateType) throws QiniuException {
+        String requestUrl = String.format("%s/v1/message/fulltext", configuration.smsHost());
+        StringMap bodyMap = SmsMap.createFulltextMessageMap(mobiles, content, templateType);
+        return smsRequestHelper.post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+    }
+
+    public Response describeResource(String resourceType, String auditStatus, int page, int pageSize) throws QiniuException {
+        String requestUrl = String.format("%s/v1/%s", configuration.smsHost(), resourceType);
+        StringMap queryMap = new StringMap();
+        queryMap.putNotEmpty("audit_status", auditStatus);
+        queryMap.putWhen("page", page, page > 0);
+        queryMap.putWhen("page_size", pageSize, pageSize > 0);
+        requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, queryMap);
+        return smsRequestHelper.get(requestUrl);
     }
 
     /**
@@ -140,13 +220,7 @@ public class SmsManager {
      * @throws QiniuException 异常
      */
     public Response describeSignature(String auditStatus, int page, int pageSize) throws QiniuException {
-        String requestUrl = String.format("%s/v1/signature", configuration.smsHost());
-        StringMap queryMap = new StringMap();
-        queryMap.putNotEmpty("audit_status", auditStatus);
-        queryMap.putWhen("page", page, page > 0);
-        queryMap.putWhen("page_size", pageSize, pageSize > 0);
-        requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, queryMap);
-        return get(requestUrl);
+        return describeResource("signature", auditStatus, page, pageSize);
     }
 
     public SignatureInfo describeSignatureItems(String auditStatus, int page, int pageSize) throws QiniuException {
@@ -177,7 +251,7 @@ public class SmsManager {
         bodyMap.put("signature", signature);
         bodyMap.put("source", source);
         bodyMap.putWhen("pics", pics, pics.length > 0);
-        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+        return smsRequestHelper.post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -192,7 +266,7 @@ public class SmsManager {
         String reqUrl = String.format("%s/v1/signature/%s", configuration.smsHost(), signatureId);
         StringMap bodyMap = new StringMap();
         bodyMap.put("signature", signature);
-        return put(reqUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+        return smsRequestHelper.put(reqUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -204,7 +278,7 @@ public class SmsManager {
      */
     public Response deleteSignature(String signatureId) throws QiniuException {
         String requestUrl = String.format("%s/v1/signature/%s", configuration.smsHost(), signatureId);
-        return delete(requestUrl);
+        return smsRequestHelper.delete(requestUrl);
     }
 
     /**
@@ -218,13 +292,7 @@ public class SmsManager {
      * @throws QiniuException 异常
      */
     public Response describeTemplate(String auditStatus, int page, int pageSize) throws QiniuException {
-        String requestUrl = String.format("%s/v1/template", configuration.smsHost());
-        StringMap queryMap = new StringMap();
-        queryMap.putNotEmpty("audit_status", auditStatus);
-        queryMap.putWhen("page", page, page > 0);
-        queryMap.putWhen("page_size", pageSize, pageSize > 0);
-        requestUrl = UrlUtils.composeUrlWithQueries(requestUrl, queryMap);
-        return get(requestUrl);
+        return describeResource("template", auditStatus, page, pageSize);
     }
 
     public TemplateInfo describeTemplateItems(String auditStatus, int page, int pageSize) throws QiniuException {
@@ -242,7 +310,7 @@ public class SmsManager {
      */
     public Response describeTemplate(String templateId) throws QiniuException {
         String requestUrl = String.format("%s/v1/template/%s", configuration.smsHost(), templateId);
-        return get(requestUrl);
+        return smsRequestHelper.get(requestUrl);
     }
 
     /**
@@ -279,7 +347,7 @@ public class SmsManager {
         bodyMap.put("type", type);
         bodyMap.put("description", description);
         bodyMap.put("signature_id", signatureId);
-        return post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+        return smsRequestHelper.post(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -301,7 +369,7 @@ public class SmsManager {
         bodyMap.put("template", template);
         bodyMap.put("description", description);
         bodyMap.put("signature_id", signatureId);
-        return put(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
+        return smsRequestHelper.put(requestUrl, Json.encode(bodyMap).getBytes(Constants.UTF_8));
     }
 
     /**
@@ -313,36 +381,6 @@ public class SmsManager {
      */
     public Response deleteTemplate(String templateId) throws QiniuException {
         String requestUrl = String.format("%s/v1/template/%s", configuration.smsHost(), templateId);
-        return delete(requestUrl);
+        return smsRequestHelper.delete(requestUrl);
     }
-
-    /*
-     * 相关请求的方法列表
-     * */
-    private Response get(String url) throws QiniuException {
-        StringMap headers = composeHeader(url, MethodType.GET.toString(), null, Client.FormMime);
-        return client.get(url, headers);
-    }
-
-    private Response post(String url, byte[] body) throws QiniuException {
-        StringMap headers = composeHeader(url, MethodType.POST.toString(), body, Client.JsonMime);
-        return client.post(url, body, headers, Client.JsonMime);
-    }
-
-    private Response put(String url, byte[] body) throws QiniuException {
-        StringMap headers = composeHeader(url, MethodType.PUT.toString(), body, Client.JsonMime);
-        return client.put(url, body, headers, Client.JsonMime);
-    }
-
-    private Response delete(String url) throws QiniuException {
-        StringMap headers = composeHeader(url, MethodType.DELETE.toString(), null, Client.DefaultMime);
-        return client.delete(url, headers);
-    }
-
-    private StringMap composeHeader(String url, String method, byte[] body, String contentType) {
-        StringMap headers = auth.authorizationV2(url, method, body, contentType);
-        headers.put("Content-Type", contentType);
-        return headers;
-    }
-
 }
